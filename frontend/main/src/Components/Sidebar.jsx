@@ -4,7 +4,7 @@ const Sidebar = () => {
   const isLoggedIn = localStorage.getItem("token");
   return (
     <>
-      <div class="h-full px-3 py-4 bg-gray-50 dark:bg-gray-800">
+      <div class="fixed w-[250px] h-full px-3 py-4 bg-gray-50 dark:bg-gray-800">
         {isLoggedIn ? (
           <ul class="space-y-2 font-medium">
             <li>

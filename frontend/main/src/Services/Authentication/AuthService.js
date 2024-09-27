@@ -22,6 +22,10 @@ class AuthService {
   async resetPassword(token, password) {
     return await API.post(`${baseURL}/reset-password/${token}`, password);
   }
+
+  async verifyToken() {
+    // return await API.get(`${baseURL}/verify-token`);
+  }
 }
 
 export default new AuthService();

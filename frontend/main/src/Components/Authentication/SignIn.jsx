@@ -7,72 +7,30 @@ import InputField from "../Others/InputField";
 import AuthService from "../../Services/Authentication/AuthService";
 import { ProtectedAPI } from "../../Services/ProtectedAPI";
 import { Link } from "react-router-dom";
+import { useForm, Controller } from "react-hook-form";
+import { useAuth } from "../AuthProvider";
 
 export default function SignIn() {
-  // Save form data
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
 
-  const [errorMessage, setErrorMessage] = useState("");
+  const { handleSubmit, control, formState: { errors }} = useForm();
+
+  // Use Auth
+  const { authToken, handleLogin } = useAuth();
+
   const navigate = useNavigate();
-
-  // Handle Input field change
-  const handleValueChange = (e) => {
-    // Ensure that the name attribute is set for the input field
-    if (!e.target.name) {
-      return;
+  
+  // Call handleLogin
+  const onSubmit = async (data) => {
+    try {
+      handleLogin(data);
+    } catch (error) {
+      console.log(error);
+      setError(error);
     }
-
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
   };
 
-  //Send form data to server
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    let credentials = {
-      email: formData.email,
-      password: formData.password,
-    };
-    console.log("credentials => " + credentials);
-    AuthService.loginUser(credentials)
-      .then((res) => {
-        if (res.data) {
-          console.log("data");
-          console.log(res.data);
-          localStorage.setItem("token", res.data.token);
-          localStorage.setItem("userType", res.data.userType);
-          ProtectedAPI.defaults.headers.common[
-            "Authorization"
-          ] = `Bearer ${localStorage.getItem("token")}`;
-
-          if (
-            res.data.userType == "F" ||
-            res.data.userType == "A" ||
-            res.data.userType == "O"
-          ) {
-            console.log("login success");
-            navigate("/dashboard");
-          } else {
-            console.log("login failed");
-          }
-        }
-      })
-      .catch((error) => {
-        console.error("Error logging in:", error);
-        if (error.response) {
-          if (error.response.status === 403) {
-            setErrorMessage("Incorrect email or password. Please try again.");
-          } else {
-            setErrorMessage("An error occurred. Please try again later.");
-          }
-        }
-      });
-  };
+  // Display error message if user log in fails
+  const [error, setError] = useState(null);
 
   return (
     <div className="flex flex-col justify-center items-center h-screen bg-gray-200">
@@ -82,22 +40,30 @@ export default function SignIn() {
         </div>
 
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <form action="#" method="POST" className="flex flex-col gap-5">
-            <InputField
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+
+            <Controller
               name="email"
-              placeholder="Email"
-              type="text"
-              value={formData.email}
-              onChange={handleValueChange}
+              control={control}
+              defaultValue=""
+              rules={{ required: "Please fill this in!"}}
+              render={({ field: { onChange, value } }) => (
+                <InputField placeholder="Email" type="text" value={value} onChange={onChange} error={errors.email}/>
+              )}
             />
-            <PasswordField
+
+            <Controller
               name="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleValueChange}
+              control={control}
+              defaultValue=""
+              rules={{ required: "Please fill this in!"}}
+              render={({ field: { onChange, value } }) => (
+                <PasswordField placeholder="Password" type="text" value={value} onChange={onChange} error={errors.password}/>
+              )}
             />
+
             <SubmitButton onSubmit={handleSubmit}>Sign in</SubmitButton>
-            {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+
           </form>
 
           <p className="mt-3 text-center text-sm text-gray-500">
@@ -109,6 +75,8 @@ export default function SignIn() {
               Sign up here!
             </Link>
           </p>
+
+          {error && <h1 className="mt-5 text-center text-red-500 ">Login Failed. Username or password is incorrect.</h1>}
         </div>
       </div>
     </div>
