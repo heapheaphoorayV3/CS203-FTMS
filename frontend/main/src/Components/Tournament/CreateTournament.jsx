@@ -121,7 +121,7 @@ const CreateTournament = () => {
                         const start = new Date(startDate);
                         const today = new Date();
                         today.setHours(0, 0, 0, 0); // Set time to midnight to compare only dates
-                        return (selectedDate <= start && selectedDate >= today) || "Please enter a valid signup end date!";}
+                        return (selectedDate < start && selectedDate >= today) || "Please enter a valid signup end date!";}
                     }
                   )}
                   className={`w-full border rounded-md p-2 ${errors.signupEndDate ? "border-red-500" : "border-gray-300"}`}
