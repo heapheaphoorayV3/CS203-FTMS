@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 import jackinpic from "../Assets/jackinpic.jpg";
@@ -24,9 +24,9 @@ const FencerDashboard = () => {
         setLoading(false); 
       }
     };
-
     fetchData();
-  }, []); 
+  }, []);
+
 
   const formatDate = (date) => {
     const formattedDate = new Date(date).toLocaleDateString('en-GB', {

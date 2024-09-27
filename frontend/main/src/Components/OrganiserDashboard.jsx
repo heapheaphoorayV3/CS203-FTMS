@@ -22,9 +22,10 @@ const OrganiserDashboard = () => {
         setLoading(false); 
       }
     };
-
     fetchData();
   }, []); 
+
+  
 
   if (loading) {
     return <div className="mt-10">Loading...</div>; // Show loading state

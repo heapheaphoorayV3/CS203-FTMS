@@ -19,9 +19,9 @@ const CreateTournament = () => {
     console.log(data);
     
     try {
-      await TournamentService.createTournament(data).then(() => {
-        navigate("/dashboard");
-      });
+      const tournamentId = await TournamentService.createTournament(data)
+      navigate(`/view-tournament/${tournamentId}`);
+      
     } catch (error) {
       console.log(error);
     }
