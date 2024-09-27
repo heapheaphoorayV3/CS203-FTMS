@@ -7,7 +7,7 @@ import SubmitButton from "./Others/SubmitButton";
 
 const Navbar = () => {
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
-  const isLoggedIn = localStorage.getItem("token");
+  const isLoggedIn = sessionStorage.getItem("token");
   // const userType = sessionStorage.getItem("userType");
 
   const toggleUserDropdown = () => {
@@ -22,7 +22,7 @@ const Navbar = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
     navigate("/signin");
   };
 

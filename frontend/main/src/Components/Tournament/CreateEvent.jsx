@@ -42,8 +42,8 @@ const CreateEvent = () => {
     console.log(data);
     
     try {
-      await TournamentService.createTournament(data).then(() => {
-        navigate("/dashboard");
+      await TournamentService.CreateEvent(data).then(() => {
+        navigate("/organiser-dashboard");
       });
     } catch (error) {
       console.log(error);

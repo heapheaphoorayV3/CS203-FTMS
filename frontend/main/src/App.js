@@ -1,8 +1,6 @@
 import React from "react";
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-// import Navbar from "./Components/Navbar";
-// import Sidebar from "./Components/Sidebar";
 import FencerDashboard from "./Components/FencerDashboard";
 import "flowbite";
 import CreateTournament from "./Components/Tournament/CreateTournament";
@@ -27,38 +25,38 @@ import AuthProvider from "./Components/AuthProvider";
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          {/* Default Layout */}
-          <Route element={<DefaultLayout />}>
-            <Route path="/" element={<FencerDashboard />} />
+    <Router>
+      <Routes>
+        {/* Default Layout */}
+        <Route element={<DefaultLayout />}>
+          <Route path="/" element={<Tournaments />} />
+          <Route path="/fencer-dashboard" element={<FencerDashboard />} />
+          <Route path="/view-tournament" element={<ViewTournament />} />
+          <Route path="/view-event" element={<ViewEvent />} />
+          <Route path="/tournaments" element={<Tournaments />} />
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup-options" element={<SignupOptions />} />
+          <Route path="/signup-fencer" element={<SignUpFencer />} />
+          <Route path="/signup-organiser" element={<SignUpOrganiser />} />
+          <Route path="/create-tournament" element={<CreateTournament />} />
+          
+        </Route>
+
+        {/* Admin Layout */}
+        <Route element={<AdminLayout />}></Route>
+
+        {/* Authenticated Layout */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<AuthLayout />}>
             <Route path="/fencer-dashboard" element={<FencerDashboard />} />
-            <Route path="/view-tournament" element={<ViewTournament />} />
-            <Route path="/view-event" element={<ViewEvent />} />
-            <Route path="/tournaments" element={<Tournaments />} />
-            <Route path="/signin" element={<SignIn />} />
-            <Route path="/signup-options" element={<SignupOptions />} />
-            <Route path="/signup-fencer" element={<SignUpFencer />} />
-            <Route path="/signup-organiser" element={<SignUpOrganiser />} />
-          </Route>
-
-          {/* Admin Layout */}
-          <Route element={<AdminLayout />}></Route>
-
-          {/* Authenticated Layout */}
-          <Route element={<ProtectedRoute />}>
-            <Route element={<AuthLayout />}>
-              <Route path="/dashboard" element={<FencerDashboard />} />
-            </Route>
             <Route path="/organiser-dashboard" element={<OrganiserDashboard />} />
-            <Route path="/create-tournament" element={<CreateTournament />} />
-            <Route path="/create-event" element={<CreateEvent />} />
-            <Route path="/signup-event" element={<SignUpEvent />} />
+            
           </Route>
-        </Routes>
-      </Router>
-    </AuthProvider>
+          <Route path="/create-event" element={<CreateEvent />} />
+          <Route path="/signup-event" element={<SignUpEvent />} />
+        </Route>
+      </Routes>
+    </Router>
   );
 }
 
