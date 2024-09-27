@@ -44,19 +44,18 @@ export default function SignIn() {
         if (res.data) {
           console.log("data");
           console.log(res.data);
-          localStorage.setItem("token", res.data.token);
-          localStorage.setItem("userType", res.data.userType);
+          sessionStorage.setItem("token", res.data.token);
+          sessionStorage.setItem("userType", res.data.userType);
           ProtectedAPI.defaults.headers.common[
             "Authorization"
-          ] = `Bearer ${localStorage.getItem("token")}`;
+          ] = `Bearer ${sessionStorage.getItem("token")}`;
 
-          if (
-            res.data.userType == "F" ||
-            res.data.userType == "A" ||
-            res.data.userType == "O"
-          ) {
+          if (res.data.userType == "F" || res.data.userType == "A") {
             console.log("login success");
-            navigate("/dashboard");
+            navigate("/fencer-dashboard");
+          } else if (res.data.userType == "O") {
+            console.log("login success");
+            navigate("/organiser-dashboard");
           } else {
             console.log("login failed");
           }

@@ -28,6 +28,15 @@ const FencerDashboard = () => {
     fetchData();
   }, []); 
 
+  const formatDate = (date) => {
+    const formattedDate = new Date(date).toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
+    return formattedDate;
+  };
+
   if (loading) {
     return <div className="mt-10">Loading...</div>; // Show loading state
   }
@@ -58,7 +67,7 @@ const FencerDashboard = () => {
               <div className="flex font-medium">Email:</div>
               <div className="flex">{userData.email}</div>
               <div className="flex font-medium">Birth Date:</div>
-              <div className="flex">{userData.dateOfBirth}</div>
+              <div className="flex">{formatDate(userData.dateOfBirth)}</div>
               <div className="flex font-medium">Gender:</div>
               <div className="flex">{userData.gender && userData.gender.trim() !== "" && userData.gender !== "\u0000" ? userData.gender : "-"}</div>
               <hr className="col-span-2 my-4 border-gray-300 w-full" />

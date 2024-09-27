@@ -1,8 +1,6 @@
 import React from "react";
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-// import Navbar from "./Components/Navbar";
-// import Sidebar from "./Components/Sidebar";
 import FencerDashboard from "./Components/FencerDashboard";
 import "flowbite";
 import CreateTournament from "./Components/Tournament/CreateTournament";
@@ -30,7 +28,7 @@ function App() {
       <Routes>
         {/* Default Layout */}
         <Route element={<DefaultLayout />}>
-          <Route path="/" element={<FencerDashboard />} />
+          <Route path="/" element={<Tournaments />} />
           <Route path="/fencer-dashboard" element={<FencerDashboard />} />
           <Route path="/view-tournament" element={<ViewTournament />} />
           <Route path="/view-event" element={<ViewEvent />} />
@@ -39,6 +37,8 @@ function App() {
           <Route path="/signup-options" element={<SignupOptions />} />
           <Route path="/signup-fencer" element={<SignUpFencer />} />
           <Route path="/signup-organiser" element={<SignUpOrganiser />} />
+          <Route path="/create-tournament" element={<CreateTournament />} />
+          
         </Route>
 
         {/* Admin Layout */}
@@ -47,10 +47,10 @@ function App() {
         {/* Authenticated Layout */}
         <Route element={<ProtectedRoute />}>
           <Route element={<AuthLayout />}>
-            <Route path="/dashboard" element={<FencerDashboard />} />
+            <Route path="/fencer-dashboard" element={<FencerDashboard />} />
+            <Route path="/organiser-dashboard" element={<OrganiserDashboard />} />
+            
           </Route>
-          <Route path="/organiser-dashboard" element={<OrganiserDashboard />} />
-          <Route path="/create-tournament" element={<CreateTournament />} />
           <Route path="/create-event" element={<CreateEvent />} />
           <Route path="/signup-event" element={<SignUpEvent />} />
         </Route>

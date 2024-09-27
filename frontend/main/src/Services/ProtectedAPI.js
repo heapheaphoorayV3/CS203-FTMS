@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 
 const API_BASE_URL = "http://localhost:8080/api/v1";
 
@@ -7,7 +7,8 @@ let ProtectedAPI = axios.create({
   timeout: 3000,
 });
 
-ProtectedAPI.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem("token")}`;
+ProtectedAPI.defaults.headers.common[
+  "Authorization"
+] = `Bearer ${sessionStorage.getItem("token")}`;
 
 export { ProtectedAPI };
-
