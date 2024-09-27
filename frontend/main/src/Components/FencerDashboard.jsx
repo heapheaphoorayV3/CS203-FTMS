@@ -15,8 +15,6 @@ const FencerDashboard = () => {
       try {
         const response = await FencerService.getProfile(); 
         setUserData(response.data);
-        console.log("response.data => ");
-        console.log(response.data);
       } catch (error) {
         console.error("Error fetching user data:", error);
         setError("Failed to load user data."); 

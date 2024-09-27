@@ -10,11 +10,10 @@ const OrganiserDashboard = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      
       try {
         const response = await OrganiserService.getProfile(); 
         setUserData(response.data);
-        console.log("response.data => ");
-        console.log(response.data);
       } catch (error) {
         console.error("Error fetching user data:", error);
         setError("Failed to load user data."); 

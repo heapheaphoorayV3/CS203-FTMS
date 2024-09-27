@@ -27,6 +27,7 @@ export default function SignIn() {
 
       sessionStorage.setItem("token", token);
       sessionStorage.setItem("userType", userType);
+      
       if (!token) {
         setError(true);
       } else {

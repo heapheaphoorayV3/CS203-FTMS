@@ -7,8 +7,21 @@ let ProtectedAPI = axios.create({
   timeout: 3000,
 });
 
-ProtectedAPI.defaults.headers.common[
-  "Authorization"
-] = `Bearer ${sessionStorage.getItem("token")}`;
+// Add a request interceptor --> add token to header
+ProtectedAPI.interceptors.request.use(
+  (config) => {
+    const token = sessionStorage.getItem("token");
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    } else {
+      console.error("No token found in session storage");
+    }
+    return config;
+  },
+  (error) => {
+    // Do something with request error if needed
+    return Promise.reject(error);
+  }
+);
 
 export { ProtectedAPI };
