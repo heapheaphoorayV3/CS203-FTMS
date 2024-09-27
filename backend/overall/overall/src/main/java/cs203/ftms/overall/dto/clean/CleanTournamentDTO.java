@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 public class CleanTournamentDTO {
+    private int id;
     private String name;
     private String organiserName;
     private LocalDateTime signupEndDate;
@@ -15,8 +16,9 @@ public class CleanTournamentDTO {
     private String rules;
     private Set<CleanEventDTO> events;
     
-    public CleanTournamentDTO(String name, String organiserName, LocalDateTime signupEndTime, LocalDate startDate, LocalDate endDate,
+    public CleanTournamentDTO(int id, String name, String organiserName, LocalDateTime signupEndTime, LocalDate startDate, LocalDate endDate,
             String location, String description, String rules, Set<CleanEventDTO> events) {
+        this.id = id;
         this.name = name;
         this.organiserName = organiserName;
         this.signupEndDate = signupEndTime;
@@ -99,6 +101,16 @@ public class CleanTournamentDTO {
     public void setEvents(Set<CleanEventDTO> events) {
         this.events = events;
     }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    
 
     
 }

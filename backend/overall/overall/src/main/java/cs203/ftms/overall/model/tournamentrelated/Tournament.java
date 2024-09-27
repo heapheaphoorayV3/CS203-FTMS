@@ -25,8 +25,8 @@ public class Tournament {
     private Organiser organiser;
 
     @Column(name = "signupEndDate")
-    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime signupEndDate;
+    @JsonFormat(pattern="yyyy-MM-dd")
+    private LocalDate signupEndDate;
 
     @Column(name = "advancementRate")
     private int advancementRate;
@@ -53,7 +53,7 @@ public class Tournament {
 
     public Tournament() {}
 
-    public Tournament(String name, Organiser organiser, LocalDateTime signupEndDate, int advancementRate, LocalDate startDate, LocalDate endDate, String location, String description, String rules) {
+    public Tournament(String name, Organiser organiser, LocalDate signupEndDate, int advancementRate, LocalDate startDate, LocalDate endDate, String location, String description, String rules) {
         this.name = name;
         this.organiser = organiser;
         this.signupEndDate = signupEndDate;
@@ -90,11 +90,11 @@ public class Tournament {
         this.organiser = organiser;
     }
 
-    public LocalDateTime getSignupEndDate() {
+    public LocalDate getSignupEndDate() {
         return signupEndDate;
     }
 
-    public void setSignupEndDate(LocalDateTime signupEndDate) {
+    public void setSignupEndDate(LocalDate signupEndDate) {
         this.signupEndDate = signupEndDate;
     }
 

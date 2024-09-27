@@ -1,12 +1,14 @@
 package cs203.ftms.overall.dto.clean;
 
 public class CleanAdminDTO {
+    private int id;
     private String name; 
     private String email; 
     private String contactNo;
     private String country;
 
-    public CleanAdminDTO(String name, String email, String contactNo, String country) {
+    public CleanAdminDTO(int id, String name, String email, String contactNo, String country) {
+        this.id = id; 
         this.name = name;
         this.email = email;
         this.contactNo = contactNo;
@@ -35,6 +37,12 @@ public class CleanAdminDTO {
     }
     public void setCountry(String country) {
         this.country = country;
+    }
+    public int getId() {
+        return id;
+    }
+    public void setId(int id) {
+        this.id = id;
     } 
 
 }

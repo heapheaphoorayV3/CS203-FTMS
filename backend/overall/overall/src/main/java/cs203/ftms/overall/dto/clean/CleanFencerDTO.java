@@ -3,6 +3,7 @@ package cs203.ftms.overall.dto.clean;
 import java.time.LocalDate;
 
 public class CleanFencerDTO{
+    private int id;
     private String name; 
     private String email; 
     private String country;
@@ -15,8 +16,9 @@ public class CleanFencerDTO{
     private char gender;
     private String contactNo;
 
-    public CleanFencerDTO(String name, String email, String contactNo, String country, 
+    public CleanFencerDTO(int id, String name, String email, String contactNo, String country, 
     LocalDate dateOfBirth, char dominantArm, char weapon, String club, int points, int debutYear, char gender) {
+        this.id = id;
         this.name = name;
         this.email = email;
         this.country = country;
@@ -112,5 +114,13 @@ public class CleanFencerDTO{
     public void setContactNo(String contactNo){
         this.contactNo = contactNo;
     }
+    public int getId() {
+        return id;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    
 
 }

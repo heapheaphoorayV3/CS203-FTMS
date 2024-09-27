@@ -18,7 +18,7 @@ public class CreateTournamentDTO {
 
     @FutureOrPresent
     @NotNull
-    private LocalDateTime signupEndDate;
+    private LocalDate signupEndDate;
     
     @Min(value = 60, message = "Advancement rate cannot be less than 60%")
     @Max(value=100, message="Advancement rate cannot be more than 100%")
@@ -40,7 +40,7 @@ public class CreateTournamentDTO {
     private String rules;
 
     
-    public CreateTournamentDTO(String name, LocalDateTime signupEndDate, int advancementRate, LocalDate startDate, LocalDate endDate, String location, String description, String rules){
+    public CreateTournamentDTO(String name, LocalDate signupEndDate, int advancementRate, LocalDate startDate, LocalDate endDate, String location, String description, String rules){
         this.name = name;
         this.signupEndDate = signupEndDate;
         this.advancementRate = advancementRate;
@@ -62,11 +62,11 @@ public class CreateTournamentDTO {
         this.name = name;
     }
 
-    public LocalDateTime getSignupEndDate() {
+    public LocalDate getSignupEndDate() {
         return signupEndDate;
     }
 
-    public void setSignupEndDate(LocalDateTime signupEndDate) {
+    public void setSignupEndDate(LocalDate signupEndDate) {
         this.signupEndDate = signupEndDate;
     }
 

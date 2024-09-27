@@ -1,13 +1,15 @@
 package cs203.ftms.overall.dto.clean;
 
 public class CleanOrganiserDTO{
+    private int id;
     private boolean verified;
     private String name; 
     private String email; 
     private String contactNo;
     private String country;
 
-    public CleanOrganiserDTO(boolean verified, String name, String email, String contactNo, String country){
+    public CleanOrganiserDTO(int id, boolean verified, String name, String email, String contactNo, String country){
+        this.id = id;
         this.verified = verified;
         this.name = name;
         this.email = email;
@@ -53,6 +55,14 @@ public class CleanOrganiserDTO{
 
     public void setCountry(String country) {
         this.country = country;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     
