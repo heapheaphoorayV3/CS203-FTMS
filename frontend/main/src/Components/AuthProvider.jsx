@@ -23,11 +23,11 @@ export default function AuthProvider({ children }) {
             try {
                 const response = await AuthService.verifyToken();
 
-                const { authToken , user } = response[1];
+                const { token , userType } = response.data;
 
-// May be subject to change depending on token format
-                setAuthToken(authToken);
-                setUserType(user);
+                setAuthToken(token);
+                setUserType(userType);
+                
             } catch (error) {
                 setAuthToken(null);
                 setUserType(null);
@@ -42,11 +42,12 @@ export default function AuthProvider({ children }) {
         try {
             const response = await AuthService.loginUser(formData);
 
-            const { authToken , user } = response[1];
+            // Response contains data object --> contains token and userType
+            const { token , userType } = response.data;
 
-// May be subject to change depending on token format
-            setAuthToken(authToken);
-            setUserType(user);
+            setAuthToken(token);
+            setUserType(userType);
+
         } catch (error) {
             throw error;
         }

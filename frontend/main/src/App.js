@@ -32,7 +32,11 @@ function App() {
         <Routes>
           {/* Default Layout */}
           <Route element={<DefaultLayout />}>
+<<<<<<< Updated upstream
             <Route path="/" element={<FencerDashboard />} />
+=======
+            <Route path="/" element={<Tournaments />} />
+>>>>>>> Stashed changes
             <Route path="/fencer-dashboard" element={<FencerDashboard />} />
             <Route path="/view-tournament" element={<ViewTournament />} />
             <Route path="/view-event" element={<ViewEvent />} />
@@ -41,6 +45,11 @@ function App() {
             <Route path="/signup-options" element={<SignupOptions />} />
             <Route path="/signup-fencer" element={<SignUpFencer />} />
             <Route path="/signup-organiser" element={<SignUpOrganiser />} />
+<<<<<<< Updated upstream
+=======
+            <Route path="/create-tournament" element={<CreateTournament />} />
+
+>>>>>>> Stashed changes
           </Route>
 
           {/* Admin Layout */}
@@ -49,10 +58,17 @@ function App() {
           {/* Authenticated Layout */}
           <Route element={<ProtectedRoute />}>
             <Route element={<AuthLayout />}>
+<<<<<<< Updated upstream
               <Route path="/dashboard" element={<FencerDashboard />} />
             </Route>
             <Route path="/organiser-dashboard" element={<OrganiserDashboard />} />
             <Route path="/create-tournament" element={<CreateTournament />} />
+=======
+              <Route path="/fencer-dashboard" element={<FencerDashboard />} />
+              <Route path="/organiser-dashboard" element={<OrganiserDashboard />} />
+
+            </Route>
+>>>>>>> Stashed changes
             <Route path="/create-event" element={<CreateEvent />} />
             <Route path="/signup-event" element={<SignUpEvent />} />
           </Route>
