@@ -1,14 +1,13 @@
 package cs203.ftms.overall.dto.clean;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Set;
 
 public class CleanTournamentDTO {
     private int id;
     private String name;
     private String organiserName;
-    private LocalDateTime signupEndDate;
+    private LocalDate signupEndDate;
     private LocalDate startDate;
     private LocalDate endDate;
     private String location;
@@ -16,7 +15,7 @@ public class CleanTournamentDTO {
     private String rules;
     private Set<CleanEventDTO> events;
     
-    public CleanTournamentDTO(int id, String name, String organiserName, LocalDateTime signupEndTime, LocalDate startDate, LocalDate endDate,
+    public CleanTournamentDTO(int id, String name, String organiserName, LocalDate signupEndTime, LocalDate startDate, LocalDate endDate,
             String location, String description, String rules, Set<CleanEventDTO> events) {
         this.id = id;
         this.name = name;
@@ -46,11 +45,11 @@ public class CleanTournamentDTO {
         this.organiserName = organiserName;
     }
 
-    public LocalDateTime getSignupEndDate() {
+    public LocalDate getSignupEndDate() {
         return signupEndDate;
     }
 
-    public void setSignupEndDate(LocalDateTime signupEndDate) {
+    public void setSignupEndDate(LocalDate signupEndDate) {
         this.signupEndDate = signupEndDate;
     }
 

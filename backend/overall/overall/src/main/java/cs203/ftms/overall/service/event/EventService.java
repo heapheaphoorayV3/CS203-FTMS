@@ -1,15 +1,11 @@
 package cs203.ftms.overall.service.event;
 
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import cs203.ftms.overall.dto.CreateEventDTO;
@@ -74,7 +70,6 @@ public class EventService {
         for (CreateEventDTO e : dto) {
             System.out.println("5");
             Event event = new Event(tournament, e.getGender(), e.getWeapon(), e.getMinParticipants(), e.getDate(), e.getStartTime(), e.getEndTime());
-            validEventDate(event, tournament);
             eventRepository.save(event);
         }
         System.out.println("6");
@@ -102,18 +97,4 @@ public class EventService {
         return false; 
     }
 
-    public void validEventDate(Event e, Tournament t) throws MethodArgumentNotValidException {
-        LocalDate tournamentStartDate = t.getStartDate();
-        LocalDate tournamentEndDate = t.getEndDate();
-        LocalDate eventDate = e.getDate();
-
-        if (!(eventDate.isBefore(tournamentEndDate) && eventDate.isAfter(tournamentStartDate))) {
-            BindingResult bindingResult = new BeanPropertyBindingResult(e.getDate(), "eventDate");
-        
-            bindingResult.addError(new FieldError(
-            "eventDate", "eventDate", "Event date must be within tournament period."));
-
-            throw new MethodArgumentNotValidException(null, bindingResult);
-        }
-    }
 }
