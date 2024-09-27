@@ -15,6 +15,7 @@ const CreateTournament = () => {
   const navigate = useNavigate();
 
   const onSubmit = async (data) => {
+
     console.log(data);
     
     try {

@@ -1,65 +1,53 @@
-import { useContext } from "react";
-import React, { useState, useEffect } from "react";
+import { createContext, useState, useEffect, useContext } from "react";
 import AuthService from "../Services/Authentication/AuthService";
 
-// Create Auth Context so components and nested components can use auth info
-const AuthContext = React.createContext();
+// Create the AuthContext
+const AuthContext = createContext();
 
-// Wraps web view components to allow the use of useAuth hooks
+// AuthProvider component that wraps around all components needing access to auth info
 export default function AuthProvider({ children }) {
-
-    /* User token will be:
-     - undefined if have not checked if user has logged in
-     - null if user is not logged in
-     - String if user has logged in */
     const [authToken, setAuthToken] = useState();
-
-    // Set current user type
     const [userType, setUserType] = useState();
 
-    // Automatically check if user has valid token when any component mounts
-    useEffect(() => {
-        async function autoLogin() {
-            try {
-                const response = await AuthService.verifyToken();
+    // Automatically check if user is logged in when the component mounts
+    // useEffect(() => {
+    //     async function autoLogin() {
+    //         try {
+    //             const response = await AuthService.verifyToken();
+    //             const { token, userType } = response.data;
 
-                const { token , userType } = response.data;
+    //             setAuthToken(token);
+    //             setUserType(userType);
+    //         } catch (error) {
+    //             setAuthToken(null);
+    //             setUserType(null);
+    //         }
+    //     }
 
-                setAuthToken(token);
-                setUserType(userType);
-                
-            } catch (error) {
-                setAuthToken(null);
-                setUserType(null);
-            }
-        }
+    //     autoLogin();
+    // }, []);
 
-        // Call autoLogin()
-        autoLogin();
-    }, []);
-
+    // Handle login
     async function handleLogin(formData) {
         try {
             const response = await AuthService.loginUser(formData);
-
-            // Response contains data object --> contains token and userType
-            const { token , userType } = response.data;
+            const { token, userType } = response.data;
 
             setAuthToken(token);
+            sessionStorage.setItem("token", token);
             setUserType(userType);
-
         } catch (error) {
             throw error;
         }
     }
 
+    // Handle logout
     async function handleLogout() {
-        // Set token to null
         setAuthToken(null);
         setUserType(null);
     }
 
-    // Returnt the AuthProvider component
+    // Provide auth values and functions to all children components
     return (
         <AuthContext.Provider value={{ authToken, userType, handleLogin, handleLogout }}>
             {children}
@@ -67,13 +55,11 @@ export default function AuthProvider({ children }) {
     );
 }
 
-// Custom hook to allow components to access auth info
+// Custom hook to use the AuthContext in any child component
 export function useAuth() {
     const context = useContext(AuthContext);
-
     if (context === undefined) {
         throw new Error("useAuth must be used within an AuthProvider");
     }
-
-    return useContext(AuthContext);
+    return context;
 }

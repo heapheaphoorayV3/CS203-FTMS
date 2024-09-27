@@ -1,4 +1,4 @@
-import { React, useState } from "react";
+import { React, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../../Assets/logo.png";
 import SubmitButton from "../Others/SubmitButton";
@@ -8,29 +8,50 @@ import AuthService from "../../Services/Authentication/AuthService";
 import { ProtectedAPI } from "../../Services/ProtectedAPI";
 import { Link } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
-import { useAuth } from "../AuthProvider";
 
 export default function SignIn() {
 
   const { handleSubmit, control, formState: { errors }} = useForm();
 
-  // Use Auth
-  const { authToken, handleLogin } = useAuth();
+  // Login Error Message if wrong password/username
+  const [error, setError] = useState(null);
 
   const navigate = useNavigate();
   
   // Call handleLogin
   const onSubmit = async (data) => {
     try {
-      handleLogin(data);
+      // Get response from server
+      const response = await AuthService.loginUser(data);
+      const { token, userType } = response.data;
+
+      sessionStorage.setItem("token", token);
+      sessionStorage.setItem("userType", userType);
+      if (!token) {
+        setError(true);
+      } else {
+        setError(false);
+
+        // Route to correct dashboard based on userType
+        if (userType === "F") {
+          console.log("Redirecting to dashboard");
+          navigate("/fencer-dashboard");
+        }
+  
+        if (userType === "O") {
+          console.log("Redirecting to organiser dashboard");
+          navigate("/organiser-dashboard");
+        }
+        
+        if (userType === "A") {
+          console.log("Redirecting to admin dashboard");
+          navigate("/admin-dashboard");
+        }
+      }
     } catch (error) {
-      console.log(error);
-      setError(error);
+      console.log("Failed Login");
     }
   };
-
-  // Display error message if user log in fails
-  const [error, setError] = useState(null);
 
   return (
     <div className="flex flex-col justify-center items-center h-screen bg-gray-200">

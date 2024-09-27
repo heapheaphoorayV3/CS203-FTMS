@@ -2,7 +2,7 @@ import { ProtectedAPI } from "../ProtectedAPI";
 
 const baseURL = "/tournament";
 
-export default class TournamentService {
+class TournamentService {
     async createTournament(tournament) {
         return await ProtectedAPI.post(`${baseURL}/create-tournament`, tournament);   
     }
@@ -19,3 +19,5 @@ export default class TournamentService {
         return await ProtectedAPI.get(`${baseURL}/event-details/${eid}`);
     }
 }
+
+export default new TournamentService();
