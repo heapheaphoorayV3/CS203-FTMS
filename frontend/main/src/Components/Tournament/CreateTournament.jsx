@@ -53,10 +53,10 @@ const CreateTournament = () => {
                 </label>
                 <input
                   type="text"
-                  {...register('tournamentName', { required: "Please fill this in!" })}
-                  className={`w-full border rounded-md p-2 ${errors.tournamentName ? "border-red-500" : "border-gray-300"}`}
+                  {...register('name', { required: "Please fill this in!" })}
+                  className={`w-full border rounded-md p-2 ${errors.name ? "border-red-500" : "border-gray-300"}`}
                 />
-                {errors.tournamentName && <p className="text-red-500 text-sm italic">{errors.tournamentName.message}</p>}
+                {errors.name && <p className="text-red-500 text-sm italic">{errors.name.message}</p>}
               </div>
 
               {/* Location */}
@@ -119,9 +119,10 @@ const CreateTournament = () => {
                       validate: value => {
                         const selectedDate = new Date(value);
                         const start = new Date(startDate);
+                        start.setDate(start.getDate() - 1); // Set start date to 2 days before
                         const today = new Date();
                         today.setHours(0, 0, 0, 0); // Set time to midnight to compare only dates
-                        return (selectedDate < start && selectedDate >= today) || "Please enter a valid signup end date!";}
+                        return (selectedDate < start && selectedDate >= today) || "Signup End Date must be at most 2 days before Start Date!";}
                     }
                   )}
                   className={`w-full border rounded-md p-2 ${errors.signupEndDate ? "border-red-500" : "border-gray-300"}`}
@@ -132,14 +133,14 @@ const CreateTournament = () => {
               {/* poules Elimination % / advancement rate*/}
               <div>
                 <label className="block font-medium mb-1">
-                  Poules Elimination (%)
+                  Advancement Rate (%)
                 </label>
                 <input
                   type="number"
                   {...register('advancementRate', 
                     { required: "Please fill this in!",
                       validate: value => {
-                        return value >= 0 && value <= 100 || "Please enter a valid percentage!";}
+                        return value >= 60 && value <= 100 || "Please enter a valid percentage above 60!";}
                     }
                   )}
                   className={`w-full border rounded-md p-2 ${errors.advancementRate ? "border-red-500" : "border-gray-300"}`}
