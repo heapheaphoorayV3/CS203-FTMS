@@ -1,6 +1,6 @@
 export default function Tournaments() {
   return (
-    <div className="row-span-2 col-start-2 bg-gray-300 overflow-y-auto">
+    <div className="row-span-2 col-start-2 bg-gray-300 h-full overflow-y-auto">
       <h1 className="my-10 ml-12 text-left text-4xl font-semibold">
         Tournaments
       </h1>
