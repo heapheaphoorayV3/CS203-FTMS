@@ -1,5 +1,6 @@
 package cs203.ftms.overall.model.userrelated;
 
+import cs203.ftms.overall.security.model.Role;
 import jakarta.persistence.*;
 
 @Entity

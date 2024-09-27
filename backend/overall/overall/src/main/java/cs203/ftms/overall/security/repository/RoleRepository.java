@@ -1,0 +1,14 @@
+package cs203.ftms.overall.security.repository;
+
+import cs203.ftms.overall.security.model.Role;
+import cs203.ftms.overall.security.model.RoleEnum;
+
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+@Repository
+public interface RoleRepository extends CrudRepository<Role, Integer> {
+    Optional<Role> findByName(RoleEnum name);
+}

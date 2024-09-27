@@ -3,6 +3,7 @@ package cs203.ftms.overall.model.userrelated;
 import java.util.*;
 
 import cs203.ftms.overall.model.tournamentrelated.Tournament;
+import cs203.ftms.overall.security.model.Role;
 import jakarta.persistence.*;
 
 @Entity
