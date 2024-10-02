@@ -17,23 +17,17 @@ const CreateTournament = () => {
   const navigate = useNavigate();
 
   const onSubmit = async (data) => {
-
     console.log(data);
-    if (typeof data.signupEndDate === "string") {
-      data.signupEndDate = `${data.signupEndDate}T00:00:00`;
-    }
 
     try {
-<<<<<<< Updated upstream
-      await TournamentService.createTournament(data).then(() => {
-        navigate("/dashboard");
-      });
-=======
+      if (typeof data.signupEndDate === 'string') {
+        data.signupEndDate = new Date(`${data.signupEndDate}T00:00:00`).toISOString().slice(0, 19); 
+      }
+      console.log("Data being sent to the server:", data);
       const tournamentId = await TournamentService.createTournament(data);
       console.log(tournamentId);
-      navigate(`/view-tournament/${tournamentId.id}`);
-      // navigate("/tournaments");
->>>>>>> Stashed changes
+      // navigate(`/view-tournament/${tournamentId.id}`);
+      navigate("/tournaments");
     } catch (error) {
       console.log(error);
     }
@@ -59,23 +53,14 @@ const CreateTournament = () => {
                 </label>
                 <input
                   type="text"
-<<<<<<< Updated upstream
-                  {...register('tournamentName', { required: "Please fill this in!" })}
-                  className={`w-full border rounded-md p-2 ${errors.tournamentName ? "border-red-500" : "border-gray-300"}`}
-                />
-                {errors.tournamentName && <p className="text-red-500 text-sm italic">{errors.tournamentName.message}</p>}
-=======
-                  {...register("name", { required: "Please fill this in!" })}
+                  {...register("tournamentName", {
+                    required: "Please fill this in!",
+                  })}
                   className={`w-full border rounded-md p-2 ${
-                    errors.name ? "border-red-500" : "border-gray-300"
+                    errors.tournamentName ? "border-red-500" : "border-gray-300"
                   }`}
                 />
-                {errors.name && (
-                  <p className="text-red-500 text-sm italic">
-                    {errors.name.message}
-                  </p>
-                )}
->>>>>>> Stashed changes
+                {errors.name && <p className="text-red-500 text-sm italic">{errors.name.message}</p>}
               </div>
 
               {/* Location */}
@@ -161,20 +146,6 @@ const CreateTournament = () => {
                 </label>
                 <input
                   type="date"
-<<<<<<< Updated upstream
-                  {...register('signupEndDate', 
-                    { required: "Please fill this in!",
-                      validate: value => {
-                        const selectedDate = new Date(value);
-                        const start = new Date(startDate);
-                        start.setDate(start.getDate() - 1); // Set start date to 2 days before
-                        const today = new Date();
-                        today.setHours(0, 0, 0, 0); // Set time to midnight to compare only dates
-                        return (selectedDate < start && selectedDate >= today) || "Signup End Date must be at most 2 days before Start Date!";}
-                    }
-                  )}
-                  className={`w-full border rounded-md p-2 ${errors.signupEndDate ? "border-red-500" : "border-gray-300"}`}
-=======
                   {...register("signupEndDate", {
                     required: "Please fill this in!",
                     validate: (value) => {
@@ -192,7 +163,6 @@ const CreateTournament = () => {
                   className={`w-full border rounded-md p-2 ${
                     errors.signupEndDate ? "border-red-500" : "border-gray-300"
                   }`}
->>>>>>> Stashed changes
                 />
                 {errors.signupEndDate && (
                   <p className="text-red-500 text-sm italic">
@@ -208,15 +178,6 @@ const CreateTournament = () => {
                 </label>
                 <input
                   type="number"
-<<<<<<< Updated upstream
-                  {...register('advancementRate', 
-                    { required: "Please fill this in!",
-                      validate: value => {
-                        return value >= 60 && value <= 100 || "Please enter a valid percentage above 60!";}
-                    }
-                  )}
-                  className={`w-full border rounded-md p-2 ${errors.advancementRate ? "border-red-500" : "border-gray-300"}`}
-=======
                   {...register("advancementRate", {
                     required: "Please fill this in!",
                     validate: (value) => {
@@ -231,7 +192,6 @@ const CreateTournament = () => {
                       ? "border-red-500"
                       : "border-gray-300"
                   }`}
->>>>>>> Stashed changes
                 />
                 {errors.advancementRate && (
                   <p className="text-red-500 text-sm italic">

@@ -10,21 +10,6 @@ import { Link } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 
 export default function SignIn() {
-
-  const { handleSubmit, control, formState: { errors }} = useForm();
-
-  // Login Error Message if wrong password/username
-  const [error, setError] = useState(null);
-
-  const navigate = useNavigate();
-
-  // Handle Input field change
-  const handleValueChange = (e) => {
-    // Ensure that the name attribute is set for the input field
-    if (!e.target.name) {
-      return;
-    }
-  }
   const {
     handleSubmit,
     control,
@@ -54,11 +39,7 @@ export default function SignIn() {
         // Route to correct dashboard based on userType
         if (userType === "F") {
           console.log("Redirecting to dashboard");
-          setTimeout(() => {
-            navigate("/fencer-dashboard");
-            window.location.reload();
-          }, 100);
-          // navigate("/fencer-dashboard");
+          navigate("/fencer-dashboard");
         }
 
         if (userType === "O") {
@@ -68,7 +49,6 @@ export default function SignIn() {
             navigate("/organiser-dashboard");
             window.location.reload();
           }, 100);
-          // navigate("/organiser-dashboard");
         }
 
         if (userType === "A") {
@@ -79,12 +59,6 @@ export default function SignIn() {
     } catch (error) {
       console.log("Failed Login");
     }
-
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
   };
 
   return (
@@ -95,15 +69,23 @@ export default function SignIn() {
         </div>
 
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
-
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-5"
+          >
             <Controller
               name="email"
               control={control}
               defaultValue=""
-              rules={{ required: "Please fill this in!"}}
+              rules={{ required: "Please fill this in!" }}
               render={({ field: { onChange, value } }) => (
-                <InputField placeholder="Email" type="text" value={value} onChange={onChange} error={errors.email}/>
+                <InputField
+                  placeholder="Email"
+                  type="text"
+                  value={value}
+                  onChange={onChange}
+                  error={errors.email}
+                />
               )}
             />
 
@@ -111,17 +93,19 @@ export default function SignIn() {
               name="password"
               control={control}
               defaultValue=""
-              rules={{ required: "Please fill this in!"}}
+              rules={{ required: "Please fill this in!" }}
               render={({ field: { onChange, value } }) => (
-                <PasswordField placeholder="Password" type="text" value={value} onChange={onChange} error={errors.password}/>
+                <PasswordField
+                  placeholder="Password"
+                  type="text"
+                  value={value}
+                  onChange={onChange}
+                  error={errors.password}
+                />
               )}
             />
 
             <SubmitButton onSubmit={handleSubmit}>Sign in</SubmitButton>
-<<<<<<< Updated upstream
-            {errorMessage && <p className="text-red-500">{errorMessage}</p>}
-=======
->>>>>>> Stashed changes
           </form>
 
           <p className="mt-3 text-center text-sm text-gray-500">
@@ -133,17 +117,12 @@ export default function SignIn() {
               Sign up here!
             </Link>
           </p>
-<<<<<<< Updated upstream
-=======
 
           {error && (
             <h1 className="mt-5 text-center text-red-500 ">
               Login Failed. Username or password is incorrect.
             </h1>
           )}
->>>>>>> Stashed changes
-
-          {error && <h1 className="mt-5 text-center text-red-500 ">Login Failed. Username or password is incorrect.</h1>}
         </div>
       </div>
     </div>
