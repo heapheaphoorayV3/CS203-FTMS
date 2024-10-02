@@ -77,46 +77,4 @@ public class AuthenticationController {
         return new ResponseEntity<>(new JwtDTO("login success", jwtToken, jwtService.getExpirationTime(), userType), HttpStatus.OK);
     }
 
-    // @PostMapping("/login-fencer")
-    // public ResponseEntity<Object> loginFencer(@RequestBody AuthenticationDTO authenticationDTO) {
-    //     User user = authenticationService.authenticateFencer(authenticationDTO.getEmail(), authenticationDTO.getPassword());
-    //     if (user != null) {
-    //         String jwtToken = jwtService.generateToken(user);
-    //         return new ResponseEntity<>(new JwtDTO("login success", jwtToken, jwtService.getExpirationTime()), HttpStatus.OK);
-    //     } 
-    //     return new ResponseEntity<>("login failure", HttpStatus.OK);
-    // }
-
-    // @PostMapping("/login-fencer")
-    // public ResponseEntity<Object> loginOrganiser(@RequestBody AuthenticationDTO authenticationDTO) {
-    //     User user = authenticationService.authenticateOrganiser(authenticationDTO.getEmail(), authenticationDTO.getPassword());
-    //     if (user != null) {
-    //         String jwtToken = jwtService.generateToken(user);
-    //         return new ResponseEntity<>(new JwtDTO("login success", jwtToken, jwtService.getExpirationTime()), HttpStatus.OK);
-    //     } 
-    //     return new ResponseEntity<>("login failure", HttpStatus.OK);
-    // }
-
-    // @PostMapping("/login-fencer")
-    // public ResponseEntity<Object> loginAdmin(@RequestBody AuthenticationDTO authenticationDTO) {
-    //     User user = authenticationService.authenticateAdmin(authenticationDTO.getEmail(), authenticationDTO.getPassword());
-    //     if (user != null) {
-    //         String jwtToken = jwtService.generateToken(user);
-    //         return new ResponseEntity<>(new JwtDTO("login success", jwtToken, jwtService.getExpirationTime()), HttpStatus.OK);
-    //     } 
-    //     return new ResponseEntity<>("login failure", HttpStatus.OK);
-    // }
-
-    // @GetMapping("/forget-password/{email}")
-    // public ResponseEntity<String> forgetPassword(@PathVariable String email) {
-    //     String res = authenticationService.forgetPassword(email);
-    //     return new ResponseEntity<>(res, HttpStatus.OK);
-    // }
-
-    // @PostMapping("/reset-password/{token}")
-    // public ResponseEntity<String> resetPassword(@PathVariable String token, @RequestBody ResetPasswordDTO resetPasswordDTO) {
-    //     String res = authenticationService.resetPassword(token, resetPasswordDTO.getNewPassword());
-    //     return new ResponseEntity<>(res, HttpStatus.OK);
-    // }
-
 }
