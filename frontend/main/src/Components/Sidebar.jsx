@@ -2,7 +2,7 @@ import SidebarButton from "./Others/SidebarButton";
 
 const Sidebar = () => {
   const isLoggedIn = sessionStorage.getItem("token");
-  const userRole = sessionStorage.getItem("user_type");
+  const userRole = sessionStorage.getItem("userType");
 
   const fencerSidebar = (
     <ul className="space-y-2 font-medium">

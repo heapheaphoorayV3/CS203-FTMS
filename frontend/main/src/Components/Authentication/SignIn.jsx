@@ -17,7 +17,25 @@ export default function SignIn() {
   const [error, setError] = useState(null);
 
   const navigate = useNavigate();
-  
+
+  // Handle Input field change
+  const handleValueChange = (e) => {
+    // Ensure that the name attribute is set for the input field
+    if (!e.target.name) {
+      return;
+    }
+  }
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm();
+
+  // Login Error Message if wrong password/username
+  const [error, setError] = useState(null);
+
+  const navigate = useNavigate();
+
   // Call handleLogin
   const onSubmit = async (data) => {
     try {
@@ -27,7 +45,7 @@ export default function SignIn() {
 
       sessionStorage.setItem("token", token);
       sessionStorage.setItem("userType", userType);
-      
+
       if (!token) {
         setError(true);
       } else {
@@ -36,14 +54,23 @@ export default function SignIn() {
         // Route to correct dashboard based on userType
         if (userType === "F") {
           console.log("Redirecting to dashboard");
-          navigate("/fencer-dashboard");
+          setTimeout(() => {
+            navigate("/fencer-dashboard");
+            window.location.reload();
+          }, 100);
+          // navigate("/fencer-dashboard");
         }
-  
+
         if (userType === "O") {
           console.log("Redirecting to organiser dashboard");
-          navigate("/organiser-dashboard");
+
+          setTimeout(() => {
+            navigate("/organiser-dashboard");
+            window.location.reload();
+          }, 100);
+          // navigate("/organiser-dashboard");
         }
-        
+
         if (userType === "A") {
           console.log("Redirecting to admin dashboard");
           navigate("/admin-dashboard");
@@ -52,6 +79,12 @@ export default function SignIn() {
     } catch (error) {
       console.log("Failed Login");
     }
+
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
   };
 
   return (
@@ -85,7 +118,10 @@ export default function SignIn() {
             />
 
             <SubmitButton onSubmit={handleSubmit}>Sign in</SubmitButton>
-
+<<<<<<< Updated upstream
+            {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+=======
+>>>>>>> Stashed changes
           </form>
 
           <p className="mt-3 text-center text-sm text-gray-500">
@@ -97,6 +133,15 @@ export default function SignIn() {
               Sign up here!
             </Link>
           </p>
+<<<<<<< Updated upstream
+=======
+
+          {error && (
+            <h1 className="mt-5 text-center text-red-500 ">
+              Login Failed. Username or password is incorrect.
+            </h1>
+          )}
+>>>>>>> Stashed changes
 
           {error && <h1 className="mt-5 text-center text-red-500 ">Login Failed. Username or password is incorrect.</h1>}
         </div>

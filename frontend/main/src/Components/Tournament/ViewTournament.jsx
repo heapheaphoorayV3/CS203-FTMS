@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import ViewCard from "../Others/ViewCard.jsx";
 import EventList from "../Others/EventList.jsx";
 import Navbar from "../Navbar.jsx";
@@ -8,7 +8,6 @@ import { Tabs, Tab } from "../Others/DashboardTabs.jsx";
 import SubmitButton from "../Others/SubmitButton.jsx";
 import Breadcrumbs from "../Others/Breadcrumbs.jsx";
 import FencerService from "../../Services/Fencer/FencerService.js";
-import { useNavigate } from "react-router-dom";
 import TournamentService from "../../Services/Tournament/TournamentService.js";
 
 export default function ViewTournament() {

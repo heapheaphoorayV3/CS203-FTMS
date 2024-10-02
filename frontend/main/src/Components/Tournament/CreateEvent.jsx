@@ -42,7 +42,7 @@ const CreateEvent = () => {
     console.log(data);
     
     try {
-      await TournamentService.CreateEvent(data).then(() => {
+      await TournamentService.createEvent(data).then(() => {
         navigate("/organiser-dashboard");
       });
     } catch (error) {
@@ -53,14 +53,8 @@ const CreateEvent = () => {
 
   return (
     <div className="app-container">
-      <div className="navbar">
-        <Navbar />
-      </div>
-      <div className="sidebar">
-        <Sidebar />
-      </div>
       <div className="flex flex-col items-center bg-gray-200 relative">
-        <div className="flex flex-col items-center bg-white mt-16 mb-4 rounded-lg shadow-lg w-[600px]">
+        <div className="flex flex-col items-center bg-white mt-8 mb-4 rounded-lg shadow-lg w-[600px]">
           <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
             <img src={logo} alt="OnlyFence" className="h-12 mx-auto mb-4" />
             <h2 className="text-2xl font-bold mb-6 text-center">

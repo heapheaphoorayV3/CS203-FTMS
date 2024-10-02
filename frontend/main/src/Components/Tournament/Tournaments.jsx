@@ -1,4 +1,15 @@
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import TournamentService from "../../Services/Tournament/TournamentService";
+
 export default function Tournaments() {
+
+  const [tournamentData, setTournamentData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  
+
   return (
     <div className="row-span-2 col-start-2 bg-gray-300 h-full overflow-y-auto">
       <h1 className="my-10 ml-12 text-left text-4xl font-semibold">
