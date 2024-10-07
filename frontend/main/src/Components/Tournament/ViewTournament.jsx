@@ -2,8 +2,6 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import ViewCard from "../Others/ViewCard.jsx";
 import EventList from "../Others/EventList.jsx";
-import Navbar from "../Navbar.jsx";
-import Sidebar from "../Sidebar.jsx";
 import { Tabs, Tab } from "../Others/DashboardTabs.jsx";
 import SubmitButton from "../Others/SubmitButton.jsx";
 import Breadcrumbs from "../Others/Breadcrumbs.jsx";
@@ -11,11 +9,6 @@ import FencerService from "../../Services/Fencer/FencerService.js";
 import TournamentService from "../../Services/Tournament/TournamentService.js";
 
 export default function ViewTournament() {
-  const breadcrumbs = [
-    { name: "Home", link: "/" },
-    { name: "Tournaments", link: "/tournaments" },
-  ];
-
   // Retrieve tournament ID from URL
   const { tournamentID } = useParams();
 
@@ -29,7 +22,9 @@ export default function ViewTournament() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await TournamentService.getTournamentDetails(tournamentID);
+        const response = await TournamentService.getTournamentDetails(
+          tournamentID
+        );
         setTournamentData(response.data);
         console.log("response.data => ", response.data);
       } catch (error) {
@@ -44,6 +39,18 @@ export default function ViewTournament() {
       fetchData();
     }
   }, [tournamentID]);
+
+  const breadcrumbsItems = [
+    { name: "Home", link: "/" },
+    { name: "Tournaments", link: "/tournaments" },
+    {
+      name: loading
+        ? "Loading..."
+        : tournamentData
+        ? tournamentData.name
+        : "Not Found",
+    },
+  ];
 
   // Loading / Error states
   if (loading) {
@@ -82,7 +89,7 @@ export default function ViewTournament() {
     const currentDate = new Date();
     const startDate = new Date(start);
     const endDate = new Date(end);
-  
+
     if (currentDate < startDate) {
       return "Upcoming";
     } else if (currentDate >= startDate && currentDate <= endDate) {
@@ -92,11 +99,15 @@ export default function ViewTournament() {
     }
   };
 
+  console.log(tournamentData);
+  const eventsArray = Array.from(tournamentData.events ?? []);
+  console.log(eventsArray);
 
   return (
     // Grid for Navbar, Sidebar and Content
 
     <div className="row-span-2 col-start-2 bg-gray-300 h-full overflow-y-auto">
+      <Breadcrumbs items={breadcrumbsItems} />
       <h1 className="my-10 ml-12 text-left text-4xl font-semibold">
         {tournamentData.name}
       </h1>
@@ -111,7 +122,12 @@ export default function ViewTournament() {
           {formatDateRange(tournamentData.startDate, tournamentData.endDate)}
         </div>
         <div className="text-lg">{tournamentData.location}</div>
-        <div className="text-lg">{getTournamentStatus(tournamentData.startDate, tournamentData.endDate)}</div>
+        <div className="text-lg">
+          {getTournamentStatus(
+            tournamentData.startDate,
+            tournamentData.endDate
+          )}
+        </div>
       </div>
 
       <div className="ml-12 mr-8 text-lg overflow-x-auto">
@@ -139,7 +155,7 @@ export default function ViewTournament() {
               </thead>
               <tbody>
                 {/* row 1 */}
-                <tr className="hover:bg-gray-200">
+                {/* <tr className="hover:bg-gray-200">
                   <th>1</th>
                   <td>
                     <a
@@ -155,25 +171,37 @@ export default function ViewTournament() {
                   <td>
                     <SubmitButton onSubmit={handleSubmit}>Sign Up</SubmitButton>
                   </td>
-                </tr>
+                </tr> */}
                 {/* row 2 */}
-                <tr className="hover:bg-gray-200">
-                  <th>2</th>
-                  <td>Event 1</td>
-                  <td>Date</td>
-                  <td>Start</td>
-                  <td>End</td>
-                  <td></td>
-                </tr>
-                {/* row 3 */}
-                <tr className="hover:bg-gray-200">
-                  <th>3</th>
-                  <td>Event 1</td>
-                  <td>Date</td>
-                  <td>Start</td>
-                  <td>End</td>
-                  <td></td>
-                </tr>
+                {eventsArray.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="text-center">
+                      No events available.
+                    </td>
+                  </tr>
+                ) : (
+                  eventsArray.map((event, index) => (
+                    <tr key={index}>
+                      <td>{index+1}</td>
+                      <td>
+                        <a
+                          href={`/view-event/${index+1}`}
+                          className="underline hover:text-accent"
+                        >
+                          {event.eventName}
+                        </a>
+                      </td>
+                      <td>{event.date}</td>
+                      <td>{event.startTime}</td>
+                      <td>{event.endTime}</td>
+                      <td>
+                        <SubmitButton onSubmit={handleSubmit}>
+                          Sign Up
+                        </SubmitButton>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </Tab>

@@ -2,7 +2,7 @@ import { ProtectedAPI } from "../ProtectedAPI";
 
 const baseURL = "/event";
 
-class TournamentService {
+class EventService {
 
     async createEvent(tid, event) {
         return await ProtectedAPI.post(`${tid}/create-event`, event);

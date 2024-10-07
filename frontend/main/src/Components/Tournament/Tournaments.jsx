@@ -8,6 +8,20 @@ export default function Tournaments() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await TournamentService.getTournamentDetails(); 
+  //     } catch (error) {
+  //       console.error("Error fetching user data:", error);
+  //       setError("Failed to load user data."); 
+  //     } finally {
+  //       setLoading(false); 
+  //     }
+  //   };
+  //   fetchData();
+  // }, []);
+
   
 
   return (

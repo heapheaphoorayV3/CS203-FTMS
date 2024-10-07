@@ -34,6 +34,8 @@ const OrganiserDashboard = () => {
     return <div className="mt-10">{error}</div>; // Show error message if any
   }
 
+  console.log("verfied="+userData.verified);
+
   return (
     <div className="main">
       <div id="body" className="bg-gray-200 w-full flex gap-2 flex-col p-4">
@@ -60,7 +62,7 @@ const OrganiserDashboard = () => {
               <div className="flex font-medium">Country:</div>
               <div className="flex">{userData.country}</div>
               <div className="flex font-medium">Verfication Status:</div>
-              <div className="flex">{userData.verified}</div>
+              <div className="flex">{userData.verified ? "Verified" : "Pending Verification"}</div>
             </div>
 
             {/* Edit Icon */}

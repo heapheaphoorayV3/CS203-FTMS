@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
+import CountrySelector from "../Others/CountrySelector";
 import TournamentService from "../../Services/Tournament/TournamentService";
 
 const CreateTournament = () => {
@@ -9,6 +10,7 @@ const CreateTournament = () => {
     watch,
     handleSubmit,
     formState: { errors },
+    control,
   } = useForm();
 
   // Start Date cannot be before End Date
@@ -17,11 +19,19 @@ const CreateTournament = () => {
   const navigate = useNavigate();
 
   const onSubmit = async (data) => {
-    console.log(data);
+    // const { ...formData } = data;
+
+    // // Country object is returned from the CountrySelector component --> consist of label and value (need only label for form)
+    // const country = data.country.label;
+    // formData.country = country;
+
+    // console.log("FormData before sending:", formData);
 
     try {
-      if (typeof data.signupEndDate === 'string') {
-        data.signupEndDate = new Date(`${data.signupEndDate}T00:00:00`).toISOString().slice(0, 19); 
+      if (typeof data.signupEndDate === "string") {
+        data.signupEndDate = new Date(`${data.signupEndDate}T00:00:00`)
+          .toISOString()
+          .slice(0, 19);
       }
       console.log("Data being sent to the server:", data);
       const tournamentId = await TournamentService.createTournament(data);
@@ -60,7 +70,11 @@ const CreateTournament = () => {
                     errors.tournamentName ? "border-red-500" : "border-gray-300"
                   }`}
                 />
-                {errors.name && <p className="text-red-500 text-sm italic">{errors.name.message}</p>}
+                {errors.name && (
+                  <p className="text-red-500 text-sm italic">
+                    {errors.name.message}
+                  </p>
+                )}
               </div>
 
               {/* Location */}
@@ -81,6 +95,19 @@ const CreateTournament = () => {
                   </p>
                 )}
               </div>
+              {/* <Controller
+                name="country"
+                control={control}
+                defaultValue=""
+                rules={{ required: "Please fill this in!" }}
+                render={({ field: { onChange, value } }) => (
+                  <CountrySelector
+                    value={value}
+                    onChange={onChange}
+                    error={errors.country}
+                  />
+                )}
+              /> */}
 
               {/* Start Date */}
               <div>
