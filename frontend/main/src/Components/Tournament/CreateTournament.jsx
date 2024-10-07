@@ -53,7 +53,7 @@ const CreateTournament = () => {
                 </label>
                 <input
                   type="text"
-                  {...register("tournamentName", {
+                  {...register("name", {
                     required: "Please fill this in!",
                   })}
                   className={`w-full border rounded-md p-2 ${
@@ -122,9 +122,7 @@ const CreateTournament = () => {
                       const start = new Date(startDate);
                       return (
                         selectedDate >= start ||
-                        "End Date must be same or after Start Date!" +
-                          startDate +
-                          selectedDate
+                        "End Date must be same or after Start Date!"
                       );
                     },
                   })}
@@ -155,8 +153,8 @@ const CreateTournament = () => {
                       const today = new Date();
                       today.setHours(0, 0, 0, 0); // Set time to midnight to compare only dates
                       return (
-                        (selectedDate < start && selectedDate >= today) ||
-                        "Signup End Date must be at most 2 days before Start Date!"
+                        (selectedDate <= start && selectedDate >= today) ||
+                        "Signup End Date must be at least 2 days before Start Date!"
                       );
                     },
                   })}

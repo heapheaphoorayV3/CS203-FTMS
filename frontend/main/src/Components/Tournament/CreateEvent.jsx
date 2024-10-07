@@ -15,35 +15,32 @@ const CreateEvent = () => {
   const navigate = useNavigate();
 
   // Get tournament
-  // const { tournamentID } = useParams();
-  // const [tournament, setTournament] = useState(null);
-  // useEffect(() => {
-  //   const fetchTournamentDetails = async () => {
-  //     try {
-  //       const details = await TournamentService.getTournamentDetails(tournamentID);
-  //       setTournament(details);
-  //     } catch (error) {
-  //       console.error('Error fetching tournament details:', error);
-  //     }
-  //   };
+  const { tournamentID } = useParams();
+  const [tournament, setTournament] = useState(null);
+  useEffect(() => {
+    const fetchTournamentDetails = async () => {
+      try {
+        const details = await TournamentService.getTournamentDetails(tournamentID);
+        // details --> contain data object --> contains tournament object
+        setTournament(details.data);
 
-  //   fetchTournamentDetails();
-  // }, [tournamentID]);
+      } catch (error) {
+        console.error('Error fetching tournament details:', error);
+      }
+    };
 
-  // HArdcode tournament details for now
-  const tournament = {
-    startDate: "2022-10-01",
-    endDate : "2022-10-31"
-  }
-  // setTournament(tournamentHardCode);
+    fetchTournamentDetails();
+  }, [tournamentID]);
 
 
   const onSubmit = async (data) => {
+    
     console.log(data);
     
     try {
+
       await TournamentService.createEvent(data).then(() => {
-        navigate("/organiser-dashboard");
+        navigate("/view-tournament/:tournamentID");
       });
     } catch (error) {
       console.log(error);
@@ -102,7 +99,7 @@ const CreateEvent = () => {
                       const selectedDate = new Date(value);
                       const tournamentStart = new Date(tournament.startDate);
                       const tournamentEnd = new Date(tournament.endDate);
-                      return (selectedDate >= tournamentStart && selectedDate <= tournamentEnd) || "Event Date must within Tournament Time Frame!";
+                      return (selectedDate >= tournamentStart && selectedDate <= tournamentEnd) || "Event Date must within Tournament Time Frame!" + tournamentStart + tournamentEnd;
                     }
                   })}
                   className={`w-full border rounded-md p-2 ${errors.date ? "border-red-500" : "border-gray-300"}`}

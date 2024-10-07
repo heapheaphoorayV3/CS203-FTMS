@@ -16,7 +16,8 @@ export default function ViewTournament() {
     { name: "Tournaments", link: "/tournaments" },
   ];
 
-  const { id } = useParams();
+  // Retrieve tournament ID from URL
+  const { tournamentID } = useParams();
 
   const [tournamentData, setTournamentData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -24,10 +25,11 @@ export default function ViewTournament() {
 
   const navigate = useNavigate();
 
+  // Fetch tournament data if tournamentID changes
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await TournamentService.getTournamentDetails(id);
+        const response = await TournamentService.getTournamentDetails(tournamentID);
         setTournamentData(response.data);
         console.log("response.data => ", response.data);
       } catch (error) {
@@ -38,10 +40,19 @@ export default function ViewTournament() {
       }
     };
 
-    if (id) {
+    if (tournamentID) {
       fetchData();
     }
-  }, [id]);
+  }, [tournamentID]);
+
+  // Loading / Error states
+  if (loading) {
+    return <div className="mt-10">Loading...</div>; // Show loading state
+  }
+
+  if (error) {
+    return <div className="mt-10">{error}</div>; // Show error message if any
+  }
 
   const handleSubmit = async (data) => {
     try {
@@ -81,67 +92,6 @@ export default function ViewTournament() {
     }
   };
 
-  const tournamentDetails = {
-    tournamentName: "Jackin's Arena",
-    status: "Ongoing",
-    description: "Just be Gay bro",
-    currentEvents: ["Event 1", "Event 2"],
-    organisation: "Organisation Name",
-    location: "Palau Tekong, School 4 - Parade Sqaure",
-    rules: "Don't be gay",
-    events: [
-      {
-        gender: "gay",
-        weapon: "excalibur",
-        date: "today",
-        startTime: "00:00:00",
-        endTime: "00:00:00",
-      },
-      {
-        gender: "gay",
-        weapon: "excalibur",
-        date: "today",
-        startTime: "00:00:00",
-        endTime: "00:00:00",
-      },
-      {
-        gender: "gay",
-        weapon: "excalibur",
-        date: "today",
-        startTime: "00:00:00",
-        endTime: "00:00:00",
-      },
-      {
-        gender: "gay",
-        weapon: "excalibur",
-        date: "today",
-        startTime: "00:00:00",
-        endTime: "00:00:00",
-      },
-      {
-        gender: "gay",
-        weapon: "excalibur",
-        date: "today",
-        startTime: "00:00:00",
-        endTime: "00:00:00",
-      },
-      {
-        gender: "gay",
-        weapon: "excalibur",
-        date: "today",
-        startTime: "00:00:00",
-        endTime: "00:00:00",
-      },
-    ],
-  };
-
-  if (loading) {
-    return <div className="mt-10">Loading...</div>; // Show loading state
-  }
-
-  if (error) {
-    return <div className="mt-10">{error}</div>; // Show error message if any
-  }
 
   return (
     // Grid for Navbar, Sidebar and Content
@@ -249,70 +199,6 @@ export default function ViewTournament() {
           </Tab>
         </Tabs>
       </div>
-
-      {/* Grid for Content */}
-      {/* <div className="ml-10 mr-8 mb-10 grid grid-cols-3 auto-rows-fr gap-x-[50px] gap-y-[30px]">
-        <ViewCard
-          className="col-start-1 col-end-1 row-start-1 row-end-1"
-          heading="Status"
-        >
-          <p>{tournamentDetails.status}</p>
-        </ViewCard>
-
-        <ViewCard
-          className="col-start-2 col-end-4 row-start-1 row-end-4"
-          heading="Description"
-        >
-          <p>{tournamentDetails.description}</p>
-        </ViewCard>
-
-        <ViewCard
-          className="col-start-1 col-end-1 row-start-2 row-end-2"
-          heading="Location"
-        >
-          <p>{tournamentDetails.location}</p>
-        </ViewCard>
-
-        <ViewCard
-          className="col-start-1 col-end-1 row-start-3 row-end-3"
-          heading="Organiser"
-        >
-          <p>{tournamentDetails.organisation}</p>
-        </ViewCard>
-
-        <ViewCard
-          className="col-start-1 col-end-1 row-start-4 row-end-4"
-          heading="Sign Up Closing Date"
-        >
-          <p>Sign Up Closing Date</p>
-        </ViewCard>
-
-        <ViewCard
-          className="col-start-2 col-end-2 row-start-4 row-end-4"
-          heading="Event Start"
-        >
-          <p>Tournament Start Date</p>
-        </ViewCard>
-
-        <ViewCard
-          className="col-start-3 col-end-3 row-start-4 row-end-4"
-          heading="Event End"
-        >
-          <p>Tournament End Date</p>
-        </ViewCard>
-
-        <EventList
-          className="col-start-1 col-end-4 row-start-5 row-end-7"
-          events={tournamentDetails.events}
-        />
-
-        <ViewCard
-          className="col-start-1 col-end-4 row-start-7 row-end-9"
-          heading="Rules"
-        >
-          <p>{tournamentDetails.rules}</p>
-        </ViewCard>
-      </div> */}
     </div>
   );
 }

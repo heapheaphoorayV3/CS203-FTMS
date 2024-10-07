@@ -28,15 +28,15 @@ function App() {
           <Route path="/" element={<FencerDashboard />} />
           <Route path="/fencer-dashboard" element={<FencerDashboard />} />
           <Route path="/organiser-dashboard" element={<OrganiserDashboard />} />
-          <Route path="/view-tournament" element={<ViewTournament />} />
-          <Route path="/view-event" element={<ViewEvent />} />
+          <Route path="/view-tournament/:tournamentID" element={<ViewTournament />} />
+          <Route path="/view-event/:eventID" element={<ViewEvent />} />
           <Route path="/tournaments" element={<Tournaments />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup-options" element={<SignupOptions />} />
           <Route path="/signup-fencer" element={<SignUpFencer />} />
           <Route path="/signup-organiser" element={<SignUpOrganiser />} />
           <Route path="/create-tournament" element={<CreateTournament />} />
-          <Route path="/create-event" element={<CreateEvent />} />
+          <Route path="/:tournamentID/create-event" element={<CreateEvent />} />
           <Route path="/signup-event" element={<SignUpEvent />} />
         </Route>
 
