@@ -18,6 +18,8 @@ import cs203.ftms.overall.repository.tournamentrelated.TournamentRepository;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
 import cs203.ftms.overall.service.event.EventService;
 import cs203.ftms.overall.service.fencer.FencerService;
+import static cs203.ftms.overall.validation.OtherValidations.validTournamentDates;
+import static cs203.ftms.overall.validation.OtherValidations.validTournamentSignUpEndDate;
 
 @Service
 public class TournamentService {
@@ -54,6 +56,8 @@ public class TournamentService {
 
     public Tournament createTournament(CreateTournamentDTO t, Organiser o) throws MethodArgumentNotValidException {
         Tournament tournament = new Tournament(t.getName(), o, t.getSignupEndDate(), t.getAdvancementRate(), t.getStartDate(), t.getEndDate(), t.getLocation(), t.getDescription(), t.getRules());
+        validTournamentSignUpEndDate(tournament);
+        validTournamentDates(tournament);
         return tournamentRepository.save(tournament);
     }
 
