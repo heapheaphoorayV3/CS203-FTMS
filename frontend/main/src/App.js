@@ -36,7 +36,7 @@ function App() {
           <Route path="/signup-fencer" element={<SignUpFencer />} />
           <Route path="/signup-organiser" element={<SignUpOrganiser />} />
           <Route path="/create-tournament" element={<CreateTournament />} />
-          <Route path="/:tournamentID/create-event" element={<CreateEvent />} />
+          <Route path="/tournament/:tournamentID/create-event" element={<CreateEvent />} />
           <Route path="/signup-event" element={<SignUpEvent />} />
         </Route>
 

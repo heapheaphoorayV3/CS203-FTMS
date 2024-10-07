@@ -35,11 +35,14 @@ const CreateEvent = () => {
 
   const onSubmit = async (data) => {
     
+    // modify time to add seconds
+    data.startTime = data.startTime + ":00";
+    data.endTime = data.endTime + ":00";
     console.log(data);
     
     try {
 
-      await TournamentService.createEvent(data).then(() => {
+      await TournamentService.createEvent(tournamentID, data).then(() => {
         navigate("/view-tournament/:tournamentID");
       });
     } catch (error) {
