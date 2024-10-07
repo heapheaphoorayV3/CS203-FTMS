@@ -18,8 +18,8 @@ public class Organiser extends User {
 
     public Organiser() {}
 
-    public Organiser(String name, String email, String password, String contactNo, String country, Role role) {
-        super(name, email, password, contactNo, country, role);
+    public Organiser(String name, String email, String password, String contactNo, String country) {
+        super(name, email, password, contactNo, country, "ORGANISER");
         this.tourHost = new HashSet<>();
     }
 

@@ -59,9 +59,8 @@ public class Fencer extends User {
 
     public Fencer() {}
 
-    public Fencer(String name, String email, String password, String contactNo, String country, Role role,
-    LocalDate dateOfBirth){ 
-        super(name, email, password, contactNo, country,  role);
+    public Fencer(String name, String email, String password, String contactNo, String country, LocalDate dateOfBirth){ 
+        super(name, email, password, contactNo, country, "FENCER");
         this.dateOfBirth = dateOfBirth;
         this.points = 0;
         this.eventsPart = new HashSet<>();
