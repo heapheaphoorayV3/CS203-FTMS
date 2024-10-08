@@ -7,7 +7,6 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import cs203.ftms.overall.model.tournamentrelated.Event;
-import cs203.ftms.overall.security.model.Role;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
@@ -60,7 +59,7 @@ public class Fencer extends User {
     public Fencer() {}
 
     public Fencer(String name, String email, String password, String contactNo, String country, LocalDate dateOfBirth){ 
-        super(name, email, password, contactNo, country, "FENCER");
+        super(name, email, password, contactNo, country, "ROLE_FENCER");
         this.dateOfBirth = dateOfBirth;
         this.points = 0;
         this.eventsPart = new HashSet<>();

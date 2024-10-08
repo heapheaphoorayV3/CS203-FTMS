@@ -1,6 +1,5 @@
 package cs203.ftms.overall.model.userrelated;
 
-import cs203.ftms.overall.security.model.Role;
 import jakarta.persistence.*;
 
 @Entity
@@ -11,7 +10,7 @@ public class Admin extends User {
     public Admin() {}
 
     public Admin(String name, String email, String password, String contactNo, String country) {
-        super(name, email, password, contactNo, country, "ADMIN");
+        super(name, email, password, contactNo, country, "ROLE_ADMIN");
     }
 
 }

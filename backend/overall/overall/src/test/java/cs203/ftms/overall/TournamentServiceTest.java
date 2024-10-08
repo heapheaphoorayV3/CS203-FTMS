@@ -49,7 +49,7 @@ public class TournamentServiceTest {
     }
 
     @Test
-    public void testGetCleanTournamentDTO() {
+    public void getCleanTournamentDTO_ValidTournamnet_ReturnCleanTournament() {
         // Arrange
         Tournament tournament = new Tournament();
         tournament.setId(1);
@@ -77,7 +77,7 @@ public class TournamentServiceTest {
     }
 
     @Test
-    public void testGetTournament_TournamentExists() {
+    public void getTournament_TournamentExists_ReturnTournament() {
         // Arrange
         int tournamentId = 1;
         Tournament tournament = new Tournament();
@@ -94,7 +94,7 @@ public class TournamentServiceTest {
     }
 
 @Test
-    public void testGetTournament_TournamentNotFound() {
+    public void getTournament_TournamentNotFound_ReturnNull() {
         // Arrange
         int tournamentId = 1;
 
@@ -108,7 +108,7 @@ public class TournamentServiceTest {
     }
 
     @Test
-    public void testCreateTournament_Success() throws MethodArgumentNotValidException {
+    public void createTournament_ValidTournament_ReturnTournament() throws MethodArgumentNotValidException {
         // Arrange
         Organiser organiser = new Organiser();
         CreateTournamentDTO createTournamentDTO = new CreateTournamentDTO();
@@ -141,7 +141,7 @@ public class TournamentServiceTest {
     }
 
     @Test
-    public void testValidTournamentSignUpEndDate_Invalid() {
+    public void createTournament_InValidTournamentSignUpEndDate_ReturnException() {
         // Arrange
         Tournament tournament = new Tournament();
         tournament.setStartDate(LocalDate.of(2024, 10, 5));
@@ -158,7 +158,7 @@ public class TournamentServiceTest {
     }
 
     @Test
-    public void testValidTournamentSignUpEndDate_Valid() {
+    public void createTournament_ValidTournamentSignUpEndDate_Return() {
         // Arrange
         Tournament tournament = new Tournament();
         tournament.setStartDate(LocalDate.of(2024, 10, 5));

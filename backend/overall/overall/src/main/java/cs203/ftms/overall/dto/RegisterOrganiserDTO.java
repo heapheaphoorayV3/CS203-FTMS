@@ -1,6 +1,7 @@
 package cs203.ftms.overall.dto;
 
 import cs203.ftms.overall.validation.ValidContactNumber;
+import cs203.ftms.overall.validation.ValidPassword;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
@@ -14,7 +15,7 @@ public class RegisterOrganiserDTO {
     @ValidContactNumber
     private String contactNo; 
 
-    // custom validation
+    @ValidPassword
     private String password;
 
     @NotBlank

@@ -61,7 +61,7 @@ public class EventService {
         if (tournament == null) {
             return null;
         }    
-        
+
         if (!tournament.getOrganiser().equals(o)) {
             return null;
         }

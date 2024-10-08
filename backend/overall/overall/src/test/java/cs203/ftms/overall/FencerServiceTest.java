@@ -33,7 +33,7 @@ class FencerServiceTest {
     }
 
     @Test
-    void testGetCleanFencerDTO_ValidFencer() {
+    void getCleanFencerDTO_ValidFencer_ReturnCleanFencer() {
         // Given
         Fencer fencer = new Fencer();
         fencer.setId(1);
@@ -61,7 +61,7 @@ class FencerServiceTest {
     }
 
     @Test
-    void testGetCleanFencerDTO_NullFencer() {
+    void getCleanFencerDTO_InvalidFencer_ReturnNull() {
         // When
         CleanFencerDTO cleanFencerDTO = fencerService.getCleanFencerDTO(null);
 
@@ -70,7 +70,7 @@ class FencerServiceTest {
     }
 
     @Test
-    void testCompleteProfile_ValidInput() throws MethodArgumentNotValidException {
+    void completeProfile_ValidInput_ReturnFencer() throws MethodArgumentNotValidException {
         // Given
         Fencer fencer = new Fencer();
         fencer.setDateOfBirth(LocalDate.of(1990, 1, 1));
@@ -97,7 +97,7 @@ class FencerServiceTest {
     }
 
     @Test
-    void testCompleteProfile_InvalidDebutYear() {
+    void completeProfile_InvalidDebutYear_ReturnException() {
         // Given
         Fencer fencer = new Fencer();
         fencer.setDateOfBirth(LocalDate.of(2010, 1, 1));

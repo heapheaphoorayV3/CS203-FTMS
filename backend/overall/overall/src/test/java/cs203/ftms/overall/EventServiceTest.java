@@ -34,8 +34,6 @@ import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.repository.tournamentrelated.EventRepository;
 import cs203.ftms.overall.repository.tournamentrelated.TournamentRepository;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
-import cs203.ftms.overall.security.model.Role;
-import cs203.ftms.overall.security.model.RoleEnum;
 import cs203.ftms.overall.service.event.EventService;
 import cs203.ftms.overall.service.fencer.FencerService;
 
@@ -62,7 +60,7 @@ public class EventServiceTest {
     }
 
     @Test
-    public void testGetCleanEventDTO() {
+    public void getCleanEventDTO_ValidEvent_ReturnCleanEventDTO() {
         // Arrange
         Tournament tournament = new Tournament();
         tournament.setName("National Tournament");
@@ -96,7 +94,7 @@ public class EventServiceTest {
     }
 
     @Test
-    public void testCreateEvent_TournamentNotFound() throws MethodArgumentNotValidException {
+    public void createEvent_TournamentNotFound_ReturnNull() throws MethodArgumentNotValidException {
         // Arrange
         int tid = 1;
         Organiser organiser = new Organiser();
@@ -112,17 +110,13 @@ public class EventServiceTest {
     }
 
     @Test
-    public void testCreateEvent_InvalidOrganiser() throws MethodArgumentNotValidException {
+    public void createEvent_InvalidOrganiser_ReturnNull() throws MethodArgumentNotValidException {
         // Arrange
         int tid = 1;
-        Role organiserRole = new Role();
-        organiserRole.setName(RoleEnum.ORGANISER);
         Organiser organiser = new Organiser("Organizer One", "organizer.one@example.com", "password", "+6599999999", "Singapore");
-        Role organiserRole2 = new Role();
-        organiserRole2.setName(RoleEnum.ORGANISER);   
         Organiser differentOrganiser = new Organiser("Organizer two", "organizer.two@example.com", "password", "+6599999998", "Singapore");
         Tournament tournament = new Tournament("hi", differentOrganiser, LocalDate.of(2024, 12, 10), 60, LocalDate.of(2024, 12, 12), LocalDate.of(2024, 12, 15), "singapore", "hi", "hi");
-        tournament.setOrganiser(differentOrganiser);
+        tournamentRepository.save(tournament);
 
         when(tournamentRepository.findById(tid)).thenReturn(Optional.of(tournament));
         // when()
@@ -135,11 +129,9 @@ public class EventServiceTest {
     }
 
     @Test
-    public void testCreateEvent_Success() throws MethodArgumentNotValidException {
+    public void createEvent_ValidEvent_ReturnEventList() throws MethodArgumentNotValidException {
         // Arrange
         int tid = 1;
-        Role organiserRole = new Role();
-        organiserRole.setName(RoleEnum.ORGANISER);
         Organiser organiser = new Organiser("Organizer One", "organizer.one@example.com", "password", "+6599999999", "Singapore");
         Tournament tournament = new Tournament("hi", organiser, LocalDate.of(2024, 12, 10), 60, LocalDate.of(2024, 12, 12), LocalDate.of(2024, 12, 15), "singapore", "hi", "hi");
         tournament.setOrganiser(organiser);
@@ -153,15 +145,14 @@ public class EventServiceTest {
 
         // Assert
         assertNotNull(result);
+        assertEquals(List.class, result);
         verify(eventRepository, times(1)).save(any(Event.class));
     }
 
     @Test
-    public void testRegisterEvent_Success() {
+    public void registerEvent_ValidEventAndFencer_ReturnTrue() {
         // Arrange
         int tcid = 1;
-        Role role = new Role();
-        role.setName(RoleEnum.FENCER);
         Fencer fencer = new Fencer("DOE John", "john.doe@example.com", "password"
         , "+6599999999", "Singapore", LocalDate.of(2000, 1, 1));
         Organiser organiser = new Organiser("Organizer One", "organizer.one@example.com", "password", "+6599999999", "Singapore");
@@ -183,11 +174,9 @@ public class EventServiceTest {
     }
 
     @Test
-    public void testRegisterEvent_EventNotFound() {
+    public void registerEvent_EventNotFound_ReturnFalse() {
         // Arrange
         int tcid = 1;
-        Role role = new Role();
-        role.setName(RoleEnum.FENCER);
         Fencer fencer = new Fencer("DOE John", "john.doe@example.com", "password"
         , "+6599999999", "Singapore", LocalDate.of(2000, 1, 1));
         fencer.setEventsPart(new LinkedHashSet<>());

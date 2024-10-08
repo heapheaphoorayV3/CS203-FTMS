@@ -65,7 +65,6 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity<Object> loginUser(@Valid @RequestBody AuthenticationDTO authenticationDTO) {
-        System.out.println(authenticationDTO.getEmail() + " " + authenticationDTO.getPassword());
         User user = authenticationService.authenticateUser(authenticationDTO.getEmail(), authenticationDTO.getPassword());
         String jwtToken = jwtService.generateToken(user);
         char userType = 'A';

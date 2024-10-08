@@ -3,7 +3,6 @@ package cs203.ftms.overall.model.userrelated;
 import java.util.*;
 
 import cs203.ftms.overall.model.tournamentrelated.Tournament;
-import cs203.ftms.overall.security.model.Role;
 import jakarta.persistence.*;
 
 @Entity
@@ -19,7 +18,7 @@ public class Organiser extends User {
     public Organiser() {}
 
     public Organiser(String name, String email, String password, String contactNo, String country) {
-        super(name, email, password, contactNo, country, "ORGANISER");
+        super(name, email, password, contactNo, country, "ROLE_ORGANISER");
         this.tourHost = new HashSet<>();
     }
 

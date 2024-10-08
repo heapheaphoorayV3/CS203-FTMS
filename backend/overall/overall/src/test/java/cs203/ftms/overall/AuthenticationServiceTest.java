@@ -41,8 +41,6 @@ class AuthenticationServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
-    // @Mock
-    // private RoleRepository roleRepository;
 
     @InjectMocks
     private AuthenticationService authenticationService;
@@ -73,7 +71,7 @@ class AuthenticationServiceTest {
     }
 
     @Test
-    void createOrganiser_ValidFields_Success() {
+    void createOrganiser_ValidFields_ReturnTrue() {
         // Arrange
         RegisterOrganiserDTO registerOrganiserDTO = new RegisterOrganiserDTO("Organizer One", "organizer.one@example.com", "Abcd1234!", "+6591238765", "Singapore");
 
@@ -92,7 +90,7 @@ class AuthenticationServiceTest {
     }
 
     @Test
-    void createAdmin_ValidFields_Success() {
+    void createAdmin_ValidFields_ReturnTrue() {
         // Arrange
         RegisterAdminDTO registerAdminDTO = new RegisterAdminDTO("Admin One", "admin.one@example.com", "Abcd1234!", "+6591238765", "Singapore");
 
@@ -111,7 +109,7 @@ class AuthenticationServiceTest {
     }
 
     @Test
-    void authenticateUser_ValidFields_Success() {
+    void authenticateUser_ValidFields_ReturnTrue() {
         // Arrange
         String email = "user@example.com";
         String password = "Abcd1234!";
