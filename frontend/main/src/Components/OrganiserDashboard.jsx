@@ -34,7 +34,7 @@ const OrganiserDashboard = () => {
     return <div className="mt-10">{error}</div>; // Show error message if any
   }
 
-  console.log("verfied="+userData.verified);
+  console.log("verified="+userData.verified);
 
   return (
     <div className="main">
@@ -54,14 +54,14 @@ const OrganiserDashboard = () => {
             </div>
 
             <div className="grid grid-cols-[2fr_8fr] gap-y-2 gap-x-4 ml-4 my-4 text-xl w-full">
-              {/* Email, ContactNo, Country, Verfication Status */}
+              {/* Email, ContactNo, Country, Verification Status */}
               <div className="flex font-medium">Email:</div>
               <div className="flex">{userData.email}</div>
               <div className="flex font-medium">Contact Number:</div>
               <div className="flex">{userData.contactNo}</div>
               <div className="flex font-medium">Country:</div>
               <div className="flex">{userData.country}</div>
-              <div className="flex font-medium">Verfication Status:</div>
+              <div className="flex font-medium">Verification Status:</div>
               <div className="flex">{userData.verified ? "Verified" : "Pending Verification"}</div>
             </div>
 

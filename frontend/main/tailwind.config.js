@@ -26,7 +26,9 @@ module.exports = {
     extend: {},
   },
   plugins: [
-        require('flowbite/plugin'),
-        require('daisyui'),
-    ]
+    require('flowbite/plugin')({
+      charts: true,
+    }),
+    require('daisyui'),
+  ]
 }
