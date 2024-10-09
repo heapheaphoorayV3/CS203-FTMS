@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import ViewCard from "../Others/ViewCard.jsx";
-import EventList from "../Others/EventList.jsx";
 import { Tabs, Tab } from "../Others/DashboardTabs.jsx";
 import SubmitButton from "../Others/SubmitButton.jsx";
 import Breadcrumbs from "../Others/Breadcrumbs.jsx";
 import FencerService from "../../Services/Fencer/FencerService.js";
 import TournamentService from "../../Services/Tournament/TournamentService.js";
+import CreateEvent from "./CreateEvent.jsx";
 
 export default function ViewTournament() {
   // Retrieve tournament ID from URL
@@ -15,6 +14,7 @@ export default function ViewTournament() {
   const [tournamentData, setTournamentData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
 
   const navigate = useNavigate();
 
@@ -47,8 +47,8 @@ export default function ViewTournament() {
       name: loading
         ? "Loading..."
         : tournamentData
-        ? tournamentData.name
-        : "Not Found",
+          ? tournamentData.name
+          : "Not Found",
     },
   ];
 
@@ -103,6 +103,25 @@ export default function ViewTournament() {
   const eventsArray = Array.from(tournamentData.events ?? []);
   console.log(eventsArray);
 
+  // Create array of the 6 event types
+  let eventTypes = ["MaleEpee", "MaleFoil", "MaleSaber", "FemaleEpee", "FemaleFoil", "FemaleSaber"];
+
+  // Display create-event popup on click "Add Event" button
+  
+  const closePopup = () => {
+    setIsPopupVisible(false);
+  };
+  const openPopup = () => {
+    setIsPopupVisible(true);
+  };
+  const submitPopup = (eventDetails) => {
+    console.log(eventDetails);
+    // Add event to eventsArray
+    eventsArray.push(eventDetails);
+    // Close popup
+    closePopup();
+  };
+
   return (
     // Grid for Navbar, Sidebar and Content
 
@@ -150,60 +169,42 @@ export default function ViewTournament() {
                   <th>Date</th>
                   <th>Start Time</th>
                   <th>End Time</th>
-                  <th>Sign Up</th>
+                  <th>{sessionStorage.getItem("userType") === "O" ? "Update Event" : "Sign Up"}</th>
                 </tr>
               </thead>
               <tbody>
-                {/* row 1 */}
-                {/* <tr className="hover:bg-gray-200">
-                  <th>1</th>
-                  <td>
-                    <a
-                      href="/view-event"
-                      className="underline hover:text-accent"
-                    >
-                      Event 1
-                    </a>
-                  </td>
-                  <td>Date</td>
-                  <td>Start</td>
-                  <td>End</td>
-                  <td>
-                    <SubmitButton onSubmit={handleSubmit}>Sign Up</SubmitButton>
-                  </td>
-                </tr> */}
-                {/* row 2 */}
-                {eventsArray.length === 0 ? (
+                {/* Render events */}
+                {eventsArray.length > 0 ? (
+                  eventsArray.map((event, index) => (
+                    <tr key={index}>
+                      <td>{/* Event details */}</td>
+                      <td>{event.gender} {event.weapon}</td>
+                      <td>{event.date}</td>
+                      <td>{event.startTime}</td>
+                      <td>{event.endTime}</td>
+                      <td>{/* Sign up button or link */}</td>
+                    </tr>
+                  ))
+                ) : (
                   <tr>
                     <td colSpan="6" className="text-center">
                       No events available.
                     </td>
                   </tr>
-                ) : (
-                  eventsArray.map((event, index) => (
-                    <tr key={index}>
-                      <td>{index+1}</td>
-                      <td>
-                        <a
-                          href={`/view-event/${index+1}`}
-                          className="underline hover:text-accent"
-                        >
-                          {event.eventName}
-                        </a>
-                      </td>
-                      <td>{event.date}</td>
-                      <td>{event.startTime}</td>
-                      <td>{event.endTime}</td>
-                      <td>
-                        <SubmitButton onSubmit={handleSubmit}>
-                          Sign Up
-                        </SubmitButton>
-                      </td>
-                    </tr>
-                  ))
                 )}
+                {/* Add Event button row only if organiser */}
+                {sessionStorage.getItem("userType") === "O" &&
+                (<tr>
+                  <td colSpan="6" className="text-center">
+                    <button onClick={openPopup} className="bg-blue-500 text-white px-4 py-2 rounded">
+                      Add Event
+                    </button>
+                  </td>
+                </tr>)}
               </tbody>
             </table>
+            {/* Create Event Popup --> need to pass in submit/close */}
+            {isPopupVisible && <CreateEvent onClose={closePopup} onSubmit={submitPopup}/>}
           </Tab>
           <Tab label="Ranking">
             <div className="py-4">
