@@ -108,7 +108,12 @@ export default function VerifyOrganiser() {
                     ))}
                 </tbody>
             </table>
-            <Pagination totalPages={totalPages} buttonSize="w-10 h-10" onPageChange={handlePageChange} />
+            <Pagination 
+                totalPages={totalPages} 
+                buttonSize="w-10 h-10"
+                currentPage={currentPage} 
+                onPageChange={handlePageChange} 
+            />
         </div>
     );
 }

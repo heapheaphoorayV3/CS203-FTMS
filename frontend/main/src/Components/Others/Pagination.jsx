@@ -17,8 +17,7 @@ function PaginationButton({ element, onClick, isActive, buttonSize, isVisible })
 }
 
 // Main Pagination component
-export default function Pagination({ totalPages, buttonSize = 'px-3 h-8' }) {
-    const [currentPage, setCurrentPage] = useState(1); // Track the current page
+export default function Pagination({ totalPages, buttonSize = 'px-3 h-8', currentPage, onPageChange }) {
     const [visibleStartPage, setVisibleStartPage] = useState(1); // Track the start of visible range
 
     const visiblePageButtons = 5; // Limit to showing 5 page buttons at a time
@@ -27,13 +26,13 @@ export default function Pagination({ totalPages, buttonSize = 'px-3 h-8' }) {
 
     // Handle clicking of page numbers
     const handlePageClick = (page) => {
-        setCurrentPage(page);
+        onPageChange(page);
     };
 
     // Handle previous button click (decrease the page, if possible)
     const handlePrevious = () => {
         if (currentPage > 1) {
-            setCurrentPage(currentPage - 1);
+            onPageChange(currentPage - 1);
             if (currentPage === visibleStartPage && visibleStartPage > 1) {
                 setVisibleStartPage(visibleStartPage - 1); // Shift the range backward
             }
@@ -43,7 +42,7 @@ export default function Pagination({ totalPages, buttonSize = 'px-3 h-8' }) {
     // Handle next button click (increment the page, if possible)
     const handleNext = () => {
         if (currentPage < totalPages) {
-            setCurrentPage(currentPage + 1);
+            onPageChange(currentPage + 1);
             if (currentPage === visibleStartPage + visiblePageButtons - 1 && currentPage < totalPages) {
                 setVisibleStartPage(visibleStartPage + 1); // Shift the range forward
             }
