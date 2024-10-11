@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import Pagination from "../Others/Pagination.jsx";
 
+/*
+- Submit Button
+- Integrate with Backend
+*/
 export default function VerifyOrganiser() {
     const [organisers, setOrganisers] = useState([]); // State to store fetched organisers
     const [currentPage, setCurrentPage] = useState(1); // State for current page
@@ -47,7 +51,8 @@ export default function VerifyOrganiser() {
                 newState[id] = newState[id] === 'denied' ? undefined : 'denied'; // Toggle between denied and undefined
             }
 
-            // If both checkboxes are toggled, set to undefined
+            // If both checkboxes are toggled, set to newState
+            // If checkbox untoggled, set to undefined
             if (newState[id] === 'approved' && prev[id] === 'denied') {
                 newState[id] = 'approved'; // Approve overrides deny
             } else if (newState[id] === 'denied' && prev[id] === 'approved') {
