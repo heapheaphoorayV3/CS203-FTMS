@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Tabs, Tab } from "../Others/DashboardTabs.jsx";
-import SubmitButton from "../Others/SubmitButton.jsx";
 import Breadcrumbs from "../Others/Breadcrumbs.jsx";
 import FencerService from "../../Services/Fencer/FencerService.js";
 import TournamentService from "../../Services/Tournament/TournamentService.js";

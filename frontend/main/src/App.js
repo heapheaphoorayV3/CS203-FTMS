@@ -17,7 +17,7 @@ import ViewTournament from "./Components/Tournament/ViewTournament";
 import ProtectedRoute from "./Components/Authentication/ProtectedRoute";
 import ViewEvent from "./Components/Tournament/ViewEvent";
 import Tournaments from "./Components/Tournament/Tournaments";
-import AuthProvider from "./Components/AuthProvider";
+import VerifyOrganiser from "./Components/Admin/VerifyOrganiser";
 
 function App() {
   return (
@@ -38,10 +38,13 @@ function App() {
           <Route path="/create-tournament" element={<CreateTournament />} />
           <Route path="/tournament/:tournamentID/create-event" element={<CreateEvent />} />
           <Route path="/signup-event" element={<SignUpEvent />} />
+          <Route path="/verify-organiser" element={<VerifyOrganiser />} />
         </Route>
 
         {/* Admin Layout */}
-        <Route element={<AdminLayout />}></Route>
+        <Route element={<AdminLayout />}>
+          {/* <Route path="/verify-organiser" element={<VerifyOrganiser />} /> */}
+        </Route>
 
         {/* Authenticated Layout */}
         <Route element={<ProtectedRoute />}>
