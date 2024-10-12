@@ -10,6 +10,10 @@ class TournamentService {
     async getTournamentDetails(tid) {
         return await ProtectedAPI.get(`${baseURL}/tournament-details/${tid}`);
     }
+
+    async getAllTournaments() {
+        return await ProtectedAPI.get(`${baseURL}/tournaments`);
+    }
 }
 
 export default new TournamentService();
