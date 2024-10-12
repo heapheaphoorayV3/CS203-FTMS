@@ -85,7 +85,7 @@ export default function Tournaments() {
               <tr key={tournament.id}>
                 <td>
                   <a
-                    href={`view-tournament/${tournament.id}`}
+                    href={`tournaments/${tournament.id}`}
                     className="underline hover:text-accent"
                   >
                     {tournament.name}
