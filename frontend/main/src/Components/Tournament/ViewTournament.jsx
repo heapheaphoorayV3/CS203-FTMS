@@ -1,33 +1,32 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import ViewCard from "../Others/ViewCard.jsx";
-import EventList from "../Others/EventList.jsx";
-import Navbar from "../Navbar.jsx";
-import Sidebar from "../Sidebar.jsx";
 import { Tabs, Tab } from "../Others/DashboardTabs.jsx";
-import SubmitButton from "../Others/SubmitButton.jsx";
 import Breadcrumbs from "../Others/Breadcrumbs.jsx";
 import FencerService from "../../Services/Fencer/FencerService.js";
 import TournamentService from "../../Services/Tournament/TournamentService.js";
+import CreateEvent from "./CreateEvent.jsx";
+import UpdateEvent from "./UpdateEvent.jsx";
 
 export default function ViewTournament() {
-  const breadcrumbs = [
-    { name: "Home", link: "/" },
-    { name: "Tournaments", link: "/tournaments" },
-  ];
-
-  const { id } = useParams();
+  // Retrieve tournament ID from URL
+  const { tournamentID } = useParams();
 
   const [tournamentData, setTournamentData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
+  const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   const navigate = useNavigate();
 
+  // Fetch tournament data if tournamentID changes
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await TournamentService.getTournamentDetails(id);
+        const response = await TournamentService.getTournamentDetails(
+          tournamentID
+        );
         setTournamentData(response.data);
         console.log("response.data => ", response.data);
       } catch (error) {
@@ -38,10 +37,31 @@ export default function ViewTournament() {
       }
     };
 
-    if (id) {
+    if (tournamentID) {
       fetchData();
     }
-  }, [id]);
+  }, [tournamentID]);
+
+  const breadcrumbsItems = [
+    { name: "Home", link: "/" },
+    { name: "Tournaments", link: "/tournaments" },
+    {
+      name: loading
+        ? "Loading..."
+        : tournamentData
+        ? tournamentData.name
+        : "Not Found",
+    },
+  ];
+
+  // Loading / Error states
+  if (loading) {
+    return <div className="mt-10">Loading...</div>; // Show loading state
+  }
+
+  if (error) {
+    return <div className="mt-10">{error}</div>; // Show error message if any
+  }
 
   const handleSubmit = async (data) => {
     try {
@@ -71,7 +91,7 @@ export default function ViewTournament() {
     const currentDate = new Date();
     const startDate = new Date(start);
     const endDate = new Date(end);
-  
+
     if (currentDate < startDate) {
       return "Upcoming";
     } else if (currentDate >= startDate && currentDate <= endDate) {
@@ -81,72 +101,56 @@ export default function ViewTournament() {
     }
   };
 
-  const tournamentDetails = {
-    tournamentName: "Jackin's Arena",
-    status: "Ongoing",
-    description: "Just be Gay bro",
-    currentEvents: ["Event 1", "Event 2"],
-    organisation: "Organisation Name",
-    location: "Palau Tekong, School 4 - Parade Sqaure",
-    rules: "Don't be gay",
-    events: [
-      {
-        gender: "gay",
-        weapon: "excalibur",
-        date: "today",
-        startTime: "00:00:00",
-        endTime: "00:00:00",
-      },
-      {
-        gender: "gay",
-        weapon: "excalibur",
-        date: "today",
-        startTime: "00:00:00",
-        endTime: "00:00:00",
-      },
-      {
-        gender: "gay",
-        weapon: "excalibur",
-        date: "today",
-        startTime: "00:00:00",
-        endTime: "00:00:00",
-      },
-      {
-        gender: "gay",
-        weapon: "excalibur",
-        date: "today",
-        startTime: "00:00:00",
-        endTime: "00:00:00",
-      },
-      {
-        gender: "gay",
-        weapon: "excalibur",
-        date: "today",
-        startTime: "00:00:00",
-        endTime: "00:00:00",
-      },
-      {
-        gender: "gay",
-        weapon: "excalibur",
-        date: "today",
-        startTime: "00:00:00",
-        endTime: "00:00:00",
-      },
-    ],
+  // console.log(tournamentData);
+  const eventsArray = Array.from(tournamentData.events ?? []);
+  // console.log(eventsArray);
+
+  // Create array of the 6 event types
+  let eventTypes = [
+    "MaleEpee",
+    "MaleFoil",
+    "MaleSaber",
+    "FemaleEpee",
+    "FemaleFoil",
+    "FemaleSaber",
+  ];
+
+  // Display create-event popup on click "Add Event" button
+
+  const closeCreatePopup = () => {
+    setIsCreatePopupVisible(false);
+  };
+  const openCreatePopup = () => {
+    setIsCreatePopupVisible(true);
+  };
+  const submitCreatePopup = (eventDetails) => {
+    console.log(eventDetails);
+    // Add event to eventsArray
+    eventsArray.push(eventDetails);
+    // Close popup
+    closeCreatePopup();
   };
 
-  if (loading) {
-    return <div className="mt-10">Loading...</div>; // Show loading state
-  }
+  // Display update-event popup on click "Update Event" button
 
-  if (error) {
-    return <div className="mt-10">{error}</div>; // Show error message if any
-  }
+  const closeUpdatePopup = () => {
+    setIsUpdatePopupVisible(false);
+  };
+  const openUpdatePopup = (event) => {
+    setSelectedEvent(event);
+    setIsUpdatePopupVisible(true);
+  };
+  const submitUpdatePopup = (eventDetails) => {
+    console.log(eventDetails);
+    eventsArray.push(eventDetails);
+    closeUpdatePopup();
+  };
 
   return (
     // Grid for Navbar, Sidebar and Content
 
     <div className="row-span-2 col-start-2 bg-gray-300 h-full overflow-y-auto">
+      <Breadcrumbs items={breadcrumbsItems} />
       <h1 className="my-10 ml-12 text-left text-4xl font-semibold">
         {tournamentData.name}
       </h1>
@@ -161,7 +165,12 @@ export default function ViewTournament() {
           {formatDateRange(tournamentData.startDate, tournamentData.endDate)}
         </div>
         <div className="text-lg">{tournamentData.location}</div>
-        <div className="text-lg">{getTournamentStatus(tournamentData.startDate, tournamentData.endDate)}</div>
+        <div className="text-lg">
+          {getTournamentStatus(
+            tournamentData.startDate,
+            tournamentData.endDate
+          )}
+        </div>
       </div>
 
       <div className="ml-12 mr-8 text-lg overflow-x-auto">
@@ -184,48 +193,76 @@ export default function ViewTournament() {
                   <th>Date</th>
                   <th>Start Time</th>
                   <th>End Time</th>
-                  <th>Sign Up</th>
+                  <th>
+                    {sessionStorage.getItem("userType") === "O"
+                      ? "Update Event"
+                      : "Sign Up"}
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {/* row 1 */}
-                <tr className="hover:bg-gray-200">
-                  <th>1</th>
-                  <td>
-                    <a
-                      href="/view-event"
-                      className="underline hover:text-accent"
-                    >
-                      Event 1
-                    </a>
-                  </td>
-                  <td>Date</td>
-                  <td>Start</td>
-                  <td>End</td>
-                  <td>
-                    <SubmitButton onSubmit={handleSubmit}>Sign Up</SubmitButton>
-                  </td>
-                </tr>
-                {/* row 2 */}
-                <tr className="hover:bg-gray-200">
-                  <th>2</th>
-                  <td>Event 1</td>
-                  <td>Date</td>
-                  <td>Start</td>
-                  <td>End</td>
-                  <td></td>
-                </tr>
-                {/* row 3 */}
-                <tr className="hover:bg-gray-200">
-                  <th>3</th>
-                  <td>Event 1</td>
-                  <td>Date</td>
-                  <td>Start</td>
-                  <td>End</td>
-                  <td></td>
-                </tr>
+                {/* Render events */}
+                {eventsArray.length > 0 ? (
+                  eventsArray.map((event, index) => (
+                    <tr key={index}>
+                      <td>{/* Event details */}</td>
+                      <td>
+                        <a href={`/view-event/${event.id}`} className="underline hover:text-accent">
+                          {event.eventName}
+                        </a>
+                      </td>
+                      <td>{event.date}</td>
+                      <td>{event.startTime}</td>
+                      <td>{event.endTime}</td>
+                      <td>
+                        <button
+                          key={event.id}
+                          onClick={() => openUpdatePopup(event)}
+                          className="bg-blue-500 text-white px-4 py-2 rounded"
+                        >
+                          Update {event.eventName}
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="6" className="text-center">
+                      No events available.
+                    </td>
+                  </tr>
+                )}
+                {/* Add Event button row only if organiser */}
+                {sessionStorage.getItem("userType") === "O" && (
+                  <tr>
+                    <td colSpan="6" className="text-center">
+                      <button
+                        onClick={openCreatePopup}
+                        className="bg-blue-500 text-white px-4 py-2 rounded"
+                      >
+                        Add Event
+                      </button>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
+            {/* Create Event Popup --> need to pass in submit/close */}
+            {isCreatePopupVisible && (
+              <CreateEvent
+                onClose={closeCreatePopup}
+                onSubmit={submitCreatePopup}
+              />
+            )}
+
+            {/* Update Event Popup --> need to pass in submit/close */}
+            {isUpdatePopupVisible && (
+              <UpdateEvent
+                onClose={closeUpdatePopup}
+                onSubmit={submitUpdatePopup}
+                selectedEvent={selectedEvent}
+              />
+            )}
           </Tab>
           <Tab label="Ranking">
             <div className="py-4">
@@ -249,70 +286,6 @@ export default function ViewTournament() {
           </Tab>
         </Tabs>
       </div>
-
-      {/* Grid for Content */}
-      {/* <div className="ml-10 mr-8 mb-10 grid grid-cols-3 auto-rows-fr gap-x-[50px] gap-y-[30px]">
-        <ViewCard
-          className="col-start-1 col-end-1 row-start-1 row-end-1"
-          heading="Status"
-        >
-          <p>{tournamentDetails.status}</p>
-        </ViewCard>
-
-        <ViewCard
-          className="col-start-2 col-end-4 row-start-1 row-end-4"
-          heading="Description"
-        >
-          <p>{tournamentDetails.description}</p>
-        </ViewCard>
-
-        <ViewCard
-          className="col-start-1 col-end-1 row-start-2 row-end-2"
-          heading="Location"
-        >
-          <p>{tournamentDetails.location}</p>
-        </ViewCard>
-
-        <ViewCard
-          className="col-start-1 col-end-1 row-start-3 row-end-3"
-          heading="Organiser"
-        >
-          <p>{tournamentDetails.organisation}</p>
-        </ViewCard>
-
-        <ViewCard
-          className="col-start-1 col-end-1 row-start-4 row-end-4"
-          heading="Sign Up Closing Date"
-        >
-          <p>Sign Up Closing Date</p>
-        </ViewCard>
-
-        <ViewCard
-          className="col-start-2 col-end-2 row-start-4 row-end-4"
-          heading="Event Start"
-        >
-          <p>Tournament Start Date</p>
-        </ViewCard>
-
-        <ViewCard
-          className="col-start-3 col-end-3 row-start-4 row-end-4"
-          heading="Event End"
-        >
-          <p>Tournament End Date</p>
-        </ViewCard>
-
-        <EventList
-          className="col-start-1 col-end-4 row-start-5 row-end-7"
-          events={tournamentDetails.events}
-        />
-
-        <ViewCard
-          className="col-start-1 col-end-4 row-start-7 row-end-9"
-          heading="Rules"
-        >
-          <p>{tournamentDetails.rules}</p>
-        </ViewCard>
-      </div> */}
     </div>
   );
 }

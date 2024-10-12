@@ -1,14 +1,37 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../Assets/logosvg.svg";
 import jacpic from "../Assets/jackinpic.jpg";
 import NavbarButton from "./Others/NavbarButton";
 import SubmitButton from "./Others/SubmitButton";
+import FencerService from "../Services/Fencer/FencerService";
+import OrganiserService from "../Services/Organiser/OrganiserService";
 
 const Navbar = () => {
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const isLoggedIn = sessionStorage.getItem("token");
-  // const userType = sessionStorage.getItem("userType");
+  const userType = sessionStorage.getItem("userType");
+
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        let response = null;
+        if(userType === "F"){
+          response = await FencerService.getProfile()
+        }
+        else if(userType === "O"){
+          response = await OrganiserService.getProfile();
+        }
+        setUserData(response.data);
+
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+    fetchData();
+  }, [sessionStorage.getItem("userType")]);
 
   const toggleUserDropdown = () => {
     setIsUserDropdownOpen(!isUserDropdownOpen);
@@ -30,7 +53,7 @@ const Navbar = () => {
   return (
     <>
       {isLoggedIn ? (
-        <nav className="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+        <nav className="h-full w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
           <div className="w-full flex items-center justify-between mx-auto p-2.5">
             <a href="/" className="flex items-center">
               <img src={logo} className="pl-3 h-8" alt="Logo" />
@@ -52,17 +75,24 @@ const Navbar = () => {
               </button>
 
               <div
-                className={`${
-                  isUserDropdownOpen ? "block" : "hidden"
-                } absolute right-0 mt-50 w-48 bg-white rounded-lg shadow-lg z-50 dark:bg-gray-700`}
+                className={`${isUserDropdownOpen ? "block" : "hidden"
+                  } absolute right-0 mt-50 w-48 bg-white rounded-lg shadow-lg z-50 dark:bg-gray-700`}
               >
                 <div className="px-4 py-3">
-                  <span className="block text-sm text-gray-900 dark:text-white">
-                    Bonnie Green
-                  </span>
-                  <span className="block text-sm text-gray-500 truncate dark:text-gray-400">
-                    name@flowbite.com
-                  </span>
+                  {userData ? (
+                    <>
+                      <span className="block text-sm text-gray-900 dark:text-white">
+                        {userData.name}
+                      </span>
+                      <span className="block text-sm text-gray-500 truncate dark:text-gray-400">
+                        {userData.email}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="block text-sm text-gray-500 truncate dark:text-gray-400">
+                      Loading...
+                    </span>
+                  )}
                 </div>
                 <ul className="py-2">
                   <li>

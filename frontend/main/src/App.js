@@ -17,7 +17,7 @@ import ViewTournament from "./Components/Tournament/ViewTournament";
 import ProtectedRoute from "./Components/Authentication/ProtectedRoute";
 import ViewEvent from "./Components/Tournament/ViewEvent";
 import Tournaments from "./Components/Tournament/Tournaments";
-import AuthProvider from "./Components/AuthProvider";
+import VerifyOrganiser from "./Components/Admin/VerifyOrganiser";
 
 function App() {
   return (
@@ -28,20 +28,23 @@ function App() {
           <Route path="/" element={<FencerDashboard />} />
           <Route path="/fencer-dashboard" element={<FencerDashboard />} />
           <Route path="/organiser-dashboard" element={<OrganiserDashboard />} />
-          <Route path="/view-tournament" element={<ViewTournament />} />
-          <Route path="/view-event" element={<ViewEvent />} />
+          <Route path="/tournaments/:tournamentID" element={<ViewTournament />} />
+          <Route path="/view-event/:eventID" element={<ViewEvent />} />
           <Route path="/tournaments" element={<Tournaments />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup-options" element={<SignupOptions />} />
           <Route path="/signup-fencer" element={<SignUpFencer />} />
           <Route path="/signup-organiser" element={<SignUpOrganiser />} />
           <Route path="/create-tournament" element={<CreateTournament />} />
-          <Route path="/create-event" element={<CreateEvent />} />
+          <Route path="/tournament/:tournamentID/create-event" element={<CreateEvent />} />
           <Route path="/signup-event" element={<SignUpEvent />} />
+          <Route path="/verify-organiser" element={<VerifyOrganiser />} />
         </Route>
 
         {/* Admin Layout */}
-        <Route element={<AdminLayout />}></Route>
+        <Route element={<AdminLayout />}>
+          {/* <Route path="/verify-organiser" element={<VerifyOrganiser />} /> */}
+        </Route>
 
         {/* Authenticated Layout */}
         <Route element={<ProtectedRoute />}>

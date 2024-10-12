@@ -34,9 +34,11 @@ const OrganiserDashboard = () => {
     return <div className="mt-10">{error}</div>; // Show error message if any
   }
 
+  console.log("verified="+userData.verified);
+
   return (
     <div className="main">
-      <div id="body" className="bg-gray-200 w-full flex gap-2 flex-col p-4">
+      <div id="body" className="bg-gray-200 w-full h-fit flex gap-2 flex-col p-4">
         <div className="right w-full flex gap-2 flex-col p-4">
           <div className="bg-white border rounded-2xl shadow-lg p-6 flex flex-row w-full relative overflow-x-hidden">
             {/* Profile Image and Name */}
@@ -52,15 +54,15 @@ const OrganiserDashboard = () => {
             </div>
 
             <div className="grid grid-cols-[2fr_8fr] gap-y-2 gap-x-4 ml-4 my-4 text-xl w-full">
-              {/* Email, ContactNo, Country, Verfication Status */}
+              {/* Email, ContactNo, Country, Verification Status */}
               <div className="flex font-medium">Email:</div>
               <div className="flex">{userData.email}</div>
               <div className="flex font-medium">Contact Number:</div>
               <div className="flex">{userData.contactNo}</div>
               <div className="flex font-medium">Country:</div>
               <div className="flex">{userData.country}</div>
-              <div className="flex font-medium">Verfication Status:</div>
-              <div className="flex">{userData.verified}</div>
+              <div className="flex font-medium">Verification Status:</div>
+              <div className="flex">{userData.verified ? "Verified" : "Pending Verification"}</div>
             </div>
 
             {/* Edit Icon */}
