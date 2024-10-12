@@ -7,6 +7,7 @@ import TournamentService from "../../Services/Tournament/TournamentService.js";
 import CreateEvent from "./CreateEvent.jsx";
 import UpdateEvent from "./UpdateEvent.jsx";
 import EventBracket from "./EventBracket.jsx";
+import PaginationButton from "../Others/Pagination.jsx";
 
 export default function ViewTournament() {
   // Retrieve tournament ID from URL
@@ -18,6 +19,30 @@ export default function ViewTournament() {
   const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
   const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const limit = 10;
+
+  const testData = Array.from({ length: 20 }, (_, index) => ({
+    id: index + 1,
+    name: "Name",
+    country: "SG",
+    score: 0,
+  }));
+
+  const [paginatedData, setPaginatedData] = useState([]);
+
+  // Effect to update the organisers and total pages based on current page
+  useEffect(() => {
+    const startIndex = (currentPage - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedData = testData.slice(startIndex, endIndex);
+    setPaginatedData(paginatedData); // Set paginated data for the current page
+  }, [currentPage]);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+  const totalPages = Math.ceil(testData.length / limit);
 
   const navigate = useNavigate();
 
@@ -238,7 +263,11 @@ export default function ViewTournament() {
                   eventsArray.map((event, index) => (
                     <tr key={index}>
                       <td>{/* Event details */}</td>
-                      <td>{event.eventName}</td>
+                      <td>
+                        <a href={`/view-event/${event.id}`} className="underline hover:text-accent">
+                          {event.eventName}
+                        </a>
+                      </td>
                       <td>{event.date}</td>
                       <td>{event.startTime}</td>
                       <td>{event.endTime}</td>
@@ -293,7 +322,7 @@ export default function ViewTournament() {
             )}
           </Tab>
           <Tab label="Ranking">
-            {/* <div className="py-4">
+            <div className="py-4">
               <h2 className="text-lg font-medium mb-2">Tab 3</h2>
               <p className="text-gray-700">
                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime
@@ -310,8 +339,7 @@ export default function ViewTournament() {
                 quibusdam recusandae alias error harum maxime adipisci amet
                 laborum.
               </p>
-            </div> */}
-            <EventBracket matches={simpleSmallBracket} />
+            </div>
           </Tab>
         </Tabs>
       </div>
