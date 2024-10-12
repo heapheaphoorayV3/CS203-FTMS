@@ -28,7 +28,7 @@ function App() {
           <Route path="/" element={<FencerDashboard />} />
           <Route path="/fencer-dashboard" element={<FencerDashboard />} />
           <Route path="/organiser-dashboard" element={<OrganiserDashboard />} />
-          <Route path="/view-tournament/:tournamentID" element={<ViewTournament />} />
+          <Route path="/tournaments/:tournamentID" element={<ViewTournament />} />
           <Route path="/view-event/:eventID" element={<ViewEvent />} />
           <Route path="/tournaments" element={<Tournaments />} />
           <Route path="/signin" element={<SignIn />} />
