@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import CountrySelector from "../Others/CountrySelector";
 import TournamentService from "../../Services/Tournament/TournamentService";
+import { Zone } from "luxon";
 
 const CreateTournament = () => {
   const {
@@ -14,6 +15,7 @@ const CreateTournament = () => {
   } = useForm();
 
   // Start Date cannot be before End Date
+  const signupEndDate = watch("signupEndDate");
   const startDate = watch("startDate");
 
   const navigate = useNavigate();
@@ -35,9 +37,8 @@ const CreateTournament = () => {
       }
       console.log("Data being sent to the server:", data);
       const tournamentId = await TournamentService.createTournament(data);
-      console.log(tournamentId);
-      // navigate(`/view-tournament/${tournamentId.id}`);
-      navigate("/tournaments");
+      navigate(`/tournaments/${tournamentId.data.id}`);
+
     } catch (error) {
       console.log(error);
     }
@@ -95,20 +96,37 @@ const CreateTournament = () => {
                   </p>
                 )}
               </div>
-              {/* <Controller
-                name="country"
-                control={control}
-                defaultValue=""
-                rules={{ required: "Please fill this in!" }}
-                render={({ field: { onChange, value } }) => (
-                  <CountrySelector
-                    value={value}
-                    onChange={onChange}
-                    error={errors.country}
-                  />
-                )}
-              /> */}
 
+              {/* Signups End Date */}
+              <div>
+                <label className="block font-medium mb-1">
+                  Sign Ups End Date
+                </label>
+                <input
+                  type="date"
+                  {...register("signupEndDate", {
+                    required: "Please fill this in!",
+                    validate: (value) => {
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0); // Set time to midnight to compare only dates
+                      const selectedDate = new Date(value);
+                      return (
+                        (selectedDate >= today) ||
+                        "Signup End Date must be after today!"
+                      );
+                    },
+                  })}
+                  className={`w-full border rounded-md p-2 ${
+                    errors.signupEndDate ? "border-red-500" : "border-gray-300"
+                  }`}
+                />
+                {errors.signupEndDate && (
+                  <p className="text-red-500 text-sm italic">
+                    {errors.signupEndDate.message}
+                  </p>
+                )}
+              </div>
+              
               {/* Start Date */}
               <div>
                 <label className="block font-medium mb-1">Start Date</label>
@@ -117,12 +135,12 @@ const CreateTournament = () => {
                   {...register("startDate", {
                     required: "Please fill this in!",
                     validate: (value) => {
+                      const signupEnd = new Date(signupEndDate);
+                      signupEnd.setDate(signupEnd.getDate() + 1); // Add 2 days to sign up end date
                       const selectedDate = new Date(value);
-                      const today = new Date();
-                      today.setHours(0, 0, 0, 0); // Set time to midnight to compare only dates
                       return (
-                        selectedDate >= today ||
-                        "Please enter a valid start date!"
+                        selectedDate > signupEnd ||
+                        "Start Date must be 2 days after Sign Ups End Date!"
                       );
                     },
                   })}
@@ -149,7 +167,7 @@ const CreateTournament = () => {
                       const start = new Date(startDate);
                       return (
                         selectedDate >= start ||
-                        "End Date must be same or after Start Date!"
+                        "End Date cannot be before Start Date!"
                       );
                     },
                   })}
@@ -164,37 +182,6 @@ const CreateTournament = () => {
                 )}
               </div>
 
-              {/* Signups End Date */}
-              <div>
-                <label className="block font-medium mb-1">
-                  Sign Ups End Date
-                </label>
-                <input
-                  type="date"
-                  {...register("signupEndDate", {
-                    required: "Please fill this in!",
-                    validate: (value) => {
-                      const selectedDate = new Date(value);
-                      const start = new Date(startDate);
-                      start.setDate(start.getDate() - 1); // Set start date to 2 days before
-                      const today = new Date();
-                      today.setHours(0, 0, 0, 0); // Set time to midnight to compare only dates
-                      return (
-                        (selectedDate <= start && selectedDate >= today) ||
-                        "Signup End Date must be at least 2 days before Start Date!"
-                      );
-                    },
-                  })}
-                  className={`w-full border rounded-md p-2 ${
-                    errors.signupEndDate ? "border-red-500" : "border-gray-300"
-                  }`}
-                />
-                {errors.signupEndDate && (
-                  <p className="text-red-500 text-sm italic">
-                    {errors.signupEndDate.message}
-                  </p>
-                )}
-              </div>
 
               {/* poules Elimination % / advancement rate*/}
               <div>
@@ -208,7 +195,7 @@ const CreateTournament = () => {
                     validate: (value) => {
                       return (
                         (value >= 60 && value <= 100) ||
-                        "Please enter a valid percentage above 60!"
+                        "Please enter a valid percentage from 60 to 100!"
                       );
                     },
                   })}
