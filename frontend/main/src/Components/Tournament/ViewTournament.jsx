@@ -5,6 +5,7 @@ import Breadcrumbs from "../Others/Breadcrumbs.jsx";
 import FencerService from "../../Services/Fencer/FencerService.js";
 import TournamentService from "../../Services/Tournament/TournamentService.js";
 import CreateEvent from "./CreateEvent.jsx";
+import UpdateEvent from "./UpdateEvent.jsx";
 
 export default function ViewTournament() {
   // Retrieve tournament ID from URL
@@ -13,7 +14,9 @@ export default function ViewTournament() {
   const [tournamentData, setTournamentData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
+  const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   const navigate = useNavigate();
 
@@ -46,8 +49,8 @@ export default function ViewTournament() {
       name: loading
         ? "Loading..."
         : tournamentData
-          ? tournamentData.name
-          : "Not Found",
+        ? tournamentData.name
+        : "Not Found",
     },
   ];
 
@@ -98,27 +101,49 @@ export default function ViewTournament() {
     }
   };
 
-  console.log(tournamentData);
+  // console.log(tournamentData);
   const eventsArray = Array.from(tournamentData.events ?? []);
-  console.log(eventsArray);
+  // console.log(eventsArray);
 
   // Create array of the 6 event types
-  let eventTypes = ["MaleEpee", "MaleFoil", "MaleSaber", "FemaleEpee", "FemaleFoil", "FemaleSaber"];
+  let eventTypes = [
+    "MaleEpee",
+    "MaleFoil",
+    "MaleSaber",
+    "FemaleEpee",
+    "FemaleFoil",
+    "FemaleSaber",
+  ];
 
   // Display create-event popup on click "Add Event" button
-  
-  const closePopup = () => {
-    setIsPopupVisible(false);
+
+  const closeCreatePopup = () => {
+    setIsCreatePopupVisible(false);
   };
-  const openPopup = () => {
-    setIsPopupVisible(true);
+  const openCreatePopup = () => {
+    setIsCreatePopupVisible(true);
   };
-  const submitPopup = (eventDetails) => {
+  const submitCreatePopup = (eventDetails) => {
     console.log(eventDetails);
     // Add event to eventsArray
     eventsArray.push(eventDetails);
     // Close popup
-    closePopup();
+    closeCreatePopup();
+  };
+
+  // Display update-event popup on click "Update Event" button
+
+  const closeUpdatePopup = () => {
+    setIsUpdatePopupVisible(false);
+  };
+  const openUpdatePopup = (event) => {
+    setSelectedEvent(event);
+    setIsUpdatePopupVisible(true);
+  };
+  const submitUpdatePopup = (eventDetails) => {
+    console.log(eventDetails);
+    eventsArray.push(eventDetails);
+    closeUpdatePopup();
   };
 
   return (
@@ -168,7 +193,11 @@ export default function ViewTournament() {
                   <th>Date</th>
                   <th>Start Time</th>
                   <th>End Time</th>
-                  <th>{sessionStorage.getItem("userType") === "O" ? "Update Event" : "Sign Up"}</th>
+                  <th>
+                    {sessionStorage.getItem("userType") === "O"
+                      ? "Update Event"
+                      : "Sign Up"}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -177,11 +206,19 @@ export default function ViewTournament() {
                   eventsArray.map((event, index) => (
                     <tr key={index}>
                       <td>{/* Event details */}</td>
-                      <td>{event.gender} {event.weapon}</td>
+                      <td>{event.eventName}</td>
                       <td>{event.date}</td>
                       <td>{event.startTime}</td>
                       <td>{event.endTime}</td>
-                      <td>{/* Sign up button or link */}</td>
+                      <td>
+                        <button
+                          key={event.id}
+                          onClick={() => openUpdatePopup(event)}
+                          className="bg-blue-500 text-white px-4 py-2 rounded"
+                        >
+                          Update {event.eventName}
+                        </button>
+                      </td>
                     </tr>
                   ))
                 ) : (
@@ -192,18 +229,36 @@ export default function ViewTournament() {
                   </tr>
                 )}
                 {/* Add Event button row only if organiser */}
-                {sessionStorage.getItem("userType") === "O" &&
-                (<tr>
-                  <td colSpan="6" className="text-center">
-                    <button onClick={openPopup} className="bg-blue-500 text-white px-4 py-2 rounded">
-                      Add Event
-                    </button>
-                  </td>
-                </tr>)}
+                {sessionStorage.getItem("userType") === "O" && (
+                  <tr>
+                    <td colSpan="6" className="text-center">
+                      <button
+                        onClick={openCreatePopup}
+                        className="bg-blue-500 text-white px-4 py-2 rounded"
+                      >
+                        Add Event
+                      </button>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
             {/* Create Event Popup --> need to pass in submit/close */}
-            {isPopupVisible && <CreateEvent onClose={closePopup} onSubmit={submitPopup}/>}
+            {isCreatePopupVisible && (
+              <CreateEvent
+                onClose={closeCreatePopup}
+                onSubmit={submitCreatePopup}
+              />
+            )}
+
+            {/* Update Event Popup --> need to pass in submit/close */}
+            {isUpdatePopupVisible && (
+              <UpdateEvent
+                onClose={closeUpdatePopup}
+                onSubmit={submitUpdatePopup}
+                selectedEvent={selectedEvent}
+              />
+            )}
           </Tab>
           <Tab label="Ranking">
             <div className="py-4">
