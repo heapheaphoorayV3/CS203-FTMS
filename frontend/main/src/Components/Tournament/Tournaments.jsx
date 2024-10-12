@@ -82,28 +82,36 @@ export default function Tournaments() {
             </tr>
           </thead>
           <tbody>
-            {tournamentData.map((tournament, index) => (
-              <tr key={tournament.id}>
-                <td>
-                  <a
-                    href={`tournaments/${tournament.id}`}
-                    className="underline hover:text-accent"
-                  >
-                    {tournament.name}
-                  </a>
-                </td>
-                <td>{tournament.location}</td>
-                <td>
-                {formatDateRange(tournament.startDate, tournament.endDate)}
-                </td>
-                <td>
-                  {getTournamentStatus(
-                    tournament.startDate,
-                    tournament.endDate
-                  )}
+            {tournamentData.length > 0 ? (
+              tournamentData.map((tournament) => (
+                <tr key={tournament.id}>
+                  <td>
+                    <a
+                      href={`tournaments/${tournament.id}`}
+                      className="underline hover:text-accent"
+                    >
+                      {tournament.name}
+                    </a>
+                  </td>
+                  <td>{tournament.location}</td>
+                  <td>
+                    {formatDateRange(tournament.startDate, tournament.endDate)}
+                  </td>
+                  <td>
+                    {getTournamentStatus(
+                      tournament.startDate,
+                      tournament.endDate
+                    )}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="4" className="text-center">
+                  No tournaments available.
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>

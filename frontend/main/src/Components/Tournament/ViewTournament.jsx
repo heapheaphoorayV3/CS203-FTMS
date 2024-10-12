@@ -6,6 +6,7 @@ import FencerService from "../../Services/Fencer/FencerService.js";
 import TournamentService from "../../Services/Tournament/TournamentService.js";
 import CreateEvent from "./CreateEvent.jsx";
 import UpdateEvent from "./UpdateEvent.jsx";
+import PaginationButton from "../Others/Pagination.jsx";
 
 export default function ViewTournament() {
   // Retrieve tournament ID from URL
@@ -17,6 +18,30 @@ export default function ViewTournament() {
   const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
   const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const limit = 10;
+
+  const testData = Array.from({ length: 20 }, (_, index) => ({
+    id: index + 1,
+    name: "Name",
+    country: "SG",
+    score: 0,
+  }));
+
+  const [paginatedData, setPaginatedData] = useState([]);
+
+  // Effect to update the organisers and total pages based on current page
+  useEffect(() => {
+    const startIndex = (currentPage - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedData = testData.slice(startIndex, endIndex);
+    setPaginatedData(paginatedData); // Set paginated data for the current page
+  }, [currentPage]);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+  const totalPages = Math.ceil(testData.length / limit);
 
   const navigate = useNavigate();
 
@@ -207,7 +232,10 @@ export default function ViewTournament() {
                     <tr key={index}>
                       <td>{/* Event details */}</td>
                       <td>
-                        <a href={`/view-event/${event.id}`} className="underline hover:text-accent">
+                        <a
+                          href={`/view-event/${event.id}`}
+                          className="underline hover:text-accent"
+                        >
                           {event.eventName}
                         </a>
                       </td>
@@ -264,24 +292,46 @@ export default function ViewTournament() {
               />
             )}
           </Tab>
-          <Tab label="Ranking">
+          <Tab label="Tournament Ranking">
             <div className="py-4">
-              <h2 className="text-lg font-medium mb-2">Tab 3</h2>
-              <p className="text-gray-700">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime
-                mollitia, molestiae quas vel sint commodi repudiandae
-                consequuntur voluptatum laborum numquam blanditiis harum
-                quisquam eius sed odit fugiat iusto fuga praesentium optio,
-                eaque rerum! Provident similique accusantium nemo autem.
-                Veritatis obcaecati tenetur iure eius earum ut molestias
-                architecto voluptate aliquam nihil, eveniet aliquid culpa
-                officia aut! Impedit sit sunt quaerat, odit, tenetur error,
-                harum nesciunt ipsum debitis quas aliquid. Reprehenderit, quia.
-                Quo neque error repudiandae fuga? Ipsa laudantium molestias eos
-                sapiente officiis modi at sunt excepturi expedita sint? Sed
-                quibusdam recusandae alias error harum maxime adipisci amet
-                laborum.
-              </p>
+              <label className="block font-medium ml-1 mb-1">Event</label>
+              <select>
+                <option value="">Select Event</option>
+                {eventsArray.map((event) => (
+                  <option key={event.id} value={event.id}>
+                    {event.eventName}
+                  </option>
+                ))}
+              </select>
+              <table className="table text-lg">
+                {/* head */}
+                <thead className="text-lg">
+                  <tr>
+                    <th className="text-center w-20">Rank</th>
+                    <th className="w-1/2">Name</th>
+                    <th className="text-center">Country</th>
+                    <th className="text-center">Points</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginatedData.map((item) => (
+                    <tr key={item.id}>
+                      <td className="text-center">{item.id}</td>
+                      <td>{item.name}</td>
+                      <td className="text-center">{item.country}</td>
+                      <td className="text-center">{item.score}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <div className="flex flex-col justify-center items-center">
+                <PaginationButton
+                  totalPages={totalPages}
+                  buttonSize="w-10 h-10"
+                  currentPage={currentPage}
+                  onPageChange={handlePageChange}
+                />
+              </div>
             </div>
           </Tab>
         </Tabs>

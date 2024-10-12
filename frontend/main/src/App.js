@@ -18,6 +18,7 @@ import ProtectedRoute from "./Components/Authentication/ProtectedRoute";
 import ViewEvent from "./Components/Tournament/ViewEvent";
 import Tournaments from "./Components/Tournament/Tournaments";
 import VerifyOrganiser from "./Components/Admin/VerifyOrganiser";
+import InternationalRanking from "./Components/InternationalRanking";
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
           <Route path="/tournament/:tournamentID/create-event" element={<CreateEvent />} />
           <Route path="/signup-event" element={<SignUpEvent />} />
           <Route path="/verify-organiser" element={<VerifyOrganiser />} />
+          <Route path="/international-ranking" element={<InternationalRanking/>}/>
         </Route>
 
         {/* Admin Layout */}
