@@ -6,6 +6,7 @@ import FencerService from "../../Services/Fencer/FencerService.js";
 import TournamentService from "../../Services/Tournament/TournamentService.js";
 import CreateEvent from "./CreateEvent.jsx";
 import UpdateEvent from "./UpdateEvent.jsx";
+import EventBracket from "./EventBracket.jsx";
 
 export default function ViewTournament() {
   // Retrieve tournament ID from URL
@@ -146,6 +147,37 @@ export default function ViewTournament() {
     closeUpdatePopup();
   };
 
+
+  // Hardcode tournament bracket data for testing 
+  const simpleSmallBracket = [
+    {
+      id: 19753,
+      nextMatchId: null,
+      tournamentRoundText: "3",
+      startTime: "2021-05-30",
+      state: "SCHEDULED",
+      participants: []
+    },
+    {
+      id: 19754,
+      nextMatchId: 19753,
+      tournamentRoundText: "2",
+      startTime: "2021-05-30",
+      state: "SCHEDULED",
+      participants: []
+    },
+    {
+      id: 19754,
+      nextMatchId: 19753,
+      tournamentRoundText: "2",
+      startTime: "2021-05-30",
+      state: "SCHEDULED",
+      participants: []
+    }
+  ];
+
+
+
   return (
     // Grid for Navbar, Sidebar and Content
 
@@ -206,11 +238,7 @@ export default function ViewTournament() {
                   eventsArray.map((event, index) => (
                     <tr key={index}>
                       <td>{/* Event details */}</td>
-                      <td>
-                        <a href={`/view-event/${event.id}`} className="underline hover:text-accent">
-                          {event.eventName}
-                        </a>
-                      </td>
+                      <td>{event.eventName}</td>
                       <td>{event.date}</td>
                       <td>{event.startTime}</td>
                       <td>{event.endTime}</td>
@@ -265,7 +293,7 @@ export default function ViewTournament() {
             )}
           </Tab>
           <Tab label="Ranking">
-            <div className="py-4">
+            {/* <div className="py-4">
               <h2 className="text-lg font-medium mb-2">Tab 3</h2>
               <p className="text-gray-700">
                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime
@@ -282,7 +310,8 @@ export default function ViewTournament() {
                 quibusdam recusandae alias error harum maxime adipisci amet
                 laborum.
               </p>
-            </div>
+            </div> */}
+            <EventBracket matches={simpleSmallBracket} />
           </Tab>
         </Tabs>
       </div>
