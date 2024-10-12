@@ -18,6 +18,7 @@ import ProtectedRoute from "./Components/Authentication/ProtectedRoute";
 import ViewEvent from "./Components/Tournament/ViewEvent";
 import Tournaments from "./Components/Tournament/Tournaments";
 import VerifyOrganiser from "./Components/Admin/VerifyOrganiser";
+import LandingPage from "./Components/Others/LandingPage";
 
 function App() {
   return (
@@ -25,7 +26,7 @@ function App() {
       <Routes>
         {/* Default Layout */}
         <Route element={<DefaultLayout />}>
-          <Route path="/" element={<FencerDashboard />} />
+          <Route path="/" element={<LandingPage />} />
           <Route path="/fencer-dashboard" element={<FencerDashboard />} />
           <Route path="/organiser-dashboard" element={<OrganiserDashboard />} />
           <Route path="/tournaments/:tournamentID" element={<ViewTournament />} />
