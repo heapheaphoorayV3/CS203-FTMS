@@ -38,7 +38,7 @@ const OrganiserDashboard = () => {
 
   return (
     <div className="main">
-      <div id="body" className="bg-gray-200 w-full flex gap-2 flex-col p-4">
+      <div id="body" className="bg-gray-200 w-full h-fit flex gap-2 flex-col p-4">
         <div className="right w-full flex gap-2 flex-col p-4">
           <div className="bg-white border rounded-2xl shadow-lg p-6 flex flex-row w-full relative overflow-x-hidden">
             {/* Profile Image and Name */}

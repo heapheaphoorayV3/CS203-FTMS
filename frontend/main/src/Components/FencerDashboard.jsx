@@ -89,7 +89,7 @@ const FencerDashboard = () => {
 
   return (
     <div className="main">
-      <div id="body" className="bg-gray-200 w-full flex gap-2 flex-col p-4">
+      <div id="body" className="bg-gray-200 w-full gap-2 p-4">
         <div className="right w-full flex gap-2 flex-col p-4">
           <div className="bg-white border rounded-2xl shadow-lg p-6 flex flex-row w-full relative overflow-x-hidden">
             {/* Profile Image and Name */}
@@ -145,11 +145,11 @@ const FencerDashboard = () => {
                     <div className="flex">{userData.tournaments ? userData.tournaments : "-"}</div>
                   </div>
 
-                  <div >
+                  <div className="w-[99%] h-full">
                       <LineGraph data={rankGraphData} options={rankGraphOptions} height={200} />
                     
                   </div>
-                  <div>
+                  <div className="w-[99%] h-full">
                     <LineGraph data={pointsGraphData} options={pointsGraphOptions} height={200}/>
                   </div>
 
