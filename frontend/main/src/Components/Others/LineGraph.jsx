@@ -23,9 +23,17 @@ ChartJS.register(
 );
 
 const LineGraph = ({ data, options, height }) => {
+
+  // Ensure options are set for responsiveness
+  const responsiveOptions = {
+    ...options,
+    responsive: true,
+    maintainAspectRatio: true,
+  };
+  
   return (
-    <div className="max-w-2xl mx-auto p-4">
-      <Line data={data} options={options} height={height} />
+    <div>
+      <Line data={data} options={responsiveOptions} height={height} />
     </div>
   );
 };

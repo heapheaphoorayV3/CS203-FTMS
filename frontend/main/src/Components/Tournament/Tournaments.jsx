@@ -9,6 +9,7 @@ export default function Tournaments() {
 
   useEffect(() => {
     const fetchData = async () => {
+      console.log(sessionStorage.getItem("userType"));
       try {
         const response = await TournamentService.getAllTournaments();
         setTournamentData(response.data);
