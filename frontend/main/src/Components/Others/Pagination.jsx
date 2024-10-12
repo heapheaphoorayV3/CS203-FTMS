@@ -7,11 +7,13 @@ function PaginationButton({ element, onClick, isActive, buttonSize, isVisible })
         <li>
             <button
                 onClick={onClick}
-                className={`flex items-center justify-center ${buttonSize} leading-tight text-gray-500 bg-white border border-gray-300 
-                ${isActive ? 'bg-gray-700 text-white' : 'hover:bg-gray-100 hover:text-gray-700'} ${isVisible ? '' : 'invisible'}`} // Use invisible class
+                className={`flex items-center justify-center ${buttonSize} leading-tight text-gray-500 
+                ${isActive ? 'bg-gray-700 text-white' : 'bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'} 
+                ${isVisible ? '' : 'invisible'}`} 
             >
                 {element}
             </button>
+
         </li>
     );
 }
