@@ -15,7 +15,7 @@ export default function VerifyOrganiser() {
     const [checkboxState, setCheckboxState] = useState({}); // State to track checkboxes
 
     // Sample data for unverified organisers
-    const allOrganisers = Array.from({ length: 50 }, (_, index) => ({
+    const allOrganisers = Array.from({ length: 43 }, (_, index) => ({
         id: index + 1,
         name: `Organisation ${index + 1}`,
         email: `organisation${index + 1}@example.com`,
@@ -90,7 +90,7 @@ export default function VerifyOrganiser() {
                                 <label className="flex items-center">
                                     <input
                                         type="checkbox"
-                                        checked={checkboxState[organiser.id] === 'approved'} // Control checkbox state
+                                        checked={checkboxState[organiser.id] === 'approved'}
                                         onChange={() => handleCheckboxChange(organiser.id, 'approve')}
                                     />
                                     <span className="ml-2">Approve</span>
@@ -98,7 +98,7 @@ export default function VerifyOrganiser() {
                                 <label className="flex items-center">
                                     <input
                                         type="checkbox"
-                                        checked={checkboxState[organiser.id] === 'denied'} // Control checkbox state
+                                        checked={checkboxState[organiser.id] === 'denied'}
                                         onChange={() => handleCheckboxChange(organiser.id, 'deny')}
                                     />
                                     <span className="ml-2">Deny</span>
@@ -106,13 +106,23 @@ export default function VerifyOrganiser() {
                             </td>
                         </tr>
                     ))}
+
+                    {/* Add empty rows if there are less than 10 rows */}
+                    {Array.from({ length: limit - organisers.length }).map((_, index) => (
+                        <tr key={`empty-${index}`} className="border-transparent">
+                            <td>&nbsp;</td> {/* Empty cells */}
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                    ))}
                 </tbody>
+
             </table>
-            <Pagination 
-                totalPages={totalPages} 
+            <Pagination
+                totalPages={totalPages}
                 buttonSize="w-10 h-10"
-                currentPage={currentPage} 
-                onPageChange={handlePageChange} 
+                currentPage={currentPage}
+                onPageChange={handlePageChange}
             />
         </div>
     );

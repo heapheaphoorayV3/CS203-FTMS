@@ -2,14 +2,14 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/16/solid";
 import { useState } from "react";
 
 // PaginationButton component with dynamic button size
-function PaginationButton({ element, onClick, isActive, buttonSize, isVisible }) {
+function PaginationButton({ element, onClick, isActive, buttonSize, isVisible, ...props }) {
     return (
         <li>
             <button
                 onClick={onClick}
                 className={`flex items-center justify-center ${buttonSize} leading-tight text-gray-500 
                 ${isActive ? 'bg-gray-700 text-white' : 'bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'} 
-                ${isVisible ? '' : 'invisible'}`} 
+                ${isVisible ? '' : 'invisible'} ${props.extraStyling}`} 
             >
                 {element}
             </button>
@@ -71,6 +71,7 @@ export default function Pagination({ totalPages, buttonSize = 'px-3 h-8', curren
                     buttonSize={buttonSize}
                     isActive={false}
                     isVisible={currentPage > 1} // Control visibility
+                    extraStyling="rounded-l-md"
                 />
 
                 {/* Dynamic Page Number Buttons */}
@@ -92,6 +93,7 @@ export default function Pagination({ totalPages, buttonSize = 'px-3 h-8', curren
                     buttonSize={buttonSize}
                     isActive={false}
                     isVisible={currentPage < totalPages} // Control visibility
+                    extraStyling="rounded-r-md"
                 />
             </ul>
         </nav>
