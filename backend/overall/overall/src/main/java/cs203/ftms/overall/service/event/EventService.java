@@ -1,5 +1,6 @@
 package cs203.ftms.overall.service.event;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,6 +20,7 @@ import cs203.ftms.overall.repository.tournamentrelated.EventRepository;
 import cs203.ftms.overall.repository.tournamentrelated.TournamentRepository;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
 import cs203.ftms.overall.service.fencer.FencerService;
+import static cs203.ftms.overall.validation.OtherValidations.validEventDate;
 import jakarta.transaction.Transactional;
 
 
@@ -54,30 +56,28 @@ public class EventService {
     }
 
     @Transactional
-    public boolean createEvent(int tid, Organiser o, List<CreateEventDTO> dto) throws MethodArgumentNotValidException {
-        System.out.println("2");
+    public List<Event> createEvent(int tid, Organiser o, List<CreateEventDTO> dto) throws MethodArgumentNotValidException {
         Tournament tournament = tournamentRepository.findById(tid).orElse(null);
         if (tournament == null) {
-            System.out.println("3");
-            return false;
+            return null;
         }    
-        
-        if (!tournament.getOrganiser().equals(o)) {
-            System.out.println("4");
-            return false;
-        }
 
-        for (CreateEventDTO e : dto) {
-            System.out.println("5");
-            Event event = new Event(tournament, e.getGender(), e.getWeapon(), e.getMinParticipants(), e.getDate(), e.getStartTime(), e.getEndTime());
-            eventRepository.save(event);
+        if (!tournament.getOrganiser().equals(o)) {
+            return null;
         }
-        System.out.println("6");
-        return true;
+        List<Event> events = new ArrayList<>();
+        for (CreateEventDTO e : dto) {
+            Event event = new Event(tournament, e.getGender(), e.getWeapon(), e.getMinParticipants(), e.getDate(), e.getStartTime(), e.getEndTime());
+            validEventDate(event, tournament);
+            eventRepository.save(event);
+            events.add(event);
+        }
+        return events;
     }
 
     public boolean registerEvent(int tcid, Fencer f) {
         Event event = eventRepository.findById(tcid).orElse(null);
+        if (event == null) return false;
 
         Set<Fencer> fencers = event.getFencers(); 
         fencers.add(f);

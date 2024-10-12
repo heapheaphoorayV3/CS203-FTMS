@@ -1,6 +1,8 @@
 package cs203.ftms.overall.controller.event;
 
+import java.util.ArrayList;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,17 +44,18 @@ public class EventController {
 
     @PostMapping("/{tid}/create-event")
     @PreAuthorize("hasRole('ORGANISER')")
-    public ResponseEntity<String> createEvent(@PathVariable int tid, @RequestBody @Valid List<CreateEventDTO> e) throws MethodArgumentNotValidException {
-        System.out.println("pls");
+    public ResponseEntity<List<CleanEventDTO>> createEvent(@PathVariable int tid, @RequestBody @Valid List<CreateEventDTO> e) throws MethodArgumentNotValidException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
-        System.out.println("1");
-        boolean newE = eventService.createEvent(tid, (Organiser) user, e);
-        System.out.println("10");
-        if (newE) {
-            return new ResponseEntity<>("event creation successful", HttpStatus.CREATED);
+        List<Event> newE = eventService.createEvent(tid, (Organiser) user, e);
+        if (newE != null) {
+            List<CleanEventDTO> dto = new ArrayList<>();
+            for (Event event : newE) {
+                dto.add(eventService.getCleanEventDTO(event));
+            }
+            return new ResponseEntity<>(dto, HttpStatus.CREATED);
         }
-        return new ResponseEntity<>("event creation unsuccessful", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
 
     @PutMapping("/register/{eid}")

@@ -10,7 +10,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import cs203.ftms.overall.security.model.Role;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
@@ -63,9 +62,8 @@ public class User implements UserDetails {
     @Column(name = "locked")
     private boolean locked;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.DETACH})
-    @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
-    private Role role;
+    @Column(name = "role")
+    private String role;
 
     @Column(name = "verification_token")
     private String verificationToken;
@@ -75,7 +73,7 @@ public class User implements UserDetails {
 
     public User() {}
 
-    public User(String name, String email, String password, String contactNo, String country, Role role) {
+    public User(String name, String email, String password, String contactNo, String country, String role) {
         this.name = name;
         this.contactNo = contactNo;
         this.country = country; 
@@ -139,7 +137,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role.getName().toString());
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(this.role);
 
         return List.of(authority);
     }
@@ -169,11 +167,11 @@ public class User implements UserDetails {
         return true;
     }
 
-    public Role getRole() {
+    public String getRole() {
         return role;
     }
 
-    public User setRole(Role role) {
+    public User setRole(String role) {
         this.role = role;
 
         return this;

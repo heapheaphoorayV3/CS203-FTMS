@@ -37,20 +37,19 @@ public class TournamentController {
 
     @PostMapping("/create-tournament")
     @PreAuthorize("hasRole('ORGANISER')")
-    public ResponseEntity<String> createTournament(@Valid @RequestBody CreateTournamentDTO t) throws MethodArgumentNotValidException {
+    public ResponseEntity<CleanTournamentDTO> createTournament(@Valid @RequestBody CreateTournamentDTO t) throws MethodArgumentNotValidException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         Tournament newTournament = tournamentService.createTournament(t, (Organiser) user);
         if (newTournament != null) {
-            return new ResponseEntity<>("tournament creation successful", HttpStatus.CREATED);
+            CleanTournamentDTO dto = tournamentService.getCleanTournamentDTO(newTournament);
+            return new ResponseEntity<>(dto, HttpStatus.CREATED);
         }
-        return new ResponseEntity<>("tournament creation unsuccessful", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("/tournament-details/{tid}")
     public ResponseEntity<CleanTournamentDTO> getTournament(@PathVariable int tid) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
         Tournament t = tournamentService.getTournament(tid);
         CleanTournamentDTO ct = tournamentService.getCleanTournamentDTO(t);
         if (ct == null) {

@@ -7,7 +7,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import cs203.ftms.overall.dto.CompleteFencerProfileDTO;
 import cs203.ftms.overall.dto.clean.CleanFencerDTO;
 import cs203.ftms.overall.model.userrelated.Fencer;
-import cs203.ftms.overall.repository.userrelated.UserRepository; 
+import cs203.ftms.overall.repository.userrelated.UserRepository;
+import cs203.ftms.overall.validation.OtherValidations; 
 
 @Service
 public class FencerService {
@@ -27,6 +28,7 @@ public class FencerService {
     public Fencer completeProfile(Fencer f, CompleteFencerProfileDTO dto) throws MethodArgumentNotValidException {
         // if (dto.getClub() == null || dto.getDebutYear() != 0 || dto.getDominantArm() != '\u0000' || 
         // dto.getGender() != '\u0000' || dto.getWeapon() != '\u0000') return null; 
+        OtherValidations.validDebutYear(f, dto.getDebutYear());
         f.setClub(dto.getClub());
         f.setDebutYear(dto.getDebutYear());
         f.setDominantArm(dto.getDominantArm());

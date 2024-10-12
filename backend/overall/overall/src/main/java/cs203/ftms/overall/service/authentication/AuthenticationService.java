@@ -13,17 +13,12 @@ import cs203.ftms.overall.dto.RegisterFencerDTO;
 import cs203.ftms.overall.dto.RegisterOrganiserDTO;
 import cs203.ftms.overall.dto.clean.CleanFencerDTO;
 import cs203.ftms.overall.dto.clean.CleanOrganiserDTO;
-import cs203.ftms.overall.security.model.Role;
-import cs203.ftms.overall.security.model.RoleEnum;
 import cs203.ftms.overall.model.userrelated.Admin;
 import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.model.userrelated.User;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
-import cs203.ftms.overall.security.repository.RoleRepository;
-// import cs203.ftms.overall.gmodel.Role;
-// import cs203.ftms.overall.model.userrelated.RoleEnum;
 
 @Service
 public class AuthenticationService {
@@ -31,14 +26,12 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
-    private final RoleRepository roleRepository;
 
     @Autowired
-    public AuthenticationService(UserRepository userRepository, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, RoleRepository roleRepository/*, MailService mailService, MediaService mediaService*/) {
+    public AuthenticationService(UserRepository userRepository, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
-        this.roleRepository = roleRepository;
     }
 
     public CleanFencerDTO getCleanFencer(Fencer f) {
@@ -50,34 +43,22 @@ public class AuthenticationService {
     }
 
     public User createFencer(RegisterFencerDTO f) {
-        Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.FENCER);
-        if (optionalRole.isEmpty()) {
-            return null;
-        }
         String fencerName = String.format("%s %s", f.getLastName().toUpperCase(), f.getFirstName());
         String passwordH = passwordEncoder.encode(f.getPassword());
-        User u = new Fencer(fencerName, f.getEmail(), passwordH, f.getContactNo(), f.getCountry(), optionalRole.get(), f.getDateOfBirth());
+        User u = new Fencer(fencerName, f.getEmail(), passwordH, f.getContactNo(), f.getCountry(), f.getDateOfBirth());
         return userRepository.save(u);
     }
 
     public User createOrganiser(RegisterOrganiserDTO o) {
-        Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.ORGANISER);
-        if (optionalRole.isEmpty()) {
-            return null;
-        }
         String passwordH = passwordEncoder.encode(o.getPassword());
-        User u = new Organiser(o.getName(), o.getEmail(), passwordH, o.getContactNo(), o.getCountry() ,optionalRole.get());
+        User u = new Organiser(o.getName(), o.getEmail(), passwordH, o.getContactNo(), o.getCountry());
+        ((Organiser) u).setVerified(true);
         return userRepository.save(u);
     }
 
     public User createAdmin(RegisterAdminDTO a) {
-        Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.ADMIN);
-        if (optionalRole.isEmpty()) {
-            return null;
-        }
-
         String passwordH = passwordEncoder.encode(a.getPassword());
-        User u = new Admin(a.getName(), a.getEmail(), passwordH, a.getContactNo(), a.getCountry(), optionalRole.get());
+        User u = new Admin(a.getName(), a.getEmail(), passwordH, a.getContactNo(), a.getCountry());
         return userRepository.save(u);
     }
 
