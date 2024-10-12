@@ -206,7 +206,11 @@ export default function ViewTournament() {
                   eventsArray.map((event, index) => (
                     <tr key={index}>
                       <td>{/* Event details */}</td>
-                      <td>{event.eventName}</td>
+                      <td>
+                        <a href={`/view-event/${event.id}`} className="underline hover:text-accent">
+                          {event.eventName}
+                        </a>
+                      </td>
                       <td>{event.date}</td>
                       <td>{event.startTime}</td>
                       <td>{event.endTime}</td>

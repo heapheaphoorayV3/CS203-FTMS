@@ -6,7 +6,6 @@ import { Tabs, Tab } from "../Others/DashboardTabs.jsx";
 import EventService from "../../Services/Event/EventService.js";
 
 export default function ViewEvent() {
-
   const { eventID } = useParams();
 
   const [eventData, setEventData] = useState(null);
@@ -16,9 +15,7 @@ export default function ViewEvent() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await EventService.getEventDetails(
-          eventID
-        );
+        const response = await EventService.getEventDetails(eventID);
         setEventData(response.data);
         console.log("response.data => ", response.data);
       } catch (error) {
@@ -71,7 +68,84 @@ export default function ViewEvent() {
           <Tab label="Poules">
             <div className="py-4">
               <h2 className="text-lg font-medium mb-2">Poules</h2>
-              <p className="text-gray-700">Poules</p>
+              <label className="block font-medium mb-1">Poule Number</label>
+              <select
+              >
+                <option value="">Select Poule Number</option>
+                <option value="1">Poule 1</option>
+                <option value="2">Poule 2</option>
+              </select>
+              <table className="table text-lg">
+                {/* head */}
+                <thead className="text-lg">
+                  <tr>
+                    <th className="w-60">Fencer</th>
+                    <th className="w-24"></th>
+                    <th className="text-center w-24">1</th>
+                    <th className="text-center w-24">2</th>
+                    <th className="text-center w-24">3</th>
+                    <th className="text-center w-24">4</th>
+                    <th className="text-center w-24">5</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="w-60">Name1</td>
+                    <td className="font-bold text-center border-r border-black w-24">
+                      1
+                    </td>
+                    <td className="border border-black">result</td>
+                    <td className="border border-black">result</td>
+                    <td className="border border-black">result</td>
+                    <td className="border border-black">result</td>
+                    <td className="border border-black">result</td>
+                  </tr>
+                  <tr>
+                    <td className="w-60">Name1</td>
+                    <td className="font-bold text-center border-r border-black w-24">
+                      2
+                    </td>
+                    <td className="border border-black">result</td>
+                    <td className="border border-black">result</td>
+                    <td className="border border-black">result</td>
+                    <td className="border border-black">result</td>
+                    <td className="border border-black">result</td>
+                  </tr>
+                  <tr>
+                    <td className="w-60">Name1</td>
+                    <td className="font-bold text-center border-r border-black w-24">
+                      3
+                    </td>
+                    <td className="border border-black">result</td>
+                    <td className="border border-black">result</td>
+                    <td className="border border-black">result</td>
+                    <td className="border border-black">result</td>
+                    <td className="border border-black">result</td>
+                  </tr>
+                  <tr>
+                    <td className="w-60">Name1</td>
+                    <td className="font-bold text-center border-r border-black w-24">
+                      4
+                    </td>
+                    <td className="border border-black">result</td>
+                    <td className="border border-black">result</td>
+                    <td className="border border-black">result</td>
+                    <td className="border border-black">result</td>
+                    <td className="border border-black">result</td>
+                  </tr>
+                  <tr>
+                    <td className="w-60">Name1</td>
+                    <td className="font-bold text-center border-r border-black w-24">
+                      5
+                    </td>
+                    <td className="border border-black">result</td>
+                    <td className="border border-black">result</td>
+                    <td className="border border-black">result</td>
+                    <td className="border border-black">result</td>
+                    <td className="border border-black">result</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </Tab>
           <Tab label="Bracket">
