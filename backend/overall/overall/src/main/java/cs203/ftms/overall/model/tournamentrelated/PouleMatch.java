@@ -1,20 +1,23 @@
 package cs203.ftms.overall.model.tournamentrelated;
 
+import java.util.Set;
+
 import cs203.ftms.overall.model.userrelated.Fencer;
 import jakarta.persistence.*;
 
 
 @Entity
-@Table(name = "poule_match")
+@DiscriminatorValue("P")
 public class PouleMatch extends Match {
 
     @ManyToOne
+    @JoinColumn(name = "pouleId", nullable = false)
     private Poule poule; 
 
     public PouleMatch() {}
 
-    public PouleMatch(Poule poule, Fencer fencer1, Fencer fencer2) {
-        super(fencer1, fencer2);
+    public PouleMatch(Poule poule, Set<TournamentFencer> fencers) {
+        super(fencers, poule.getEvent());
         this.poule = poule;
     }
 

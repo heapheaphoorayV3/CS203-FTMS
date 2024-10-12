@@ -1,26 +1,23 @@
 package cs203.ftms.overall;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.*;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
@@ -29,6 +26,7 @@ import cs203.ftms.overall.dto.clean.CleanEventDTO;
 import cs203.ftms.overall.dto.clean.CleanFencerDTO;
 import cs203.ftms.overall.model.tournamentrelated.Event;
 import cs203.ftms.overall.model.tournamentrelated.Tournament;
+import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
 import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.repository.tournamentrelated.EventRepository;
@@ -76,9 +74,11 @@ public class EventServiceTest {
         event.setEndTime(LocalTime.now().plusHours(2));
 
         Fencer fencer = new Fencer();
+        TournamentFencer tf = new TournamentFencer();
+        tf.setFencer(fencer);
         when(fencerService.getCleanFencerDTO(fencer)).thenReturn(new CleanFencerDTO(0, null, null, null, null, null, 'L', 'S', null, 0, 0, 'M'));
 
-        event.setFencers(new HashSet<>(Arrays.asList(fencer)));
+        event.setFencers(new TreeSet<>(Arrays.asList(tf)));
 
         // Act
         CleanEventDTO result = eventService.getCleanEventDTO(event);
@@ -154,7 +154,7 @@ public class EventServiceTest {
         // Arrange
         int tcid = 1;
         Fencer fencer = new Fencer("DOE John", "john.doe@example.com", "password"
-        , "+6599999999", "Singapore", LocalDate.of(2000, 1, 1));
+        , "+6594949499", "Singapore", LocalDate.of(2000, 1, 1));
         Organiser organiser = new Organiser("Organizer One", "organizer.one@example.com", "password", "+6599999999", "Singapore");
         
         Tournament tournament = new Tournament("hi", organiser, LocalDate.of(2024, 12, 10), 60, LocalDate.of(2024, 12, 12), LocalDate.of(2024, 12, 15), "singapore", "hi", "hi");
@@ -188,5 +188,35 @@ public class EventServiceTest {
 
         // Assert
         assertFalse(result);
+    }
+
+    @Test
+    public void createPoules_Test_ReturnTrue() {
+        // Arange
+        int tcid = 1;
+        Organiser organiser = new Organiser("Organizer One", "organizer.one@example.com", "password", "+6599999999", "Singapore");
+        
+        Tournament tournament = new Tournament("hi", organiser, LocalDate.of(2024, 12, 10), 60, LocalDate.of(2024, 12, 12), LocalDate.of(2024, 12, 15), "singapore", "hi", "hi");
+        Event event = new Event(tournament, 'F', 'S', 10, LocalDate.of(2024, 12, 12), LocalTime.now(), LocalTime.now().plusHours(3));
+
+        when(eventRepository.findById(tcid)).thenReturn(Optional.of(event));
+        when(eventRepository.save(event)).thenReturn(event);
+
+        for(int i = 1; i < 11;i++){
+        Fencer fencer = new Fencer("DOE John" + String.valueOf(i), "john.doe" + String.valueOf(i) + "@example.com", "password"
+        , "+6594949499", "Singapore", LocalDate.of(2000, 1, 1));
+        when(userRepository.save(fencer)).thenReturn(fencer);
+        }
+
+
+        // Act
+
+        // Assert
+
+    }
+
+    @Test
+    public void recommendPoules_Test(){
+
     }
 }

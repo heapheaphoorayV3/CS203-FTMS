@@ -11,10 +11,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import cs203.ftms.overall.dto.AuthenticationDTO;
 import cs203.ftms.overall.dto.JwtDTO;
+import cs203.ftms.overall.dto.RefreshTokenRequestDTO;
 import cs203.ftms.overall.dto.RegisterAdminDTO;
 import cs203.ftms.overall.dto.RegisterFencerDTO;
 import cs203.ftms.overall.dto.RegisterOrganiserDTO;
+import cs203.ftms.overall.security.model.RefreshToken;
 import cs203.ftms.overall.security.service.JwtService;
+import cs203.ftms.overall.security.service.RefreshTokenService;
 import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.model.userrelated.User;
@@ -29,11 +32,15 @@ public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
     private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService; 
+
 
     @Autowired
-    public AuthenticationController(AuthenticationService authenticationService, JwtService jwtService) {
+    public AuthenticationController(AuthenticationService authenticationService, JwtService jwtService, RefreshTokenService refreshTokenService) {
         this.authenticationService = authenticationService;
         this.jwtService = jwtService;
+        this.refreshTokenService = refreshTokenService;
+
     }
 
     @PostMapping("/register-fencer")
@@ -67,13 +74,32 @@ public class AuthenticationController {
     public ResponseEntity<Object> loginUser(@Valid @RequestBody AuthenticationDTO authenticationDTO) {
         User user = authenticationService.authenticateUser(authenticationDTO.getEmail(), authenticationDTO.getPassword());
         String jwtToken = jwtService.generateToken(user);
+        String refreshToken = refreshTokenService.createRefreshToken(user).getToken();
         char userType = 'A';
         if (user instanceof Organiser) {
             userType = 'O';
         } else if (user instanceof Fencer) {
             userType = 'F';
         }
-        return new ResponseEntity<>(new JwtDTO("login success", jwtToken, jwtService.getExpirationTime(), userType), HttpStatus.OK);
+        return new ResponseEntity<>(new JwtDTO("login success", jwtToken, jwtService.getExpirationTime(), userType, refreshToken), HttpStatus.OK);
     }
 
+    @PostMapping("/refreshToken")
+    public ResponseEntity<JwtDTO> refreshToken(@RequestBody RefreshTokenRequestDTO refreshTokenRequestDTO){
+        RefreshToken rf = refreshTokenService.findByToken(refreshTokenRequestDTO.getToken()).orElse(null);
+        System.out.println(rf);
+        return refreshTokenService.findByToken(refreshTokenRequestDTO.getToken())
+                .map(refreshTokenService::verifyExpiration)
+                .map(RefreshToken::getUser)
+                .map(user -> {
+                    String accessToken = jwtService.generateToken(user);
+                    char userType = 'A';
+                    if (user instanceof Organiser) {
+                        userType = 'O';
+                    } else if (user instanceof Fencer) {
+                        userType = 'F';
+                    }
+                    return new ResponseEntity<>(new JwtDTO("refreshed token", accessToken, jwtService.getExpirationTime(), userType, refreshTokenRequestDTO.getToken()), HttpStatus.OK);
+                }).orElseThrow(() ->new RuntimeException("Refresh Token is not in DB..!!"));
+    }
 }

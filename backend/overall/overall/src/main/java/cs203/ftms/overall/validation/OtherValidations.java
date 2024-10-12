@@ -27,7 +27,7 @@ public class OtherValidations {
         LocalDate tournamentEndDate = t.getEndDate();
         LocalDate eventDate = e.getDate();
 
-        if (!(eventDate.isBefore(tournamentEndDate) && eventDate.isAfter(tournamentStartDate))) {
+        if (!(eventDate.isBefore(tournamentEndDate.plusDays(1)) && eventDate.isAfter(tournamentStartDate.minusDays(1)))) {
             BindingResult bindingResult = new BeanPropertyBindingResult(e.getDate(), "eventDate");
         
             bindingResult.addError(new FieldError(

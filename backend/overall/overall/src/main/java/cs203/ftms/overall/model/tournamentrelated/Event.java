@@ -2,6 +2,9 @@ package cs203.ftms.overall.model.tournamentrelated;
 
 import java.time.*;
 import java.util.*;
+
+import org.antlr.v4.runtime.tree.Trees;
+
 import jakarta.persistence.*;
 
 import cs203.ftms.overall.model.userrelated.Fencer;
@@ -17,10 +20,11 @@ public class Event {
     private String name;
 
     @ManyToOne
+    @JoinColumn(name = "tournamentId", nullable = false)
     private Tournament tournament; 
 
-    @ManyToMany(mappedBy = "eventsPart")
-    private Set<Fencer> fencers; 
+    @OneToMany(mappedBy = "event")
+    private Set<TournamentFencer> fencers; 
     
     @Column(name = "gender")
     private char gender;
@@ -73,7 +77,7 @@ public class Event {
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.poules = new HashSet<>();
+        this.poules = new TreeSet<>();
         this.directEliminationMatches = new HashSet<>();
         this.fencers = new HashSet<>();
     }
@@ -160,11 +164,11 @@ public class Event {
         this.endTime = endTime;
     }
 
-    public Set<Fencer> getFencers() {
+    public Set<TournamentFencer> getFencers() {
         return fencers;
     }
 
-    public void setFencers(Set<Fencer> fencers) {
+    public void setFencers(Set<TournamentFencer> fencers) {
         this.fencers = fencers;
     }
 

@@ -130,4 +130,6 @@ class AuthenticationServiceTest {
         verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
         verify(userRepository).findByEmail(email);
     }
+
+    
 }
