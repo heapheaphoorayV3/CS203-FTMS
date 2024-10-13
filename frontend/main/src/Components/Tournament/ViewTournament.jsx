@@ -7,10 +7,10 @@ import TournamentService from "../../Services/Tournament/TournamentService.js";
 import Breadcrumbs from "../Others/Breadcrumbs.jsx";
 import { Tab, Tabs } from "../Others/DashboardTabs.jsx";
 import CreateEvent from "./CreateEvent.jsx";
+import SubmitButton from "../Others/SubmitButton.jsx";
 import EventBracket from "./EventBracket.jsx";
 import PaginationButton from "../Others/Pagination.jsx";
 import { set } from "react-hook-form";
-
 
 /* TODO
 - Check new backend sent event Objects (make sure key-value pairs are correct --> same format as create-event objects)
@@ -25,6 +25,7 @@ export default function ViewTournament() {
   const [error, setError] = useState(null);
   const [eventsArray, setEventsArray] = useState();
   const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
+  const [registeredEvents, setRegisteredEvents] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 10;
 
@@ -51,14 +52,14 @@ export default function ViewTournament() {
   const totalPages = Math.ceil(testData.length / limit);
   const [isCreating, setIsCreating] = useState(false);
   const allEventTypes = [
-    { value: '', label: 'Select Weapon' },
-    { value: 'MF', label: 'Male Foil' },
-    { value: 'ME', label: 'Male Épée' },
-    { value: 'MS', label: 'Male Sabre' },
-    { value: 'FF', label: 'Female Foil' },
-    { value: 'FE', label: 'Female Épée' },
-    { value: 'FS', label: 'Female Sabre' }
-  ]
+    { value: "", label: "Select Weapon" },
+    { value: "MF", label: "Male Foil" },
+    { value: "ME", label: "Male Épée" },
+    { value: "MS", label: "Male Sabre" },
+    { value: "FF", label: "Female Foil" },
+    { value: "FE", label: "Female Épée" },
+    { value: "FS", label: "Female Sabre" },
+  ];
   const [eventTypes, setEventTypes] = useState(allEventTypes);
 
   const navigate = useNavigate();
@@ -67,7 +68,9 @@ export default function ViewTournament() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await TournamentService.getTournamentDetails(tournamentID);
+        const response = await TournamentService.getTournamentDetails(
+          tournamentID
+        );
         setTournamentData(response.data);
         console.log("response.data => ", response.data);
         // Set eventsArray
@@ -92,8 +95,8 @@ export default function ViewTournament() {
       name: loading
         ? "Loading..."
         : tournamentData
-          ? tournamentData.name
-          : "Not Found",
+        ? tournamentData.name
+        : "Not Found",
     },
   ];
 
@@ -143,10 +146,6 @@ export default function ViewTournament() {
     }
   };
 
-
-
-
-
   // Check if event has already been added --> remove from eventTypes (dropdown)
   // Called when "Add Event"
   const checkEvents = () => {
@@ -158,11 +157,11 @@ export default function ViewTournament() {
       const eventName = event.gender + event.weapon;
       removeEventType(eventName);
     });
-  }
+  };
   // Remove eventType from eventTypes
   const removeEventType = (event) => {
     setEventTypes((prevEventTypes) =>
-      prevEventTypes.filter(eventType => eventType.value !== event)
+      prevEventTypes.filter((eventType) => eventType.value !== event)
     );
   };
 
@@ -175,7 +174,6 @@ export default function ViewTournament() {
     setIsCreatePopupVisible(false);
   };
   const submitCreatePopup = async (data) => {
-
     // modify time to add seconds
     const startTimeString = data.startTime + ":00"; // Adding seconds
     const endTimeString = data.endTime + ":00"; // Adding seconds
@@ -198,13 +196,13 @@ export default function ViewTournament() {
       startTime: formattedStartTime,
       endTime: formattedEndTime,
       minParticipants: minParticipants,
-      date: date
+      date: date,
     };
 
     // Add event to eventsArray and delete from eventTypes
     console.log("FormData: " + JSON.stringify(formData));
     setEventsArray([...eventsArray, formData]);
-    console.log("CurrentEventsArray: " + JSON.stringify(eventsArray))
+    console.log("CurrentEventsArray: " + JSON.stringify(eventsArray));
     checkEvents();
     console.log("Event Types Left: " + JSON.stringify(eventTypes));
 
@@ -213,31 +211,27 @@ export default function ViewTournament() {
     setIsCreating(true);
   };
 
-
-
-
-
   // Return Proper Event Names in table (instead of initials)
   const constructEventName = (gender, weapon) => {
     let eventName = "";
     // Switch statement for gender
     switch (gender) {
-      case 'M':
+      case "M":
         eventName += "Male ";
         break;
-      case 'F':
+      case "F":
         eventName += "Female ";
         break;
     }
     // Switch statement for weapon
     switch (weapon) {
-      case 'F':
+      case "F":
         eventName += "Foil";
         break;
-      case 'E':
+      case "E":
         eventName += "Épée";
         break;
-      case 'S':
+      case "S":
         eventName += "Sabre";
         break;
     }
@@ -266,7 +260,9 @@ export default function ViewTournament() {
   const cancelCreatingChanges = async () => {
     console.log("Cancelling Changes");
     try {
-      const response = await TournamentService.getTournamentDetails(tournamentID);
+      const response = await TournamentService.getTournamentDetails(
+        tournamentID
+      );
       setTournamentData(response.data);
       // Set eventsArray
       setEventsArray(response.data.events);
@@ -277,7 +273,7 @@ export default function ViewTournament() {
       setLoading(false);
     }
     setIsCreating(false);
-  }
+  };
   // "Confirm Changes" --> Submit Events Array
   const submitEventsArray = async () => {
     // Only submit new events --> old events have key "fencers"
@@ -291,6 +287,17 @@ export default function ViewTournament() {
     setIsCreating(false);
   };
 
+  const registerEvent = async (eventID) => {
+    try {
+      await EventService.registerEvent(eventID).then(() => {
+        // After successful registration, add the event ID to the state
+        setRegisteredEvents((prevEvents) => [...prevEvents, eventID]);
+        navigate("/fencer-dashboard");
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     // Grid for Navbar, Sidebar and Content
@@ -330,19 +337,19 @@ export default function ViewTournament() {
             </div>
           </Tab>
           <Tab label="Events">
-            <table className="table text-lg">
+            <table className="table text-lg text-center">
               {/* head */}
               <thead className="text-lg">
                 <tr>
-                  <th></th>
+                  {/* <th></th> */}
                   <th>Event Name</th>
                   <th>Date</th>
                   <th>Start Time</th>
                   <th>End Time</th>
                   <th>
                     {sessionStorage.getItem("userType") === "O"
-                      ? "Update Event"
-                      : "Sign Up"}
+                      ? "Delete Event"
+                      : "Register"}
                   </th>
                 </tr>
               </thead>
@@ -351,9 +358,12 @@ export default function ViewTournament() {
                 {eventsArray.length > 0 ? (
                   eventsArray.map((event, index) => (
                     <tr key={index}>
-                      <td>{/* Event details */}</td>
+                      {/* <td>Event details</td> */}
                       <td>
-                        <a href={`/view-event/${event.id}`} className="underline hover:text-accent">
+                        <a
+                          href={`/view-event/${event.id}`}
+                          className="underline hover:text-accent"
+                        >
                           {constructEventName(event.gender, event.weapon)}
                         </a>
                         {/* no eventName attribute in new backend (pending) --> {event.eventName} */}
@@ -362,6 +372,26 @@ export default function ViewTournament() {
                       <td>{event.startTime}</td>
                       <td>{event.endTime}</td>
                       <td>
+                        {sessionStorage.getItem("userType") === "F" ? (
+                          <SubmitButton
+                            onSubmit={() => registerEvent(event.id)}
+                            disabled={registeredEvents.includes(event.id)}
+                          >
+                            {registeredEvents.includes(event.id)
+                              ? "Registered"
+                              : "Register"}
+                          </SubmitButton>
+                        ) : (
+                          <span>delete event button</span>
+                          /* <SubmitButton
+                            onSubmit={() => registerEvent(event.id)}
+                            disabled={registeredEvents.includes(event.id)}
+                          >
+                            {registeredEvents.includes(event.id)
+                              ? "Registered"
+                              : "Register"}
+                          </SubmitButton> */
+                        )}
                       </td>
                     </tr>
                   ))
@@ -376,24 +406,28 @@ export default function ViewTournament() {
                 {sessionStorage.getItem("userType") === "O" && (
                   <tr>
                     <td colSpan="6" className="text-center">
-                      {isCreating && (<button
-                        onClick={cancelCreatingChanges}
-                        className="bg-red-400 text-white px-4 py-2 rounded"
-                      >
-                        Cancel Changes
-                      </button>)}
+                      {isCreating && (
+                        <button
+                          onClick={cancelCreatingChanges}
+                          className="bg-red-400 text-white px-4 py-2 rounded"
+                        >
+                          Cancel Changes
+                        </button>
+                      )}
                       <button
                         onClick={openCreatePopup}
                         className="bg-blue-500 text-white px-4 py-2 rounded mx-36 mt-10"
                       >
                         Add Event
                       </button>
-                      {isCreating && (<button
-                        onClick={submitEventsArray}
-                        className="bg-green-400 text-white px-4 py-2 rounded"
-                      >
-                        Confirm Changes
-                      </button>)}
+                      {isCreating && (
+                        <button
+                          onClick={submitEventsArray}
+                          className="bg-green-400 text-white px-4 py-2 rounded"
+                        >
+                          Confirm Changes
+                        </button>
+                      )}
                     </td>
                   </tr>
                 )}
@@ -409,7 +443,45 @@ export default function ViewTournament() {
               />
             )}
           </Tab>
-          <Tab label="Ranking">
+          <Tab label="Tournament Ranking">
+            <label className="block font-medium ml-1 mb-1">Event</label>
+            <select>
+              <option value="">Select Event</option>
+              {eventsArray.map((event) => (
+                <option key={event.id} value={event.id}>
+                  {event.eventName}
+                </option>
+              ))}
+            </select>
+            <table className="table text-lg">
+              {/* head */}
+              <thead className="text-lg">
+                <tr>
+                  <th className="text-center w-20">Rank</th>
+                  <th className="w-1/2">Name</th>
+                  <th className="text-center">Country</th>
+                  <th className="text-center">Points</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedData.map((item) => (
+                  <tr key={item.id}>
+                    <td className="text-center">{item.id}</td>
+                    <td>{item.name}</td>
+                    <td className="text-center">{item.country}</td>
+                    <td className="text-center">{item.score}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="flex flex-col justify-center items-center">
+              <PaginationButton
+                totalPages={totalPages}
+                buttonSize="w-10 h-10"
+                currentPage={currentPage}
+                onPageChange={handlePageChange}
+              />
+            </div>
           </Tab>
         </Tabs>
       </div>

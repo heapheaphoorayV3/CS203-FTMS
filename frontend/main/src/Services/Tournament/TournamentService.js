@@ -1,4 +1,5 @@
 import { ProtectedAPI } from "../ProtectedAPI";
+import { API } from "../API";
 
 const baseURL = "/tournament";
 
@@ -13,6 +14,7 @@ class TournamentService {
 
     async getAllTournaments() {
         return await ProtectedAPI.get(`${baseURL}/tournaments`);
+        // return await API.get(`${baseURL}/tournaments`);
     }
 }
 

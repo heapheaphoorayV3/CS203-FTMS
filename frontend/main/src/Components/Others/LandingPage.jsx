@@ -20,7 +20,7 @@ const LandingPage = () => {
             <div className="bg-black bg-opacity-30 rounded-xl text-center max-w-xl mx-auto p-4">
                 <h1 className="text-4xl font-bold mb-6">View, Manage, or Participate in Fencing Tournaments.</h1>
                 <p className="text-lg mb-8">
-                    OnlyFence is the all-new one-stop platform for all your fencing tournament needs. Sign up now to get started.
+                    FTMS is the all-new one-stop platform for all your fencing tournament needs. Sign up now to get started.
                 </p>
                 <button
                     onClick={(e) => handleSubmit(e, "/signup-options")}
