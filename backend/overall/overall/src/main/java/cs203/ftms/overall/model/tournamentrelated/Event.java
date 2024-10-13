@@ -16,8 +16,8 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "name")
-    private String name;
+    // @Column(name = "name")
+    // private String name;
 
     @ManyToOne
     @JoinColumn(name = "tournamentId", nullable = false)
@@ -57,18 +57,18 @@ public class Event {
 
     public Event(Tournament tournament, char gender, char weapon, int minParticipants, LocalDate date, LocalTime startTime,
             LocalTime endTime) {
-        switch(gender) {
-            case 'W' -> this.name = "Women";
-            case 'M' -> this.name = "Men";
-            default -> this.name = "Invalid";
-        }
+        // switch(gender) {
+        //     case 'W' -> this.name = "Women";
+        //     case 'M' -> this.name = "Men";
+        //     default -> this.name = "Invalid";
+        // }
 
-        switch (weapon){
-            case 'E' -> this.name += "Epee";
-            case 'F' -> this.name += "Foil";
-            case 'S' -> this.name += "Sabre";
-            default -> this.name = "Invalid";
-        };
+        // switch (weapon){
+        //     case 'E' -> this.name += "Epee";
+        //     case 'F' -> this.name += "Foil";
+        //     case 'S' -> this.name += "Sabre";
+        //     default -> this.name = "Invalid";
+        // };
         
         this.tournament = tournament;
         this.gender = gender;
@@ -187,13 +187,13 @@ public class Event {
         return false;
     }
 
-    public String getName() {
-        return name;
-    }
+    // public String getName() {
+    //     return name;
+    // }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    // public void setName(String name) {
+    //     this.name = name;
+    // }
     
     
 }

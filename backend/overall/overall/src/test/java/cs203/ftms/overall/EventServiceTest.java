@@ -65,7 +65,9 @@ public class EventServiceTest {
 
         Event event = new Event();
         event.setId(1);
-        event.setName("Men's Foil");
+        // event.setName("Men's Foil");
+        event.setGender('M');
+        event.setWeapon('F');
         event.setTournament(tournament);
         event.setMinParticipants(10);
         event.setParticipantCount(5);
@@ -86,7 +88,8 @@ public class EventServiceTest {
         // Assert
         assertNotNull(result);
         assertEquals(1, result.getId());
-        assertEquals("Men's Foil", result.getEventName());
+        assertEquals('M', result.getGender());
+        assertEquals('F', result.getWeapon());
         assertEquals("National Tournament", result.getTournamentName());
         assertEquals(10, result.getMinParticipants());
         assertEquals(5, result.getParticipantCount());

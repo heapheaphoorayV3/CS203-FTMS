@@ -63,7 +63,7 @@ public class TournamentServiceTest {
         events.add(event);
         tournament.setEvents(events);
 
-        when(eventService.getCleanEventDTO(event)).thenReturn(new CleanEventDTO(0, null, null, null, 0, 0, null, null, null));
+        when(eventService.getCleanEventDTO(event)).thenReturn(new CleanEventDTO(0, 'W', 'F', null, null, 0, 0, null, null, null));
 
         // Act
         CleanTournamentDTO result = tournamentService.getCleanTournamentDTO(tournament);

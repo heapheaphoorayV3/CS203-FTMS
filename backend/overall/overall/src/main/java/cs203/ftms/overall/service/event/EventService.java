@@ -81,7 +81,7 @@ public class EventService {
             cleanFencers.add(fencerService.getCleanFencerDTO(f.getFencer()));
         }
 
-        return new CleanEventDTO(e.getId(), e.getName(), e.getTournament().getName(), cleanFencers, e.getMinParticipants(), e.getParticipantCount(), e.getDate(), e.getStartTime(), e.getEndTime());
+        return new CleanEventDTO(e.getId(), e.getGender(), e.getWeapon(), e.getTournament().getName(), cleanFencers, e.getMinParticipants(), e.getParticipantCount(), e.getDate(), e.getStartTime(), e.getEndTime());
     } 
 
     public CleanTournamentFencerDTO getCleanTournamentFencerDTO(TournamentFencer tf) {
@@ -109,8 +109,20 @@ public class EventService {
         for (TournamentFencer tf : p.getFencers()) {
             cleanFencers.add(getCleanTournamentFencerDTO(tf));
         }
+        StringBuilder eventName = new StringBuilder();
+        switch(p.getEvent().getGender()) {
+            case 'W' -> eventName.append("Women - ");
+            case 'M' -> eventName.append("Men - ");
+            default -> eventName.append("Invalid - ");
+        }
 
-        CleanPouleDTO dto = new CleanPouleDTO(p.getId(), p.getPouleNumber(), p.getEvent().getName(), p.getEvent().getId(), cleanMatches, cleanFencers);
+        switch (p.getEvent().getWeapon()){
+            case 'E' -> eventName.append("Epee");
+            case 'F' -> eventName.append("Foil");
+            case 'S' -> eventName.append("Sabre");
+            default -> eventName.append("Invalid");
+        };
+        CleanPouleDTO dto = new CleanPouleDTO(p.getId(), p.getPouleNumber(), eventName.toString(), p.getEvent().getId(), cleanMatches, cleanFencers);
         return dto;
     }
 
