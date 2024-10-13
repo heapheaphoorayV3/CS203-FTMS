@@ -116,7 +116,7 @@ const FencerDashboard = () => {
               <div className="flex font-medium">Category:</div>
               <div className="flex">{userData.weapon && userData.weapon.trim() !== "" && userData.weapon !== "\u0000" ? userData.weapon : "-"}</div>
               <div className="flex font-medium">Dominant Arm:</div>
-              <div className="flex">{userData.hand && userData.hand.trim() !== "" && userData.hand !== "\u0000" ? userData.hand : "-"}</div>
+              <div className="flex">{userData.dominantArm && userData.dominantArm.trim() !== "" && userData.dominantArm !== "\u0000" ? userData.dominantArm : "-"}</div>
               <div className="flex font-medium">Debut Year:</div>
               <div className="flex">{userData.debutYear ? userData.debutYear : "-"}</div>
               <div className="flex font-medium">Organisation:</div>
@@ -133,10 +133,10 @@ const FencerDashboard = () => {
 
           <div className="bg-white border rounded-2xl shadow-lg p-6 flex flex-row w-full relative mx-auto mt-4">
             <Tabs>
-              <Tab label="User Ranking">
+              <Tab label="Ranking & Statistics">
                 <div className="grid grid-cols-[2fr_3fr_3fr]">
-                  <div className="grid grid-cols-[2fr_1fr] gap-y-2 ml-4 my-4 text-xl w-60">
-                    <div className="flex font-medium">National Rank</div>
+                  <div className="grid grid-cols-[2fr_1fr] gap-y-2 ml-4 my-4 text-xl w-75">
+                    <div className="flex font-medium">International Rank</div>
                     <div className="flex">{userData.rank ? userData.rank : "-"}</div>
                     <div className="flex font-medium">Total Points</div>
                     <div className="flex">{userData.points ? userData.points : "-"}</div>
