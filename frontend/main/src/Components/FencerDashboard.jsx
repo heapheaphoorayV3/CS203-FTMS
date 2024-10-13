@@ -89,7 +89,7 @@ const FencerDashboard = () => {
 
   return (
     <div className="bg-gray-200 w-full h-full gap-2 p-8 overflow-auto">
-      <div className="bg-white border rounded-2xl shadow-lg p-6 flex flex-row w-full relative overflow-x-hidden">
+      <div className="bg-white border rounded-2xl shadow-lg p-6 flex w-full relative overflow-x-hidden">
         {/* Profile Image and Name */}
         <div className="flex-shrink-0 flex flex-col items-center my-auto">
           <img

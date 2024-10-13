@@ -40,8 +40,8 @@ export default function SignUpOrganiser() {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center h-[calc(100vh-50px)] bg-gray-200">
-      <div className="flex flex-col items-center bg-white p-8 rounded-lg shadow-lg w-[600px] overflow-y-scroll">
+    <div className="flex flex-col h-full justify-center items-center bg-gray-200 relative">
+      <div className="flex flex-col my-12 items-center bg-white p-8 rounded-lg shadow-lg w-[600px] relative">
 
         <h1 className="text-3xl font-semibold mb-10 text-center">
           Sign up for an Organiser account

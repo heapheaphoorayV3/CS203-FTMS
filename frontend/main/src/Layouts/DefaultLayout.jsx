@@ -15,7 +15,7 @@ const DefaultLayout = () => {
         <Sidebar />
       </div>
 
-      <main className="col-start-2 row-start-2 overflow-y-auto" >
+      <main className="flex flex-col col-start-2 row-start-2" >
         <Outlet />
       </main>
     </div>
