@@ -15,10 +15,10 @@ const LandingPage = () => {
 
     return (
 
-        <div className="h-full flex flex-col items-center justify-center bg-gradient-to-b text-white bg-cover bg-center overflow-auto"
+        <div className="h-full flex flex-col items-center justify-center bg-gradient-to-b text-sky-50 bg-cover bg-center overflow-auto"
             style={{ backgroundImage: `url(${landingpic})` }}>
             <div className="bg-black bg-opacity-30 rounded-xl text-center max-w-xl mx-auto p-4">
-                <h1 className="text-4xl font-bold mb-6">View, Manage, or Participate in Fencing Tournaments.</h1>
+                <h1 className="text-4xl font-bold my-4">View, Manage, or Participate in Fencing Tournaments.</h1>
                 <p className="text-lg mb-8">
                     FTMS is the all-new one-stop platform for all your fencing tournament needs. Sign up now to get started.
                 </p>

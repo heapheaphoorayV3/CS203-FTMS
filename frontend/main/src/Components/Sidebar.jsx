@@ -122,11 +122,12 @@ const Sidebar = () => {
   return (
     <div className="fixed w-[250px] h-full px-3 py-4 bg-gray-50 dark:bg-gray-800">
       {isLoggedIn
-        ? userRole === "F"
+        ? (userRole === "F"
           ? fencerSidebar
-          : userRole === "O"
-          ? organiserSidebar
-          : defaultSidebar
+          : (userRole === "O"
+            ? organiserSidebar
+            : defaultSidebar)
+        )
         : defaultSidebar}
     </div>
   );

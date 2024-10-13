@@ -24,6 +24,9 @@ const Navbar = () => {
         else if(userType === "O"){
           response = await OrganiserService.getProfile();
         }
+        {/* else if(userType === "A"){
+          response = await AdminService.getProfile();
+           */}
         setUserData(response.data);
 
       } catch (error) {

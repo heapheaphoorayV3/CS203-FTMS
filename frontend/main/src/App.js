@@ -6,7 +6,7 @@ import CreateTournament from "./Components/Tournament/CreateTournament";
 import OrganiserDashboard from "./Components/OrganiserDashboard";
 import CreateEvent from "./Components/Tournament/CreateEvent";
 import SignUpEvent from "./Components/Tournament/SignUpEvent";
-import SignupOptions from "./Components/Authentication/SignUpChoice";
+import SignupOptions from "./Components/Authentication/SignupOptions";
 import SignIn from "./Components/Authentication/SignIn";
 import SignUpFencer from "./Components/Authentication/SignUpFencer";
 import SignUpOrganiser from "./Components/Authentication/SignUpOrganiser";
