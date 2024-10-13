@@ -21,14 +21,6 @@ const CreateTournament = () => {
   const navigate = useNavigate();
 
   const onSubmit = async (data) => {
-    // const { ...formData } = data;
-
-    // // Country object is returned from the CountrySelector component --> consist of label and value (need only label for form)
-    // const country = data.country.label;
-    // formData.country = country;
-
-    // console.log("FormData before sending:", formData);
-
     try {
       if (typeof data.signupEndDate === "string") {
         data.signupEndDate = new Date(`${data.signupEndDate}T00:00:00`)

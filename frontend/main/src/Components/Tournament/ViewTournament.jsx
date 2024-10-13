@@ -1,13 +1,21 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Tabs, Tab } from "../Others/DashboardTabs.jsx";
-import Breadcrumbs from "../Others/Breadcrumbs.jsx";
+import { DateTime } from "luxon";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import EventService from "../../Services/Event/EventService";
 import FencerService from "../../Services/Fencer/FencerService.js";
 import TournamentService from "../../Services/Tournament/TournamentService.js";
+import Breadcrumbs from "../Others/Breadcrumbs.jsx";
+import { Tab, Tabs } from "../Others/DashboardTabs.jsx";
 import CreateEvent from "./CreateEvent.jsx";
-import UpdateEvent from "./UpdateEvent.jsx";
 import EventBracket from "./EventBracket.jsx";
 import PaginationButton from "../Others/Pagination.jsx";
+import { set } from "react-hook-form";
+
+
+/* TODO
+- Format Array of Events received from backend when page first loads / Create a arr for NewEvents only
+- Ensure eventTypes will check backendEventArray and remove accordingly
+*/
 
 export default function ViewTournament() {
   // Retrieve tournament ID from URL
@@ -16,6 +24,7 @@ export default function ViewTournament() {
   const [tournamentData, setTournamentData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [eventsArray, setEventsArray] = useState();
   const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
   const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -43,6 +52,17 @@ export default function ViewTournament() {
     setCurrentPage(page);
   };
   const totalPages = Math.ceil(testData.length / limit);
+  const [isCreating, setIsCreating] = useState(false);
+  const allEventTypes = [
+    { value: '', label: 'Select Weapon' },
+    { value: 'MF', label: 'Male Foil' },
+    { value: 'ME', label: 'Male Épée' },
+    { value: 'MS', label: 'Male Sabre' },
+    { value: 'FF', label: 'Female Foil' },
+    { value: 'FE', label: 'Female Épée' },
+    { value: 'FS', label: 'Female Sabre' }
+  ]
+  const [eventTypes, setEventTypes] = useState(allEventTypes);
 
   const navigate = useNavigate();
 
@@ -50,11 +70,11 @@ export default function ViewTournament() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await TournamentService.getTournamentDetails(
-          tournamentID
-        );
+        const response = await TournamentService.getTournamentDetails(tournamentID);
         setTournamentData(response.data);
         console.log("response.data => ", response.data);
+        // Set eventsArray
+        setEventsArray(response.data.events);
       } catch (error) {
         console.error("Error fetching tournament data:", error);
         setError("Failed to load tournament data.");
@@ -75,8 +95,8 @@ export default function ViewTournament() {
       name: loading
         ? "Loading..."
         : tournamentData
-        ? tournamentData.name
-        : "Not Found",
+          ? tournamentData.name
+          : "Not Found",
     },
   ];
 
@@ -84,7 +104,6 @@ export default function ViewTournament() {
   if (loading) {
     return <div className="mt-10">Loading...</div>; // Show loading state
   }
-
   if (error) {
     return <div className="mt-10">{error}</div>; // Show error message if any
   }
@@ -127,80 +146,138 @@ export default function ViewTournament() {
     }
   };
 
-  // console.log(tournamentData);
-  const eventsArray = Array.from(tournamentData.events ?? []);
-  // console.log(eventsArray);
 
-  // Create array of the 6 event types
-  let eventTypes = [
-    "MaleEpee",
-    "MaleFoil",
-    "MaleSaber",
-    "FemaleEpee",
-    "FemaleFoil",
-    "FemaleSaber",
-  ];
 
-  // Display create-event popup on click "Add Event" button
 
+
+  // Check if event has already been added --> remove from eventTypes (dropdown)
+  // Called when "Add Event"
+  const checkEvents = () => {
+    // Reset eventTypes to allEventTypes
+    setEventTypes(allEventTypes);
+    // Loop through eventsArray
+    console.log("Checking Events");
+    eventsArray.forEach((event) => {
+      const eventName = event.gender + event.weapon;
+      removeEventType(eventName);
+    });
+  }
+  // Remove eventType from eventTypes
+  const removeEventType = (event) => {
+    setEventTypes((prevEventTypes) =>
+      prevEventTypes.filter(eventType => eventType.value !== event)
+    );
+  };
+
+  // Create-Event "Add Event" button
+  const openCreatePopup = () => {
+    checkEvents();
+    setIsCreatePopupVisible(true);
+  };
   const closeCreatePopup = () => {
     setIsCreatePopupVisible(false);
   };
-  const openCreatePopup = () => {
-    setIsCreatePopupVisible(true);
-  };
-  const submitCreatePopup = (eventDetails) => {
-    console.log(eventDetails);
-    // Add event to eventsArray
-    eventsArray.push(eventDetails);
-    // Close popup
+  const submitCreatePopup = async (data) => {
+
+    // modify time to add seconds
+    const startTimeString = data.startTime + ":00"; // Adding seconds
+    const endTimeString = data.endTime + ":00"; // Adding seconds
+    // Create DateTime objects
+    const startTime = DateTime.fromFormat(startTimeString, "HH:mm:ss");
+    const endTime = DateTime.fromFormat(endTimeString, "HH:mm:ss");
+    // Format to hh:mm:ss
+    const formattedStartTime = startTime.toFormat("HH:mm:ss");
+    const formattedEndTime = endTime.toFormat("HH:mm:ss");
+    // Extract gender and weapon from eventName
+    const gender = data.eventName.charAt(0); // First character
+    const weapon = data.eventName.charAt(1); // Second character
+    // Extract minParticipants and date
+    const minParticipants = data.minParticipants;
+    const date = data.date;
+    // Create JSON to add to eventsArray
+    const formData = {
+      gender: gender,
+      weapon: weapon,
+      startTime: formattedStartTime,
+      endTime: formattedEndTime,
+      minParticipants: minParticipants,
+      date: date
+    };
+
+    // Add event to eventsArray and delete from eventTypes
+    console.log("FormData: " + JSON.stringify(formData));
+    setEventsArray([...eventsArray, formData]);
+    console.log("CurrentEventsArray: " + JSON.stringify(eventsArray))
+    checkEvents();
+    console.log("Event Types Left: " + JSON.stringify(eventTypes));
+
+    // Close the popup and set isCreating to true
     closeCreatePopup();
-  };
-
-  // Display update-event popup on click "Update Event" button
-
-  const closeUpdatePopup = () => {
-    setIsUpdatePopupVisible(false);
-  };
-  const openUpdatePopup = (event) => {
-    setSelectedEvent(event);
-    setIsUpdatePopupVisible(true);
-  };
-  const submitUpdatePopup = (eventDetails) => {
-    console.log(eventDetails);
-    eventsArray.push(eventDetails);
-    closeUpdatePopup();
+    setIsCreating(true);
   };
 
 
-  // Hardcode tournament bracket data for testing 
-  const simpleSmallBracket = [
-    {
-      id: 19753,
-      nextMatchId: null,
-      tournamentRoundText: "3",
-      startTime: "2021-05-30",
-      state: "SCHEDULED",
-      participants: []
-    },
-    {
-      id: 19754,
-      nextMatchId: 19753,
-      tournamentRoundText: "2",
-      startTime: "2021-05-30",
-      state: "SCHEDULED",
-      participants: []
-    },
-    {
-      id: 19754,
-      nextMatchId: 19753,
-      tournamentRoundText: "2",
-      startTime: "2021-05-30",
-      state: "SCHEDULED",
-      participants: []
+
+
+
+  // Return Proper Event Names in table (instead of initials)
+  const constructEventName = (gender, weapon) => {
+    let eventName = "";
+
+    // Switch statement for gender
+    switch (gender) {
+      case 'M':
+        eventName += "Male ";
+        break;
+      case 'F':
+        eventName += "Female ";
+        break;
     }
-  ];
+    // Switch statement for weapon
+    switch (weapon) {
+      case 'F':
+        eventName += "Foil";
+        break;
+      case 'E':
+        eventName += "Épée";
+        break;
+      case 'S':
+        eventName += "Sabre";
+        break;
+    }
 
+    return eventName;
+  };
+
+
+
+  // "Cancel Changes"
+  const cancelCreatingChanges = async () => {
+    console.log("Cancelling Changes");
+    try {
+      const response = await TournamentService.getTournamentDetails(tournamentID);
+      setTournamentData(response.data);
+      // Set eventsArray
+      setEventsArray(response.data.events);
+    } catch (error) {
+      console.error("Error fetching tournament data:", error);
+      setError("Failed to load tournament data.");
+    } finally {
+      setLoading(false);
+    }
+    setIsCreating(false);
+  }
+  // "Confirm Changes" --> Submit Events Array
+  const submitEventsArray = async () => {
+    console.log("Submitting Events Array: " + JSON.stringify(eventsArray));
+    try {
+      const response = await EventService.createEvents(tournamentID, eventsArray);
+    } catch (error) {
+      console.log(error);
+    }
+    // Set isCreating to false
+    setIsCreating(false);
+  };
 
 
   return (
@@ -267,18 +344,12 @@ export default function ViewTournament() {
                         <a href={`/view-event/${event.id}`} className="underline hover:text-accent">
                           {event.eventName}
                         </a>
+                        {/* {constructEventName(event.gender, event.weapon)} */}
                       </td>
                       <td>{event.date}</td>
                       <td>{event.startTime}</td>
                       <td>{event.endTime}</td>
                       <td>
-                        <button
-                          key={event.id}
-                          onClick={() => openUpdatePopup(event)}
-                          className="bg-blue-500 text-white px-4 py-2 rounded"
-                        >
-                          Update {event.eventName}
-                        </button>
                       </td>
                     </tr>
                   ))
@@ -293,53 +364,40 @@ export default function ViewTournament() {
                 {sessionStorage.getItem("userType") === "O" && (
                   <tr>
                     <td colSpan="6" className="text-center">
+                      {isCreating && (<button
+                        onClick={cancelCreatingChanges}
+                        className="bg-red-400 text-white px-4 py-2 rounded"
+                      >
+                        Cancel Changes
+                      </button>)}
                       <button
                         onClick={openCreatePopup}
-                        className="bg-blue-500 text-white px-4 py-2 rounded"
+                        className="bg-blue-500 text-white px-4 py-2 rounded mx-36 mt-10"
                       >
                         Add Event
                       </button>
+                      {isCreating && (<button
+                        onClick={submitEventsArray}
+                        className="bg-green-400 text-white px-4 py-2 rounded"
+                      >
+                        Confirm Changes
+                      </button>)}
                     </td>
                   </tr>
                 )}
               </tbody>
             </table>
+
             {/* Create Event Popup --> need to pass in submit/close */}
             {isCreatePopupVisible && (
               <CreateEvent
                 onClose={closeCreatePopup}
                 onSubmit={submitCreatePopup}
-              />
-            )}
-
-            {/* Update Event Popup --> need to pass in submit/close */}
-            {isUpdatePopupVisible && (
-              <UpdateEvent
-                onClose={closeUpdatePopup}
-                onSubmit={submitUpdatePopup}
-                selectedEvent={selectedEvent}
+                eventTypes={eventTypes}
               />
             )}
           </Tab>
           <Tab label="Ranking">
-            <div className="py-4">
-              <h2 className="text-lg font-medium mb-2">Tab 3</h2>
-              <p className="text-gray-700">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime
-                mollitia, molestiae quas vel sint commodi repudiandae
-                consequuntur voluptatum laborum numquam blanditiis harum
-                quisquam eius sed odit fugiat iusto fuga praesentium optio,
-                eaque rerum! Provident similique accusantium nemo autem.
-                Veritatis obcaecati tenetur iure eius earum ut molestias
-                architecto voluptate aliquam nihil, eveniet aliquid culpa
-                officia aut! Impedit sit sunt quaerat, odit, tenetur error,
-                harum nesciunt ipsum debitis quas aliquid. Reprehenderit, quia.
-                Quo neque error repudiandae fuga? Ipsa laudantium molestias eos
-                sapiente officiis modi at sunt excepturi expedita sint? Sed
-                quibusdam recusandae alias error harum maxime adipisci amet
-                laborum.
-              </p>
-            </div>
           </Tab>
         </Tabs>
       </div>
