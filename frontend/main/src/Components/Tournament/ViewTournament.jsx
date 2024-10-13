@@ -41,8 +41,7 @@ export default function ViewTournament() {
         setTournamentData(response.data);
         console.log("response.data => ", response.data);
         // Set eventsArray
-        // setEventsArray(response.data.events);
-        setEventsArray([{ "gender": "M", "weapon": "F", "startTime": "11:11:00", "endTime": "11:12:00", "minParticipants": "1111", "date": "2024-10-11" }]);
+        setEventsArray(response.data.events);
       } catch (error) {
         console.error("Error fetching tournament data:", error);
         setError("Failed to load tournament data.");
@@ -225,10 +224,8 @@ export default function ViewTournament() {
     try {
       const response = await TournamentService.getTournamentDetails(tournamentID);
       setTournamentData(response.data);
-      console.log("response.data => ", response.data);
       // Set eventsArray
-      // setEventsArray(response.data.events);
-      setEventsArray([{ "gender": "M", "weapon": "F", "startTime": "11:11:00", "endTime": "11:12:00", "minParticipants": "1111", "date": "2024-10-11" }]);
+      setEventsArray(response.data.events);
     } catch (error) {
       console.error("Error fetching tournament data:", error);
       setError("Failed to load tournament data.");

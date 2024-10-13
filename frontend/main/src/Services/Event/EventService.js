@@ -5,7 +5,7 @@ const baseURL = "/event";
 class EventService {
 
     async createEvents(tid, events) {
-        return await ProtectedAPI.post(`${tid}/create-event`, events);
+        return await ProtectedAPI.post(`${baseURL}/${tid}/create-event`, events);
     }
 
     async getEventDetails(eid) {
