@@ -13,8 +13,7 @@ import { set } from "react-hook-form";
 
 
 /* TODO
-- Format Array of Events received from backend when page first loads / Create a arr for NewEvents only
-- Ensure eventTypes will check backendEventArray and remove accordingly
+- Check new backend sent event Objects (make sure key-value pairs are correct --> same format as create-event objects)
 */
 
 export default function ViewTournament() {
@@ -26,8 +25,6 @@ export default function ViewTournament() {
   const [error, setError] = useState(null);
   const [eventsArray, setEventsArray] = useState();
   const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
-  const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 10;
 
@@ -342,9 +339,9 @@ export default function ViewTournament() {
                       <td>{/* Event details */}</td>
                       <td>
                         <a href={`/view-event/${event.id}`} className="underline hover:text-accent">
-                          {event.eventName}
+                          {constructEventName(event.gender, event.weapon)}
                         </a>
-                        {/* {constructEventName(event.gender, event.weapon)} */}
+                        {/* no eventName attribute in new backend (pending) --> {event.eventName} */}
                       </td>
                       <td>{event.date}</td>
                       <td>{event.startTime}</td>
