@@ -220,7 +220,6 @@ export default function ViewTournament() {
   // Return Proper Event Names in table (instead of initials)
   const constructEventName = (gender, weapon) => {
     let eventName = "";
-
     // Switch statement for gender
     switch (gender) {
       case 'M':
@@ -246,6 +245,21 @@ export default function ViewTournament() {
     return eventName;
   };
 
+  
+  // Get New Events Array (events without key "fencers")
+  const extractNewEvents = () => {
+    let newEventsArray = [];
+    eventsArray.forEach((event) => {
+      if (!event.hasOwnProperty("fencers")) {
+        newEventsArray.push(event);
+      }
+    });
+    return newEventsArray;
+  };
+
+
+
+
 
 
   // "Cancel Changes"
@@ -266,9 +280,10 @@ export default function ViewTournament() {
   }
   // "Confirm Changes" --> Submit Events Array
   const submitEventsArray = async () => {
-    console.log("Submitting Events Array: " + JSON.stringify(eventsArray));
+    // Only submit new events --> old events have key "fencers"
+    let newEventsArray = extractNewEvents(eventsArray);
     try {
-      const response = await EventService.createEvents(tournamentID, eventsArray);
+      const response = await EventService.createEvents(tournamentID, newEventsArray);
     } catch (error) {
       console.log(error);
     }
