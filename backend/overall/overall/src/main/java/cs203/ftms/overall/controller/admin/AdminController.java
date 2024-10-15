@@ -35,7 +35,7 @@ public class AdminController {
         this.organiserService = organiserService;
     }
 
-    @GetMapping("/unverified-organisation")
+    @GetMapping("/unverified-organiser")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<CleanOrganiserDTO>> getUnverifiedOrgs() {
         List<Organiser> orgs = adminService.getUnverifiedOrgs();
@@ -46,7 +46,7 @@ public class AdminController {
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
-    @PutMapping("/verify-organisation")
+    @PutMapping("/verify-organiser")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> verifyOrg(@RequestBody VerifyOrgDTO dto) {
         adminService.verifyOrg(dto);
