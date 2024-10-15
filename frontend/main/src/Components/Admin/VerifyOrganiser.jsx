@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Pagination from "../Others/Pagination.jsx";
+import AdminService from "../../Services/Admin/AdminService";
+import { set } from "react-hook-form";
 
 /*
 - Submit Button
@@ -9,24 +11,31 @@ export default function VerifyOrganiser() {
     const [organisers, setOrganisers] = useState([]); // State to store fetched organisers
     const [currentPage, setCurrentPage] = useState(1); // State for current page
     const [totalPages, setTotalPages] = useState(1); // State for total pages
-    const limit = 10; // Number of organisers per page
+    const limit = 8; // Number of organisers per page
+    const [isSubmitError, setSubmitError] = useState(false); // State for error handling
+    const [checkboxState, setCheckboxState] = useState({}); // State to track checkboxes --> Array of Approved/Denied Organisers (to send Backend)
 
-    // Store Array of Approved/Denied Organisers (to send Backend)
-    const [checkboxState, setCheckboxState] = useState({}); // State to track checkboxes
+    // Get unverified organisers (only on first load)
+    useEffect(() => {
+        const fetchOrganisers = async () => {
+            try {
+                const data = await AdminService.getUnverifiedOrganisers();
+                console.log(data);
+                setOrganisers(data.organisers);
+                setTotalPages(Math.ceil(organisers.length / limit));
+            } catch (error) {
+                console.error('Error fetching organisers:', error);
+            }
+        };
+        fetchOrganisers();
+    }, []);
 
-    // Sample data for unverified organisers
-    const allOrganisers = Array.from({ length: 43 }, (_, index) => ({
-        id: index + 1,
-        name: `Organisation ${index + 1}`,
-        email: `organisation${index + 1}@example.com`,
-    }));
 
     // Effect to update the organisers and total pages based on current page
     useEffect(() => {
         const startIndex = (currentPage - 1) * limit; // Calculate start index
         const endIndex = startIndex + limit; // Calculate end index
-        setOrganisers(allOrganisers.slice(startIndex, endIndex)); // Set organisers for the current page
-        setTotalPages(Math.ceil(allOrganisers.length / limit)); // Calculate total pages
+        setOrganisers(organisers.slice(startIndex, endIndex)); // Set organisers for the current page    
     }, [currentPage]);
 
     // Handle page change from Pagination component
@@ -46,17 +55,17 @@ export default function VerifyOrganiser() {
 
             // Toggle checkbox state
             if (type === 'approve') {
-                newState[id] = newState[id] === 'approved' ? undefined : 'approved'; // Toggle between approved and undefined
+                newState[id] = newState[id] === 'A' ? undefined : 'A'; // Toggle between approved and undefined
             } else if (type === 'deny') {
-                newState[id] = newState[id] === 'denied' ? undefined : 'denied'; // Toggle between denied and undefined
+                newState[id] = newState[id] === 'D' ? undefined : 'D'; // Toggle between denied and undefined
             }
 
             // If both checkboxes are toggled, set to newState
             // If checkbox untoggled, set to undefined
-            if (newState[id] === 'approved' && prev[id] === 'denied') {
-                newState[id] = 'approved'; // Approve overrides deny
-            } else if (newState[id] === 'denied' && prev[id] === 'approved') {
-                newState[id] = 'denied'; // Deny overrides approve
+            if (newState[id] === 'A' && prev[id] === 'D') {
+                newState[id] = 'A'; // Approve overrides deny
+            } else if (newState[id] === 'D' && prev[id] === 'A') {
+                newState[id] = 'D'; // Deny overrides approve
             } else if (newState[id] === undefined) {
                 delete newState[id]; // Remove entry if undefined (no selection)
             }
@@ -69,6 +78,18 @@ export default function VerifyOrganiser() {
 
         console.log(`Organiser ID: ${id} - Action: ${type}`);
     };
+
+
+    // Function to submit verifications
+    const submitVerfications = async () => {
+        try {
+            console.log('Submitting verifications: ', checkboxState);
+            await AdminService.verifyOrganiser(checkboxState);
+        } catch (error) {
+            setSubmitError(true);
+            console.log(error);
+        }
+    }
 
     return (
         <div className="flex flex-col justify-center items-center gap-10 p-8">
@@ -90,16 +111,16 @@ export default function VerifyOrganiser() {
                                 <label className="flex items-center">
                                     <input
                                         type="checkbox"
-                                        checked={checkboxState[organiser.id] === 'approved'}
-                                        onChange={() => handleCheckboxChange(organiser.id, 'approve')}
+                                        checked={checkboxState[organiser.id] === 'A'}
+                                        onChange={() => handleCheckboxChange(organiser.id, 'A')}
                                     />
                                     <span className="ml-2">Approve</span>
                                 </label>
                                 <label className="flex items-center">
                                     <input
                                         type="checkbox"
-                                        checked={checkboxState[organiser.id] === 'denied'}
-                                        onChange={() => handleCheckboxChange(organiser.id, 'deny')}
+                                        checked={checkboxState[organiser.id] === 'D'}
+                                        onChange={() => handleCheckboxChange(organiser.id, 'D')}
                                     />
                                     <span className="ml-2">Deny</span>
                                 </label>
@@ -107,7 +128,7 @@ export default function VerifyOrganiser() {
                         </tr>
                     ))}
 
-                    {/* Add empty rows if there are less than 10 rows */}
+                    {/* Add empty rows if there are less than 8 rows */}
                     {Array.from({ length: limit - organisers.length }).map((_, index) => (
                         <tr key={`empty-${index}`} className="border-transparent">
                             <td>&nbsp;</td> {/* Empty cells */}
@@ -118,6 +139,19 @@ export default function VerifyOrganiser() {
                 </tbody>
 
             </table>
+            {checkboxState.length > 0 && (
+                <button
+                    onClick={submitVerfications}
+                    className="bg-green-400 text-white px-4 py-2 rounded"
+                >
+                    Confirm Changes
+                </button>
+            )}
+            {isSubmitError && (
+                <h1 className="text-xl font-semibold text-center text-red-500">
+                    Something went wrong. Please try again later!
+                </h1>
+            )}
             <Pagination
                 totalPages={totalPages}
                 buttonSize="w-10 h-10"
