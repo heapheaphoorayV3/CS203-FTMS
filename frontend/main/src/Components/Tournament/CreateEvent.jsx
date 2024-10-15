@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
-import { useParams } from "react-router-dom";
-import TournamentService from "../../Services/Tournament/TournamentService";
 import { XCircleIcon } from "@heroicons/react/16/solid";
 
-const CreateEvent = ({ eventTypes, onClose, onSubmit }) => {
+const CreateEvent = ({ eventTypes, tournamentDates, onClose, onSubmit }) => {
   const {
     register,
     watch,
@@ -14,26 +12,7 @@ const CreateEvent = ({ eventTypes, onClose, onSubmit }) => {
 
   const startTime = watch("startTime");
 
-  // Get tournament
-  const { tournamentID } = useParams();
-  const [tournament, setTournament] = useState(null);
-  useEffect(() => {
-    const fetchTournamentDetails = async () => {
-      try {
-        const details = await TournamentService.getTournamentDetails(
-          tournamentID
-        );
-        // details --> contain data object --> contains tournament object
-        setTournament(details.data);
-      } catch (error) {
-        console.error("Error fetching tournament details:", error);
-      }
-    };
-
-    fetchTournamentDetails();
-  }, [tournamentID]);
-
-  console.log(eventTypes);
+  console.log("Available Events left for creation: " + eventTypes);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
@@ -87,14 +66,12 @@ const CreateEvent = ({ eventTypes, onClose, onSubmit }) => {
                 required: "Please fill this in!",
                 validate: (value) => {
                   const selectedDate = new Date(value);
-                  const tournamentStart = new Date(tournament.startDate);
-                  const tournamentEnd = new Date(tournament.endDate);
+                  const tournamentStart = new Date(tournamentDates[0]);
+                  const tournamentEnd = new Date(tournamentDates[1]);
                   return (
                     (selectedDate >= tournamentStart &&
                       selectedDate <= tournamentEnd) ||
-                    "Event Date must within Tournament Time Frame!" +
-                    tournamentStart +
-                    tournamentEnd
+                    "Event Date must be within Tournament Time Frame!"
                   );
                 },
               })}
@@ -115,6 +92,7 @@ const CreateEvent = ({ eventTypes, onClose, onSubmit }) => {
               type="time"
               {...register("startTime", {
                 required: "Please fill this in!",
+
               })}
               className={`w-full border rounded-md p-2 ${errors.startTime ? "border-red-500" : "border-gray-300"
                 }`}
@@ -160,7 +138,7 @@ const CreateEvent = ({ eventTypes, onClose, onSubmit }) => {
               {...register("minParticipants", {
                 required: "Please fill this in!",
                 validate: (value) =>
-                  value > 1 || "Please enter a number more than 1!",
+                  value >= 8 || "Must have at least 8 participants!",
               })}
               className={`w-full border rounded-md p-2 ${errors.minParticipants
                 ? "border-red-500"

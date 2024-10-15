@@ -1,9 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
-import CountrySelector from "../Others/CountrySelector";
 import TournamentService from "../../Services/Tournament/TournamentService";
-import { Zone } from "luxon";
 
 const CreateTournament = () => {
   const {

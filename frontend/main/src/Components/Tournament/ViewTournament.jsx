@@ -10,11 +10,6 @@ import CreateEvent from "./CreateEvent.jsx";
 import SubmitButton from "../Others/SubmitButton.jsx";
 import EventBracket from "./EventBracket.jsx";
 import PaginationButton from "../Others/Pagination.jsx";
-import { set } from "react-hook-form";
-
-/* TODO
-- Check new backend sent event Objects (make sure key-value pairs are correct --> same format as create-event objects)
-*/
 
 export default function ViewTournament() {
   // Retrieve tournament ID from URL
@@ -440,6 +435,7 @@ export default function ViewTournament() {
                 onClose={closeCreatePopup}
                 onSubmit={submitCreatePopup}
                 eventTypes={eventTypes}
+                tournamentDates={[tournamentData.startDate, tournamentData.endDate]}
               />
             )}
           </Tab>
