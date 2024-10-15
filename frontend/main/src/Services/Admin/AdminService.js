@@ -7,11 +7,11 @@ const baseURL = "/admin";
 */
 class AdminService {
   async getUnverifiedOrganisers() {
-    return await ProtectedAPI.get(`${baseURL}/unverified-organisation`);
+    return await ProtectedAPI.get(`${baseURL}/unverified-organiser`);
   }
 
   async verifyOrganiser(organisers) {
-    return await ProtectedAPI.post(`${baseURL}/verify-organisation`, organisers);
+    return await ProtectedAPI.post(`${baseURL}/verify-organiser`, organisers);
   }
 
 }

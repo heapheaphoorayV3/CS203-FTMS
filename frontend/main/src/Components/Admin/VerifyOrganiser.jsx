@@ -8,7 +8,14 @@ import { set } from "react-hook-form";
 - Integrate with Backend
 */
 export default function VerifyOrganiser() {
-    const [organisers, setOrganisers] = useState([]); // State to store fetched organisers
+    // Mock data for organisers
+    const organisersMock = [
+        { id: 1, name: "Organisation 1", email: "something1@gmail.com" },
+        { id: 2, name: "Organisation 2", email: "something2@gmail.com" },
+        { id: 3, name: "Organisation 3", email: "something3@gmail.com" },
+        { id: 4, name: "Organisation 4", email: "something4@gmail.com" },
+    ];
+    const [organisers, setOrganisers] = useState(organisersMock); // State to store fetched organisers
     const [currentPage, setCurrentPage] = useState(1); // State for current page
     const [totalPages, setTotalPages] = useState(1); // State for total pages
     const limit = 8; // Number of organisers per page
@@ -19,9 +26,9 @@ export default function VerifyOrganiser() {
     useEffect(() => {
         const fetchOrganisers = async () => {
             try {
-                const data = await AdminService.getUnverifiedOrganisers();
-                console.log(data);
-                setOrganisers(data.organisers);
+                // const data = await AdminService.getUnverifiedOrganisers();
+                // console.log(data);
+                // setOrganisers(data.organisers);
                 setTotalPages(Math.ceil(organisers.length / limit));
             } catch (error) {
                 console.error('Error fetching organisers:', error);
@@ -54,9 +61,9 @@ export default function VerifyOrganiser() {
             }
 
             // Toggle checkbox state
-            if (type === 'approve') {
+            if (type === 'A') {
                 newState[id] = newState[id] === 'A' ? undefined : 'A'; // Toggle between approved and undefined
-            } else if (type === 'deny') {
+            } else if (type === 'D') {
                 newState[id] = newState[id] === 'D' ? undefined : 'D'; // Toggle between denied and undefined
             }
 
@@ -71,7 +78,7 @@ export default function VerifyOrganiser() {
             }
 
             // Log the current state of all checkboxes
-            console.log('Current Checkbox States:', newState);
+            console.log('Current Checkbox States:' + newState + " Length: " + Object.keys(checkboxState).length);
 
             return newState;
         });
@@ -82,9 +89,14 @@ export default function VerifyOrganiser() {
 
     // Function to submit verifications
     const submitVerfications = async () => {
+        //Convert checkboxState to array of objects
+        const verificationArray = Object.entries(checkboxState).map(([id, action]) => ({
+            id,
+            action
+        }));
         try {
-            console.log('Submitting verifications: ', checkboxState);
-            await AdminService.verifyOrganiser(checkboxState);
+            console.log('Submitting verifications: ', verificationArray);
+            await AdminService.verifyOrganiser(verificationArray);
         } catch (error) {
             setSubmitError(true);
             console.log(error);
@@ -139,7 +151,7 @@ export default function VerifyOrganiser() {
                 </tbody>
 
             </table>
-            {checkboxState.length > 0 && (
+            {Object.keys(checkboxState).length > 0 && (
                 <button
                     onClick={submitVerfications}
                     className="bg-green-400 text-white px-4 py-2 rounded"
