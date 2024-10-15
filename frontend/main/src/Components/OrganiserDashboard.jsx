@@ -93,7 +93,7 @@ const OrganiserDashboard = () => {
       <div className="bg-white border rounded-2xl shadow-lg p-6 flex flex-col flex-grow w-full relative mx-auto mt-4">
         <Tabs>
           <Tab label="Ongoing Tournaments Hosted">
-            <div className="mx-4 mt-4">
+            <div className="h-full px-4 pt-4">
               {tournamentData && tournamentData.length > 0 ? (
                 <Table
                   tableHead={tableHead}
@@ -119,7 +119,7 @@ const OrganiserDashboard = () => {
             </div>
           </Tab>
           <Tab label="Upcoming Tournaments Hosted">
-          <div className="mx-4 mt-4">
+          <div className="h-full px-4 pt-4">
               {tournamentData && tournamentData.length > 0 ? (
                 <Table
                   tableHead={tableHead}
@@ -144,7 +144,7 @@ const OrganiserDashboard = () => {
             </div>
           </Tab>
           <Tab label="Past Tournaments Hosted">
-          <div className="mx-4 mt-4">
+          <div className="h-full px-4 pt-4">
               {tournamentData && tournamentData.length > 0 ? (
                 <Table
                   tableHead={tableHead}

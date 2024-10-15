@@ -6,7 +6,7 @@ const Tabs = ({ children }) => {
         setActiveTab(newActiveTab);
     };
     return (
-        <div className="w-full">
+        <div className="w-full h-full flex flex-col">
             <div className="flex border-b border-gray-300">
                 {children.map(child => (
                     <button
@@ -19,10 +19,10 @@ const Tabs = ({ children }) => {
                     </button>
                 ))}
             </div>
-            <div className="py-4">
+            <div className="py-4 flex flex-col flex-grow">
                 {children.map(child => {
                     if (child.props.label === activeTab) {
-                        return <div key={child.props.label}>{child.props.children}</div>;
+                        return <div className="h-full" key={child.props.label}>{child.props.children} </div>;
                     }
                     return null;
                 })}
