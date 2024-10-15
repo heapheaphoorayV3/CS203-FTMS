@@ -2,7 +2,7 @@ import { Card, Typography } from "@material-tailwind/react";
 
 export default function Table({ tableHead, tableRows }) {
     return (
-        <section className="w-full bg-white">
+        <section className="w-full h-full bg-white">
             <Card className="h-full w-full overflow-scroll border border-gray-300 px-6">
                 <table className="w-full min-w-max table-auto text-left">
                     <thead>
