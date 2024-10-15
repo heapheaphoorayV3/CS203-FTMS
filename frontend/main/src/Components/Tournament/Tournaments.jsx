@@ -71,7 +71,7 @@ export default function Tournaments() {
   }
 
   return (
-    <div className="row-span-2 col-start-2 bg-gray-300 h-full overflow-y-auto">
+    <div className="row-span-2 col-start-2 bg-gray-200 h-full overflow-y-auto">
       <h1 className="my-10 ml-12 text-left text-4xl font-semibold">
         Tournaments
       </h1>
@@ -92,7 +92,7 @@ export default function Tournaments() {
       <div className="ml-12 mr-8 overflow-x-auto">
         <table className="table text-lg">
           {/* head */}
-          <thead className="text-lg">
+          <thead className="text-lg text-primary">
             <tr>
               <th>Tournament Name</th>
               <th>Location</th>
@@ -107,7 +107,7 @@ export default function Tournaments() {
                   <td>
                     <a
                       href={`tournaments/${tournament.id}`}
-                      className="underline hover:text-accent"
+                      className="underline hover:text-primary"
                     >
                       {tournament.name}
                     </a>
