@@ -10,6 +10,7 @@ import CreateEvent from "./CreateEvent.jsx";
 import SubmitButton from "../Others/SubmitButton.jsx";
 import EventBracket from "./EventBracket.jsx";
 import PaginationButton from "../Others/Pagination.jsx";
+import axios from "axios";
 
 export default function ViewTournament() {
   // Retrieve tournament ID from URL
@@ -234,7 +235,6 @@ export default function ViewTournament() {
     return eventName;
   };
 
-  
   // Get New Events Array (events without key "fencers")
   const extractNewEvents = () => {
     let newEventsArray = [];
@@ -245,11 +245,6 @@ export default function ViewTournament() {
     });
     return newEventsArray;
   };
-
-
-
-
-
 
   // "Cancel Changes"
   const cancelCreatingChanges = async () => {
@@ -274,7 +269,10 @@ export default function ViewTournament() {
     // Only submit new events --> old events have key "fencers"
     let newEventsArray = extractNewEvents(eventsArray);
     try {
-      const response = await EventService.createEvents(tournamentID, newEventsArray);
+      const response = await EventService.createEvents(
+        tournamentID,
+        newEventsArray
+      );
     } catch (error) {
       console.log(error);
     }
@@ -283,21 +281,25 @@ export default function ViewTournament() {
   };
 
   const registerEvent = async (eventID) => {
+    console.log("Registering event with ID:", eventID);
     try {
       await EventService.registerEvent(eventID).then(() => {
-        // After successful registration, add the event ID to the state
         setRegisteredEvents((prevEvents) => [...prevEvents, eventID]);
         navigate("/fencer-dashboard");
       });
     } catch (error) {
-      console.log(error);
+      if (error.response && error.response.status === 403) {
+        console.error("You do not have permission to register for this event.");
+      } else {
+        console.log(error);
+      }
     }
   };
 
   return (
     // Grid for Navbar, Sidebar and Content
 
-    <div className="row-span-2 col-start-2 bg-gray-300 h-full overflow-y-auto">
+    <div className="row-span-2 col-start-2 bg-gray-200 h-full overflow-y-auto">
       <Breadcrumbs items={breadcrumbsItems} />
       <h1 className="my-10 ml-12 text-left text-4xl font-semibold">
         {tournamentData.name}
@@ -334,7 +336,7 @@ export default function ViewTournament() {
           <Tab label="Events">
             <table className="table text-lg text-center">
               {/* head */}
-              <thead className="text-lg">
+              <thead className="text-lg text-neutral">
                 <tr>
                   {/* <th></th> */}
                   <th>Event Name</th>
@@ -357,7 +359,7 @@ export default function ViewTournament() {
                       <td>
                         <a
                           href={`/view-event/${event.id}`}
-                          className="underline hover:text-accent"
+                          className="underline hover:text-primary"
                         >
                           {constructEventName(event.gender, event.weapon)}
                         </a>
@@ -435,7 +437,10 @@ export default function ViewTournament() {
                 onClose={closeCreatePopup}
                 onSubmit={submitCreatePopup}
                 eventTypes={eventTypes}
-                tournamentDates={[tournamentData.startDate, tournamentData.endDate]}
+                tournamentDates={[
+                  tournamentData.startDate,
+                  tournamentData.endDate,
+                ]}
               />
             )}
           </Tab>
@@ -451,7 +456,7 @@ export default function ViewTournament() {
             </select>
             <table className="table text-lg">
               {/* head */}
-              <thead className="text-lg">
+              <thead className="text-lg text-neutral">
                 <tr>
                   <th className="text-center w-20">Rank</th>
                   <th className="w-1/2">Name</th>

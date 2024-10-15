@@ -12,7 +12,11 @@ class EventService {
   }
 
   async registerEvent(eid) {
-    return await ProtectedAPI.put(`/tournament/register/${eid}`);
+    return await ProtectedAPI.put(`${baseURL}/register/${eid}`);
+  }
+
+  async getPouleTable(eid) {
+    return await ProtectedAPI.get(`${baseURL}/${eid}/get-poule-table`);
   }
 }
 
