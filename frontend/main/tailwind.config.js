@@ -28,5 +28,6 @@ module.exports = {
   plugins: [
     require('flowbite/plugin'),
     require('daisyui'),
+    require("@material-tailwind/react/utils/withMT"),
   ]
 }

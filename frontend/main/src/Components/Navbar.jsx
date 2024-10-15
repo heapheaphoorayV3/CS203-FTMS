@@ -17,6 +17,7 @@ const Navbar = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        if(!isLoggedIn) return;
         let response = null;
         if(userType === "F"){
           response = await FencerService.getProfile()

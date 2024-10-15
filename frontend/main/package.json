@@ -5,6 +5,7 @@
   "dependencies": {
     "@g-loot/react-tournament-brackets": "^1.0.31-rc",
     "@heroicons/react": "^2.1.5",
+    "@material-tailwind/react": "^2.1.10",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",

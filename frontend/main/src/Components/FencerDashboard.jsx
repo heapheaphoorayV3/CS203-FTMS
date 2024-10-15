@@ -88,7 +88,7 @@ const FencerDashboard = () => {
   }
 
   return (
-    <div className="bg-gray-200 w-full h-full gap-2 p-8 overflow-auto">
+    <div className="bg-gray-200 w-full h-full flex flex-col gap-2 p-8 overflow-auto">
       <div className="bg-white border rounded-2xl shadow-lg p-6 flex w-full relative overflow-x-hidden">
         {/* Profile Image and Name */}
         <div className="flex-shrink-0 flex flex-col items-center my-auto">
@@ -102,26 +102,26 @@ const FencerDashboard = () => {
           </div>
         </div>
 
-            <div className="grid grid-cols-[2fr_8fr] gap-y-2 gap-x-4 ml-4 my-4 text-xl w-full">
-              {/* Email, Birth Date, Gender, Category, Hand, Year, Org, Country */}
-              <div className="flex font-medium">Email:</div>
-              <div className="flex">{userData.email}</div>
-              <div className="flex font-medium">Birth Date:</div>
-              <div className="flex">{formatDate(userData.dateOfBirth)}</div>
-              <div className="flex font-medium">Gender:</div>
-              <div className="flex">{userData.gender && userData.gender.trim() !== "" && userData.gender !== "\u0000" ? userData.gender : "-"}</div>
-              <hr className="col-span-2 my-4 border-gray-300 w-full" />
-              <div className="flex font-medium">Category:</div>
-              <div className="flex">{userData.weapon && userData.weapon.trim() !== "" && userData.weapon !== "\u0000" ? userData.weapon : "-"}</div>
-              <div className="flex font-medium">Dominant Arm:</div>
-              <div className="flex">{userData.dominantArm && userData.dominantArm.trim() !== "" && userData.dominantArm !== "\u0000" ? userData.dominantArm : "-"}</div>
-              <div className="flex font-medium">Debut Year:</div>
-              <div className="flex">{userData.debutYear ? userData.debutYear : "-"}</div>
-              <div className="flex font-medium">Organisation:</div>
-              <div className="flex">{userData.club ? userData.club : "-"}</div>
-              <div className="flex font-medium">Country:</div>
-              <div className="flex">{userData.country}</div>
-            </div>
+        <div className="grid grid-cols-[2fr_8fr] gap-y-2 gap-x-4 ml-4 my-4 text-xl w-full">
+          {/* Email, Birth Date, Gender, Category, Hand, Year, Org, Country */}
+          <div className="flex font-medium">Email:</div>
+          <div className="flex">{userData.email}</div>
+          <div className="flex font-medium">Birth Date:</div>
+          <div className="flex">{formatDate(userData.dateOfBirth)}</div>
+          <div className="flex font-medium">Gender:</div>
+          <div className="flex">{userData.gender && userData.gender.trim() !== "" && userData.gender !== "\u0000" ? userData.gender : "-"}</div>
+          <hr className="col-span-2 my-4 border-gray-300 w-full" />
+          <div className="flex font-medium">Category:</div>
+          <div className="flex">{userData.weapon && userData.weapon.trim() !== "" && userData.weapon !== "\u0000" ? userData.weapon : "-"}</div>
+          <div className="flex font-medium">Dominant Arm:</div>
+          <div className="flex">{userData.dominantArm && userData.dominantArm.trim() !== "" && userData.dominantArm !== "\u0000" ? userData.dominantArm : "-"}</div>
+          <div className="flex font-medium">Debut Year:</div>
+          <div className="flex">{userData.debutYear ? userData.debutYear : "-"}</div>
+          <div className="flex font-medium">Organisation:</div>
+          <div className="flex">{userData.club ? userData.club : "-"}</div>
+          <div className="flex font-medium">Country:</div>
+          <div className="flex">{userData.country}</div>
+        </div>
 
         {/* Edit Icon */}
         <div className="absolute top-4 right-4 cursor-pointer text-gray-600">
@@ -129,19 +129,19 @@ const FencerDashboard = () => {
         </div>
       </div>
 
-          <div className="bg-white border rounded-2xl shadow-lg p-6 flex flex-row w-full relative mx-auto mt-4">
-            <Tabs>
-              <Tab label="Ranking & Statistics">
-                <div className="grid grid-cols-[2fr_3fr_3fr]">
-                  <div className="grid grid-cols-[2fr_1fr] gap-y-2 ml-4 my-4 text-xl w-75">
-                    <div className="flex font-medium">International Rank</div>
-                    <div className="flex">{userData.rank ? userData.rank : "-"}</div>
-                    <div className="flex font-medium">Total Points</div>
-                    <div className="flex">{userData.points ? userData.points : "-"}</div>
-                    <div className="flex font-medium">Tournament Participations</div>
-                    {/* placeholder stuff */}
-                    <div className="flex">{userData.tournaments ? userData.tournaments : "-"}</div>
-                  </div>
+      <div className="bg-white border rounded-2xl shadow-lg p-6 flex flex-row flex-grow w-full relative mx-auto mt-4">
+        <Tabs>
+          <Tab label="Ranking & Statistics">
+            <div className="grid grid-cols-[2fr_3fr_3fr]">
+              <div className="grid grid-cols-[2fr_1fr] gap-y-2 ml-4 my-4 text-xl w-75">
+                <div className="flex font-medium">International Rank</div>
+                <div className="flex">{userData.rank ? userData.rank : "-"}</div>
+                <div className="flex font-medium">Total Points</div>
+                <div className="flex">{userData.points ? userData.points : "-"}</div>
+                <div className="flex font-medium">Tournament Participations</div>
+                {/* placeholder stuff */}
+                <div className="flex">{userData.tournaments ? userData.tournaments : "-"}</div>
+              </div>
 
               <div className="w-[99%] h-full">
                 <LineGraph data={rankGraphData} options={rankGraphOptions} height={200} />
