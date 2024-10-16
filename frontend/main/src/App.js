@@ -20,46 +20,49 @@ import Tournaments from "./Components/Tournament/Tournaments";
 import VerifyOrganiser from "./Components/Admin/VerifyOrganiser";
 import LandingPage from "./Components/Others/LandingPage";
 import InternationalRanking from "./Components/InternationalRanking";
+import AuthProvider from "./Components/Authentication/AuthProvider";
 
 function App() {
   return (
     <Router>
-      <Routes>
-        {/* Default Layout */}
-        <Route element={<DefaultLayout />}>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/fencer-dashboard" element={<FencerDashboard />} />
-          <Route path="/organiser-dashboard" element={<OrganiserDashboard />} />
-          <Route path="/tournaments/:tournamentID" element={<ViewTournament />} />
-          <Route path="/view-event/:eventID" element={<ViewEvent />} />
-          <Route path="/tournaments" element={<Tournaments />} />
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup-options" element={<SignupOptions />} />
-          <Route path="/signup-fencer" element={<SignUpFencer />} />
-          <Route path="/signup-organiser" element={<SignUpOrganiser />} />
-          <Route path="/create-tournament" element={<CreateTournament />} />
-          <Route path="/tournament/:tournamentID/create-event" element={<CreateEvent />} />
-          <Route path="/signup-event" element={<SignUpEvent />} />
-          <Route path="/verify-organiser" element={<VerifyOrganiser />} />
-          <Route path="/international-ranking" element={<InternationalRanking/>}/>
-        </Route>
-
-        {/* Admin Layout */}
-        <Route element={<AdminLayout />}>
-          {/* <Route path="/verify-organiser" element={<VerifyOrganiser />} /> */}
-        </Route>
-
-        {/* Authenticated Layout */}
-        <Route element={<ProtectedRoute />}>
-          <Route element={<AuthLayout />}>
-            <Route path="/dashboard" element={<FencerDashboard />} />
+      <AuthProvider>
+        <Routes>
+          {/* Default Layout */}
+          <Route element={<DefaultLayout />}>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/fencer-dashboard" element={<FencerDashboard />} />
+            <Route path="/organiser-dashboard" element={<OrganiserDashboard />} />
+            <Route path="/tournaments/:tournamentID" element={<ViewTournament />} />
+            <Route path="/view-event/:eventID" element={<ViewEvent />} />
+            <Route path="/tournaments" element={<Tournaments />} />
+            <Route path="/signin" element={<SignIn />} />
+            <Route path="/signup-options" element={<SignupOptions />} />
+            <Route path="/signup-fencer" element={<SignUpFencer />} />
+            <Route path="/signup-organiser" element={<SignUpOrganiser />} />
+            <Route path="/create-tournament" element={<CreateTournament />} />
+            <Route path="/tournament/:tournamentID/create-event" element={<CreateEvent />} />
+            <Route path="/signup-event" element={<SignUpEvent />} />
+            <Route path="/verify-organiser" element={<VerifyOrganiser />} />
+            <Route path="/international-ranking" element={<InternationalRanking />} />
           </Route>
-          <Route path="/organiser-dashboard" element={<OrganiserDashboard />} />
-          <Route path="/create-tournament" element={<CreateTournament />} />
-          <Route path="/create-event" element={<CreateEvent />} />
-          <Route path="/signup-event" element={<SignUpEvent />} />
-        </Route>
-      </Routes>
+
+          {/* Admin Layout */}
+          <Route element={<AdminLayout />}>
+            {/* <Route path="/verify-organiser" element={<VerifyOrganiser />} /> */}
+          </Route>
+
+          {/* Authenticated Layout */}
+          <Route element={<ProtectedRoute />}>
+            <Route element={<AuthLayout />}>
+              <Route path="/dashboard" element={<FencerDashboard />} />
+            </Route>
+            <Route path="/organiser-dashboard" element={<OrganiserDashboard />} />
+            <Route path="/create-tournament" element={<CreateTournament />} />
+            <Route path="/create-event" element={<CreateEvent />} />
+            <Route path="/signup-event" element={<SignUpEvent />} />
+          </Route>
+        </Routes>
+      </AuthProvider>
     </Router>
   );
 }
