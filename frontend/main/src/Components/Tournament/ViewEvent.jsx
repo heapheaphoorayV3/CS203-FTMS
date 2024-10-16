@@ -5,6 +5,7 @@ import EventList from "../Others/EventList.jsx";
 import { Tabs, Tab } from "../Others/DashboardTabs.jsx";
 import EventService from "../../Services/Event/EventService.js";
 import PaginationButton from "../Others/Pagination.jsx";
+import EventBracket from "./EventBracket.jsx";
 
 function formatTimeTo24Hour(timeString) {
   const [hours, minutes] = timeString.split(':'); // Get hours and minutes
@@ -143,7 +144,7 @@ export default function ViewEvent() {
   };
 
   return (
-    <div className="row-span-2 col-start-2 bg-gray-200 overflow-y-auto">
+    <div className="row-span-2 col-start-2 bg-gray-200 h-full overflow-y-auto">
       <h1 className="my-10 ml-12 text-left text-4xl font-semibold">
         {eventData.tournamentName} -{" "}
         {constructEventName(eventData.gender, eventData.weapon)}
@@ -215,6 +216,7 @@ export default function ViewEvent() {
           <Tab label="Bracket">
             <div className="py-4">
               <h2 className="text-lg font-medium mb-2">Bracket</h2>
+              {/* <EventBracket matches={eventData.matches} /> */}
             </div>
           </Tab>
           <Tab label="Ranking">
