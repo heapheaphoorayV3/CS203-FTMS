@@ -144,25 +144,6 @@ export default function ViewEvent() {
 
   const pouleIndex = selectedPoule ? parseInt(selectedPoule) - 1 : 0;
 
-  const testData = {
-    pouleTable: [
-      {
-        "3 Fencer (Singapore) -- 4": "-1,0,0,0,0",
-        "1 Fencer (Singapore) -- 2": "0,-1,0,0,0",
-        "5 Fencer (Singapore) -- 6": "0,0,-1,0,0",
-        "7 Fencer (Singapore) -- 8": "0,0,0,-1,0",
-        "4 Fencer (Singapore) -- 5": "0,0,0,0,-1",
-      },
-      {
-        "9 Fencer (Singapore) -- 10": "-1,0,0,0,0",
-        "6 Fencer (Singapore) -- 7": "0,-1,0,0,0",
-        "10 Fencer (Singapore) -- 11": "0,0,-1,0,0",
-        "2 Fencer (Singapore) -- 3": "0,0,0,-1,0",
-        "8 Fencer (Singapore) -- 9": "0,0,0,0,-1",
-      },
-    ],
-  };
-
   const createPoules = () => {
     setIsCreatePopupVisible(true);
   };
@@ -172,17 +153,14 @@ export default function ViewEvent() {
   };
 
   const submitCreatePopup = async (data) => {
-    const formData = new FormData();
+    const payload = {
+      eid: String(eventID), // Add the eventID to the payload
+      ...data, // Spread the rest of the data
+    };
 
-    formData.append("eid", String(eventID));
-
-    console.log("Received data:", data);
-
-    Object.keys(data).forEach((key) => {
-      formData.append(key, data[key]);
-    });
+    console.log(payload);
     try {
-      await EventService.createPoules(formData);
+      await EventService.createPoules(payload.eid, payload);
     } catch (error) {
       console.log("error creating poules", error);
     }
@@ -209,9 +187,6 @@ export default function ViewEvent() {
         <Tabs>
           <Tab label="Poules">
             <div className="py-4">
-              <label className="block font-medium mb-1 ml-1">
-                Create Poules
-              </label>
               <button
                 onClick={createPoules}
                 className="bg-blue-500 text-white px-4 py-2 rounded mt-2 mb-2"
@@ -228,7 +203,7 @@ export default function ViewEvent() {
               <table className="table text-lg">
                 {/* head */}
                 <thead className="text-lg text-neutral">
-                  <tr>
+                  <tr className="border-b border-gray-300">
                     <th className="w-60 text-primary">Fencer</th>
                     <th className="w-24"></th>
                     <th className="text-center w-24">1</th>
@@ -239,28 +214,34 @@ export default function ViewEvent() {
                   </tr>
                 </thead>
                 <tbody>
-                  {Object.entries(testData.pouleTable[pouleIndex]).map(
-                    ([fencer, results], idx) => {
-                      const resultArray = results.split(",");
-                      const cleanedFencerName = fencer.replace(/ -- \d+$/, "");
-                      return (
-                        <tr key={idx}>
-                          <td className="w-60">{cleanedFencerName}</td>
-                          <td className="font-bold text-center border-r border-black w-24">
-                            {idx + 1}
-                          </td>
-                          {resultArray.map((result, resultIndex) => (
-                            <td
-                              key={resultIndex}
-                              className="border border-black"
-                            >
-                              {result}
+                  {pouleTableData?.pouleTable &&
+                    Object.entries(pouleTableData.pouleTable[pouleIndex]).map(
+                      ([fencer, results], idx) => {
+                        const resultArray = results.split(",");
+                        const cleanedFencerName = fencer.replace(
+                          / -- \d+$/,
+                          ""
+                        );
+                        return (
+                          <tr key={idx} className="border-b border-gray-300">
+                            <td className="w-60">{cleanedFencerName}</td>
+                            <td className="font-bold text-center border-r border-gray-300 w-24">
+                              {idx + 1}
                             </td>
-                          ))}
-                        </tr>
-                      );
-                    }
-                  )}
+                            {resultArray.map((result, resultIndex) => (
+                              <td
+                                key={resultIndex}
+                                className={`border border-gray-300 hover:bg-gray-100 ${
+                                  result === "-1" ? "bg-gray-300 text-gray-300 hover:bg-gray-300" : ""
+                                }`}
+                              >
+                                {result}
+                              </td>
+                            ))}
+                          </tr>
+                        );
+                      }
+                    )}
                 </tbody>
               </table>
             </div>
@@ -294,7 +275,10 @@ export default function ViewEvent() {
                 </thead>
                 <tbody>
                   {paginatedData.map((item) => (
-                    <tr key={item.id} className="border-b border-gray-300 hover:bg-gray-100">
+                    <tr
+                      key={item.id}
+                      className="border-b border-gray-300 hover:bg-gray-100"
+                    >
                       <td className="text-center">{item.id}</td>
                       <td>{item.name}</td>
                       <td className="text-center">{item.country}</td>
@@ -328,7 +312,10 @@ export default function ViewEvent() {
                 </thead>
                 <tbody>
                   {eventData.fencers.map((fencer, index) => (
-                    <tr key={fencer.id} className="border-b border-gray-300 hover:bg-gray-100">
+                    <tr
+                      key={fencer.id}
+                      className="border-b border-gray-300 hover:bg-gray-100"
+                    >
                       <td>{index + 1}</td>
                       <td>{fencer.name}</td>
                       <td>{fencer.club}</td>{" "}

@@ -19,8 +19,8 @@ class EventService {
     return await ProtectedAPI.get(`${baseURL}/${eid}/get-poule-table`);
   }
 
-  async createPoules(eid) {
-    return await ProtectedAPI.post(`${baseURL}/${eid}/create-poules`);
+  async createPoules(eid, data) {
+    return await ProtectedAPI.post(`${baseURL}/${eid}/create-poules`, data);
   }
 
   async getRecommendedPoules(eid) {
