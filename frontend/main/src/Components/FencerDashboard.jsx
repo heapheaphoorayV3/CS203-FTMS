@@ -187,11 +187,11 @@ const FencerDashboard = () => {
                 <option value="E">Épée</option>
                 <option value="S">Sabre</option>
               </select>
-            ) : editedData.weapon === "F" ? (
+            ) : userData.weapon === "F" ? (
               "Foil"
-            ) : editedData.weapon === "E" ? (
+            ) : userData.weapon === "E" ? (
               "Épée"
-            ) : editedData.weapon === "S" ? (
+            ) : userData.weapon === "S" ? (
               "Sabre"
             ) : (
               "-"
@@ -212,9 +212,9 @@ const FencerDashboard = () => {
                 <option value="R">Right</option>
                 <option value="L">Left</option>
               </select>
-            ) : editedData.dominantArm === "R" ? (
+            ) : userData.dominantArm === "R" ? (
               "Right"
-            ) : editedData.dominantArm === "L" ? (
+            ) : userData.dominantArm === "L" ? (
               "Left"
             ) : (
               "-"
@@ -231,8 +231,8 @@ const FencerDashboard = () => {
                 className="border p-1"
                 placeholder="-"
               />
-            ) : editedData.debutYear ? (
-              editedData.debutYear
+            ) : userData.debutYear ? (
+              userData.debutYear
             ) : (
               "-"
             )}
