@@ -11,7 +11,7 @@ class AdminService {
   }
 
   async verifyOrganiser(organisers) {
-    return await ProtectedAPI.post(`${baseURL}/verify-organiser`, organisers);
+    return await ProtectedAPI.put(`${baseURL}/verify-organiser`, organisers);
   }
 
 }

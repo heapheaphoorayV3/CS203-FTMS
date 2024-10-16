@@ -2,7 +2,7 @@ import { SingleEliminationBracket, Match, SVGViewer, createTheme } from '@g-loot
 import React from 'react';
 
 
-export default function SingleElimination({ matches }) {
+export default function EventBracket({ matches }) {
 
     return (
         <SingleEliminationBracket
