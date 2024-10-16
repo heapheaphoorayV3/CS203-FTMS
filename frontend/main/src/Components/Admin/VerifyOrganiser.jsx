@@ -9,13 +9,13 @@ import { set } from "react-hook-form";
 */
 export default function VerifyOrganiser() {
     // Mock data for organisers
-    const organisersMock = [
-        { id: 1, name: "Organisation 1", email: "something1@gmail.com" },
-        { id: 2, name: "Organisation 2", email: "something2@gmail.com" },
-        { id: 3, name: "Organisation 3", email: "something3@gmail.com" },
-        { id: 4, name: "Organisation 4", email: "something4@gmail.com" },
-    ];
-    const [organisers, setOrganisers] = useState(organisersMock); // State to store fetched organisers
+    // const organisersMock = [
+    //     { id: 2, name: "Organisation 1", email: "organiser1@xyz.com" },
+    //     { id: 1, name: "Organisation 2", email: "something2@gmail.com" },
+    //     { id: 3, name: "Organisation 3", email: "something3@gmail.com" },
+    //     { id: 4, name: "Organisation 4", email: "something4@gmail.com" },
+    // ];
+    const [organisers, setOrganisers] = useState([]); // State to store fetched organisers
     const [currentPage, setCurrentPage] = useState(1); // State for current page
     const [totalPages, setTotalPages] = useState(1); // State for total pages
     const limit = 8; // Number of organisers per page
@@ -26,10 +26,10 @@ export default function VerifyOrganiser() {
     useEffect(() => {
         const fetchOrganisers = async () => {
             try {
-                // const data = await AdminService.getUnverifiedOrganisers();
+                const data = await AdminService.getUnverifiedOrganisers();
                 // console.log(data);
                 // setOrganisers(data.organisers);
-                setTotalPages(Math.ceil(organisers.length / limit));
+                // setTotalPages(Math.ceil(organisers.length / limit));
             } catch (error) {
                 console.error('Error fetching organisers:', error);
             }
@@ -87,16 +87,31 @@ export default function VerifyOrganiser() {
     };
 
 
+    // Categorise status of organiser
+    function categoriseStatus(checkboxState) {
+        let approve = [];
+        let deny = [];
+    
+        for (let key in checkboxState) {
+            if (checkboxState.hasOwnProperty(key)) {  // Check if the key is part of the object and not from its prototype
+                if (checkboxState[key] === "A") {
+                    approve.push(key);
+                } else if (checkboxState[key] === "D") {
+                    deny.push(key);
+                }
+            }
+        }
+    
+        return { approve, deny };
+    }
+
     // Function to submit verifications
     const submitVerfications = async () => {
         //Convert checkboxState to array of objects
-        const verificationArray = Object.entries(checkboxState).map(([id, action]) => ({
-            id,
-            action
-        }));
+        const data = categoriseStatus(checkboxState);
         try {
-            console.log('Submitting verifications: ', verificationArray);
-            await AdminService.verifyOrganiser(verificationArray);
+            console.log('Submitting verifications: ', data);
+            await AdminService.verifyOrganiser(data);
         } catch (error) {
             setSubmitError(true);
             console.log(error);
