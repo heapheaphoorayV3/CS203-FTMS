@@ -35,7 +35,7 @@ const OrganiserDashboard = () => {
     const fetchTournamentData = async () => {
       try {
         console.log("Fetching table data...");
-        const response = await TournamentService.getAllTournaments();
+        const response = await OrganiserService.getAllHostedTournaments();
         setTournamentData(response.data);
       } catch (tableError) {
         console.error("Error fetching table data:", tableError);
