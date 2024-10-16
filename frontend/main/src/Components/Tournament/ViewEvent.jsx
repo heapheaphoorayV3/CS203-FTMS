@@ -8,7 +8,7 @@ import PaginationButton from "../Others/Pagination.jsx";
 import EventBracket from "./EventBracket.jsx";
 
 function formatTimeTo24Hour(timeString) {
-  const [hours, minutes] = timeString.split(':'); // Get hours and minutes
+  const [hours, minutes] = timeString.split(":"); // Get hours and minutes
   return `${hours}:${minutes}`; // Return formatted time
 }
 
@@ -167,9 +167,6 @@ export default function ViewEvent() {
                 Poule Results
               </label>
               <select value={selectedPoule} onChange={handlePouleChange}>
-                <option value="" disabled>
-                  Select Poule Number
-                </option>
                 <option value="1">Poule 1</option>
                 <option value="2">Poule 2</option>
               </select>
@@ -224,7 +221,7 @@ export default function ViewEvent() {
               {/* <h2 className="text-lg font-medium mb-2">Ranking</h2> */}
               <table className="table text-lg">
                 {/* head */}
-                <thead className="text-lg text-neutral">
+                <thead className="text-lg text-primary">
                   <tr>
                     <th className="text-center w-20">Rank</th>
                     <th className="w-1/2">Name</th>
@@ -258,7 +255,7 @@ export default function ViewEvent() {
               {/* <h2 className="text-lg font-medium mb-2">Participants</h2> */}
               <table className="table text-lg">
                 {/* head */}
-                <thead className="text-lg text-neutral">
+                <thead className="text-lg text-primary">
                   <tr>
                     <th className="w-20"></th>
                     <th className="w-60">Name</th>
