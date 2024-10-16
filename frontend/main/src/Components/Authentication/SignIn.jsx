@@ -26,10 +26,11 @@ export default function SignIn() {
     try {
       // Get response from server
       const response = await AuthService.loginUser(data);
-      const { token, userType } = response.data;
+      const { token, userType, refreshToken } = response.data;
 
       sessionStorage.setItem("token", token);
       sessionStorage.setItem("userType", userType);
+      sessionStorage.setItem("refreshToken", refreshToken);
 
       if (!token) {
         setError(true);

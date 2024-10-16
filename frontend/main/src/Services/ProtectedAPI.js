@@ -5,7 +5,7 @@ const API_BASE_URL = "http://localhost:8080/api/v1";
 
 let ProtectedAPI = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 3000,
+  timeout: 10000,
 });
 
 // Add a request interceptor --> add token to header
@@ -18,16 +18,6 @@ ProtectedAPI.interceptors.request.use(
       console.error("No token found in session storage");
     }
     return config;
-  },
-  async (error) => {
-    // Do something with request error if needed
-    if (error.status === 401) {
-      const token = sessionStorage.getItem("refresh-token");
-      const newToken = await AuthService.refreshToken(token);
-      console.log(newToken);
-      sessionStorage.setItem("token", newToken.data);
-    }
-    return Promise.reject(error);
   }
 );
 
