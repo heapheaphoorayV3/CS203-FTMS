@@ -1,4 +1,5 @@
 import axios from "axios";
+import AuthService from "./Authentication/AuthService";
 
 const API_BASE_URL = "http://localhost:8080/api/v1";
 
@@ -20,6 +21,12 @@ ProtectedAPI.interceptors.request.use(
   },
   (error) => {
     // Do something with request error if needed
+    if (error.status === 401) {
+      const refreshToken = sessionStorage.getItem("refresh-token");
+      const newToken = await AuthService.refreshToken();
+      console.log(newToken);
+      sessionStorage.setItem("token", newToken.data);
+    }
     return Promise.reject(error);
   }
 );

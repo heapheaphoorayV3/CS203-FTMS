@@ -7,7 +7,7 @@ class EventService {
     return await ProtectedAPI.post(`${baseURL}/${tid}/create-event`, events);
   }
 
-  async getEventDetails(eid) {
+  async getEvent(eid) {
     return await ProtectedAPI.get(`${baseURL}/event-details/${eid}`);
   }
 
@@ -17,6 +17,14 @@ class EventService {
 
   async getPouleTable(eid) {
     return await ProtectedAPI.get(`${baseURL}/${eid}/get-poule-table`);
+  }
+
+  async createPoules(eid) {
+    return await ProtectedAPI.post(`${baseURL}/${eid}/create-poules`);
+  }
+
+  async getRecommendedPoules(eid) {
+    return await ProtectedAPI.get(`${baseURL}/${eid}/get-recommended-poules`);
   }
 }
 

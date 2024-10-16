@@ -5,6 +5,7 @@ import TournamentService from "../Services/Tournament/TournamentService";
 import { Tabs, Tab } from "./Others/DashboardTabs";
 import Table from "./Others/Table";
 import { set } from "react-hook-form";
+import editIcon from "../Assets/edit.png";
 
 const OrganiserDashboard = () => {
   const [userData, setUserData] = useState(null);
@@ -86,7 +87,7 @@ const OrganiserDashboard = () => {
 
         {/* Edit Icon */}
         <div className="absolute top-4 right-4 cursor-pointer text-gray-600">
-          ✏️
+          <img src={editIcon} alt="Edit profile icon" className="w-6 h-6"/>
         </div>
       </div>
 

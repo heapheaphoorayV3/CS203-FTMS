@@ -26,6 +26,10 @@ class AuthService {
   async verifyToken() {
     // return await API.get(`${baseURL}/verify-token`);
   }
+
+  async refreshToken(token) {
+    return await API.get(`${baseURL}/refreshToken/${token}`);
+  }
 }
 
 export default new AuthService();

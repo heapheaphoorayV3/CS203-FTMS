@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import validator from "validator";
 import PasswordField from "../Others/PasswordField";
 import InputField from "../Others/InputField";
@@ -11,6 +12,8 @@ export default function SignUpOrganiser() {
   const { handleSubmit, control, watch, formState: { errors } } = useForm();
   const [isSignUp, setSignUp] = useState(false);
   const [isError, setError] = useState(false);
+
+  const navigate = useNavigate();
 
   // Watch the password field (to see if confirm password and password matches)
   const password = watch("password");
@@ -27,7 +30,9 @@ export default function SignUpOrganiser() {
     console.log(formData);
 
     try {
-      await AuthService.createOrganiser(formData);
+      await AuthService.createOrganiser(formData).then(() => {
+        navigate("/organiser-dashboard");
+      });
       console.log("Sign up successful!")
       setSignUp(true);
     } catch (error) {

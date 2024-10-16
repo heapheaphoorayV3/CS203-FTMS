@@ -6,10 +6,11 @@ import { Tabs, Tab } from "../Others/DashboardTabs.jsx";
 import EventService from "../../Services/Event/EventService.js";
 import PaginationButton from "../Others/Pagination.jsx";
 import EventBracket from "./EventBracket.jsx";
+import CreatePoules from "./CreatePoules.jsx";
 
 function formatTimeTo24Hour(timeString) {
   const [hours, minutes] = timeString.split(":"); // Get hours and minutes
-  return `${hours}:${minutes}`; // Return formatted time
+  return `${hours}${minutes}`; // Return formatted time
 }
 
 export default function ViewEvent() {
@@ -18,6 +19,8 @@ export default function ViewEvent() {
   const [eventData, setEventData] = useState(null);
   const [pouleTableData, setPouleTableData] = useState(null);
   const [selectedPoule, setSelectedPoule] = useState("");
+  const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
+  const [recommendedPoulesData, setRecommendedPoulesData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -38,15 +41,10 @@ export default function ViewEvent() {
   const totalPages = Math.ceil(testData2.length / limit);
 
   useEffect(() => {
-    const startIndex = (currentPage - 1) * limit;
-    const endIndex = startIndex + limit;
-    setPaginatedData(testData2.slice(startIndex, endIndex));
-  }, [currentPage, testData2]);
-
-  useEffect(() => {
+    setLoading(true);
     const fetchData = async () => {
       try {
-        const response = await EventService.getEventDetails(eventID);
+        const response = await EventService.getEvent(eventID);
         setEventData(response.data);
         console.log("response.data => ", response.data);
       } catch (error) {
@@ -68,11 +66,33 @@ export default function ViewEvent() {
       }
     };
 
+    const fetchRecommendedPoules = async () => {
+      try {
+        const response = await EventService.getRecommendedPoules(eventID);
+        setRecommendedPoulesData(response.data);
+        console.log("Recommended Poules:", response.data);
+      } catch (error) {
+        console.log("Error fetching recommended poules", error);
+        setError("Failed to load recommended poules");
+      }
+    };
+
     if (eventID) {
       fetchData();
       fetchPouleTable();
+      fetchRecommendedPoules();
     }
   }, [eventID]);
+
+  useEffect(() => {
+    if (Array.isArray(testData2) && testData2.length) {
+      const startIndex = Math.max(0, (currentPage - 1) * limit);
+      const endIndex = Math.min(testData2.length, startIndex + limit);
+      setPaginatedData(testData2.slice(startIndex, endIndex));
+    } else {
+      setPaginatedData([]);
+    }
+  }, [currentPage, limit, testData2]);
 
   if (loading) {
     return <div className="mt-10">Loading...</div>; // Show loading state
@@ -143,6 +163,32 @@ export default function ViewEvent() {
     ],
   };
 
+  const createPoules = () => {
+    setIsCreatePopupVisible(true);
+  };
+
+  const closeCreatePopup = () => {
+    setIsCreatePopupVisible(false);
+  };
+
+  const submitCreatePopup = async (data) => {
+    const formData = new FormData();
+
+    formData.append("eid", String(eventID));
+
+    console.log("Received data:", data);
+
+    Object.keys(data).forEach((key) => {
+      formData.append(key, data[key]);
+    });
+    try {
+      await EventService.createPoules(formData);
+    } catch (error) {
+      console.log("error creating poules", error);
+    }
+    closeCreatePopup();
+  };
+
   return (
     <div className="row-span-2 col-start-2 bg-gray-200 h-full overflow-y-auto">
       <h1 className="my-10 ml-12 text-left text-4xl font-semibold">
@@ -163,6 +209,15 @@ export default function ViewEvent() {
         <Tabs>
           <Tab label="Poules">
             <div className="py-4">
+              <label className="block font-medium mb-1 ml-1">
+                Create Poules
+              </label>
+              <button
+                onClick={createPoules}
+                className="bg-blue-500 text-white px-4 py-2 rounded mt-2 mb-2"
+              >
+                Create Poules
+              </button>
               <label className="block font-medium mb-1 ml-1">
                 Poule Results
               </label>
@@ -209,6 +264,14 @@ export default function ViewEvent() {
                 </tbody>
               </table>
             </div>
+            {/* Create Event Popup --> need to pass in submit/close */}
+            {isCreatePopupVisible && (
+              <CreatePoules
+                onClose={closeCreatePopup}
+                onSubmit={submitCreatePopup}
+                recommendedPoulesData={recommendedPoulesData}
+              />
+            )}
           </Tab>
           <Tab label="Bracket">
             <div className="py-4">
