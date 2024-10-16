@@ -30,9 +30,7 @@ export default function SignUpOrganiser() {
     console.log(formData);
 
     try {
-      await AuthService.createOrganiser(formData).then(() => {
-        navigate("/organiser-dashboard");
-      });
+      await AuthService.createOrganiser(formData);
       console.log("Sign up successful!")
       setSignUp(true);
     } catch (error) {
