@@ -8,13 +8,7 @@ import { set } from "react-hook-form";
 - Integrate with Backend
 */
 export default function VerifyOrganiser() {
-    // Mock data for organisers
-    // const organisersMock = [
-    //     { id: 2, name: "Organisation 1", email: "organiser1@xyz.com" },
-    //     { id: 1, name: "Organisation 2", email: "something2@gmail.com" },
-    //     { id: 3, name: "Organisation 3", email: "something3@gmail.com" },
-    //     { id: 4, name: "Organisation 4", email: "something4@gmail.com" },
-    // ];
+
     const [organisers, setOrganisers] = useState([]); // State to store fetched organisers
     const [currentPage, setCurrentPage] = useState(1); // State for current page
     const [totalPages, setTotalPages] = useState(1); // State for total pages
@@ -26,10 +20,10 @@ export default function VerifyOrganiser() {
     useEffect(() => {
         const fetchOrganisers = async () => {
             try {
-                const data = await AdminService.getUnverifiedOrganisers();
-                // console.log(data);
-                // setOrganisers(data.organisers);
-                // setTotalPages(Math.ceil(organisers.length / limit));
+                const response = await AdminService.getUnverifiedOrganisers();
+                console.log(response);
+                setOrganisers(response.data);
+                setTotalPages(Math.ceil(organisers.length / limit));
             } catch (error) {
                 console.error('Error fetching organisers:', error);
             }
@@ -112,6 +106,7 @@ export default function VerifyOrganiser() {
         try {
             console.log('Submitting verifications: ', data);
             await AdminService.verifyOrganiser(data);
+            window.location.reload();
         } catch (error) {
             setSubmitError(true);
             console.log(error);
@@ -130,6 +125,7 @@ export default function VerifyOrganiser() {
                     </tr>
                 </thead>
                 <tbody>
+                    {/* {organisers.length === 0 && (<tr><td colSpan="3">No organisers to verify</td></tr>)} */}
                     {organisers.map((organiser) => (
                         <tr key={organiser.id}>
                             <td>{organiser.name}</td>
