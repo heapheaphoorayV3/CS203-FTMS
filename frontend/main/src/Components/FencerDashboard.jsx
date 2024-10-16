@@ -13,7 +13,13 @@ const FencerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedData, setEditedData] = useState({});
+  const [editedData, setEditedData] = useState({
+    gender: "", 
+    weapon: "",
+    dominantArm: "",
+    debutYear: "",
+    club: "",
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -46,8 +52,8 @@ const FencerDashboard = () => {
   const handleInputChange = (e) => {
     console.log(e.target);
     const { name, value } = e.target;
-    setEditedData(editedData => ({ ...editedData, [name]: value }));
-    console.log(editedData)
+    setEditedData((editedData) => ({ ...editedData, [name]: value }));
+    console.log(editedData);
   };
 
   const handleSave = async () => {
@@ -150,6 +156,9 @@ const FencerDashboard = () => {
                 onChange={handleInputChange}
                 className="border p-1"
               >
+                <option value="" disabled>
+                  - {/* Default placeholder */}
+                </option>
                 <option value="M">Male</option>
                 <option value="F">Female</option>
               </select>
@@ -172,7 +181,7 @@ const FencerDashboard = () => {
                 className="border p-1"
               >
                 <option value="" disabled>
-                  Select Weapon
+                  - {/* Default placeholder */}
                 </option>
                 <option value="F">Foil</option>
                 <option value="E">Épée</option>
@@ -198,7 +207,7 @@ const FencerDashboard = () => {
                 className="border p-1"
               >
                 <option value="" disabled>
-                  Select Dominant Arm
+                  - {/* Default placeholder */}
                 </option>
                 <option value="R">Right</option>
                 <option value="L">Left</option>
@@ -220,7 +229,7 @@ const FencerDashboard = () => {
                 value={editedData.debutYear}
                 onChange={handleInputChange}
                 className="border p-1"
-                placeholder="Input Debut Year"
+                placeholder="-"
               />
             ) : editedData.debutYear ? (
               editedData.debutYear
@@ -237,7 +246,7 @@ const FencerDashboard = () => {
                 value={editedData.club}
                 onChange={handleInputChange}
                 className="border border-gray px-2 py-1 w-180"
-                placeholder="Input Club"
+                placeholder="-"
               />
             ) : userData.club ? (
               userData.club
