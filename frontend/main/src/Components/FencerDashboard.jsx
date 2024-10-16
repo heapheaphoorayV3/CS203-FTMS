@@ -2,14 +2,18 @@ import React, { useEffect, useLayoutEffect, useState } from "react";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 import jackinpic from "../Assets/jackinpic.jpg";
+import editLogo from "../Assets/edit.png";
 import FencerService from "../Services/Fencer/FencerService";
 import { Tabs, Tab } from "./Others/DashboardTabs";
 import LineGraph from "./Others/LineGraph";
+import InputField from "./Others/InputField";
 
 const FencerDashboard = () => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedData, setEditedData] = useState(userData || {});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -33,7 +37,36 @@ const FencerDashboard = () => {
       year: "numeric",
     });
     return formattedDate;
-  }
+  };
+
+  const handleEditClick = () => {
+    setIsEditing(!isEditing); // Toggle between view and edit mode
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditedData({ ...editedData, [name]: value });
+  };
+
+  const handleSave = async () => {
+    const { gender, weapon, dominantArm, debutYear, club } = editedData;
+
+    const completeProfileData = {
+      gender,
+      weapon,
+      dominantArm,
+      debutYear,
+      club,
+    };
+
+    try {
+      await FencerService.completeProfile(completeProfileData);
+      setUserData({ ...userData, ...editedData });
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Error saving profile:", error);
+    }
+  };
 
   if (loading) {
     return <div className="mt-10">Loading...</div>; // Show loading state
@@ -54,7 +87,7 @@ const FencerDashboard = () => {
         data: [65, 59, 80, 81, 56, 55, 40],
       },
     ],
-  }
+  };
 
   const rankGraphOptions = {
     scales: {
@@ -63,7 +96,7 @@ const FencerDashboard = () => {
         reverse: true,
       },
     },
-  }
+  };
 
   // Data and options for the Points Graph
   const pointsGraphData = {
@@ -76,7 +109,7 @@ const FencerDashboard = () => {
         data: [65, 59, 80, 81, 56, 55, 40],
       },
     ],
-  }
+  };
 
   const pointsGraphOptions = {
     scales: {
@@ -84,7 +117,7 @@ const FencerDashboard = () => {
         beginAtZero: true,
       },
     },
-  }
+  };
 
   return (
     <div className="bg-gray-200 w-full h-full flex flex-col gap-2 p-8 overflow-auto">
@@ -107,56 +140,127 @@ const FencerDashboard = () => {
           <div className="flex">{formatDate(userData.dateOfBirth)}</div>
           <div className="flex font-medium">Gender:</div>
           <div className="flex">
-            {userData.gender &&
-            userData.gender.trim() !== "" &&
-            userData.gender !== "\u0000"
-              ? userData.gender === "M"
-                ? "Male"
-                : userData.gender === "F"
-                ? "Female"
-                : userData.gender
-              : "-"}
+            {isEditing ? (
+              <select
+                name="gender"
+                value={editedData.gender}
+                onChange={handleInputChange}
+                className="border p-1"
+              >
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+              </select>
+            ) : userData.gender === "M" ? (
+              "Male"
+            ) : userData.gender === "F" ? (
+              "Female"
+            ) : (
+              "-"
+            )}
           </div>
           <hr className="col-span-2 my-4 border-gray-300 w-full" />
           <div className="flex font-medium">Category:</div>
           <div className="flex">
-            {userData.weapon &&
-            userData.weapon.trim() !== "" &&
-            userData.weapon !== "\u0000"
-              ? userData.weapon === "F"
-                ? "Foil"
-                : userData.weapon === "E"
-                ? "Épée"
-                : userData.weapon === "S"
-                ? "Sabre"
-                : userData.weapon
-              : "-"}
+            {isEditing ? (
+              <select
+                name="weapon"
+                value={editedData.weapon}
+                onChange={handleInputChange}
+                className="border p-1"
+              >
+                <option value="" disabled>
+                  Select Weapon
+                </option>
+                <option value="F">Foil</option>
+                <option value="E">Épée</option>
+                <option value="S">Sabre</option>
+              </select>
+            ) : editedData.weapon === "F" ? (
+              "Foil"
+            ) : editedData.weapon === "E" ? (
+              "Épée"
+            ) : editedData.weapon === "S" ? (
+              "Sabre"
+            ) : (
+              "-"
+            )}
           </div>
           <div className="flex font-medium">Dominant Arm:</div>
           <div className="flex">
-            {userData.dominantArm &&
-            userData.dominantArm.trim() !== "" &&
-            userData.dominantArm !== "\u0000"
-              ? userData.dominantArm === "R"
-                ? "Right"
-                : userData.dominantArm === "L"
-                ? "Left"
-                : userData.dominantArm
-              : "-"}
+            {isEditing ? (
+              <select
+                name="dominantArm"
+                value={editedData.dominantArm}
+                onChange={handleInputChange}
+                className="border p-1"
+              >
+                <option value="" disabled>
+                  Select Dominant Arm
+                </option>
+                <option value="R">Right</option>
+                <option value="L">Left</option>
+              </select>
+            ) : editedData.dominantArm === "R" ? (
+              "Right"
+            ) : editedData.dominantArm === "L" ? (
+              "Left"
+            ) : (
+              "-"
+            )}
           </div>
           <div className="flex font-medium">Debut Year:</div>
           <div className="flex">
-            {userData.debutYear ? userData.debutYear : "-"}
+            {isEditing ? (
+              <input
+                type="number"
+                name="debutYear"
+                value={editedData.debutYear}
+                onChange={handleInputChange}
+                className="border p-1"
+                placeholder="Input Debut Year"
+              />
+            ) : editedData.debutYear ? (
+              editedData.debutYear
+            ) : (
+              "-"
+            )}
           </div>
-          <div className="flex font-medium">Organisation:</div>
-          <div className="flex">{userData.club ? userData.club : "-"}</div>
+          <div className="flex font-medium">Club:</div>
+          <div className="flex">
+            {isEditing ? (
+              <input
+                type="text"
+                value={userData.club}
+                onChange={(e) =>
+                  setUserData({ ...userData, club: e.target.value })
+                }
+                className="border border-gray px-2 py-1 w-180"
+                placeholder="Input Club"
+              />
+            ) : userData.club ? (
+              userData.club
+            ) : (
+              "-"
+            )}
+          </div>
           <div className="flex font-medium">Country:</div>
           <div className="flex">{userData.country}</div>
+          {isEditing && (
+            <button
+              onClick={handleSave}
+              className="bg-green-400 text-white mt-2 px-2 py-1 rounded"
+            >
+              Confirm Changes
+            </button>
+          )}
         </div>
 
         {/* Edit Icon */}
-        <div className="absolute top-4 right-4 cursor-pointer text-gray-600">
-          ✏️
+        <div
+          className="absolute top-4 right-4 cursor-pointer text-gray-600"
+          onClick={handleEditClick}
+        >
+          <img src={editLogo} alt="Edit profile button" className="w-6 h-6" />
         </div>
       </div>
 
@@ -166,12 +270,20 @@ const FencerDashboard = () => {
             <div className="grid grid-cols-[2fr_3fr_3fr]">
               <div className="grid grid-cols-[2fr_1fr] gap-y-2 ml-4 my-4 text-xl w-75">
                 <div className="flex font-medium">International Rank</div>
-                <div className="flex">{userData.rank ? userData.rank : "-"}</div>
+                <div className="flex">
+                  {userData.rank ? userData.rank : "-"}
+                </div>
                 <div className="flex font-medium">Total Points</div>
-                <div className="flex">{userData.points ? userData.points : "-"}</div>
-                <div className="flex font-medium">Tournament Participations</div>
+                <div className="flex">
+                  {userData.points ? userData.points : "-"}
+                </div>
+                <div className="flex font-medium">
+                  Tournament Participations
+                </div>
                 {/* placeholder stuff */}
-                <div className="flex">{userData.tournaments ? userData.tournaments : "-"}</div>
+                <div className="flex">
+                  {userData.tournaments ? userData.tournaments : "-"}
+                </div>
               </div>
 
               <div className="w-[99%] h-full">

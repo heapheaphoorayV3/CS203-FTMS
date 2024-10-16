@@ -27,7 +27,7 @@ const Sidebar = () => {
           href="/international-ranking"
           className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
         >
-          <span className="flex-1 ms-3 whitespace-nowrap">Ranking</span>
+          <span className="flex-1 ms-3 whitespace-nowrap">International Ranking</span>
         </a>
       </li>
       <li>
@@ -58,7 +58,7 @@ const Sidebar = () => {
           href="/international-ranking"
           className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
         >
-          <span className="flex-1 ms-3 whitespace-nowrap">Ranking</span>
+          <span className="flex-1 ms-3 whitespace-nowrap">International Ranking</span>
         </a>
       </li>
       <li>
@@ -102,7 +102,7 @@ const Sidebar = () => {
           href="/international-ranking"
           className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
         >
-          <span className="flex-1 ms-3 whitespace-nowrap">Ranking</span>
+          <span className="flex-1 ms-3 whitespace-nowrap">International Ranking</span>
         </a>
       </li>
       <li>
