@@ -1,12 +1,9 @@
 import React, { useEffect, useLayoutEffect, useState } from "react";
-import Navbar from "./Navbar";
-import Sidebar from "./Sidebar";
 import jackinpic from "../Assets/jackinpic.jpg";
 import editLogo from "../Assets/edit.png";
 import FencerService from "../Services/Fencer/FencerService";
 import { Tabs, Tab } from "./Others/DashboardTabs";
 import LineGraph from "./Others/LineGraph";
-import InputField from "./Others/InputField";
 
 const FencerDashboard = () => {
   const [userData, setUserData] = useState(null);
@@ -154,7 +151,7 @@ const FencerDashboard = () => {
                 name="gender"
                 value={editedData.gender}
                 onChange={handleInputChange}
-                className="border p-1"
+                className="border p-1 rounded-lg"
               >
                 <option value="" disabled>
                   - {/* Default placeholder */}
@@ -178,7 +175,7 @@ const FencerDashboard = () => {
                 name="weapon"
                 value={editedData.weapon}
                 onChange={handleInputChange}
-                className="border p-1"
+                className="border p-1 rounded-lg"
               >
                 <option value="" disabled>
                   - {/* Default placeholder */}
@@ -204,7 +201,7 @@ const FencerDashboard = () => {
                 name="dominantArm"
                 value={editedData.dominantArm}
                 onChange={handleInputChange}
-                className="border p-1"
+                className="border p-1 rounded-lg"
               >
                 <option value="" disabled>
                   - {/* Default placeholder */}
@@ -228,7 +225,7 @@ const FencerDashboard = () => {
                 name="debutYear"
                 value={editedData.debutYear}
                 onChange={handleInputChange}
-                className="border p-1"
+                className="border p-1 rounded-lg"
                 placeholder="-"
               />
             ) : userData.debutYear ? (
@@ -245,7 +242,7 @@ const FencerDashboard = () => {
                 type="text"
                 value={editedData.club}
                 onChange={handleInputChange}
-                className="border border-gray px-2 py-1 w-180"
+                className="border border-gray px-2 py-1 w-180 rounded-lg"
                 placeholder="-"
               />
             ) : userData.club ? (
