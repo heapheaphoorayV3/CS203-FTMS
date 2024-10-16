@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import cs203.ftms.overall.dto.CreateEventDTO;
 import cs203.ftms.overall.dto.CreatePoulesDTO;
 import cs203.ftms.overall.dto.CreateTournamentDTO;
+import cs203.ftms.overall.dto.RegisterAdminDTO;
 import cs203.ftms.overall.dto.RegisterFencerDTO;
 import cs203.ftms.overall.dto.RegisterOrganiserDTO;
 import cs203.ftms.overall.dto.CompleteFencerProfileDTO;
@@ -33,6 +34,7 @@ import cs203.ftms.overall.service.tournament.TournamentService;
 @Component
 public class PopulateData {
     private final Random random = new Random();
+    private static final int ADMIN_COUNT = 1;
     private static final int ORGANISER_COUNT = 1;
     private static final int FENCER_COUNT = 10;
 
@@ -56,9 +58,16 @@ public class PopulateData {
         this.eventRepository = eventRepository;
     }
 
+    public void createAdmin() {
+        for (int i = 1; i <= ADMIN_COUNT; i++) {
+            authenticationService.createAdmin(new RegisterAdminDTO("Admin", "admin" + i + "@xyz.com", "+6591234567", "Abcd1234!", "Singapore"));
+        }
+    }
+    
     public void createOrganiser() {
         for (int i = 1; i <= ORGANISER_COUNT; i++) {
-            authenticationService.createOrganiser(new RegisterOrganiserDTO("Organiser", "organiser" + i + "@xyz.com", "+6591234567", "Abcd1234!", "Singapore"));
+            Organiser o = (Organiser) authenticationService.createOrganiser(new RegisterOrganiserDTO("Organiser", "organiser" + i + "@xyz.com", "+6591234567", "Abcd1234!", "Singapore"));
+            o.setVerified(true);
         }
     }
 
@@ -101,6 +110,7 @@ public class PopulateData {
             return;
         }
 
+        createAdmin();
         createOrganiser();
         createFencer();
         createTournament();

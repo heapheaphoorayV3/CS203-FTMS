@@ -62,7 +62,7 @@ public class AuthenticationService {
         }
         String passwordH = passwordEncoder.encode(o.getPassword());
         User u = new Organiser(o.getName(), o.getEmail(), passwordH, o.getContactNo(), o.getCountry());
-        ((Organiser) u).setVerified(true);
+        // ((Organiser) u).setVerified(true);
         userRepository.save(u);
         mailService.sendMail(u.getEmail(), "Account Needs to be Verified", "Your account needs to be verified by the administrator, please wait while we process your registration!");
         return u;
