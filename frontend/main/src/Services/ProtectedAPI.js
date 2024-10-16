@@ -19,11 +19,11 @@ ProtectedAPI.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
+  async (error) => {
     // Do something with request error if needed
     if (error.status === 401) {
-      const refreshToken = sessionStorage.getItem("refresh-token");
-      const newToken = await AuthService.refreshToken();
+      const token = sessionStorage.getItem("refresh-token");
+      const newToken = await AuthService.refreshToken(token);
       console.log(newToken);
       sessionStorage.setItem("token", newToken.data);
     }
