@@ -33,7 +33,7 @@ const FencerDashboard = () => {
       year: "numeric",
     });
     return formattedDate;
-  };
+  }
 
   if (loading) {
     return <div className="mt-10">Loading...</div>; // Show loading state
@@ -54,7 +54,7 @@ const FencerDashboard = () => {
         data: [65, 59, 80, 81, 56, 55, 40],
       },
     ],
-  };
+  }
 
   const rankGraphOptions = {
     scales: {
@@ -63,7 +63,7 @@ const FencerDashboard = () => {
         reverse: true,
       },
     },
-  };
+  }
 
   // Data and options for the Points Graph
   const pointsGraphData = {
@@ -76,7 +76,7 @@ const FencerDashboard = () => {
         data: [65, 59, 80, 81, 56, 55, 40],
       },
     ],
-  };
+  }
 
   const pointsGraphOptions = {
     scales: {
@@ -84,7 +84,7 @@ const FencerDashboard = () => {
         beginAtZero: true,
       },
     },
-  };
+  }
 
   return (
     <div className="bg-gray-200 w-full h-full flex flex-col gap-2 p-8 overflow-auto">
@@ -172,14 +172,6 @@ const FencerDashboard = () => {
                 <div className="flex font-medium">Tournament Participations</div>
                 {/* placeholder stuff */}
                 <div className="flex">{userData.tournaments ? userData.tournaments : "-"}</div>
-              </div>
-
-              <div className="w-[99%] h-full">
-                <LineGraph data={rankGraphData} options={rankGraphOptions} height={200} />
-
-              </div>
-              <div className="w-[99%] h-full">
-                <LineGraph data={pointsGraphData} options={pointsGraphOptions} height={200} />
               </div>
 
               <div className="w-[99%] h-full">
