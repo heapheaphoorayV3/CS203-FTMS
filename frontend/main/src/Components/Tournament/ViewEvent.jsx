@@ -176,7 +176,7 @@ export default function ViewEvent() {
                 {/* head */}
                 <thead className="text-lg text-neutral">
                   <tr>
-                    <th className="w-60">Fencer</th>
+                    <th className="w-60 text-primary">Fencer</th>
                     <th className="w-24"></th>
                     <th className="text-center w-24">1</th>
                     <th className="text-center w-24">2</th>

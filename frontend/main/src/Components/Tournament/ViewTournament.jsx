@@ -336,7 +336,7 @@ export default function ViewTournament() {
           <Tab label="Events">
             <table className="table text-lg text-center">
               {/* head */}
-              <thead className="text-lg text-neutral">
+              <thead className="text-lg text-primary">
                 <tr>
                   {/* <th></th> */}
                   <th>Event Name</th>
@@ -456,7 +456,7 @@ export default function ViewTournament() {
             </select>
             <table className="table text-lg">
               {/* head */}
-              <thead className="text-lg text-neutral">
+              <thead className="text-lg text-primary">
                 <tr>
                   <th className="text-center w-20">Rank</th>
                   <th className="w-1/2">Name</th>
