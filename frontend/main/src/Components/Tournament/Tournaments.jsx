@@ -6,6 +6,7 @@ export default function Tournaments() {
   const [tournamentData, setTournamentData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [InputSearch, setInputSearch] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,6 +54,14 @@ export default function Tournaments() {
     }
   };
 
+  function handleSearch(e) {
+    setInputSearch(e.target.value);
+  }
+
+  const filteredTournamentData = tournamentData?.filter((tournament) => {
+    return tournament.name.toLowerCase().includes(InputSearch.toLowerCase());
+  });
+
   if (loading) {
     return <div className="mt-10">Loading...</div>; // Show loading state
   }
@@ -62,18 +71,28 @@ export default function Tournaments() {
   }
 
   return (
-    <div className="row-span-2 col-start-2 bg-gray-300 h-full overflow-y-auto">
+    <div className="row-span-2 col-start-2 bg-gray-200 h-full overflow-y-auto">
       <h1 className="my-10 ml-12 text-left text-4xl font-semibold">
         Tournaments
       </h1>
-      <h1 className="my-10 ml-12 text-left text-2xl font-semibold">
-        Search bar/filter etc
-      </h1>
-
+      <div className="w-full max-w-sm min-w-[200px] ml-12 pb-8">
+        <div className="relative">
+          <input
+            className="w-full bg-slate-50 placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md pl-3 pr-28 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+            placeholder="Search Tournaments by Name..."
+            onChange={handleSearch}
+          />
+          <div className="absolute top-1 right-1 flex items-center pt-1.5 px-1">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 mr-2">
+              <path fill-rule="evenodd" d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z" clip-rule="evenodd" />
+            </svg>
+          </div>
+        </div>
+      </div>
       <div className="ml-12 mr-8 overflow-x-auto">
         <table className="table text-lg">
           {/* head */}
-          <thead className="text-lg">
+          <thead className="text-lg text-primary">
             <tr>
               <th>Tournament Name</th>
               <th>Location</th>
@@ -82,28 +101,36 @@ export default function Tournaments() {
             </tr>
           </thead>
           <tbody>
-            {tournamentData.map((tournament, index) => (
-              <tr key={tournament.id}>
-                <td>
-                  <a
-                    href={`tournaments/${tournament.id}`}
-                    className="underline hover:text-accent"
-                  >
-                    {tournament.name}
-                  </a>
-                </td>
-                <td>{tournament.location}</td>
-                <td>
-                {formatDateRange(tournament.startDate, tournament.endDate)}
-                </td>
-                <td>
-                  {getTournamentStatus(
-                    tournament.startDate,
-                    tournament.endDate
-                  )}
+            {tournamentData.length > 0 ? (
+              filteredTournamentData.map((tournament) => (
+                <tr key={tournament.id}>
+                  <td>
+                    <a
+                      href={`tournaments/${tournament.id}`}
+                      className="underline hover:text-primary"
+                    >
+                      {tournament.name}
+                    </a>
+                  </td>
+                  <td>{tournament.location}</td>
+                  <td>
+                    {formatDateRange(tournament.startDate, tournament.endDate)}
+                  </td>
+                  <td>
+                    {getTournamentStatus(
+                      tournament.startDate,
+                      tournament.endDate
+                    )}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="4" className="text-center">
+                  No tournaments available.
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>

@@ -57,12 +57,13 @@ export default function SignIn() {
         }
       }
     } catch (error) {
+      setError(true);
       console.log("Failed Login");
     }
   };
 
   return (
-    <div className="flex flex-col justify-center items-center h-screen bg-gray-200">
+    <div className="h-full flex flex-col justify-center items-center bg-gray-200">
       <div className="flex flex-col items-center bg-white p-8 rounded-lg shadow-lg w-[600px]">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <h1 className="text-3xl font-semibold mb-10 text-center">Sign In</h1>

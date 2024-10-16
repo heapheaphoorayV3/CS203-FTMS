@@ -1,11 +1,16 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Tabs, Tab } from "../Others/DashboardTabs.jsx";
-import Breadcrumbs from "../Others/Breadcrumbs.jsx";
+import { DateTime } from "luxon";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import EventService from "../../Services/Event/EventService";
 import FencerService from "../../Services/Fencer/FencerService.js";
 import TournamentService from "../../Services/Tournament/TournamentService.js";
+import Breadcrumbs from "../Others/Breadcrumbs.jsx";
+import { Tab, Tabs } from "../Others/DashboardTabs.jsx";
 import CreateEvent from "./CreateEvent.jsx";
-import UpdateEvent from "./UpdateEvent.jsx";
+import SubmitButton from "../Others/SubmitButton.jsx";
+import EventBracket from "./EventBracket.jsx";
+import PaginationButton from "../Others/Pagination.jsx";
+import axios from "axios";
 
 export default function ViewTournament() {
   // Retrieve tournament ID from URL
@@ -14,9 +19,44 @@ export default function ViewTournament() {
   const [tournamentData, setTournamentData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [eventsArray, setEventsArray] = useState();
   const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
-  const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [registeredEvents, setRegisteredEvents] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const limit = 10;
+
+  const testData = Array.from({ length: 20 }, (_, index) => ({
+    id: index + 1,
+    name: "Name",
+    country: "SG",
+    score: 0,
+  }));
+
+  const [paginatedData, setPaginatedData] = useState([]);
+
+  // Effect to update the organisers and total pages based on current page
+  useEffect(() => {
+    const startIndex = (currentPage - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedData = testData.slice(startIndex, endIndex);
+    setPaginatedData(paginatedData); // Set paginated data for the current page
+  }, [currentPage]);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+  const totalPages = Math.ceil(testData.length / limit);
+  const [isCreating, setIsCreating] = useState(false);
+  const allEventTypes = [
+    { value: "", label: "Select Weapon" },
+    { value: "MF", label: "Male Foil" },
+    { value: "ME", label: "Male Épée" },
+    { value: "MS", label: "Male Sabre" },
+    { value: "FF", label: "Female Foil" },
+    { value: "FE", label: "Female Épée" },
+    { value: "FS", label: "Female Sabre" },
+  ];
+  const [eventTypes, setEventTypes] = useState(allEventTypes);
 
   const navigate = useNavigate();
 
@@ -29,6 +69,8 @@ export default function ViewTournament() {
         );
         setTournamentData(response.data);
         console.log("response.data => ", response.data);
+        // Set eventsArray
+        setEventsArray(response.data.events);
       } catch (error) {
         console.error("Error fetching tournament data:", error);
         setError("Failed to load tournament data.");
@@ -58,7 +100,6 @@ export default function ViewTournament() {
   if (loading) {
     return <div className="mt-10">Loading...</div>; // Show loading state
   }
-
   if (error) {
     return <div className="mt-10">{error}</div>; // Show error message if any
   }
@@ -101,55 +142,164 @@ export default function ViewTournament() {
     }
   };
 
-  // console.log(tournamentData);
-  const eventsArray = Array.from(tournamentData.events ?? []);
-  // console.log(eventsArray);
+  // Check if event has already been added --> remove from eventTypes (dropdown)
+  // Called when "Add Event"
+  const checkEvents = () => {
+    // Reset eventTypes to allEventTypes
+    setEventTypes(allEventTypes);
+    // Loop through eventsArray
+    console.log("Checking Events");
+    eventsArray.forEach((event) => {
+      const eventName = event.gender + event.weapon;
+      removeEventType(eventName);
+    });
+  };
+  // Remove eventType from eventTypes
+  const removeEventType = (event) => {
+    setEventTypes((prevEventTypes) =>
+      prevEventTypes.filter((eventType) => eventType.value !== event)
+    );
+  };
 
-  // Create array of the 6 event types
-  let eventTypes = [
-    "MaleEpee",
-    "MaleFoil",
-    "MaleSaber",
-    "FemaleEpee",
-    "FemaleFoil",
-    "FemaleSaber",
-  ];
-
-  // Display create-event popup on click "Add Event" button
-
+  // Create-Event "Add Event" button
+  const openCreatePopup = () => {
+    checkEvents();
+    setIsCreatePopupVisible(true);
+  };
   const closeCreatePopup = () => {
     setIsCreatePopupVisible(false);
   };
-  const openCreatePopup = () => {
-    setIsCreatePopupVisible(true);
-  };
-  const submitCreatePopup = (eventDetails) => {
-    console.log(eventDetails);
-    // Add event to eventsArray
-    eventsArray.push(eventDetails);
-    // Close popup
+  const submitCreatePopup = async (data) => {
+    // modify time to add seconds
+    const startTimeString = data.startTime + ":00"; // Adding seconds
+    const endTimeString = data.endTime + ":00"; // Adding seconds
+    // Create DateTime objects
+    const startTime = DateTime.fromFormat(startTimeString, "HH:mm:ss");
+    const endTime = DateTime.fromFormat(endTimeString, "HH:mm:ss");
+    // Format to hh:mm:ss
+    const formattedStartTime = startTime.toFormat("HH:mm:ss");
+    const formattedEndTime = endTime.toFormat("HH:mm:ss");
+    // Extract gender and weapon from eventName
+    const gender = data.eventName.charAt(0); // First character
+    const weapon = data.eventName.charAt(1); // Second character
+    // Extract minParticipants and date
+    const minParticipants = data.minParticipants;
+    const date = data.date;
+    // Create JSON to add to eventsArray
+    const formData = {
+      gender: gender,
+      weapon: weapon,
+      startTime: formattedStartTime,
+      endTime: formattedEndTime,
+      minParticipants: minParticipants,
+      date: date,
+    };
+
+    // Add event to eventsArray and delete from eventTypes
+    console.log("FormData: " + JSON.stringify(formData));
+    setEventsArray([...eventsArray, formData]);
+    console.log("CurrentEventsArray: " + JSON.stringify(eventsArray));
+    checkEvents();
+    console.log("Event Types Left: " + JSON.stringify(eventTypes));
+
+    // Close the popup and set isCreating to true
     closeCreatePopup();
+    setIsCreating(true);
   };
 
-  // Display update-event popup on click "Update Event" button
+  // Return Proper Event Names in table (instead of initials)
+  const constructEventName = (gender, weapon) => {
+    let eventName = "";
+    // Switch statement for gender
+    switch (gender) {
+      case "M":
+        eventName += "Male ";
+        break;
+      case "F":
+        eventName += "Female ";
+        break;
+    }
+    // Switch statement for weapon
+    switch (weapon) {
+      case "F":
+        eventName += "Foil";
+        break;
+      case "E":
+        eventName += "Épée";
+        break;
+      case "S":
+        eventName += "Sabre";
+        break;
+    }
 
-  const closeUpdatePopup = () => {
-    setIsUpdatePopupVisible(false);
+    return eventName;
   };
-  const openUpdatePopup = (event) => {
-    setSelectedEvent(event);
-    setIsUpdatePopupVisible(true);
+
+  // Get New Events Array (events without key "fencers")
+  const extractNewEvents = () => {
+    let newEventsArray = [];
+    eventsArray.forEach((event) => {
+      if (!event.hasOwnProperty("fencers")) {
+        newEventsArray.push(event);
+      }
+    });
+    return newEventsArray;
   };
-  const submitUpdatePopup = (eventDetails) => {
-    console.log(eventDetails);
-    eventsArray.push(eventDetails);
-    closeUpdatePopup();
+
+  // "Cancel Changes"
+  const cancelCreatingChanges = async () => {
+    console.log("Cancelling Changes");
+    try {
+      const response = await TournamentService.getTournamentDetails(
+        tournamentID
+      );
+      setTournamentData(response.data);
+      // Set eventsArray
+      setEventsArray(response.data.events);
+    } catch (error) {
+      console.error("Error fetching tournament data:", error);
+      setError("Failed to load tournament data.");
+    } finally {
+      setLoading(false);
+    }
+    setIsCreating(false);
+  };
+  // "Confirm Changes" --> Submit Events Array
+  const submitEventsArray = async () => {
+    // Only submit new events --> old events have key "fencers"
+    let newEventsArray = extractNewEvents(eventsArray);
+    try {
+      const response = await EventService.createEvents(
+        tournamentID,
+        newEventsArray
+      );
+    } catch (error) {
+      console.log(error);
+    }
+    // Set isCreating to false
+    setIsCreating(false);
+  };
+
+  const registerEvent = async (eventID) => {
+    console.log("Registering event with ID:", eventID);
+    try {
+      await EventService.registerEvent(eventID).then(() => {
+        setRegisteredEvents((prevEvents) => [...prevEvents, eventID]);
+        navigate("/fencer-dashboard");
+      });
+    } catch (error) {
+      if (error.response && error.response.status === 403) {
+        console.error("You do not have permission to register for this event.");
+      } else {
+        console.log(error);
+      }
+    }
   };
 
   return (
     // Grid for Navbar, Sidebar and Content
 
-    <div className="row-span-2 col-start-2 bg-gray-300 h-full overflow-y-auto">
+    <div className="row-span-2 col-start-2 bg-gray-200 h-full overflow-y-auto">
       <Breadcrumbs items={breadcrumbsItems} />
       <h1 className="my-10 ml-12 text-left text-4xl font-semibold">
         {tournamentData.name}
@@ -184,19 +334,19 @@ export default function ViewTournament() {
             </div>
           </Tab>
           <Tab label="Events">
-            <table className="table text-lg">
+            <table className="table text-lg text-center">
               {/* head */}
-              <thead className="text-lg">
+              <thead className="text-lg text-primary">
                 <tr>
-                  <th></th>
+                  {/* <th></th> */}
                   <th>Event Name</th>
                   <th>Date</th>
                   <th>Start Time</th>
                   <th>End Time</th>
                   <th>
                     {sessionStorage.getItem("userType") === "O"
-                      ? "Update Event"
-                      : "Sign Up"}
+                      ? "Delete Event"
+                      : "Register"}
                   </th>
                 </tr>
               </thead>
@@ -205,23 +355,40 @@ export default function ViewTournament() {
                 {eventsArray.length > 0 ? (
                   eventsArray.map((event, index) => (
                     <tr key={index}>
-                      <td>{/* Event details */}</td>
+                      {/* <td>Event details</td> */}
                       <td>
-                        <a href={`/view-event/${event.id}`} className="underline hover:text-accent">
-                          {event.eventName}
+                        <a
+                          href={`/view-event/${event.id}`}
+                          className="underline hover:text-primary"
+                        >
+                          {constructEventName(event.gender, event.weapon)}
                         </a>
+                        {/* no eventName attribute in new backend (pending) --> {event.eventName} */}
                       </td>
                       <td>{event.date}</td>
                       <td>{event.startTime}</td>
                       <td>{event.endTime}</td>
                       <td>
-                        <button
-                          key={event.id}
-                          onClick={() => openUpdatePopup(event)}
-                          className="bg-blue-500 text-white px-4 py-2 rounded"
-                        >
-                          Update {event.eventName}
-                        </button>
+                        {sessionStorage.getItem("userType") === "F" ? (
+                          <SubmitButton
+                            onSubmit={() => registerEvent(event.id)}
+                            disabled={registeredEvents.includes(event.id)}
+                          >
+                            {registeredEvents.includes(event.id)
+                              ? "Registered"
+                              : "Register"}
+                          </SubmitButton>
+                        ) : (
+                          <span>delete event button</span>
+                          /* <SubmitButton
+                            onSubmit={() => registerEvent(event.id)}
+                            disabled={registeredEvents.includes(event.id)}
+                          >
+                            {registeredEvents.includes(event.id)
+                              ? "Registered"
+                              : "Register"}
+                          </SubmitButton> */
+                        )}
                       </td>
                     </tr>
                   ))
@@ -236,52 +403,85 @@ export default function ViewTournament() {
                 {sessionStorage.getItem("userType") === "O" && (
                   <tr>
                     <td colSpan="6" className="text-center">
+                      {isCreating && (
+                        <button
+                          onClick={cancelCreatingChanges}
+                          className="bg-red-400 text-white px-4 py-2 rounded"
+                        >
+                          Cancel Changes
+                        </button>
+                      )}
                       <button
                         onClick={openCreatePopup}
-                        className="bg-blue-500 text-white px-4 py-2 rounded"
+                        className="bg-blue-500 text-white px-4 py-2 rounded mx-36 mt-10"
                       >
                         Add Event
                       </button>
+                      {isCreating && (
+                        <button
+                          onClick={submitEventsArray}
+                          className="bg-green-400 text-white px-4 py-2 rounded"
+                        >
+                          Confirm Changes
+                        </button>
+                      )}
                     </td>
                   </tr>
                 )}
               </tbody>
             </table>
+
             {/* Create Event Popup --> need to pass in submit/close */}
             {isCreatePopupVisible && (
               <CreateEvent
                 onClose={closeCreatePopup}
                 onSubmit={submitCreatePopup}
-              />
-            )}
-
-            {/* Update Event Popup --> need to pass in submit/close */}
-            {isUpdatePopupVisible && (
-              <UpdateEvent
-                onClose={closeUpdatePopup}
-                onSubmit={submitUpdatePopup}
-                selectedEvent={selectedEvent}
+                eventTypes={eventTypes}
+                tournamentDates={[
+                  tournamentData.startDate,
+                  tournamentData.endDate,
+                ]}
               />
             )}
           </Tab>
-          <Tab label="Ranking">
-            <div className="py-4">
-              <h2 className="text-lg font-medium mb-2">Tab 3</h2>
-              <p className="text-gray-700">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime
-                mollitia, molestiae quas vel sint commodi repudiandae
-                consequuntur voluptatum laborum numquam blanditiis harum
-                quisquam eius sed odit fugiat iusto fuga praesentium optio,
-                eaque rerum! Provident similique accusantium nemo autem.
-                Veritatis obcaecati tenetur iure eius earum ut molestias
-                architecto voluptate aliquam nihil, eveniet aliquid culpa
-                officia aut! Impedit sit sunt quaerat, odit, tenetur error,
-                harum nesciunt ipsum debitis quas aliquid. Reprehenderit, quia.
-                Quo neque error repudiandae fuga? Ipsa laudantium molestias eos
-                sapiente officiis modi at sunt excepturi expedita sint? Sed
-                quibusdam recusandae alias error harum maxime adipisci amet
-                laborum.
-              </p>
+          <Tab label="Tournament Ranking">
+            <label className="block font-medium ml-1 mb-1">Event</label>
+            <select>
+              <option value="">Select Event</option>
+              {eventsArray.map((event) => (
+                <option key={event.id} value={event.id}>
+                  {event.eventName}
+                </option>
+              ))}
+            </select>
+            <table className="table text-lg">
+              {/* head */}
+              <thead className="text-lg text-primary">
+                <tr>
+                  <th className="text-center w-20">Rank</th>
+                  <th className="w-1/2">Name</th>
+                  <th className="text-center">Country</th>
+                  <th className="text-center">Points</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedData.map((item) => (
+                  <tr key={item.id}>
+                    <td className="text-center">{item.id}</td>
+                    <td>{item.name}</td>
+                    <td className="text-center">{item.country}</td>
+                    <td className="text-center">{item.score}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="flex flex-col justify-center items-center">
+              <PaginationButton
+                totalPages={totalPages}
+                buttonSize="w-10 h-10"
+                currentPage={currentPage}
+                onPageChange={handlePageChange}
+              />
             </div>
           </Tab>
         </Tabs>

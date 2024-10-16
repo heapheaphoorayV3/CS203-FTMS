@@ -17,13 +17,17 @@ const Navbar = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        if (!isLoggedIn) return;
         let response = null;
-        if(userType === "F"){
+        if (userType === "F") {
           response = await FencerService.getProfile()
         }
-        else if(userType === "O"){
+        else if (userType === "O") {
           response = await OrganiserService.getProfile();
         }
+        {/* else if(userType === "A"){
+          response = await AdminService.getProfile();
+           */}
         setUserData(response.data);
 
       } catch (error) {
@@ -55,10 +59,13 @@ const Navbar = () => {
       {isLoggedIn ? (
         <nav className="h-full w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
           <div className="w-full flex items-center justify-between mx-auto p-2.5">
-            <a href="/" className="flex items-center">
+            {userType === "F" ? <a href="/fencer-dashboard" className="flex items-center">
               <img src={logo} className="pl-3 h-8" alt="Logo" />
             </a>
-
+              : <a href="/organiser-dashboard" className="flex items-center">
+                <img src={logo} className="pl-3 h-8" alt="Logo" />
+              </a>
+            }
             <div className="relative ml-auto">
               <button
                 onClick={toggleUserDropdown}

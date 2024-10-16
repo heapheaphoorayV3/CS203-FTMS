@@ -8,9 +8,9 @@ import organiser from "../../Assets/organiser.png";
 export default function SignupOptions() {
   return (
     // Primary container for Page
-    <div className="flex flex-col items-center min-h-screen gap-10 bg-gray-200">
+    <div className="h-full flex flex-col items-center justify-center gap-10 bg-gray-200">
 
-      <h1 className="mt-10 text-2xl font-semibold px-12 py-5">What do you want to sign up as?</h1>
+      <h1 className="text-2xl font-semibold">What do you want to sign up as?</h1>
 
       {/* Container for the 2 options --> div for each button*/}
       <div className="flex flex-wrap justify-center items-center px-12 py-5 space-x-8 gap-10" >

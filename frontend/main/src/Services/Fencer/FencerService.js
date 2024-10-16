@@ -7,9 +7,9 @@ class FencerService {
     return await ProtectedAPI.get(`${baseURL}/profile`);
   }
 
-  async registerEvent(eid) {
-    return await ProtectedAPI.get(`/tournament/register/${eid}`);
-  }  
+  async completeProfile(data) {
+    return await ProtectedAPI.put(`${baseURL}/complete-profile`, data);
+  }
 }
 
 export default new FencerService();

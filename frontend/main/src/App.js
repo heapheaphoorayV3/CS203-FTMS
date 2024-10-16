@@ -6,7 +6,7 @@ import CreateTournament from "./Components/Tournament/CreateTournament";
 import OrganiserDashboard from "./Components/OrganiserDashboard";
 import CreateEvent from "./Components/Tournament/CreateEvent";
 import SignUpEvent from "./Components/Tournament/SignUpEvent";
-import SignupOptions from "./Components/Authentication/SignUpChoice";
+import SignupOptions from "./Components/Authentication/SignupOptions";
 import SignIn from "./Components/Authentication/SignIn";
 import SignUpFencer from "./Components/Authentication/SignUpFencer";
 import SignUpOrganiser from "./Components/Authentication/SignUpOrganiser";
@@ -18,6 +18,8 @@ import ProtectedRoute from "./Components/Authentication/ProtectedRoute";
 import ViewEvent from "./Components/Tournament/ViewEvent";
 import Tournaments from "./Components/Tournament/Tournaments";
 import VerifyOrganiser from "./Components/Admin/VerifyOrganiser";
+import LandingPage from "./Components/Others/LandingPage";
+import InternationalRanking from "./Components/InternationalRanking";
 
 function App() {
   return (
@@ -25,7 +27,7 @@ function App() {
       <Routes>
         {/* Default Layout */}
         <Route element={<DefaultLayout />}>
-          <Route path="/" element={<FencerDashboard />} />
+          <Route path="/" element={<LandingPage />} />
           <Route path="/fencer-dashboard" element={<FencerDashboard />} />
           <Route path="/organiser-dashboard" element={<OrganiserDashboard />} />
           <Route path="/tournaments/:tournamentID" element={<ViewTournament />} />
@@ -39,6 +41,7 @@ function App() {
           <Route path="/tournament/:tournamentID/create-event" element={<CreateEvent />} />
           <Route path="/signup-event" element={<SignUpEvent />} />
           <Route path="/verify-organiser" element={<VerifyOrganiser />} />
+          <Route path="/international-ranking" element={<InternationalRanking/>}/>
         </Route>
 
         {/* Admin Layout */}
