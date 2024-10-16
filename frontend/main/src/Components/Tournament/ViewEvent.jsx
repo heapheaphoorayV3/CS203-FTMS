@@ -190,7 +190,7 @@ export default function ViewEvent() {
   };
 
   return (
-    <div className="row-span-2 col-start-2 bg-gray-200 h-full overflow-y-auto">
+    <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">
       <h1 className="my-10 ml-12 text-left text-4xl font-semibold">
         {eventData.tournamentName} -{" "}
         {constructEventName(eventData.gender, eventData.weapon)}
@@ -282,10 +282,10 @@ export default function ViewEvent() {
           <Tab label="Ranking">
             <div className="py-4">
               {/* <h2 className="text-lg font-medium mb-2">Ranking</h2> */}
-              <table className="table text-lg">
+              <table className="table text-lg border-collapse">
                 {/* head */}
                 <thead className="text-lg text-primary">
-                  <tr>
+                  <tr className="border-b border-gray-300">
                     <th className="text-center w-20">Rank</th>
                     <th className="w-1/2">Name</th>
                     <th className="text-center">Country</th>
@@ -294,7 +294,7 @@ export default function ViewEvent() {
                 </thead>
                 <tbody>
                   {paginatedData.map((item) => (
-                    <tr key={item.id}>
+                    <tr key={item.id} className="border-b border-gray-300 hover:bg-gray-100">
                       <td className="text-center">{item.id}</td>
                       <td>{item.name}</td>
                       <td className="text-center">{item.country}</td>
@@ -316,10 +316,10 @@ export default function ViewEvent() {
           <Tab label="Participants">
             <div className="py-4">
               {/* <h2 className="text-lg font-medium mb-2">Participants</h2> */}
-              <table className="table text-lg">
+              <table className="table text-lg border-collapse">
                 {/* head */}
                 <thead className="text-lg text-primary">
-                  <tr>
+                  <tr className="border-b border-gray-300">
                     <th className="w-20"></th>
                     <th className="w-60">Name</th>
                     <th className="w-60">Club</th>
@@ -328,7 +328,7 @@ export default function ViewEvent() {
                 </thead>
                 <tbody>
                   {eventData.fencers.map((fencer, index) => (
-                    <tr key={fencer.id}>
+                    <tr key={fencer.id} className="border-b border-gray-300 hover:bg-gray-100">
                       <td>{index + 1}</td>
                       <td>{fencer.name}</td>
                       <td>{fencer.club}</td>{" "}

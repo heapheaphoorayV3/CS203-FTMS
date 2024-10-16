@@ -10,7 +10,12 @@ import PasswordField from "../Others/PasswordField";
 import SubmitButton from "../Others/SubmitButton";
 
 export default function SignUpFencer() {
-  const { handleSubmit, control, watch, formState: { errors } } = useForm();
+  const {
+    handleSubmit,
+    control,
+    watch,
+    formState: { errors },
+  } = useForm();
   const [isError, setError] = useState(false);
 
   // Watch the password field (to see if confirm password and password matches)
@@ -38,24 +43,31 @@ export default function SignUpFencer() {
       setError(true);
       console.log(error);
     }
-
   };
 
   return (
-    <div className="flex flex-col h-full justify-center items-center bg-gray-200 relative">
+    <div className="flex flex-col h-full justify-center items-center bg-white relative">
       <div className="flex flex-col my-12 items-center bg-white p-8 rounded-lg shadow-lg w-[600px] relative">
-
         <h1 className="text-3xl font-semibold mb-10 text-center">
           Sign up for a Fencer account
         </h1>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col w-96 gap-5">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col w-96 gap-5"
+        >
           <Controller
             name="firstName"
             control={control}
             defaultValue=""
             rules={{ required: "Please fill this in!" }}
             render={({ field: { onChange, value } }) => (
-              <InputField placeholder="First Name" type="text" value={value} onChange={onChange} error={errors.firstName} />
+              <InputField
+                placeholder="First Name"
+                type="text"
+                value={value}
+                onChange={onChange}
+                error={errors.firstName}
+              />
             )}
           />
           <Controller
@@ -64,7 +76,13 @@ export default function SignUpFencer() {
             defaultValue=""
             rules={{ required: "Please fill this in!" }}
             render={({ field: { onChange, value } }) => (
-              <InputField placeholder="Last Name" type="text" value={value} onChange={onChange} error={errors.lastName} />
+              <InputField
+                placeholder="Last Name"
+                type="text"
+                value={value}
+                onChange={onChange}
+                error={errors.lastName}
+              />
             )}
           />
           <Controller
@@ -73,15 +91,23 @@ export default function SignUpFencer() {
             defaultValue=""
             rules={{
               required: "Please fill this in!",
-              validate: value => {
+              validate: (value) => {
                 const selectedDate = new Date(value);
                 const today = new Date();
                 today.setHours(0, 0, 0, 0); // Set time to midnight to compare only dates
-                return selectedDate <= today || "Please enter a valid date of birth!";
-              }
+                return (
+                  selectedDate <= today || "Please enter a valid date of birth!"
+                );
+              },
             }}
             render={({ field: { onChange, value } }) => (
-              <DobField placeholder="Last Name" type="text" value={value} onChange={onChange} error={errors.dateOfBirth} />
+              <DobField
+                placeholder="Last Name"
+                type="text"
+                value={value}
+                onChange={onChange}
+                error={errors.dateOfBirth}
+              />
             )}
           />
           <Controller
@@ -90,10 +116,16 @@ export default function SignUpFencer() {
             defaultValue=""
             rules={{
               required: "Please fill this in!",
-              validate: value => validator.isEmail(value) || "Invalid email"
+              validate: (value) => validator.isEmail(value) || "Invalid email",
             }}
             render={({ field: { onChange, value } }) => (
-              <InputField placeholder="Email" type="text" value={value} onChange={onChange} error={errors.email} />
+              <InputField
+                placeholder="Email"
+                type="text"
+                value={value}
+                onChange={onChange}
+                error={errors.email}
+              />
             )}
           />
           <Controller
@@ -102,7 +134,11 @@ export default function SignUpFencer() {
             defaultValue=""
             rules={{ required: "Please fill this in!" }}
             render={({ field: { onChange, value } }) => (
-              <CountrySelector value={value} onChange={onChange} error={errors.country} />
+              <CountrySelector
+                value={value}
+                onChange={onChange}
+                error={errors.country}
+              />
             )}
           />
           <Controller
@@ -111,10 +147,18 @@ export default function SignUpFencer() {
             defaultValue=""
             rules={{
               required: "Please fill this in!",
-              validate: value => validator.isMobilePhone(value) || "Please enter a valid phone number!"
+              validate: (value) =>
+                validator.isMobilePhone(value) ||
+                "Please enter a valid phone number!",
             }}
             render={({ field: { onChange, value } }) => (
-              <InputField placeholder="Contact Number" type="text" value={value} onChange={onChange} error={errors.contactNo} />
+              <InputField
+                placeholder="Contact Number"
+                type="text"
+                value={value}
+                onChange={onChange}
+                error={errors.contactNo}
+              />
             )}
           />
           <Controller
@@ -123,10 +167,18 @@ export default function SignUpFencer() {
             defaultValue=""
             rules={{
               required: "Please fill this in!",
-              validate: value => validator.isStrongPassword(value) || "Password should be at least 8 characters, and contain at least one lowercase character, uppercase character, number, and symbol!"
+              validate: (value) =>
+                validator.isStrongPassword(value) ||
+                "Password should be at least 8 characters, and contain at least one lowercase character, uppercase character, number, and symbol!",
             }}
             render={({ field: { onChange, value } }) => (
-              <PasswordField placeholder="Password" type="text" value={value} onChange={onChange} error={errors.password} />
+              <PasswordField
+                placeholder="Password"
+                type="text"
+                value={value}
+                onChange={onChange}
+                error={errors.password}
+              />
             )}
           />
           <Controller
@@ -135,10 +187,17 @@ export default function SignUpFencer() {
             defaultValue=""
             rules={{
               required: "Please fill this in!",
-              validate: value => value === password || "Passwords do not match!"
+              validate: (value) =>
+                value === password || "Passwords do not match!",
             }}
             render={({ field: { onChange, value } }) => (
-              <PasswordField placeholder="Confirm Password" type="text" value={value} onChange={onChange} error={errors.confirmPassword} />
+              <PasswordField
+                placeholder="Confirm Password"
+                type="text"
+                value={value}
+                onChange={onChange}
+                error={errors.confirmPassword}
+              />
             )}
           />
 

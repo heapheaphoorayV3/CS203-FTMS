@@ -299,7 +299,7 @@ export default function ViewTournament() {
   return (
     // Grid for Navbar, Sidebar and Content
 
-    <div className="row-span-2 col-start-2 bg-gray-200 h-full overflow-y-auto">
+    <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">
       <Breadcrumbs items={breadcrumbsItems} />
       <h1 className="my-10 ml-12 text-left text-4xl font-semibold">
         {tournamentData.name}
@@ -334,10 +334,10 @@ export default function ViewTournament() {
             </div>
           </Tab>
           <Tab label="Events">
-            <table className="table text-lg text-center">
+            <table className="table text-lg text-center border-collapse">
               {/* head */}
               <thead className="text-lg text-primary">
-                <tr>
+                <tr className="border-b border-gray-300">
                   {/* <th></th> */}
                   <th>Event Name</th>
                   <th>Date</th>
@@ -354,7 +354,7 @@ export default function ViewTournament() {
                 {/* Render events */}
                 {eventsArray.length > 0 ? (
                   eventsArray.map((event, index) => (
-                    <tr key={index}>
+                    <tr key={index} className="border-b border-gray-300 hover:bg-gray-100"> 
                       {/* <td>Event details</td> */}
                       <td>
                         <a
@@ -454,10 +454,10 @@ export default function ViewTournament() {
                 </option>
               ))}
             </select>
-            <table className="table text-lg">
+            <table className="table text-lg border-collapse">
               {/* head */}
               <thead className="text-lg text-primary">
-                <tr>
+                <tr className="border-b border-gray-300">
                   <th className="text-center w-20">Rank</th>
                   <th className="w-1/2">Name</th>
                   <th className="text-center">Country</th>
@@ -466,7 +466,7 @@ export default function ViewTournament() {
               </thead>
               <tbody>
                 {paginatedData.map((item) => (
-                  <tr key={item.id}>
+                  <tr key={item.id} className="border-b border-gray-300 hover:bg-gray-100">
                     <td className="text-center">{item.id}</td>
                     <td>{item.name}</td>
                     <td className="text-center">{item.country}</td>

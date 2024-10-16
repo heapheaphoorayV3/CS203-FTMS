@@ -28,7 +28,6 @@ const CreateTournament = () => {
       console.log("Data being sent to the server:", data);
       const tournamentId = await TournamentService.createTournament(data);
       navigate(`/tournaments/${tournamentId.data.id}`);
-
     } catch (error) {
       console.log(error);
     }
@@ -36,7 +35,7 @@ const CreateTournament = () => {
 
   return (
     <div className="app-container">
-      <div className="flex flex-col items-center bg-gray-200 relative">
+      <div className="flex flex-col items-center bg-white relative">
         <div className="flex flex-col items-center bg-white mt-8 mb-4 rounded-lg shadow-lg w-[600px]">
           <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
             <h2 className="text-2xl font-bold mb-6 text-center">
@@ -101,7 +100,7 @@ const CreateTournament = () => {
                       today.setHours(0, 0, 0, 0); // Set time to midnight to compare only dates
                       const selectedDate = new Date(value);
                       return (
-                        (selectedDate >= today) ||
+                        selectedDate >= today ||
                         "Signup End Date must be after today!"
                       );
                     },
@@ -116,7 +115,7 @@ const CreateTournament = () => {
                   </p>
                 )}
               </div>
-              
+
               {/* Start Date */}
               <div>
                 <label className="block font-medium mb-1">Start Date</label>
@@ -171,7 +170,6 @@ const CreateTournament = () => {
                   </p>
                 )}
               </div>
-
 
               {/* poules Elimination % / advancement rate*/}
               <div>

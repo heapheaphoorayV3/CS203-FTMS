@@ -45,7 +45,7 @@ export default function InternationalRanking() {
   //   }
 
   return (
-    <div className="row-span-2 col-start-2 bg-gray-200 h-full overflow-y-auto">
+    <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">
       <h1 className="my-10 ml-12 text-left text-4xl font-semibold">
         International Ranking
       </h1>
@@ -65,10 +65,10 @@ export default function InternationalRanking() {
       </div>
 
       <div className="ml-12 mr-8 mb-8 overflow-x-auto">
-        <table className="table text-lg">
+        <table className="table text-lg border-collapse">
           {/* head */}
           <thead className="text-lg text-neutral">
-            <tr>
+            <tr className="border-b border-gray-300">
               <th className="text-center w-20">Rank</th>
               <th className="w-1/2">Name</th>
               <th className="text-center">Country</th>
@@ -77,7 +77,7 @@ export default function InternationalRanking() {
           </thead>
           <tbody>
             {filteredFencerData.map((item) => (
-              <tr key={item.id}>
+              <tr key={item.id} className="border-b border-gray-300 hover:bg-gray-100">
                 <td className="text-center">{item.id}</td>
                 <td>{item.name}</td>
                 <td className="text-center">{item.country}</td>
