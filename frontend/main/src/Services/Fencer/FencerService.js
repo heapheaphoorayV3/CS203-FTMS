@@ -7,8 +7,8 @@ class FencerService {
     return await ProtectedAPI.get(`${baseURL}/profile`);
   }
 
-  async completeProfile() {
-    return await ProtectedAPI.put(`${baseURL}/complete-profile`);
+  async completeProfile(data) {
+    return await ProtectedAPI.put(`${baseURL}/complete-profile`, data);
   }
 }
 

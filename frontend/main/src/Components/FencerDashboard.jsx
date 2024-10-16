@@ -13,7 +13,7 @@ const FencerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedData, setEditedData] = useState(userData || {});
+  const [editedData, setEditedData] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -44,8 +44,10 @@ const FencerDashboard = () => {
   };
 
   const handleInputChange = (e) => {
+    console.log(e.target);
     const { name, value } = e.target;
-    setEditedData({ ...editedData, [name]: value });
+    setEditedData(editedData => ({ ...editedData, [name]: value }));
+    console.log(editedData)
   };
 
   const handleSave = async () => {
@@ -60,6 +62,7 @@ const FencerDashboard = () => {
     };
 
     try {
+      console.log(completeProfileData);
       await FencerService.completeProfile(completeProfileData);
       setUserData({ ...userData, ...editedData });
       setIsEditing(false);
@@ -229,11 +232,10 @@ const FencerDashboard = () => {
           <div className="flex">
             {isEditing ? (
               <input
+                name="club"
                 type="text"
-                value={userData.club}
-                onChange={(e) =>
-                  setUserData({ ...userData, club: e.target.value })
-                }
+                value={editedData.club}
+                onChange={handleInputChange}
                 className="border border-gray px-2 py-1 w-180"
                 placeholder="Input Club"
               />
