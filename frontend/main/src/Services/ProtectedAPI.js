@@ -20,6 +20,7 @@ ProtectedAPI.interceptors.request.use(
   },
   (error) => {
     // Do something with request error if needed
+    console.log(error)
     return Promise.reject(error);
   }
 );

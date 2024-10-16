@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -84,11 +86,11 @@ public class AuthenticationController {
         return new ResponseEntity<>(new JwtDTO("login success", jwtToken, jwtService.getExpirationTime(), userType, refreshToken), HttpStatus.OK);
     }
 
-    @PostMapping("/refreshToken")
-    public ResponseEntity<JwtDTO> refreshToken(@RequestBody RefreshTokenRequestDTO refreshTokenRequestDTO){
-        RefreshToken rf = refreshTokenService.findByToken(refreshTokenRequestDTO.getToken()).orElse(null);
+    @GetMapping("/refreshToken/{token}")
+    public ResponseEntity<JwtDTO> refreshToken(@PathVariable String token){
+        RefreshToken rf = refreshTokenService.findByToken(token).orElse(null);
         System.out.println(rf);
-        return refreshTokenService.findByToken(refreshTokenRequestDTO.getToken())
+        return refreshTokenService.findByToken(token)
                 .map(refreshTokenService::verifyExpiration)
                 .map(RefreshToken::getUser)
                 .map(user -> {
@@ -99,7 +101,7 @@ public class AuthenticationController {
                     } else if (user instanceof Fencer) {
                         userType = 'F';
                     }
-                    return new ResponseEntity<>(new JwtDTO("refreshed token", accessToken, jwtService.getExpirationTime(), userType, refreshTokenRequestDTO.getToken()), HttpStatus.OK);
+                    return new ResponseEntity<>(new JwtDTO("refreshed token", accessToken, jwtService.getExpirationTime(), userType, token), HttpStatus.OK);
                 }).orElseThrow(() ->new RuntimeException("Refresh Token is not in DB..!!"));
     }
 }
