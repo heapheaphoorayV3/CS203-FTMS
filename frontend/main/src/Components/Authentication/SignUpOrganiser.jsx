@@ -16,7 +16,6 @@ export default function SignUpOrganiser() {
   const password = watch("password");
 
   const onSubmit = async (data) => {
-    console.log(data);
 
     // Separate comfirmPassword from data before sending to backend
     const { confirmPassword, ...formData } = data;
@@ -29,6 +28,7 @@ export default function SignUpOrganiser() {
 
     try {
       await AuthService.createOrganiser(formData);
+      console.log("Sign up successful!")
       setSignUp(true);
     } catch (error) {
       setError(true);
