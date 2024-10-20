@@ -37,7 +37,7 @@ export default function SignUpFencer() {
 
     try {
       await AuthService.createFencer(formData).then(() => {
-        navigate("/fencer-dashboard");
+        navigate("/dashboard");
       });
     } catch (error) {
       setError(true);
