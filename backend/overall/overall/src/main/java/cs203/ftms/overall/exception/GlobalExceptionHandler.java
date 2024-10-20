@@ -61,6 +61,30 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(EventAlreadyExistsException.class) 
+    public ResponseEntity<String> handleEventAlreadyExists(EventAlreadyExistsException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(EntityDoesNotExistException.class) 
+    public ResponseEntity<String> handleEntityDoesNotExist(EntityDoesNotExistException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(SignUpDateOverExcpetion.class)
+    public ResponseEntity<String> handleSignUpDateOver(SignUpDateOverExcpetion ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UserAlreadyExistException.class)
+    public ResponseEntity<String> handleUserAlreadyExist(UserAlreadyExistException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(SignUpDateNotOverException.class)
+    public ResponseEntity<String> handleSignUpDateNotOver(SignUpDateNotOverException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 }
 
 

@@ -31,12 +31,14 @@ import cs203.ftms.overall.dto.CreateTournamentDTO;
 import cs203.ftms.overall.dto.JwtDTO;
 import cs203.ftms.overall.dto.RegisterFencerDTO;
 import cs203.ftms.overall.dto.RegisterOrganiserDTO;
+import cs203.ftms.overall.security.repository.RefreshTokenRepository;
 import cs203.ftms.overall.security.service.JwtService;
 import cs203.ftms.overall.model.tournamentrelated.Event;
 import cs203.ftms.overall.model.tournamentrelated.Tournament;
 import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.model.userrelated.User;
+import cs203.ftms.overall.repository.tournamentrelated.TournamentFencerRepository;
 import cs203.ftms.overall.repository.tournamentrelated.TournamentRepository;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
 import cs203.ftms.overall.service.authentication.AuthenticationService;
@@ -61,8 +63,14 @@ class SpringBootIntegrationTest {
 	@Autowired
 	private TournamentRepository tournaments;
 
+    @Autowired
+    private TournamentFencerRepository tournamentFencers;
+
 	@Autowired
 	private UserRepository users;
+
+    @Autowired 
+    private RefreshTokenRepository refresh;
 
     @Autowired
     private AuthenticationService authenticationService;
@@ -81,13 +89,17 @@ class SpringBootIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        tournamentFencers.deleteAll();
         tournaments.deleteAll();
+        refresh.deleteAll();
 		users.deleteAll();
     }
 
 	@AfterEach
 	void tearDown(){
+        tournamentFencers.deleteAll();
 		tournaments.deleteAll();
+        refresh.deleteAll();
 		users.deleteAll();
 	}
 
@@ -367,7 +379,7 @@ class SpringBootIntegrationTest {
         headers.setContentType(MediaType.APPLICATION_JSON);
         
         ResponseEntity<String> result = restTemplate.exchange(uri, HttpMethod.PUT, new HttpEntity<>(headers), String.class);
-        
+        System.out.println(result.getBody());
         assertEquals(200, result.getStatusCode().value());
     }
 

@@ -1,7 +1,7 @@
 package cs203.ftms.overall.model.tournamentrelated;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;

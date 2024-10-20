@@ -1,12 +1,12 @@
 package cs203.ftms.overall.model.userrelated;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import cs203.ftms.overall.model.tournamentrelated.Event;
+import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
@@ -18,14 +18,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 
 @Entity
 @DiscriminatorValue("F")
 public class Fencer extends User {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
 
     @Column(name = "dateOfBirth")
     @JsonFormat(pattern="yyyy-MM-dd")
@@ -49,6 +46,9 @@ public class Fencer extends User {
     @Column(name = "gender")
     private char gender;
 
+    @OneToMany(mappedBy = "fencer", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Set<TournamentFencer> tournamentFencerProfiles; 
+
     @ManyToMany(fetch = FetchType.EAGER, cascade={CascadeType.PERSIST, CascadeType.DETACH})
     @JoinTable(
             name = "tour_cat_part",
@@ -63,14 +63,7 @@ public class Fencer extends User {
         this.dateOfBirth = dateOfBirth;
         this.points = 0;
         this.eventsPart = new HashSet<>();
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
+        this.tournamentFencerProfiles = new LinkedHashSet<>();
     }
 
     public LocalDate getDateOfBirth() {
@@ -137,5 +130,11 @@ public class Fencer extends User {
         this.eventsPart = tourCatPart;
     }
 
-    
+    public Set<TournamentFencer> getTournamentFencerProfiles() {
+        return tournamentFencerProfiles;
+    }
+
+    public void setTournamentFencerProfiles(Set<TournamentFencer> tournamentFencerProfiles) {
+        this.tournamentFencerProfiles = tournamentFencerProfiles;
+    }
 }
