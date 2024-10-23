@@ -1,12 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
-import ViewCard from "../Others/ViewCard.jsx";
-import EventList from "../Others/EventList.jsx";
 import { Tabs, Tab } from "../Others/DashboardTabs.jsx";
 import EventService from "../../Services/Event/EventService.js";
 import PaginationButton from "../Others/Pagination.jsx";
 import EventBracket from "./EventBracket.jsx";
 import CreatePoules from "./CreatePoules.jsx";
+import { matches } from "./MockMatches.js"
 
 function formatTimeTo24Hour(timeString) {
   const [hours, minutes] = timeString.split(":"); // Get hours and minutes
@@ -26,6 +25,39 @@ export default function ViewEvent() {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 10;
+
+  const eventBracketRef = useRef(null);
+  const [size, setSize] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    // Function to update size
+    const updateSize = () => {
+      if (eventBracketRef.current) {
+        const { offsetWidth: width, offsetHeight: height } = eventBracketRef.current;
+        setSize({ width, height });
+      }
+    };
+
+    // Create ResizeObserver
+    const observer = new ResizeObserver(() => {
+      updateSize();
+    });
+
+    // Observe the eventBracketRef element
+    if (eventBracketRef.current) {
+      observer.observe(eventBracketRef.current);
+    }
+
+    // Initial size update
+    updateSize();
+
+    // Clean up the observer on component unmount
+    return () => {
+      if (eventBracketRef.current) {
+        observer.unobserve(eventBracketRef.current);
+      }
+    };
+  }, []);
 
   const testData2 = Array.from({ length: 20 }, (_, index) => ({
     id: index + 1,
@@ -188,8 +220,8 @@ export default function ViewEvent() {
         <div className="text-lg">{formatTimeTo24Hour(eventData.endTime)}</div>
       </div>
 
-      <div className="ml-12 mr-8 text-lg overflow-x-auto">
-        <Tabs>
+      <div className="ml-12 mr-8 text-lg overflow-x-auto h-full">
+        <Tabs className="h-full">
           <Tab label="Poules">
             <div className="py-4">
               <button
@@ -270,9 +302,9 @@ export default function ViewEvent() {
             )}
           </Tab>
           <Tab label="Bracket">
-            <div className="py-4">
-              <h2 className="text-lg font-medium mb-2">Bracket</h2>
+            <div className="py-4" ref={eventBracketRef}>
               {/* <EventBracket matches={eventData.matches} /> */}
+              <EventBracket matches={matches} height={size.heigth} width={size.width} />
             </div>
           </Tab>
           <Tab label="Ranking">
