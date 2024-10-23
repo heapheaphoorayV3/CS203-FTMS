@@ -2,7 +2,7 @@ import { SingleEliminationBracket, Match, SVGViewer, createTheme } from '@g-loot
 import React from 'react';
 
 
-export default function EventBracket({ matches }) {
+export default function EventBracket({ matches, height, width }) {
 
     return (
         <SingleEliminationBracket
@@ -11,8 +11,8 @@ export default function EventBracket({ matches }) {
             matchComponent={Match}
             svgWrapper={({ children, ...props }) => (
                 <SVGViewer
-                    width={5000}
-                    height={5000}
+                    width={width}
+                    height={height}
                     background="rgb(11, 13, 19)"
                     SVGBackground="rgb(11, 13, 19)"
                     {...props}
