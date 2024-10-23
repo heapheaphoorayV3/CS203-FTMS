@@ -259,7 +259,7 @@ export default function ViewEvent() {
                   </tr>
                 </thead>
                 <tbody>
-                  {pouleTableData?.pouleTable &&
+                  {pouleTableData?.pouleTable ||
                     Object.entries(pouleTableData.pouleTable[pouleIndex]).map(
                       ([fencer, results], idx) => {
                         const resultArray = results.split(",");
@@ -303,8 +303,7 @@ export default function ViewEvent() {
           </Tab>
           <Tab label="Bracket">
             <div className="py-4" ref={eventBracketRef}>
-              {/* <EventBracket matches={eventData.matches} /> */}
-              <EventBracket matches={matches} height={size.heigth} width={size.width} />
+              <EventBracket matches={matches} height={500} width={500} />
             </div>
           </Tab>
           <Tab label="Ranking">
