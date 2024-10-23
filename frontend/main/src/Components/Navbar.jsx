@@ -51,6 +51,7 @@ const Navbar = () => {
   const handleLogout = () => {
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("userType");
+    sessionStorage.removeItem("refreshToken");
     navigate("/signin");
   };
 
