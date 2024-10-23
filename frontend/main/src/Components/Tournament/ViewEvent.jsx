@@ -20,6 +20,7 @@ export default function ViewEvent() {
   const [pouleTableData, setPouleTableData] = useState(null);
   const [selectedPoule, setSelectedPoule] = useState("");
   const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [recommendedPoulesData, setRecommendedPoulesData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -167,6 +168,10 @@ export default function ViewEvent() {
     closeCreatePopup();
   };
 
+  const updatePoules = () => {
+    setIsUpdating(true);
+  };
+
   return (
     <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">
       <h1 className="my-10 ml-12 text-left text-4xl font-semibold">
@@ -193,13 +198,21 @@ export default function ViewEvent() {
               >
                 Create Poules
               </button>
-              <label className="block font-medium mb-1 ml-1">
-                Poule Results
-              </label>
-              <select value={selectedPoule} onChange={handlePouleChange}>
-                <option value="1">Poule 1</option>
-                <option value="2">Poule 2</option>
-              </select>
+              <div className="flex">
+                <label className="block font-medium mb-1 ml-1">
+                  Poule Results
+                </label>
+                <select value={selectedPoule} onChange={handlePouleChange}>
+                  <option value="1">Poule 1</option>
+                  <option value="2">Poule 2</option>
+                </select>
+                <button
+                  onClick={updatePoules}
+                  className="bg-blue-500 text-white px-4 py-2 rounded mt-2 mb-2"
+                >
+                  Update Poules
+                </button>
+              </div>
               <table className="table text-lg">
                 {/* head */}
                 <thead className="text-lg text-neutral">
@@ -232,7 +245,9 @@ export default function ViewEvent() {
                               <td
                                 key={resultIndex}
                                 className={`border border-gray-300 hover:bg-gray-100 ${
-                                  result === "-1" ? "bg-gray-300 text-gray-300 hover:bg-gray-300" : ""
+                                  result === "-1"
+                                    ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
+                                    : ""
                                 }`}
                               >
                                 {result}
