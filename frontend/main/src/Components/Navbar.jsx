@@ -52,6 +52,7 @@ const Navbar = () => {
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("userType");
     sessionStorage.removeItem("refreshToken");
+    setIsUserDropdownOpen(!isUserDropdownOpen);
     navigate("/signin");
   };
 
