@@ -26,38 +26,47 @@ export default function ViewEvent() {
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 10;
 
-  const eventBracketRef = useRef(null);
-  const [size, setSize] = useState({ width: 0, height: 0 });
+  // const parentRef = useRef(null)
+  // const [parentSize, setParentSize] = useState({ width: 0, height: 0 })
+
+  // useEffect(() => {
+  //   const updateSize = () => {
+  //     if (parentRef.current) {
+  //       const { width, height } = parentRef.current.getBoundingClientRect()
+  //       setParentSize({ width, height })
+  //     }
+  //   }
+
+  //   // Initial size measurement
+  //   updateSize()
+
+  //   // Add event listener for window resize
+  //   window.addEventListener('resize', updateSize)
+
+  //   // Cleanup
+  //   return () => window.removeEventListener('resize', updateSize)
+  // }, [])
+
+  // Set up ref and initial parent size
+  const parentRef = useRef(null);
+  const [parentSize, setParentSize] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
-    // Function to update size
     const updateSize = () => {
-      if (eventBracketRef.current) {
-        const { offsetWidth: width, offsetHeight: height } = eventBracketRef.current;
-        setSize({ width, height });
+      if (parentRef.current) {
+        const { width, height } = parentRef.current.getBoundingClientRect();
+        setParentSize({ width, height });
       }
     };
 
-    // Create ResizeObserver
-    const observer = new ResizeObserver(() => {
-      updateSize();
-    });
+    // Trigger initial measurement with requestAnimationFrame
+    requestAnimationFrame(updateSize);
 
-    // Observe the eventBracketRef element
-    if (eventBracketRef.current) {
-      observer.observe(eventBracketRef.current);
-    }
-
-    // Initial size update
-    updateSize();
-
-    // Clean up the observer on component unmount
-    return () => {
-      if (eventBracketRef.current) {
-        observer.unobserve(eventBracketRef.current);
-      }
-    };
+    // Listen for window resize
+    window.addEventListener("resize", updateSize);
+    return () => window.removeEventListener("resize", updateSize);
   }, []);
+    
 
   const testData2 = Array.from({ length: 20 }, (_, index) => ({
     id: index + 1,
@@ -220,8 +229,8 @@ export default function ViewEvent() {
         <div className="text-lg">{formatTimeTo24Hour(eventData.endTime)}</div>
       </div>
 
-      <div className="ml-12 mr-8 text-lg overflow-x-auto h-full">
-        <Tabs className="h-full">
+      <div className="ml-12 mr-8 text-lg overflow-x-auto">
+        <Tabs parentRef={parentRef}>
           <Tab label="Poules">
             <div className="py-4">
               <button
@@ -302,8 +311,8 @@ export default function ViewEvent() {
             )}
           </Tab>
           <Tab label="Bracket">
-            <div className="py-4" ref={eventBracketRef}>
-              <EventBracket matches={matches} height={500} width={500} />
+            <div className="py-4 h-full w-full">
+              <EventBracket matches={matches} height={parentSize.height} width={parentSize.width} />
             </div>
           </Tab>
           <Tab label="Ranking">
