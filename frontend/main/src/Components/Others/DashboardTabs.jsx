@@ -22,7 +22,7 @@ const Tabs = ({ children, parentRef }) => {
                     </button>
                 ))}
             </div>
-            <div className="py-4 min-h-screen flex flex-col flex-grow" ref={parentRef}>
+            <div className="py-4 min-h-96 flex flex-col" ref={parentRef}>
                 {children.map(child => {
                     if (child.props.label === activeTab) {
                         return <div className="h-full" key={child.props.label}>{child.props.children}</div>;
