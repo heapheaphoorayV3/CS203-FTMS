@@ -5,7 +5,7 @@ import EventService from "../../Services/Event/EventService.js";
 import PaginationButton from "../Others/Pagination.jsx";
 import EventBracket from "./EventBracket.jsx";
 import CreatePoules from "./CreatePoules.jsx";
-import { matches } from "./MockMatches.js"
+// import { matches } from "./MockMatches.js"
 
 function formatTimeTo24Hour(timeString) {
   const [hours, minutes] = timeString.split(":"); // Get hours and minutes
@@ -17,6 +17,7 @@ export default function ViewEvent() {
 
   const [eventData, setEventData] = useState(null);
   const [pouleTableData, setPouleTableData] = useState(null);
+  const [matches, setMatches] = useState(null);
   const [selectedPoule, setSelectedPoule] = useState("");
   const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -119,10 +120,24 @@ export default function ViewEvent() {
       }
     };
 
+    const fetchMatches = async () => {
+      try {
+        const response = await EventService.getMatches(eventID);
+        setMatches(response.data);
+        console.log("Matches: " + matches);
+      } catch (error) {
+        console.error("Error fetching matches:", error);
+        setError("Failed to load matches.");
+      }
+    };
+
     if (eventID) {
       fetchData();
       fetchPouleTable();
       fetchRecommendedPoules();
+      console.log("Fetching Matches");
+      fetchMatches();
+      setLoading(false);
     }
   }, [eventID]);
 
