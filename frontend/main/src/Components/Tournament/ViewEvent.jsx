@@ -17,16 +17,18 @@ export default function ViewEvent() {
 
   const [eventData, setEventData] = useState(null);
   const [pouleTableData, setPouleTableData] = useState(null);
+  const [cleanedPouleData, setCleanedPouleData] = useState([]);
   const [matches, setMatches] = useState(null);
-  const [selectedPoule, setSelectedPoule] = useState("");
+  const [selectedPoule, setSelectedPoule] = useState(1);
   const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [updateValue, setUpdateValue] = useState("");
+  const [updatePoulesScores, setUpdatePoulesScores] = useState({});
   const [recommendedPoulesData, setRecommendedPoulesData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 10;
-
 
   // Set up ref and initial parent size
   const parentRef = useRef(null);
@@ -47,7 +49,6 @@ export default function ViewEvent() {
     window.addEventListener("resize", updateSize);
     return () => window.removeEventListener("resize", updateSize);
   }, []);
-
 
   const testData2 = Array.from({ length: 20 }, (_, index) => ({
     id: index + 1,
@@ -80,6 +81,17 @@ export default function ViewEvent() {
       try {
         const response = await EventService.getPouleTable(eventID);
         setPouleTableData(response.data);
+        console.log("Poule Table Data:", response.data);
+
+        const processedData = response.data.pouleTable.map((poule) =>
+          Object.entries(poule).map(([fencer, results]) => {
+            const resultArray = results.split(",");
+            const cleanedFencerName = fencer.replace(/ -- \d+$/, "");
+            return { fencer: cleanedFencerName, results: resultArray };
+          })
+        );
+
+        setCleanedPouleData(processedData);
       } catch (error) {
         console.error("Error fetching poule table data:", error);
         setError("Failed to load poule table data.");
@@ -97,13 +109,13 @@ export default function ViewEvent() {
     };
 
     const fetchMatches = async () => {
-      try {
-        const response = await EventService.getMatches(eventID);
-        setMatches(response.data);
-      } catch (error) {
-        console.error("Error fetching matches:", error);
-        setError("Failed to load matches.");
-      }
+      // try {
+      //   const response = await EventService.getMatches(eventID);
+      //   setMatches(response.data);
+      // } catch (error) {
+      //   console.error("Error fetching matches:", error);
+      //   setError("Failed to load matches.");
+      // }
     };
 
     if (eventID) {
@@ -111,14 +123,13 @@ export default function ViewEvent() {
         fetchData(),
         fetchPouleTable(),
         fetchRecommendedPoules(),
-        fetchMatches()
+        fetchMatches(),
       ]).then(() => {
         // Code to run after all functions complete
-        console.log('All functions have completed.');
+        console.log("All functions have completed.");
         setLoading(false);
         console.log("Matches: ", matches);
       });
-
     }
   }, [eventID]);
 
@@ -209,6 +220,55 @@ export default function ViewEvent() {
     setIsUpdating(true);
   };
 
+  const cancelUpdatePoules = () => {
+    setIsUpdating(false);
+    setUpdatePoulesScores({});
+  };
+
+  function handleInputChange(event, index, rowIndex) {
+    const newScore = Number(event.target.value);
+    const poules = pouleTableData.pouleTable[0];
+
+    // Get the fencer's entry and its corresponding scores
+    const rowData = Object.entries(poules)[rowIndex];
+    const fencerName = rowData[0]; // e.g., "2 Fencer (Singapore) -- 2"
+    const scoresArray = rowData[1].split(",").map(Number);
+
+    // Update the specific index in the scoresArray
+    scoresArray[index] = newScore;
+
+    // Convert the updated scores back to a string
+    const editedScore = scoresArray.join(",");
+
+    // Prepare the updated data object
+    const updatedData = {
+      [fencerName]: editedScore, // Using computed property names to set the key
+    };
+
+    const pouleTable = pouleTableData.pouleTable[0]; // Access the first poule table
+
+    // Iterate through the keys of the first poule table
+    for (const key in pouleTable) {
+      if (key === fencerName) {
+        // Check if the key matches fencerName
+        pouleTable[key] = updatedData[fencerName]; // Update the score
+        break; // Exit the loop after updating
+      }
+    }
+  }
+
+  const submitUpdatePoules = async () => {
+    console.log("----------");
+    console.log(pouleTableData.pouleTable);
+    try {
+      await EventService.updatePouleTable(eventID, pouleTableData.pouleTable);
+      console.log("Poules updated successfully");
+    } catch (error) {
+      console.error("Error updating poules:", error);
+    }
+    setIsUpdating(false);
+  };
+
   return (
     <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">
       <h1 className="my-10 ml-12 text-left text-4xl font-semibold">
@@ -235,22 +295,49 @@ export default function ViewEvent() {
               >
                 Create Poules
               </button>
-              <div className="flex">
-                <label className="block font-medium mb-1 ml-1">
-                  Poule Results
-                </label>
-                <select value={selectedPoule} onChange={handlePouleChange}>
-                  <option value="1">Poule 1</option>
-                  <option value="2">Poule 2</option>
-                </select>
-                <button
-                  onClick={updatePoules}
-                  className="bg-blue-500 text-white px-4 py-2 rounded mt-2 mb-2"
-                >
-                  Update Poules
-                </button>
+              <div className="flex items-end w-full">
+                <div className="mr-12 h-20">
+                  <label className="block font-medium mb-1 ml-1">
+                    Poule Results
+                  </label>
+                  <select
+                    value={selectedPoule}
+                    onChange={handlePouleChange}
+                    className="block w-full py-2 px-3 border border-gray-300 rounded"
+                  >
+                    <option value="1">Poule 1</option>
+                    <option value="2">Poule 2</option>
+                  </select>
+                </div>
+                <div className="flex pb-2 space-x-2">
+                  <button
+                    onClick={updatePoules}
+                    className="bg-blue-500 text-white px-4 py-2 rounded"
+                  >
+                    Update Poules
+                  </button>
+
+                  {isUpdating && (
+                    <>
+                      <button
+                        onClick={submitUpdatePoules}
+                        className="bg-green-400 text-white px-4 py-2 rounded"
+                      >
+                        Confirm Changes
+                      </button>
+                      <button
+                        onClick={cancelUpdatePoules}
+                        className="bg-red-400 text-white px-4 py-2 rounded"
+                      >
+                        Cancel Changes
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
+
               <table className="table text-lg">
+                {/* head */}
                 <thead className="text-lg text-neutral">
                   <tr className="border-b border-gray-300">
                     <th className="w-60 text-primary">Fencer</th>
@@ -263,11 +350,15 @@ export default function ViewEvent() {
                   </tr>
                 </thead>
                 <tbody>
-                  {pouleTableData && pouleTableData.pouleTable[pouleIndex] &&
+                  {pouleTableData && pouleTableData.pouleTable[pouleIndex] ? (
                     Object.entries(pouleTableData.pouleTable[pouleIndex]).map(
                       ([fencer, results], idx) => {
                         const resultArray = results.split(",");
-                        const cleanedFencerName = fencer.replace(/ -- \d+$/, "");
+                        const cleanedFencerName = fencer.replace(
+                          / -- \d+$/,
+                          ""
+                        );
+
                         return (
                           <tr key={idx} className="border-b border-gray-300">
                             <td className="w-60">{cleanedFencerName}</td>
@@ -277,21 +368,39 @@ export default function ViewEvent() {
                             {resultArray.map((result, resultIndex) => (
                               <td
                                 key={resultIndex}
-                                className={`border border-gray-300 hover:bg-gray-100 ${result === "-1"
+                                className={`border border-gray-300 hover:bg-gray-100 ${
+                                  result === "-1"
                                     ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
                                     : ""
-                                  }`}
+                                }`}
                               >
-                                {result}
+                                {isUpdating ? (
+                                  <input
+                                    type="text"
+                                    placeholder={result}
+                                    onChange={(event) =>
+                                      handleInputChange(event, resultIndex, idx)
+                                    }
+                                    className="w-full text-center"
+                                  />
+                                ) : (
+                                  result
+                                )}
                               </td>
                             ))}
                           </tr>
                         );
                       }
-                    )}
+                    )
+                  ) : (
+                    <tr>
+                      <td colSpan={7}>No poule data available</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
+            {/* Create Event Popup --> need to pass in submit/close */}
             {isCreatePopupVisible && (
               <CreatePoules
                 onClose={closeCreatePopup}
@@ -302,7 +411,11 @@ export default function ViewEvent() {
           </Tab>
           <Tab label="Bracket">
             <div className="py-4 h-full w-full">
-              <EventBracket matches={matches} height={parentSize.height} width={parentSize.width} />
+              <EventBracket
+                matches={matches}
+                height={parentSize.height}
+                width={parentSize.width}
+              />
             </div>
           </Tab>
           <Tab label="Ranking">
