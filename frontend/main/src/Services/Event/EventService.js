@@ -26,6 +26,10 @@ class EventService {
   async getRecommendedPoules(eid) {
     return await ProtectedAPI.get(`${baseURL}/${eid}/get-recommended-poules`);
   }
+
+  async getMatches(eid) {
+    return await ProtectedAPI.get(`${baseURL}/${eid}/get-direct-elimination-matches`);
+  }
 }
 
 export default new EventService();
