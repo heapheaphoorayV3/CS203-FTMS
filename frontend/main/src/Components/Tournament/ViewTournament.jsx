@@ -19,7 +19,7 @@ export default function ViewTournament() {
   const [tournamentData, setTournamentData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [eventsArray, setEventsArray] = useState();
+  const [eventsArray, setEventsArray] = useState([]);
   const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
   const [registeredEvents, setRegisteredEvents] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -70,7 +70,8 @@ export default function ViewTournament() {
         setTournamentData(response.data);
         console.log("response.data => ", response.data);
         // Set eventsArray
-        setEventsArray(response.data.events);
+        const eventsArray = response.data.events; // Accessing events directly
+        setEventsArray(eventsArray);
       } catch (error) {
         console.error("Error fetching tournament data:", error);
         setError("Failed to load tournament data.");
@@ -83,6 +84,9 @@ export default function ViewTournament() {
       fetchData();
     }
   }, [tournamentID]);
+
+  console.log("=============");
+  console.log(eventsArray);
 
   const breadcrumbsItems = [
     { name: "Home", link: "/" },
@@ -450,11 +454,11 @@ export default function ViewTournament() {
               <option value="">Select Event</option>
               {eventsArray.map((event) => (
                 <option key={event.id} value={event.id}>
-                  {event.eventName}
+                  {constructEventName(event.gender, event.weapon)}
                 </option>
               ))}
             </select>
-            <table className="table text-lg border-collapse">
+            <table className="table text-lg border-collapse mb-4">
               {/* head */}
               <thead className="text-lg text-primary">
                 <tr className="border-b border-gray-300">

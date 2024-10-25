@@ -6,6 +6,7 @@ import PaginationButton from "../Others/Pagination.jsx";
 import EventBracket from "./EventBracket.jsx";
 import CreatePoules from "./CreatePoules.jsx";
 import { set } from "react-hook-form";
+import Breadcrumbs from "../Others/Breadcrumbs.jsx";
 
 function formatTimeTo24Hour(timeString) {
   const [hours, minutes] = timeString.split(":"); // Get hours and minutes
@@ -14,6 +15,7 @@ function formatTimeTo24Hour(timeString) {
 
 export default function ViewEvent() {
   const { eventID } = useParams();
+  const [userType, setUserType] = useState(sessionStorage.getItem("userType"));
 
   const [eventData, setEventData] = useState(null);
   const [pouleTableData, setPouleTableData] = useState(null);
@@ -71,6 +73,7 @@ export default function ViewEvent() {
       try {
         const response = await EventService.getEvent(eventID);
         setEventData(response.data);
+        console.log(response.data);
       } catch (error) {
         console.error("Error fetching event data:", error);
         setError("Failed to load event data.");
@@ -122,7 +125,7 @@ export default function ViewEvent() {
       Promise.all([
         fetchData(),
         fetchPouleTable(),
-        fetchRecommendedPoules(),
+        userType === "O" && fetchRecommendedPoules(),
         fetchMatches(),
       ]).then(() => {
         // Code to run after all functions complete
@@ -177,6 +180,25 @@ export default function ViewEvent() {
 
     return eventName;
   };
+
+  const breadcrumbsItems = [
+    { name: "Home", link: "/" },
+    { name: "Tournaments", link: "/tournaments" },
+    {
+      name: loading
+        ? "Loading..."
+        : eventData
+        ? eventData.tournamentName
+        : "Not Found",
+    },
+    {
+      name: loading
+        ? "Loading..."
+        : eventData
+        ? constructEventName(eventData.gender, eventData.weapon)
+        : "Not Found",
+    },
+  ];
 
   const formatDate = (date) => {
     const formattedDate = new Date(date).toLocaleDateString("en-GB", {
@@ -257,6 +279,10 @@ export default function ViewEvent() {
     }
   }
 
+  console.log("!!!!!!!!!!!!!");
+  console.log(userType);
+  console.log("!!!!!!!!!!!!!");
+
   const submitUpdatePoules = async () => {
     console.log("----------");
     console.log(pouleTableData.pouleTable);
@@ -271,6 +297,7 @@ export default function ViewEvent() {
 
   return (
     <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">
+      <Breadcrumbs items={breadcrumbsItems} />
       <h1 className="my-10 ml-12 text-left text-4xl font-semibold">
         {eventData.tournamentName} -{" "}
         {constructEventName(eventData.gender, eventData.weapon)}
@@ -289,52 +316,58 @@ export default function ViewEvent() {
         <Tabs parentRef={parentRef}>
           <Tab label="Poules">
             <div className="py-4">
-              <button
-                onClick={createPoules}
-                className="bg-blue-500 text-white px-4 py-2 rounded mt-2 mb-2"
-              >
-                Create Poules
-              </button>
-              <div className="flex items-end w-full">
-                <div className="mr-12 h-20">
-                  <label className="block font-medium mb-1 ml-1">
-                    Poule Results
-                  </label>
-                  <select
-                    value={selectedPoule}
-                    onChange={handlePouleChange}
-                    className="block w-full py-2 px-3 border border-gray-300 rounded"
-                  >
-                    <option value="1">Poule 1</option>
-                    <option value="2">Poule 2</option>
-                  </select>
-                </div>
-                <div className="flex pb-2 space-x-2">
+              {userType === "O" && (
+                <div>
                   <button
-                    onClick={updatePoules}
-                    className="bg-blue-500 text-white px-4 py-2 rounded"
+                    onClick={createPoules}
+                    className="bg-blue-500 text-white px-4 py-2 rounded mt-2 mb-2"
                   >
-                    Update Poules
+                    Create Poules
                   </button>
 
-                  {isUpdating && (
-                    <>
-                      <button
-                        onClick={submitUpdatePoules}
-                        className="bg-green-400 text-white px-4 py-2 rounded"
+                  <div className="flex items-end w-full">
+                    <div className="mr-12 h-20">
+                      <label className="block font-medium mb-1 ml-1">
+                        Poule Results
+                      </label>
+                      <select
+                        value={selectedPoule}
+                        onChange={handlePouleChange}
+                        className="block w-full py-2 px-3 border border-gray-300 rounded"
                       >
-                        Confirm Changes
-                      </button>
+                        <option value="1">Poule 1</option>
+                        <option value="2">Poule 2</option>
+                      </select>
+                    </div>
+
+                    <div className="flex pb-2 space-x-2">
                       <button
-                        onClick={cancelUpdatePoules}
-                        className="bg-red-400 text-white px-4 py-2 rounded"
+                        onClick={updatePoules}
+                        className="bg-blue-500 text-white px-4 py-2 rounded"
                       >
-                        Cancel Changes
+                        Update Poules
                       </button>
-                    </>
-                  )}
+
+                      {isUpdating && (
+                        <>
+                          <button
+                            onClick={submitUpdatePoules}
+                            className="bg-green-400 text-white px-4 py-2 rounded"
+                          >
+                            Confirm Changes
+                          </button>
+                          <button
+                            onClick={cancelUpdatePoules}
+                            className="bg-red-400 text-white px-4 py-2 rounded"
+                          >
+                            Cancel Changes
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
 
               <table className="table text-lg">
                 {/* head */}
@@ -393,7 +426,7 @@ export default function ViewEvent() {
                       }
                     )
                   ) : (
-                    <tr>
+                    <tr className="text-center border-b border-gray-300">
                       <td colSpan={7}>No poule data available</td>
                     </tr>
                   )}
@@ -421,7 +454,7 @@ export default function ViewEvent() {
           <Tab label="Ranking">
             <div className="py-4">
               {/* <h2 className="text-lg font-medium mb-2">Ranking</h2> */}
-              <table className="table text-lg border-collapse">
+              <table className="table text-lg border-collapse mb-4">
                 {/* head */}
                 <thead className="text-lg text-primary">
                   <tr className="border-b border-gray-300">
