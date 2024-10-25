@@ -5,7 +5,7 @@ import EventService from "../../Services/Event/EventService.js";
 import PaginationButton from "../Others/Pagination.jsx";
 import EventBracket from "./EventBracket.jsx";
 import CreatePoules from "./CreatePoules.jsx";
-// import { matches } from "./MockMatches.js"
+import { set } from "react-hook-form";
 
 function formatTimeTo24Hour(timeString) {
   const [hours, minutes] = timeString.split(":"); // Get hours and minutes
@@ -27,26 +27,6 @@ export default function ViewEvent() {
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 10;
 
-  // const parentRef = useRef(null)
-  // const [parentSize, setParentSize] = useState({ width: 0, height: 0 })
-
-  // useEffect(() => {
-  //   const updateSize = () => {
-  //     if (parentRef.current) {
-  //       const { width, height } = parentRef.current.getBoundingClientRect()
-  //       setParentSize({ width, height })
-  //     }
-  //   }
-
-  //   // Initial size measurement
-  //   updateSize()
-
-  //   // Add event listener for window resize
-  //   window.addEventListener('resize', updateSize)
-
-  //   // Cleanup
-  //   return () => window.removeEventListener('resize', updateSize)
-  // }, [])
 
   // Set up ref and initial parent size
   const parentRef = useRef(null);
@@ -67,7 +47,7 @@ export default function ViewEvent() {
     window.addEventListener("resize", updateSize);
     return () => window.removeEventListener("resize", updateSize);
   }, []);
-    
+
 
   const testData2 = Array.from({ length: 20 }, (_, index) => ({
     id: index + 1,
@@ -85,16 +65,14 @@ export default function ViewEvent() {
 
   useEffect(() => {
     setLoading(true);
+
     const fetchData = async () => {
       try {
         const response = await EventService.getEvent(eventID);
         setEventData(response.data);
-        console.log("response.data => ", response.data);
       } catch (error) {
         console.error("Error fetching event data:", error);
         setError("Failed to load event data.");
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -102,7 +80,6 @@ export default function ViewEvent() {
       try {
         const response = await EventService.getPouleTable(eventID);
         setPouleTableData(response.data);
-        console.log("Poule Table Data:", response.data);
       } catch (error) {
         console.error("Error fetching poule table data:", error);
         setError("Failed to load poule table data.");
@@ -113,7 +90,6 @@ export default function ViewEvent() {
       try {
         const response = await EventService.getRecommendedPoules(eventID);
         setRecommendedPoulesData(response.data);
-        console.log("Recommended Poules:", response.data);
       } catch (error) {
         console.log("Error fetching recommended poules", error);
         setError("Failed to load recommended poules");
@@ -124,7 +100,6 @@ export default function ViewEvent() {
       try {
         const response = await EventService.getMatches(eventID);
         setMatches(response.data);
-        console.log("Matches: " + matches);
       } catch (error) {
         console.error("Error fetching matches:", error);
         setError("Failed to load matches.");
@@ -132,12 +107,18 @@ export default function ViewEvent() {
     };
 
     if (eventID) {
-      fetchData();
-      fetchPouleTable();
-      fetchRecommendedPoules();
-      console.log("Fetching Matches");
-      fetchMatches();
-      setLoading(false);
+      Promise.all([
+        fetchData(),
+        fetchPouleTable(),
+        fetchRecommendedPoules(),
+        fetchMatches()
+      ]).then(() => {
+        // Code to run after all functions complete
+        console.log('All functions have completed.');
+        setLoading(false);
+        console.log("Matches: ", matches);
+      });
+
     }
   }, [eventID]);
 
@@ -270,7 +251,6 @@ export default function ViewEvent() {
                 </button>
               </div>
               <table className="table text-lg">
-                {/* head */}
                 <thead className="text-lg text-neutral">
                   <tr className="border-b border-gray-300">
                     <th className="w-60 text-primary">Fencer</th>
@@ -283,14 +263,11 @@ export default function ViewEvent() {
                   </tr>
                 </thead>
                 <tbody>
-                  {pouleTableData?.pouleTable ||
+                  {pouleTableData && pouleTableData.pouleTable[pouleIndex] &&
                     Object.entries(pouleTableData.pouleTable[pouleIndex]).map(
                       ([fencer, results], idx) => {
                         const resultArray = results.split(",");
-                        const cleanedFencerName = fencer.replace(
-                          / -- \d+$/,
-                          ""
-                        );
+                        const cleanedFencerName = fencer.replace(/ -- \d+$/, "");
                         return (
                           <tr key={idx} className="border-b border-gray-300">
                             <td className="w-60">{cleanedFencerName}</td>
@@ -300,11 +277,10 @@ export default function ViewEvent() {
                             {resultArray.map((result, resultIndex) => (
                               <td
                                 key={resultIndex}
-                                className={`border border-gray-300 hover:bg-gray-100 ${
-                                  result === "-1"
+                                className={`border border-gray-300 hover:bg-gray-100 ${result === "-1"
                                     ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
                                     : ""
-                                }`}
+                                  }`}
                               >
                                 {result}
                               </td>
@@ -316,7 +292,6 @@ export default function ViewEvent() {
                 </tbody>
               </table>
             </div>
-            {/* Create Event Popup --> need to pass in submit/close */}
             {isCreatePopupVisible && (
               <CreatePoules
                 onClose={closeCreatePopup}
