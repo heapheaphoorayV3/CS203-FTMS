@@ -7,20 +7,24 @@ public class CleanTournamentFencerDTO {
     private String fencerClub; 
     private String country; 
     private char dominantArm; 
-    private int tournamentPoints;
+    private int tournamentRank;
     private int eventId;
+    private int pouleWins;
+    private int poulePoints;
 
     
     public CleanTournamentFencerDTO(int tournamentFencerId, int fencerId, String fencerName, String fencerClub, String country,
-            char dominantArm, int tournamentPoints, int eventId) {
+            char dominantArm, int tournamentPoints, int eventId, int pouleWins, int poulePoints) {
         this.tournamentFencerId = tournamentFencerId;
         this.fencerId = fencerId;
         this.fencerName = fencerName;
         this.fencerClub = fencerClub;
         this.country = country;
         this.dominantArm = dominantArm;
-        this.tournamentPoints = tournamentPoints;
+        this.tournamentRank = tournamentPoints;
         this.eventId = eventId;
+        this.pouleWins = pouleWins;
+        this.poulePoints = poulePoints;
     }
 
     public int getTournamentFencerId() {
@@ -81,13 +85,13 @@ public class CleanTournamentFencerDTO {
     }
 
 
-    public int getTournamentPoints() {
-        return tournamentPoints;
+    public int getTournamentRank() {
+        return tournamentRank;
     }
 
 
-    public void setTournamentPoints(int tournamentPoints) {
-        this.tournamentPoints = tournamentPoints;
+    public void setTournamentRank(int tournamentPoints) {
+        this.tournamentRank = tournamentPoints;
     }
 
 
@@ -99,5 +103,21 @@ public class CleanTournamentFencerDTO {
     public void setEventId(int eventId) {
         this.eventId = eventId;
     } 
+
+    public int getPouleWins() {
+        return pouleWins;
+    }
+
+    public void setPouleWins(int pouleWins) {
+        this.pouleWins = pouleWins;
+    }
+
+    public int getPoulePoints() {
+        return poulePoints;
+    }
+
+    public void setPoulePoints(int poulePoints) {
+        this.poulePoints = poulePoints;
+    }
 
 }

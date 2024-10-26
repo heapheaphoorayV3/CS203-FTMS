@@ -34,7 +34,6 @@ import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.model.userrelated.User;
 import cs203.ftms.overall.service.event.EventService;
-import cs203.ftms.overall.dto.UpdatePouleMatchScoreDTO;
 import jakarta.validation.Valid;
 
 @RestController
@@ -117,15 +116,6 @@ public class EventController {
         return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
 
-    @PutMapping("/{eid}/update-poule-score")
-    @PreAuthorize("hasRole('ORGANISER')")
-    public ResponseEntity<String> updatePouleScore(@PathVariable int eid, @RequestBody Set<UpdatePouleMatchScoreDTO> dto) {
-        boolean update = eventService.updatePouleScore(dto);
-        if (update) {
-            return new ResponseEntity<>("score update successful", HttpStatus.OK);
-        }
-        return new ResponseEntity<>("score update unsuccessful", HttpStatus.BAD_REQUEST);
-    }
 
     @GetMapping("/{eid}/get-poule-table")
     @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")

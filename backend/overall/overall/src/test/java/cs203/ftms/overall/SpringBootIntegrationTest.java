@@ -10,7 +10,6 @@ import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +30,6 @@ import cs203.ftms.overall.dto.CreateTournamentDTO;
 import cs203.ftms.overall.dto.JwtDTO;
 import cs203.ftms.overall.dto.RegisterFencerDTO;
 import cs203.ftms.overall.dto.RegisterOrganiserDTO;
-import cs203.ftms.overall.security.repository.RefreshTokenRepository;
-import cs203.ftms.overall.security.service.JwtService;
 import cs203.ftms.overall.model.tournamentrelated.Event;
 import cs203.ftms.overall.model.tournamentrelated.Tournament;
 import cs203.ftms.overall.model.userrelated.Fencer;
@@ -41,6 +38,8 @@ import cs203.ftms.overall.model.userrelated.User;
 import cs203.ftms.overall.repository.tournamentrelated.TournamentFencerRepository;
 import cs203.ftms.overall.repository.tournamentrelated.TournamentRepository;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
+import cs203.ftms.overall.security.repository.RefreshTokenRepository;
+import cs203.ftms.overall.security.service.JwtService;
 import cs203.ftms.overall.service.authentication.AuthenticationService;
 import cs203.ftms.overall.service.event.EventService;
 import cs203.ftms.overall.service.fencer.FencerService;
@@ -55,7 +54,8 @@ class SpringBootIntegrationTest {
 	@LocalServerPort
 	private int port;
 
-	private final String baseUrl = "http://localhost:";
+
+    private final String baseUrl = "http://localhost:";
 
 	@Autowired
 	private TestRestTemplate restTemplate;

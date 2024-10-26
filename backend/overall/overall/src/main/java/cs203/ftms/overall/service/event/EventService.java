@@ -23,7 +23,6 @@ import cs203.ftms.overall.dto.CreatePoulesDTO;
 import cs203.ftms.overall.dto.PouleResultsDTO;
 import cs203.ftms.overall.dto.PouleTableDTO;
 import cs203.ftms.overall.dto.SinglePouleTableDTO;
-import cs203.ftms.overall.dto.UpdatePouleMatchScoreDTO;
 import cs203.ftms.overall.dto.clean.CleanEventDTO;
 import cs203.ftms.overall.dto.clean.CleanFencerDTO;
 import cs203.ftms.overall.dto.clean.CleanMatchDTO;
@@ -76,7 +75,7 @@ public class EventService {
     public CleanEventDTO getCleanEventDTO(Event e) {
         if (e == null) return null;
 
-        Set<CleanFencerDTO> cleanFencers = new HashSet<>(); 
+        List<CleanFencerDTO> cleanFencers = new ArrayList<>(); 
         for (TournamentFencer f : e.getFencers()) {
             cleanFencers.add(fencerService.getCleanFencerDTO(f.getFencer()));
         }
@@ -85,7 +84,7 @@ public class EventService {
     } 
 
     public CleanTournamentFencerDTO getCleanTournamentFencerDTO(TournamentFencer tf) {
-        return new CleanTournamentFencerDTO(tf.getId(), tf.getFencer().getId(), tf.getFencer().getName(), tf.getFencer().getClub(), tf.getFencer().getCountry(), tf.getFencer().getDominantArm(), tf.getTournamentRank(), tf.getEvent().getId());
+        return new CleanTournamentFencerDTO(tf.getId(), tf.getFencer().getId(), tf.getFencer().getName(), tf.getFencer().getClub(), tf.getFencer().getCountry(), tf.getFencer().getDominantArm(), tf.getTournamentRank(), tf.getEvent().getId(), tf.getPouleWins(), tf.getPoulePoints());
     }
 
     public CleanMatchDTO getCleanMatchDTO(Match m, char matchType) {
@@ -102,12 +101,12 @@ public class EventService {
     }
 
     public CleanPouleDTO getCleanPouleDTO(Poule p) {
-        Set<CleanMatchDTO> cleanMatches = new LinkedHashSet<>(); 
+        List<CleanMatchDTO> cleanMatches = new ArrayList<>(); 
         for (PouleMatch pm : p.getPouleMatches()) {
             cleanMatches.add(getCleanMatchDTO(pm, 'P'));
         }
 
-        Set<CleanTournamentFencerDTO> cleanFencers = new LinkedHashSet<>(); 
+        List<CleanTournamentFencerDTO> cleanFencers = new ArrayList<>(); 
         for (TournamentFencer tf : p.getFencers()) {
             cleanFencers.add(getCleanTournamentFencerDTO(tf));
         }
@@ -459,16 +458,6 @@ public class EventService {
         return pouleMatch;
     }
 
-    public boolean updatePouleScore(Set<UpdatePouleMatchScoreDTO> dto) {
-        for (UpdatePouleMatchScoreDTO d : dto) {
-            Match m = matchRepository.findById(d.getMatchId()).orElse(null);
-            if (m == null) return false;
-            m.setScore1(d.getFencer1Score());
-            m.setScore2(d.getFencer2Score());
-            matchRepository.save(m);
-        }
-        return true;
-    }
     
     public Set<TournamentFencer> updateTournamentFencerPoints(int eid, int pid) {
         Event event = eventRepository.findById(eid).orElseThrow(() -> new EntityDoesNotExistException("Event does not exist!"));
