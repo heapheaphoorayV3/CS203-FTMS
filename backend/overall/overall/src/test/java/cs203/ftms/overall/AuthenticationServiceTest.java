@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -28,6 +29,7 @@ import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.model.userrelated.User;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
+import cs203.ftms.overall.service.admin.MailService;
 import cs203.ftms.overall.service.authentication.AuthenticationService;
 
 class AuthenticationServiceTest {
@@ -40,6 +42,9 @@ class AuthenticationServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private MailService mailService;
 
 
     @InjectMocks
@@ -77,6 +82,7 @@ class AuthenticationServiceTest {
 
         when(passwordEncoder.encode(any(String.class))).thenReturn("hashedPassword");
         when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArguments()[0]);
+        doNothing().when(mailService).sendMail(any(String.class), any(String.class), any(String.class));
 
         // Act
         User createdOrganiser = authenticationService.createOrganiser(registerOrganiserDTO);
@@ -131,5 +137,8 @@ class AuthenticationServiceTest {
         verify(userRepository).findByEmail(email);
     }
 
-    
+    @Test
+    void refreshToken_ValidToken_ReturnTrue() {
+        
+    }
 }

@@ -185,10 +185,6 @@ public class EventService {
     public boolean registerEvent(int eid, Fencer f) {
         Event event = eventRepository.findById(eid).orElseThrow(() -> new EntityDoesNotExistException("Event does not exist!"));
 
-        List<TournamentFencer> tfs = tournamentFencerRepository.findAll(); 
-        for (TournamentFencer tf : tfs) {
-            System.out.println(tf);
-        }
         if (event.getTournament().getSignupEndDate().isBefore(LocalDate.now())) {
             throw new SignUpDateOverExcpetion("Sign up date is over!");
         }
