@@ -50,15 +50,15 @@ public class FencerService {
         return userRepository.save(f);
     }
 
-    public List<Event> getLastEvents(Fencer f, int count) {
-        List<TournamentFencer> tfProfiles = new ArrayList<>(f.getTournamentFencerProfiles()); 
-        List<Event> events = new ArrayList<>(); 
-        int startIndex = (tfProfiles.size()-count-1 < 0) ? 0 : tfProfiles.size()-count-1;
-        for (int i = startIndex; i < tfProfiles.size(); i++) {
-            events.add(tfProfiles.get(i).getEvent());
-        }
-        return events;
-    }
+    // public List<Event> getLastEvents(Fencer f, int count) {
+    //     List<TournamentFencer> tfProfiles = new ArrayList<>(f.getTournamentFencerProfiles()); 
+    //     List<Event> events = new ArrayList<>(); 
+    //     int startIndex = (tfProfiles.size()-count-1 < 0) ? 0 : tfProfiles.size()-count-1;
+    //     for (int i = startIndex; i < tfProfiles.size(); i++) {
+    //         events.add(tfProfiles.get(i).getEvent());
+    //     }
+    //     return events;
+    // }
 
     public List<Fencer> getInternationalRank(){
         List<Fencer> fencers = fencerRepository.findAll();

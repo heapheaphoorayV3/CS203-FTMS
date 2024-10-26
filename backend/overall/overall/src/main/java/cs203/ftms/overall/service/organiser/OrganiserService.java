@@ -27,7 +27,7 @@ public class OrganiserService {
         return new CleanOrganiserDTO(o.getId(), o.isVerified(), o.getName(), o.getEmail(), o.getContactNo(), o.getCountry());
     }
 
-        public List<Tournament> getOrganiserTournaments(Organiser o) {
+    public List<Tournament> getOrganiserTournaments(Organiser o) {
         return tournamentRepository.findByOrganiserId(o.getId()).orElse(null);
     }
 }
