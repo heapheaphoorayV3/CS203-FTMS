@@ -451,9 +451,9 @@ export default function ViewEvent() {
               ) : 
               (<EventBracket
                 matches={matches}
-                height={parentSize.height}
-                width={parentSize.width}
-              />)}
+                height="999999999"
+                width="999999999"
+              />
             </div>
           </Tab>
           <Tab label="Ranking">

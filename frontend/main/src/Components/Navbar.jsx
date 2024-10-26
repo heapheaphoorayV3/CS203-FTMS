@@ -6,6 +6,7 @@ import NavbarButton from "./Others/NavbarButton";
 import SubmitButton from "./Others/SubmitButton";
 import FencerService from "../Services/Fencer/FencerService";
 import OrganiserService from "../Services/Organiser/OrganiserService";
+import AdminService from "../Services/Admin/AdminService";
 
 const Navbar = () => {
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
@@ -25,9 +26,9 @@ const Navbar = () => {
         else if (userType === "O") {
           response = await OrganiserService.getProfile();
         }
-        {/* else if(userType === "A"){
+        else if(userType === "A"){
           response = await AdminService.getProfile();
-           */}
+        }
         setUserData(response.data);
 
       } catch (error) {
