@@ -45,7 +45,7 @@ public class OrganiserController {
         if (co == null) return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(co, HttpStatus.OK);
     }
-
+  
     @GetMapping("/tournaments")
     @PreAuthorize("hasRole('ORGANISER')")
     public ResponseEntity<List<CleanTournamentDTO>> getOrganiserTournaments() {

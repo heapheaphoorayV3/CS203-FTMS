@@ -1,5 +1,8 @@
 package cs203.ftms.overall.controller.tournament;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +25,6 @@ import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.model.userrelated.User;
 import cs203.ftms.overall.service.tournament.TournamentService;
 import jakarta.validation.Valid;
-
-import java.util.*;
 
 @RestController
 @CrossOrigin
@@ -71,11 +72,7 @@ public class TournamentController {
         for (Tournament t : tList) {
             ctList.add(tournamentService.getCleanTournamentDTO(t));
         }
-        if (ctList.size() == 0) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
         return new ResponseEntity<>(ctList, HttpStatus.OK);
     }
-
 
 }
