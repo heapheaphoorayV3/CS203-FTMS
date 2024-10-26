@@ -369,7 +369,7 @@ export default function ViewEvent() {
                       </select>
                     </div>
 
-                    <div className="flex pb-2 space-x-2">
+                    <div className="flex mt-4 pb-2 space-x-2">
                       <button
                         onClick={updatePoules}
                         className="bg-blue-500 text-white px-4 py-2 rounded"
@@ -438,7 +438,7 @@ export default function ViewEvent() {
                             {resultArray.map((result, resultIndex) => (
                               <td
                                 key={resultIndex}
-                                className={`border border-gray-300 hover:bg-gray-100 ${
+                                className={`text-center border border-gray-300 hover:bg-gray-100 ${
                                   result === "-1"
                                     ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
                                     : ""
