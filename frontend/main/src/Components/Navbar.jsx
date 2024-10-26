@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../Assets/logosvg.svg";
+import logoutIcon from "../Assets/logout.png";
 import { UserCircleIcon } from '@heroicons/react/24/outline';
 import NavbarButton from "./Others/NavbarButton";
 import FencerService from "../Services/Fencer/FencerService";
@@ -72,11 +73,12 @@ const Navbar = () => {
               <button
                 onClick={toggleUserDropdown}
                 type="button"
-                className="flex text-sm rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+                className="flex justify-center items-center text-sm rounded-full focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
                 aria-expanded={isUserDropdownOpen}
               >
                 <span className="sr-only">Open user menu</span>
-                <UserCircleIcon className="h-8 w-8 text-black" />
+                {/* <UserCircleIcon className="h-8 w-8 text-black" /> */}
+                <img src={logoutIcon} className="h-6 w-6" alt="Logout Icon"/>
               </button>
 
               <div
