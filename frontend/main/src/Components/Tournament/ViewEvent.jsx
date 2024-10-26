@@ -32,25 +32,6 @@ export default function ViewEvent() {
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 10;
 
-  // Set up ref and initial parent size
-  const parentRef = useRef(null);
-  const [parentSize, setParentSize] = useState({ width: 500, height: 500 });
-
-  useEffect(() => {
-    const updateSize = () => {
-      if (parentRef.current) {
-        const { width, height } = parentRef.current.getBoundingClientRect();
-        setParentSize({ width, height });
-      }
-    };
-
-    // Trigger initial measurement with requestAnimationFrame
-    requestAnimationFrame(updateSize);
-
-    // Listen for window resize
-    window.addEventListener("resize", updateSize);
-    return () => window.removeEventListener("resize", updateSize);
-  }, []);
 
   const testData2 = Array.from({ length: 20 }, (_, index) => ({
     id: index + 1,
