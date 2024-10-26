@@ -5,7 +5,6 @@ import EventService from "../../Services/Event/EventService.js";
 import PaginationButton from "../Others/Pagination.jsx";
 import EventBracket from "./EventBracket.jsx";
 import CreatePoules from "./CreatePoules.jsx";
-import { set } from "react-hook-form";
 import Breadcrumbs from "../Others/Breadcrumbs.jsx";
 
 function formatTimeTo24Hour(timeString) {
@@ -306,7 +305,7 @@ export default function ViewEvent() {
       </div>
 
       <div className="ml-12 mr-8 text-lg overflow-x-auto">
-        <Tabs parentRef={parentRef}>
+        <Tabs>
           <Tab label="Poules">
             <div className="py-4">
               {userType === "O" && (
