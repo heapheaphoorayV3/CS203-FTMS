@@ -278,20 +278,35 @@ export default function ViewEvent() {
     }
   }
 
-  console.log("!!!!!!!!!!!!!");
-  console.log(userType);
-  console.log("!!!!!!!!!!!!!");
-
   const submitUpdatePoules = async () => {
-    console.log("----------");
-    console.log(pouleTableData.pouleTable);
     try {
-      await EventService.updatePouleTable(eventID, pouleTableData.pouleTable);
+      // Get the data for the selected poule
+      const updatedPouleData = pouleTableData.pouleTable[selectedPoule - 1];
+
+      // Create a Map from the updated data
+      const singleTableMap = new Map(Object.entries(updatedPouleData));
+
+      // Structure the combined data to match the backend's expected DTO format
+      const combinedData = {
+        pouleNumber: selectedPoule,
+        singleTable: Object.fromEntries(singleTableMap),
+      };
+
+      console.log(combinedData);
+
+      // Send the update request to the server
+      await EventService.updatePouleTable(eventID, combinedData);
+
       console.log("Poules updated successfully");
+
+      // Optionally re-fetch the poule table data if needed
+      await fetchPouleTable();
     } catch (error) {
       console.error("Error updating poules:", error);
+    } finally {
+      // Ensure isUpdating is set to false regardless of success or failure
+      setIsUpdating(false);
     }
-    setIsUpdating(false);
   };
 
   return (
@@ -443,17 +458,19 @@ export default function ViewEvent() {
           </Tab>
           <Tab label="Bracket">
             <div className="py-4 h-full w-full">
-              {matches.length === 0 ? 
-              (
+              {matches.length === 0 ? (
                 <div className="flex justify-center items-center h-full">
-                  <h2 className="text-lg font-medium">No matches available yet</h2>
+                  <h2 className="text-lg font-medium">
+                    No matches available yet
+                  </h2>
                 </div>
-              ) : 
-              (<EventBracket
-                matches={matches}
-                height="999999999"
-                width="999999999"
-              />
+              ) : (
+                <EventBracket
+                  matches={matches}
+                  height="999999999"
+                  width="999999999"
+                />
+              )}
             </div>
           </Tab>
           <Tab label="Ranking">
@@ -496,7 +513,7 @@ export default function ViewEvent() {
           <Tab label="Participants">
             <div className="py-4">
               {/* <h2 className="text-lg font-medium mb-2">Participants</h2> */}
-              <table className="table text-lg border-collapse">
+              <table className="table text-lg border-collapse mb-4">
                 {/* head */}
                 <thead className="text-lg text-primary">
                   <tr className="border-b border-gray-300">
