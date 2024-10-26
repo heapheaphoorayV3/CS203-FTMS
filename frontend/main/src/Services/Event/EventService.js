@@ -42,6 +42,10 @@ class EventService {
   async getEventRanking(eid) {
     return await ProtectedAPI.get(`${baseURL}/${eid}/get-event-ranking`);
   }
+
+  async updateDEMatch(eid, data) {
+    return await ProtectedAPI.put(`${baseURL}/${eid}/update-direct-elimination-match`, data);
+  }
 }
 
 export default new EventService();

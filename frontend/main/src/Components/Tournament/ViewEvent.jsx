@@ -6,6 +6,7 @@ import PaginationButton from "../Others/Pagination.jsx";
 import EventBracket from "./EventBracket.jsx";
 import CreatePoules from "./CreatePoules.jsx";
 import Breadcrumbs from "../Others/Breadcrumbs.jsx";
+import UpdateBracketMatch from "./UpdateBracketMatch.jsx";
 
 function formatTimeTo24Hour(timeString) {
   const [hours, minutes] = timeString.split(":"); // Get hours and minutes
@@ -22,6 +23,7 @@ export default function ViewEvent() {
   const [matches, setMatches] = useState(null);
   const [selectedPoule, setSelectedPoule] = useState(1);
   const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
+  const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [eventRanking, setEventRanking] = useState(null);
   const [updatePoulesScores, setUpdatePoulesScores] = useState({});
@@ -189,15 +191,15 @@ export default function ViewEvent() {
       name: loading
         ? "Loading..."
         : eventData
-        ? eventData.tournamentName
-        : "Not Found",
+          ? eventData.tournamentName
+          : "Not Found",
     },
     {
       name: loading
         ? "Loading..."
         : eventData
-        ? constructEventName(eventData.gender, eventData.weapon)
-        : "Not Found",
+          ? constructEventName(eventData.gender, eventData.weapon)
+          : "Not Found",
     },
   ];
 
@@ -288,7 +290,41 @@ export default function ViewEvent() {
     }
   }
 
-  const submitUpdateBracketMatches = async () => {};
+  const updateBracketMatch = () => {
+    setIsUpdatePopupVisible(true);
+  };
+
+  const closeUpdatePopup = () => {
+    setIsUpdatePopupVisible(false);
+  };
+
+  const submitUpdateBracketMatches = async (data) => {
+    try {
+      const matchId = data.trackSelectedMatch.id;
+
+      // Structure the combined data to match the backend's expected DTO format
+      const combinedData = {
+        matchId: matchId,
+        score1: data.firstScore,
+        score2: data.secondScore,
+      };
+
+      console.log(combinedData);
+
+      // Send the update request to the server
+      await EventService.updateDEMatch(eventID, combinedData);
+
+      console.log("Bracket matches updated successfully");
+
+      // Close the popup after successful submission
+      closeUpdatePopup();
+
+      // Refresh the page
+      window.location.reload();
+    } catch (error) {
+      console.error("Error updating bracket matches:", error);
+    }
+  };
 
   const submitUpdatePoules = async () => {
     try {
@@ -438,11 +474,10 @@ export default function ViewEvent() {
                             {resultArray.map((result, resultIndex) => (
                               <td
                                 key={resultIndex}
-                                className={`text-center border border-gray-300 hover:bg-gray-100 ${
-                                  result === "-1"
-                                    ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
-                                    : ""
-                                }`}
+                                className={`border border-gray-300 hover:bg-gray-100 ${result === "-1"
+                                  ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
+                                  : ""
+                                  }`}
                               >
                                 {result === "-1" ? (
                                   result
@@ -453,11 +488,10 @@ export default function ViewEvent() {
                                     onChange={(event) =>
                                       handleInputChange(event, resultIndex, idx)
                                     }
-                                    className={`w-full text-center ${
-                                      !isInputValid
+                                    className={`w-full text-center ${!isInputValid
                                         ? "border-red-500"
                                         : "border-gray-300"
-                                    }`}
+                                      }`}
                                   />
                                 ) : (
                                   result
@@ -494,13 +528,30 @@ export default function ViewEvent() {
                   </h2>
                 </div>
               ) : (
-                <EventBracket
-                  matches={matches}
-                  height="999999999"
-                  width="999999999"
-                />
+                <>
+                  <div className="flex pb-2 space-x-2">
+                    <button
+                      onClick={updateBracketMatch}
+                      className="bg-blue-500 text-white px-4 py-2 rounded"
+                    >
+                      Update Matches
+                    </button>
+                  </div>
+                  <EventBracket
+                    matches={matches}
+                    height="999999999"
+                    width="999999999"
+                  />
+                </>
               )}
             </div>
+            {isUpdatePopupVisible && (
+              <UpdateBracketMatch
+                onClose={closeUpdatePopup}
+                onSubmit={submitUpdateBracketMatches}
+                matches={matches}
+              />
+            )}
           </Tab>
           <Tab label="Ranking">
             <div className="py-4">
