@@ -80,4 +80,8 @@ public class AuthenticationService {
             new UsernamePasswordAuthenticationToken(email, password));
         return userRepository.findByEmail(email).orElse(null);
     }
+
+    public User getUser(int id) {
+        return userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User with ID " + id + " not found"));
+    }
 }
