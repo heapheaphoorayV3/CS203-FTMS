@@ -34,6 +34,14 @@ class EventService {
   async getMatches(eid) {
     return await ProtectedAPI.get(`${baseURL}/${eid}/get-direct-elimination-matches`);
   }
+
+  async getPoulesResult(eid) {
+    return await ProtectedAPI.get(`${baseURL}/${eid}/get-poules-result`);
+  }
+
+  async getEventRanking(eid) {
+    return await ProtectedAPI.get(`${baseURL}/${eid}/get-event-ranking`);
+  }
 }
 
 export default new EventService();

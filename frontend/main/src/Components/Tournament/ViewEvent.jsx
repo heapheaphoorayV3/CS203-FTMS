@@ -23,7 +23,7 @@ export default function ViewEvent() {
   const [selectedPoule, setSelectedPoule] = useState(1);
   const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [updateValue, setUpdateValue] = useState("");
+  const [eventRanking, setEventRanking] = useState(null);
   const [updatePoulesScores, setUpdatePoulesScores] = useState({});
   const [recommendedPoulesData, setRecommendedPoulesData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -31,20 +31,12 @@ export default function ViewEvent() {
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 10;
 
-
-  const testData2 = Array.from({ length: 20 }, (_, index) => ({
-    id: index + 1,
-    name: "Name",
-    country: "SG",
-    score: 0,
-  }));
-
   const [paginatedData, setPaginatedData] = useState([]);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
-  const totalPages = Math.ceil(testData2.length / limit);
+  const totalPages = Math.ceil(eventRanking.length / limit);
 
   useEffect(() => {
     setLoading(true);
@@ -101,12 +93,24 @@ export default function ViewEvent() {
       }
     };
 
+    const fetchEventRanking = async () => {
+      try {
+        const response = await EventService.getEventRanking(eventID);
+        console.log(response.data);
+        setEventRanking(response.data);
+      } catch (error) {
+        console.error("Error fetching event ranking: ", error);
+        setError("Failed to load event ranking");
+      }
+    };
+
     if (eventID) {
       Promise.all([
         fetchData(),
         fetchPouleTable(),
         userType === "O" && fetchRecommendedPoules(),
-        fetchMatches(),
+        // fetchMatches(),
+        fetchEventRanking(),
       ]).then(() => {
         // Code to run after all functions complete
         console.log("All functions have completed.");
@@ -115,15 +119,32 @@ export default function ViewEvent() {
     }
   }, [eventID]);
 
+  // useEffect(() => {
+  //   if (Array.isArray(testData2) && testData2.length) {
+  //     const startIndex = Math.max(0, (currentPage - 1) * limit);
+  //     const endIndex = Math.min(testData2.length, startIndex + limit);
+  //     setPaginatedData(testData2.slice(startIndex, endIndex));
+  //   } else {
+  //     setPaginatedData([]);
+  //   }
+  // }, []);
+
   useEffect(() => {
-    if (Array.isArray(testData2) && testData2.length) {
+    if (Array.isArray(eventRanking) && eventRanking.length) {
+      // Sort eventRanking based on poulePoints in descending order
+      const sortedRanking = [...eventRanking].sort(
+        (a, b) => b.poulePoints - a.poulePoints
+      );
+
       const startIndex = Math.max(0, (currentPage - 1) * limit);
-      const endIndex = Math.min(testData2.length, startIndex + limit);
-      setPaginatedData(testData2.slice(startIndex, endIndex));
+      const endIndex = Math.min(sortedRanking.length, startIndex + limit);
+      setPaginatedData(sortedRanking.slice(startIndex, endIndex));
     } else {
       setPaginatedData([]);
     }
-  }, []);
+  }, [eventRanking, currentPage, limit]);
+  console.log("-----------");
+  console.log(paginatedData);
 
   if (loading) {
     return <div className="mt-10">Loading...</div>; // Show loading state
@@ -278,7 +299,6 @@ export default function ViewEvent() {
       await EventService.updatePouleTable(eventID, combinedData);
 
       console.log("Poules updated successfully");
-
     } catch (error) {
       console.error("Error updating poules:", error);
     } finally {
@@ -286,6 +306,10 @@ export default function ViewEvent() {
       setIsUpdating(false);
     }
   };
+
+  const cleanFencerName = (name) => {
+    return name.replace(/^\d+\s/, '');
+};
 
   return (
     <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">
@@ -435,7 +459,7 @@ export default function ViewEvent() {
             )}
           </Tab>
           <Tab label="Bracket">
-            <div className="py-4 h-full w-full">
+            {/* <div className="py-4 h-full w-full">
               {matches.length === 0 ? (
                 <div className="flex justify-center items-center h-full">
                   <h2 className="text-lg font-medium">
@@ -448,7 +472,7 @@ export default function ViewEvent() {
                 height="999999999"
                 width="999999999"
               />)}
-            </div>
+            </div> */}
           </Tab>
           <Tab label="Ranking">
             <div className="py-4">
@@ -464,15 +488,15 @@ export default function ViewEvent() {
                   </tr>
                 </thead>
                 <tbody>
-                  {paginatedData.map((item) => (
+                  {paginatedData.map((item, index) => (
                     <tr
-                      key={item.id}
+                      key={item.fencerId}
                       className="border-b border-gray-300 hover:bg-gray-100"
                     >
-                      <td className="text-center">{item.id}</td>
-                      <td>{item.name}</td>
+                      <td className="text-center">{index+1}</td>
+                      <td>{cleanFencerName(item.fencerName)}</td>
                       <td className="text-center">{item.country}</td>
-                      <td className="text-center">{item.score}</td>
+                      <td className="text-center">{item.poulePoints}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -507,7 +531,7 @@ export default function ViewEvent() {
                       className="border-b border-gray-300 hover:bg-gray-100"
                     >
                       <td>{index + 1}</td>
-                      <td>{fencer.name}</td>
+                      <td>{cleanFencerName(fencer.name)}</td>
                       <td>{fencer.club}</td>{" "}
                       {/* Assuming 'club' is a property in fencer */}
                       <td>{fencer.points}</td>{" "}
