@@ -9,50 +9,10 @@ import {
   Wrapper,
   Line,
   Anchor,
-} from './styles';
+} from './CustomMatchStyles';
 
-export type MatchComponentProps = {
-    match: Match;
-  
-    onMatchClick: (args: {
-      match: Match;
-      topWon: boolean;
-      bottomWon: boolean;
-      event: React.MouseEvent<HTMLAnchorElement, MouseEvent>;
-    }) => void;
-  
-    onPartyClick: (party: Participant, partyWon: boolean) => void;
-  
-    onMouseEnter: (partyId: string | number) => void;
-  
-    onMouseLeave: () => void;
-  
-    topParty: Participant;
-  
-    bottomParty: Participant;
-  
-    topWon: boolean;
-  
-    bottomWon: boolean;
-  
-    topHovered: boolean;
-  
-    bottomHovered: boolean;
-  
-    topText: string;
-  
-    bottomText: string;
-  
-    connectorColor?: string;
-  
-    computedStyles?: ComputedOptions;
-  
-    teamNameFallback: string;
-  
-    resultFallback: (participant: Participant) => string;
-  };
 
-function Match({
+function CustomMatch({
   bottomHovered,
   bottomParty,
   bottomText,
@@ -66,22 +26,9 @@ function Match({
   topParty,
   topText,
   topWon,
-}: MatchComponentProps) {
+}) {
   return (
     <Wrapper>
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <TopText>{topText}</TopText>
-        {(match.href || typeof onMatchClick === 'function') && (
-          <Anchor
-            href={match.href}
-            onClick={event =>
-              onMatchClick?.({ match, topWon, bottomWon, event })
-            }
-          >
-            <TopText>Match Details</TopText>
-          </Anchor>
-        )}
-      </div>
       <StyledMatch>
         <Side
           onMouseEnter={() => onMouseEnter(topParty.id)}

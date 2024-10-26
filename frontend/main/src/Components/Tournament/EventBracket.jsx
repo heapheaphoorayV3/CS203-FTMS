@@ -1,4 +1,6 @@
-import { SingleEliminationBracket, Match, SVGViewer, MATCH_STATES, createTheme } from '@g-loot/react-tournament-brackets';
+import { SingleEliminationBracket, Match, SVGViewer, createTheme } from '@g-loot/react-tournament-brackets';
+// import { GlootTheme, WhiteTheme } from '../Others/EventBracketTheme';
+import CustomMatch from '../Others/CustomMatch';
 import React from 'react';
 
 
@@ -6,28 +8,26 @@ export default function EventBracket({ matches, height, width }) {
     console.log("Height: ", height + " Width: ", width);
     return (
         <SingleEliminationBracket
-            theme={GlootTheme}
+            theme={WhiteTheme}
             matches={matches}
-            matchComponent={Match}
+            matchComponent={CustomMatch}
             svgWrapper={({ children, ...props }) => (
                 <SVGViewer
                     width={width}
                     height={height}
-                    background={GlootTheme.svgBackground}
-                    SVGBackground={GlootTheme.svgBackground}
+                    background={WhiteTheme.svgBackground}
+                    SVGBackground={WhiteTheme.svgBackground}
                     {...props}
                 >
                     {children}
                 </SVGViewer>
             )}
-            onMatchClick={(match) => console.log(match)}
-            onPartyClick={(match) => console.log(match)}
         />
     );
-
 }
 
-const WhiteTheme = createTheme({
+
+export const WhiteTheme = createTheme({
     textColor: { main: '#000000', highlighted: '#07090D', dark: '#3E414D' },
     matchBackground: { wonColor: '#daebf9', lostColor: '#96c6da' },
     score: {
@@ -42,25 +42,5 @@ const WhiteTheme = createTheme({
     connectorColor: '#CED1F2',
     connectorColorHighlight: '#da96c6',
     svgBackground: '#FAFAFA',
-});
-
-const GlootTheme = createTheme({
-    textColor: { main: '#000000', highlighted: '#F4F2FE', dark: '#707582' },
-    matchBackground: { wonColor: '#2D2D59', lostColor: '#1B1D2D' },
-    score: {
-        background: {
-            wonColor: `#10131C`,
-            lostColor: '#10131C',
-        },
-        text: { highlightedWonColor: '#7BF59D', highlightedLostColor: '#FB7E94' },
-    },
-    border: {
-        color: '#292B43',
-        highlightedColor: 'RGBA(152,82,242,0.4)',
-    },
-    roundHeader: { backgroundColor: '#3B3F73', fontColor: '#F4F2FE' },
-    connectorColor: '#3B3F73',
-    connectorColorHighlight: 'RGBA(152,82,242,0.4)',
-    svgBackground: '#0F121C',
 });
 
