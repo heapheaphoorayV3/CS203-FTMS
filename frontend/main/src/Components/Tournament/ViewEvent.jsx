@@ -122,7 +122,7 @@ export default function ViewEvent() {
     if (Array.isArray(eventRanking) && eventRanking.length) {
       // Sort eventRanking based on poulePoints in descending order
       const sortedRanking = [...eventRanking].sort(
-        (a, b) => b.tournamentRank - a.tournamentRank
+        (a, b) => a.tournamentRank - b.tournamentRank
       );
 
       const startIndex = Math.max(0, (currentPage - 1) * limit);
@@ -171,14 +171,14 @@ export default function ViewEvent() {
   };
 
   let homeLink;
-  if (userType === 'F') {
-    homeLink = '/fencer-dashboard';
-  } else if (userType === 'O') {
-    homeLink = '/organiser-dashboard';
-  } else if (userType === 'A') {
-    homeLink = '/admin-dashboard';
+  if (userType === "F") {
+    homeLink = "/fencer-dashboard";
+  } else if (userType === "O") {
+    homeLink = "/organiser-dashboard";
+  } else if (userType === "A") {
+    homeLink = "/admin-dashboard";
   } else {
-    homeLink = '/'; // Default link if userType is not recognized
+    homeLink = "/"; // Default link if userType is not recognized
   }
 
   const breadcrumbsItems = [
@@ -188,15 +188,15 @@ export default function ViewEvent() {
       name: loading
         ? "Loading..."
         : eventData
-          ? eventData.tournamentName
-          : "Not Found",
+        ? eventData.tournamentName
+        : "Not Found",
     },
     {
       name: loading
         ? "Loading..."
         : eventData
-          ? constructEventName(eventData.gender, eventData.weapon)
-          : "Not Found",
+        ? constructEventName(eventData.gender, eventData.weapon)
+        : "Not Found",
     },
   ];
 
@@ -249,7 +249,7 @@ export default function ViewEvent() {
 
   function handleInputChange(event, index, rowIndex) {
     const newScore = Number(event.target.value);
-    const poules = pouleTableData.pouleTable[0];
+    const poules = pouleTableData.pouleTable[pouleIndex];
 
     // Get the fencer's entry and its corresponding scores
     const rowData = Object.entries(poules)[rowIndex];
@@ -279,10 +279,7 @@ export default function ViewEvent() {
     }
   }
 
-  const submitUpdateBracketMatches = async () => {
-
-
-  };
+  const submitUpdateBracketMatches = async () => {};
 
   const submitUpdatePoules = async () => {
     try {
@@ -337,13 +334,14 @@ export default function ViewEvent() {
             <div className="py-4">
               {userType === "O" && (
                 <div>
-                  <button
-                    onClick={createPoules}
-                    className="bg-blue-500 text-white px-4 py-2 rounded mt-2 mb-2"
-                  >
-                    Create Poules
-                  </button>
-
+                  {!pouleTableData && (
+                    <button
+                      onClick={createPoules}
+                      className="bg-blue-500 text-white px-4 py-2 rounded mt-2 mb-2"
+                    >
+                      Create Poules
+                    </button>
+                  )}
                   <div className="flex items-end w-full">
                     <div className="mr-12 h-20">
                       <label className="block font-medium mb-1 ml-1">
@@ -420,10 +418,11 @@ export default function ViewEvent() {
                             {resultArray.map((result, resultIndex) => (
                               <td
                                 key={resultIndex}
-                                className={`border border-gray-300 hover:bg-gray-100 ${result === "-1"
+                                className={`border border-gray-300 hover:bg-gray-100 ${
+                                  result === "-1"
                                     ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
                                     : ""
-                                  }`}
+                                }`}
                               >
                                 {isUpdating ? (
                                   <input
@@ -468,12 +467,13 @@ export default function ViewEvent() {
                     No matches available yet
                   </h2>
                 </div>
-              ) :
-                (<EventBracket
+              ) : (
+                <EventBracket
                   matches={matches}
                   height="999999999"
                   width="999999999"
-                />)}
+                />
+              )}
             </div>
           </Tab>
           <Tab label="Ranking">

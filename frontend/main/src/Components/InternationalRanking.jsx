@@ -7,6 +7,8 @@ export default function InternationalRanking() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [InputSearch, setInputSearch] = useState("");
+  const [selectedWeapon, setSelectedWeapon] = useState("F");
+  const [selectedGender, setSelectedGender] = useState("M");
   const [currentPage, setCurrentPage] = useState(1);
   const [paginatedData, setPaginatedData] = useState([]);
   const limit = 10;
@@ -20,12 +22,15 @@ export default function InternationalRanking() {
 
   useEffect(() => {
     const fetchInternationalRanking = async () => {
+      setLoading(true);
       try {
         const response = await FencerService.getInternationalRanking();
         setRankingData(response.data);
       } catch (error) {
         console.error("Error fetching international ranking: ", error);
         setError("Failed to load international ranking");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -45,29 +50,44 @@ export default function InternationalRanking() {
       setPaginatedData([]);
     }
   }, [rankingData, currentPage, limit]);
-  console.log("-----------");
-  console.log(paginatedData);
+
+  console.log(rankingData);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
   const totalPages = Math.ceil(paginatedData.length / limit);
 
+  const handleWeaponChange = (event) => {
+    setSelectedWeapon(event.target.value);
+  };
+
+  const handleGenderChange = (event) => {
+    setSelectedGender(event.target.value);
+  };
+
   function handleSearch(e) {
     setInputSearch(e.target.value);
   }
 
   const filteredFencerData = paginatedData?.filter((fencer) => {
-    return fencer.name.toLowerCase().includes(InputSearch.toLowerCase());
+    return (
+      fencer.name.toLowerCase().includes(InputSearch.toLowerCase()) &&
+      (selectedGender ? fencer.gender === selectedGender : true) &&  
+      (selectedWeapon ? fencer.weapon === selectedWeapon : true) 
+    );
   });
 
-  //   if (loading) {
-  //     return <div className="mt-10">Loading...</div>; // Show loading state
-  //   }
+  console.log("==========");
+  console.log(filteredFencerData);
 
-  //   if (error) {
-  //     return <div className="mt-10">{error}</div>; // Show error message if any
-  //   }
+  if (loading) {
+    return <div className="mt-10">Loading...</div>; // Show loading state
+  }
+
+  if (error) {
+    return <div className="mt-10">{error}</div>; // Show error message if any
+  }
 
   return (
     <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">
@@ -96,6 +116,31 @@ export default function InternationalRanking() {
             </svg>
           </div>
         </div>
+        <div className="grid grid-flow-col gap-4">
+          <div className="mt-4">
+            <label className="block font-medium mb-1 ml-1">Select Gender</label>
+            <select
+              value={selectedGender}
+              onChange={handleGenderChange}
+              className="block w-full py-2 px-3 border border-gray-300 rounded"
+            >
+              <option value="M">Men's</option>
+              <option value="W">Women's</option>
+            </select>
+          </div>
+          <div className="mt-4">
+            <label className="block font-medium mb-1 ml-1">Select Weapon</label>
+            <select
+              value={selectedWeapon}
+              onChange={handleWeaponChange}
+              className="block w-full py-2 px-3 border border-gray-300 rounded"
+            >
+              <option value="F">Foil</option>
+              <option value="E">Épée</option>
+              <option value="S">Sabre</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       <div className="ml-12 mr-8 mb-8 overflow-x-auto">
@@ -115,7 +160,7 @@ export default function InternationalRanking() {
                 key={item.id}
                 className="border-b border-gray-300 hover:bg-gray-100"
               >
-                <td className="text-center">{index+1}</td>
+                <td className="text-center">{index + 1}</td>
                 <td>{item.name}</td>
                 <td className="text-center">{item.country}</td>
                 <td className="text-center">{item.points}</td>
