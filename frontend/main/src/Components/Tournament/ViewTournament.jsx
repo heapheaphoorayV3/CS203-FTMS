@@ -26,12 +26,12 @@ export default function ViewTournament() {
   const [isCreating, setIsCreating] = useState(false);
   const allEventTypes = [
     { value: "", label: "Select Weapon" },
-    { value: "MF", label: "Male Foil" },
-    { value: "ME", label: "Male Épée" },
-    { value: "MS", label: "Male Sabre" },
-    { value: "FF", label: "Female Foil" },
-    { value: "FE", label: "Female Épée" },
-    { value: "FS", label: "Female Sabre" },
+    { value: "MF", label: "Men's Foil" },
+    { value: "ME", label: "Men's Épée" },
+    { value: "MS", label: "Men's Sabre" },
+    { value: "FF", label: "Women's Foil" },
+    { value: "FE", label: "Women's Épée" },
+    { value: "FS", label: "Women's Sabre" },
   ];
   const [eventTypes, setEventTypes] = useState(allEventTypes);
 
@@ -63,15 +63,31 @@ export default function ViewTournament() {
     }
   }, [tournamentID]);
 
+  console.log("=============");
+  console.log(eventsArray);
+
+  const userType = sessionStorage.getItem('userType');
+
+  let homeLink;
+  if (userType === 'F') {
+    homeLink = '/fencer-dashboard';
+  } else if (userType === 'O') {
+    homeLink = '/organiser-dashboard';
+  } else if (userType === 'A') {
+    homeLink = '/admin-dashboard';
+  } else {
+    homeLink = '/'; // Default link if userType is not recognized
+  }
+
   const breadcrumbsItems = [
-    { name: "Home", link: "/" },
+    { name: "Home", link: homeLink },
     { name: "Tournaments", link: "/tournaments" },
     {
       name: loading
         ? "Loading..."
         : tournamentData
-        ? tournamentData.name
-        : "Not Found",
+          ? tournamentData.name
+          : "Not Found",
     },
   ];
 
@@ -192,10 +208,10 @@ export default function ViewTournament() {
     // Switch statement for gender
     switch (gender) {
       case "M":
-        eventName += "Male ";
+        eventName += "Men's ";
         break;
       case "F":
-        eventName += "Female ";
+        eventName += "Women's ";
         break;
     }
     // Switch statement for weapon
@@ -333,7 +349,7 @@ export default function ViewTournament() {
                 {/* Render events */}
                 {eventsArray.length > 0 ? (
                   eventsArray.map((event, index) => (
-                    <tr key={index} className="border-b border-gray-300 hover:bg-gray-100"> 
+                    <tr key={index} className="border-b border-gray-300 hover:bg-gray-100">
                       {/* <td>Event details</td> */}
                       <td>
                         <a

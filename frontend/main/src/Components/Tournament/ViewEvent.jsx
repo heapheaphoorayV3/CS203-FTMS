@@ -148,10 +148,10 @@ export default function ViewEvent() {
     // Switch statement for gender
     switch (gender) {
       case "M":
-        eventName += "Male ";
+        eventName += "Men's ";
         break;
       case "F":
-        eventName += "Female ";
+        eventName += "Women's ";
         break;
     }
     // Switch statement for weapon
@@ -170,22 +170,33 @@ export default function ViewEvent() {
     return eventName;
   };
 
+  let homeLink;
+  if (userType === 'F') {
+    homeLink = '/fencer-dashboard';
+  } else if (userType === 'O') {
+    homeLink = '/organiser-dashboard';
+  } else if (userType === 'A') {
+    homeLink = '/admin-dashboard';
+  } else {
+    homeLink = '/'; // Default link if userType is not recognized
+  }
+
   const breadcrumbsItems = [
-    { name: "Home", link: "/" },
+    { name: "Home", link: homeLink },
     { name: "Tournaments", link: "/tournaments" },
     {
       name: loading
         ? "Loading..."
         : eventData
-        ? eventData.tournamentName
-        : "Not Found",
+          ? eventData.tournamentName
+          : "Not Found",
     },
     {
       name: loading
         ? "Loading..."
         : eventData
-        ? constructEventName(eventData.gender, eventData.weapon)
-        : "Not Found",
+          ? constructEventName(eventData.gender, eventData.weapon)
+          : "Not Found",
     },
   ];
 
@@ -267,6 +278,11 @@ export default function ViewEvent() {
       }
     }
   }
+
+  const submitUpdateBracketMatches = async () => {
+
+
+  };
 
   const submitUpdatePoules = async () => {
     try {
@@ -404,11 +420,10 @@ export default function ViewEvent() {
                             {resultArray.map((result, resultIndex) => (
                               <td
                                 key={resultIndex}
-                                className={`border border-gray-300 hover:bg-gray-100 ${
-                                  result === "-1"
+                                className={`border border-gray-300 hover:bg-gray-100 ${result === "-1"
                                     ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
                                     : ""
-                                }`}
+                                  }`}
                               >
                                 {isUpdating ? (
                                   <input
@@ -453,12 +468,12 @@ export default function ViewEvent() {
                     No matches available yet
                   </h2>
                 </div>
-              ) : 
-              (<EventBracket
-                matches={matches}
-                height="999999999"
-                width="999999999"
-              />)}
+              ) :
+                (<EventBracket
+                  matches={matches}
+                  height="999999999"
+                  width="999999999"
+                />)}
             </div>
           </Tab>
           <Tab label="Ranking">
