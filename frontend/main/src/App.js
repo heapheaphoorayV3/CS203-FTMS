@@ -31,42 +31,40 @@ function App() {
         {/* Unauthenticated Layout */}
         <Route element={<DefaultLayout />}>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup-options" element={<SignupOptions />} />
+          <Route path="/signup-fencer" element={<SignUpFencer />} />
+          <Route path="/signup-organiser" element={<SignUpOrganiser />} />
           <Route path="/tournaments" element={<Tournaments />} />
           <Route path="/tournaments/:tournamentID" element={<ViewTournament />} />
           <Route path="/view-event/:eventID" element={<ViewEvent />} />
           <Route path="/international-ranking" element={<InternationalRanking />} />
         </Route>
-        
-          {/* Default Layout */}
-          <Route element={<AuthProvider><DefaultLayout /></AuthProvider>}>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/fencer-dashboard" element={<FencerDashboard />} />
-            <Route
-              path="/organiser-dashboard"
-              element={<OrganiserDashboard />}
-            />
-            <Route
-              path="/tournaments/:tournamentID"
-              element={<ViewTournament />}
-            />
-            <Route path="/view-event/:eventID" element={<ViewEvent />} />
-            <Route path="/tournaments" element={<Tournaments />} />
-            <Route path="/signin" element={<SignIn />} />
-            <Route path="/signup-options" element={<SignupOptions />} />
-            <Route path="/signup-fencer" element={<SignUpFencer />} />
-            <Route path="/signup-organiser" element={<SignUpOrganiser />} />
-            <Route path="/create-tournament" element={<CreateTournament />} />
-            <Route
-              path="/tournament/:tournamentID/create-event"
-              element={<CreateEvent />}
-            />
-            <Route path="/signup-event" element={<SignUpEvent />} />
-            <Route path="/verify-organiser" element={<VerifyOrganiser />} />
-            <Route
-              path="/international-ranking"
-              element={<InternationalRanking />}
-            />
-          </Route>
+
+        {/* Default Layout */}
+        <Route element={<AuthProvider><DefaultLayout /></AuthProvider>}>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/fencer-dashboard" element={<FencerDashboard />} />
+          <Route path="/organiser-dashboard" element={<OrganiserDashboard />} />
+          <Route path="/tournaments/:tournamentID" element={<ViewTournament />} />
+          <Route path="/view-event/:eventID" element={<ViewEvent />} />
+          <Route path="/tournaments" element={<Tournaments />} />
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup-options" element={<SignupOptions />} />
+          <Route path="/signup-fencer" element={<SignUpFencer />} />
+          <Route path="/signup-organiser" element={<SignUpOrganiser />} />
+          <Route path="/create-tournament" element={<CreateTournament />} />
+          <Route
+            path="/tournament/:tournamentID/create-event"
+            element={<CreateEvent />}
+          />
+          <Route path="/signup-event" element={<SignUpEvent />} />
+          <Route path="/verify-organiser" element={<VerifyOrganiser />} />
+          <Route
+            path="/international-ranking"
+            element={<InternationalRanking />}
+          />
+        </Route>
       </Routes>
 
     </Router>
