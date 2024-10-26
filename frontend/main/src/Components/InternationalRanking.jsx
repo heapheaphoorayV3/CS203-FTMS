@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import PaginationButton from "./Others/Pagination";
+import FencerService from "../Services/Fencer/FencerService";
 
 export default function InternationalRanking() {
   const [rankingData, setRankingData] = useState(null);
@@ -7,6 +8,7 @@ export default function InternationalRanking() {
   const [error, setError] = useState(null);
   const [InputSearch, setInputSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [paginatedData, setPaginatedData] = useState([]);
   const limit = 10;
 
   const testData = Array.from({ length: 20 }, (_, index) => ({
@@ -16,17 +18,40 @@ export default function InternationalRanking() {
     score: 0,
   }));
 
-  const [paginatedData, setPaginatedData] = useState([]);
   useEffect(() => {
-    const startIndex = (currentPage - 1) * limit;
-    const endIndex = startIndex + limit;
-    const paginatedData = testData.slice(startIndex, endIndex);
-    setPaginatedData(paginatedData); // Set paginated data for the current page
-  }, [currentPage]);
+    const fetchInternationalRanking = async () => {
+      try {
+        const response = await FencerService.getInternationalRanking();
+        setRankingData(response.data);
+      } catch (error) {
+        console.error("Error fetching international ranking: ", error);
+        setError("Failed to load international ranking");
+      }
+    };
+
+    fetchInternationalRanking();
+  }, []);
+
+  useEffect(() => {
+    if (Array.isArray(rankingData) && rankingData.length) {
+      const sortedRanking = [...rankingData].sort(
+        (a, b) => b.points - a.points
+      );
+
+      const startIndex = Math.max(0, (currentPage - 1) * limit);
+      const endIndex = Math.min(sortedRanking.length, startIndex + limit);
+      setPaginatedData(sortedRanking.slice(startIndex, endIndex));
+    } else {
+      setPaginatedData([]);
+    }
+  }, [rankingData, currentPage, limit]);
+  console.log("-----------");
+  console.log(paginatedData);
+
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
-  const totalPages = Math.ceil(testData.length / limit);
+  const totalPages = Math.ceil(paginatedData.length / limit);
 
   function handleSearch(e) {
     setInputSearch(e.target.value);
@@ -57,8 +82,17 @@ export default function InternationalRanking() {
             onChange={handleSearch}
           />
           <div className="absolute top-1 right-1 flex items-center pt-1.5 px-1">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 mr-2">
-              <path fill-rule="evenodd" d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z" clip-rule="evenodd" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              class="w-4 h-4 mr-2"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z"
+                clip-rule="evenodd"
+              />
             </svg>
           </div>
         </div>
@@ -76,12 +110,15 @@ export default function InternationalRanking() {
             </tr>
           </thead>
           <tbody>
-            {filteredFencerData.map((item) => (
-              <tr key={item.id} className="border-b border-gray-300 hover:bg-gray-100">
-                <td className="text-center">{item.id}</td>
+            {filteredFencerData.map((item, index) => (
+              <tr
+                key={item.id}
+                className="border-b border-gray-300 hover:bg-gray-100"
+              >
+                <td className="text-center">{index+1}</td>
                 <td>{item.name}</td>
                 <td className="text-center">{item.country}</td>
-                <td className="text-center">{item.score}</td>
+                <td className="text-center">{item.points}</td>
               </tr>
             ))}
           </tbody>

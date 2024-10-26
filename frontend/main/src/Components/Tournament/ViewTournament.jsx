@@ -22,30 +22,7 @@ export default function ViewTournament() {
   const [eventsArray, setEventsArray] = useState([]);
   const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
   const [registeredEvents, setRegisteredEvents] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const limit = 10;
 
-  const testData = Array.from({ length: 20 }, (_, index) => ({
-    id: index + 1,
-    name: "Name",
-    country: "SG",
-    score: 0,
-  }));
-
-  const [paginatedData, setPaginatedData] = useState([]);
-
-  // Effect to update the organisers and total pages based on current page
-  useEffect(() => {
-    const startIndex = (currentPage - 1) * limit;
-    const endIndex = startIndex + limit;
-    const paginatedData = testData.slice(startIndex, endIndex);
-    setPaginatedData(paginatedData); // Set paginated data for the current page
-  }, [currentPage]);
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-  const totalPages = Math.ceil(testData.length / limit);
   const [isCreating, setIsCreating] = useState(false);
   const allEventTypes = [
     { value: "", label: "Select Weapon" },
@@ -80,13 +57,11 @@ export default function ViewTournament() {
       }
     };
 
+
     if (tournamentID) {
       fetchData();
     }
   }, [tournamentID]);
-
-  console.log("=============");
-  console.log(eventsArray);
 
   const breadcrumbsItems = [
     { name: "Home", link: "/" },
@@ -447,46 +422,6 @@ export default function ViewTournament() {
                 ]}
               />
             )}
-          </Tab>
-          <Tab label="Tournament Ranking">
-            <label className="block font-medium ml-1 mb-1">Event</label>
-            <select>
-              <option value="">Select Event</option>
-              {eventsArray.map((event) => (
-                <option key={event.id} value={event.id}>
-                  {constructEventName(event.gender, event.weapon)}
-                </option>
-              ))}
-            </select>
-            <table className="table text-lg border-collapse mb-4">
-              {/* head */}
-              <thead className="text-lg text-primary">
-                <tr className="border-b border-gray-300">
-                  <th className="text-center w-20">Rank</th>
-                  <th className="w-1/2">Name</th>
-                  <th className="text-center">Country</th>
-                  <th className="text-center">Points</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedData.map((item) => (
-                  <tr key={item.id} className="border-b border-gray-300 hover:bg-gray-100">
-                    <td className="text-center">{item.id}</td>
-                    <td>{item.name}</td>
-                    <td className="text-center">{item.country}</td>
-                    <td className="text-center">{item.score}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div className="flex flex-col justify-center items-center">
-              <PaginationButton
-                totalPages={totalPages}
-                buttonSize="w-10 h-10"
-                currentPage={currentPage}
-                onPageChange={handlePageChange}
-              />
-            </div>
           </Tab>
         </Tabs>
       </div>

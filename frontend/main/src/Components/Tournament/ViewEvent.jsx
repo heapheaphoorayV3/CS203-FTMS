@@ -36,7 +36,6 @@ export default function ViewEvent() {
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
-  const totalPages = Math.ceil(eventRanking.length / limit);
 
   useEffect(() => {
     setLoading(true);
@@ -133,7 +132,7 @@ export default function ViewEvent() {
     if (Array.isArray(eventRanking) && eventRanking.length) {
       // Sort eventRanking based on poulePoints in descending order
       const sortedRanking = [...eventRanking].sort(
-        (a, b) => b.poulePoints - a.poulePoints
+        (a, b) => b.tournamentRank - a.tournamentRank
       );
 
       const startIndex = Math.max(0, (currentPage - 1) * limit);
@@ -307,9 +306,7 @@ export default function ViewEvent() {
     }
   };
 
-  const cleanFencerName = (name) => {
-    return name.replace(/^\d+\s/, '');
-};
+  const totalPages = Math.ceil(eventRanking.length / limit);
 
   return (
     <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">
@@ -493,8 +490,8 @@ export default function ViewEvent() {
                       key={item.fencerId}
                       className="border-b border-gray-300 hover:bg-gray-100"
                     >
-                      <td className="text-center">{index+1}</td>
-                      <td>{cleanFencerName(item.fencerName)}</td>
+                      <td className="text-center">{index + 1}</td>
+                      <td>{item.fencerName}</td>
                       <td className="text-center">{item.country}</td>
                       <td className="text-center">{item.poulePoints}</td>
                     </tr>
@@ -531,7 +528,7 @@ export default function ViewEvent() {
                       className="border-b border-gray-300 hover:bg-gray-100"
                     >
                       <td>{index + 1}</td>
-                      <td>{cleanFencerName(fencer.name)}</td>
+                      <td>{fencer.name}</td>
                       <td>{fencer.club}</td>{" "}
                       {/* Assuming 'club' is a property in fencer */}
                       <td>{fencer.points}</td>{" "}
