@@ -182,7 +182,6 @@ public class EventServiceTest {
         int tcid = 1;
         Fencer fencer = new Fencer("DOE John", "john.doe@example.com", "password"
         , "+6599999999", "Singapore", LocalDate.of(2000, 1, 1));
-        fencer.setEventsPart(new LinkedHashSet<>());
 
         when(eventRepository.findById(tcid)).thenReturn(Optional.empty());
 

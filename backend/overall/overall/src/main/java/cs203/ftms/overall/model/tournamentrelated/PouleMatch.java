@@ -1,5 +1,6 @@
 package cs203.ftms.overall.model.tournamentrelated;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cs203.ftms.overall.model.userrelated.Fencer;
@@ -11,13 +12,13 @@ import jakarta.persistence.*;
 public class PouleMatch extends Match {
 
     @ManyToOne
-    @JoinColumn(name = "pouleId", nullable = false)
+    @JoinColumn(name = "poule_id")
     private Poule poule; 
 
     public PouleMatch() {}
 
-    public PouleMatch(Poule poule, Set<TournamentFencer> fencers) {
-        super(fencers, poule.getEvent());
+    public PouleMatch(Poule poule) {
+        super(poule.getEvent());
         this.poule = poule;
     }
 
@@ -35,4 +36,5 @@ public class PouleMatch extends Match {
         }
         return false;
     }
+    
 }

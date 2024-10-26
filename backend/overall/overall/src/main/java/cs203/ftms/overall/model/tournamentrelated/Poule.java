@@ -67,15 +67,6 @@ public class Poule implements Comparable<Poule> {
         this.event = event;
     }
 
-    // public Set<Fencer> getFencers() {
-    //     Set<Fencer> fencers = new HashSet<>();
-    //     for (PouleMatch match : pouleMatches) {
-    //         fencers.add(match.getFencer1());
-    //         fencers.add(match.getFencer2());
-    //     }
-    //     return fencers;
-    // }
-
     public boolean equals(Object obj) {
         if (obj instanceof Poule p) {
             if (p.getId() == this.getId()) return true;

@@ -85,18 +85,20 @@ public class EventService {
     } 
 
     public CleanTournamentFencerDTO getCleanTournamentFencerDTO(TournamentFencer tf) {
-        return new CleanTournamentFencerDTO(tf.getId(), tf.getFencer().getId(), tf.getFencer().getName(), tf.getFencer().getClub(), tf.getFencer().getCountry(), tf.getFencer().getDominantArm(), tf.getTournamentPoints(), tf.getEvent().getId());
+        return new CleanTournamentFencerDTO(tf.getId(), tf.getFencer().getId(), tf.getFencer().getName(), tf.getFencer().getClub(), tf.getFencer().getCountry(), tf.getFencer().getDominantArm(), tf.getTournamentRank(), tf.getEvent().getId());
     }
 
     public CleanMatchDTO getCleanMatchDTO(Match m, char matchType) {
-        if (m.getFencers().size() != 2) {
-            return null; 
+        List<TournamentFencer> fencerList = getFencersInMatch(m);
+        if (fencerList.size() == 0) {
+            return new CleanMatchDTO(m.getId(), null, m.getScore1(), null, m.getScore2(), m.getWinner(), matchType);
         }
-        Iterator<TournamentFencer> iter = m.getFencers().iterator();
-        CleanTournamentFencerDTO ctf1 = getCleanTournamentFencerDTO(iter.next());
-        CleanTournamentFencerDTO ctf2 = getCleanTournamentFencerDTO(iter.next());
-        CleanMatchDTO dto = new CleanMatchDTO(m.getId(), ctf1, m.getScore1(), ctf2, m.getScore2(), m.getWinner(), matchType);
-        return dto;
+        CleanTournamentFencerDTO ctf1 = getCleanTournamentFencerDTO(fencerList.get(0));
+        if (fencerList.size() == 1) {
+            return new CleanMatchDTO(m.getId(), ctf1, m.getScore1(), null, m.getScore2(), m.getWinner(), matchType);
+        }
+        CleanTournamentFencerDTO ctf2 = getCleanTournamentFencerDTO(fencerList.get(1));
+        return new CleanMatchDTO(m.getId(), ctf1, m.getScore1(), ctf2, m.getScore2(), m.getWinner(), matchType);
     }
 
     public CleanPouleDTO getCleanPouleDTO(Poule p) {
@@ -124,6 +126,19 @@ public class EventService {
         };
         CleanPouleDTO dto = new CleanPouleDTO(p.getId(), p.getPouleNumber(), eventName.toString(), p.getEvent().getId(), cleanMatches, cleanFencers);
         return dto;
+    }
+
+    public List<TournamentFencer> getFencersInMatch(Match m) {
+        List<TournamentFencer> fencerList = new ArrayList<>(2); 
+        if (m.getFencer1() != -1) {
+            TournamentFencer tf1 = tournamentFencerRepository.findById(m.getFencer1()).orElseThrow(() -> new EntityDoesNotExistException("Tournament Fencer does not exist!"));
+            fencerList.add(tf1);
+        } 
+        if (m.getFencer2() != -1) {
+            TournamentFencer tf2 = tournamentFencerRepository.findById(m.getFencer2()).orElseThrow(() -> new EntityDoesNotExistException("Tournament Fencer does not exist!"));
+            fencerList.add(tf2);
+        }
+        return fencerList;
     }
 
     public Event getEvent(int id) {
@@ -331,7 +346,7 @@ public class EventService {
                         } else {
                             Set<PouleMatch> pMatchs = poule.getPouleMatches();
                             for (PouleMatch pMatch : pMatchs) {
-                                Iterator<TournamentFencer> tfIter = pMatch.getFencers().iterator();
+                                Iterator<TournamentFencer> tfIter = getFencersInMatch(pMatch).iterator();
                                 TournamentFencer ptf1 = tfIter.next();
                                 TournamentFencer ptf2 = tfIter.next();
                                 if (i<j) {
@@ -385,7 +400,7 @@ public class EventService {
                 TournamentFencer tf2 = fencers.get(j);
                 Set<PouleMatch> pMatchs = poule.getPouleMatches();
                 for (PouleMatch pMatch : pMatchs) {
-                    Iterator<TournamentFencer> tfIter = pMatch.getFencers().iterator();
+                    Iterator<TournamentFencer> tfIter = getFencersInMatch(pMatch).iterator();
                     TournamentFencer ptf1 = tfIter.next();
                     TournamentFencer ptf2 = tfIter.next();
                     if (i!=j) {
@@ -429,7 +444,7 @@ public class EventService {
         Set<TournamentFencer> matchFencers = new LinkedHashSet<>();
         matchFencers.add(fencer1);
         matchFencers.add(fencer2);
-        PouleMatch pouleMatch = new PouleMatch(poule, matchFencers);
+        PouleMatch pouleMatch = new PouleMatch(poule);
         matchRepository.save(pouleMatch);
 
         Set<PouleMatch> pms = poule.getPouleMatches();
@@ -461,8 +476,8 @@ public class EventService {
         if (poules.size() == 0 || poules.size() > 1) return null; 
         Set<TournamentFencer> tfs = new LinkedHashSet<>(); 
         for (PouleMatch pm : poules.get(0).getPouleMatches()) {
-            updateTournamentFencerPoints(pm);
-            Iterator<TournamentFencer> iter = pm.getFencers().iterator();
+            updateTournamentFencerPoulePoints(pm);
+            Iterator<TournamentFencer> iter = getFencersInMatch(pm).iterator();
             tfs.add(iter.next());
             tfs.add(iter.next());
         }
@@ -470,10 +485,8 @@ public class EventService {
         
     }
 
-    public void updateTournamentFencerPoints(PouleMatch pm){
-        Set<TournamentFencer> fencers = pm.getFencers();
-        LinkedHashSet<TournamentFencer> fencers2 = new LinkedHashSet<>(fencers);
-        Iterator<TournamentFencer> iter = fencers2.iterator();
+    public void updateTournamentFencerPoulePoints(PouleMatch pm){
+        Iterator<TournamentFencer> iter = getFencersInMatch(pm).iterator();
         TournamentFencer fencer1 = iter.next();
         TournamentFencer fencer2 = iter.next();
 
