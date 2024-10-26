@@ -464,13 +464,12 @@ export default function ViewEvent() {
                     No matches available yet
                   </h2>
                 </div>
-              ) : (
-                <EventBracket
-                  matches={matches}
-                  height="999999999"
-                  width="999999999"
-                />
-              )}
+              ) : 
+              (<EventBracket
+                matches={matches}
+                height="999999999"
+                width="999999999"
+              />)}
             </div>
           </Tab>
           <Tab label="Ranking">
