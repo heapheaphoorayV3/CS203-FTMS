@@ -108,7 +108,7 @@ export default function ViewEvent() {
         fetchData(),
         fetchPouleTable(),
         userType === "O" && fetchRecommendedPoules(),
-        // fetchMatches(),
+        fetchMatches(),
         fetchEventRanking(),
       ]).then(() => {
         // Code to run after all functions complete
@@ -117,16 +117,6 @@ export default function ViewEvent() {
       });
     }
   }, [eventID]);
-
-  // useEffect(() => {
-  //   if (Array.isArray(testData2) && testData2.length) {
-  //     const startIndex = Math.max(0, (currentPage - 1) * limit);
-  //     const endIndex = Math.min(testData2.length, startIndex + limit);
-  //     setPaginatedData(testData2.slice(startIndex, endIndex));
-  //   } else {
-  //     setPaginatedData([]);
-  //   }
-  // }, []);
 
   useEffect(() => {
     if (Array.isArray(eventRanking) && eventRanking.length) {
@@ -456,7 +446,7 @@ export default function ViewEvent() {
             )}
           </Tab>
           <Tab label="Bracket">
-            {/* <div className="py-4 h-full w-full">
+            <div className="py-4 h-full w-full">
               {matches.length === 0 ? (
                 <div className="flex justify-center items-center h-full">
                   <h2 className="text-lg font-medium">
@@ -469,7 +459,7 @@ export default function ViewEvent() {
                 height="999999999"
                 width="999999999"
               />)}
-            </div> */}
+            </div>
           </Tab>
           <Tab label="Ranking">
             <div className="py-4">
