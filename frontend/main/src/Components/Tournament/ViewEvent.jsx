@@ -34,7 +34,7 @@ export default function ViewEvent() {
 
   // Set up ref and initial parent size
   const parentRef = useRef(null);
-  const [parentSize, setParentSize] = useState({ width: 0, height: 0 });
+  const [parentSize, setParentSize] = useState({ width: 500, height: 500 });
 
   useEffect(() => {
     const updateSize = () => {
@@ -112,13 +112,13 @@ export default function ViewEvent() {
     };
 
     const fetchMatches = async () => {
-      // try {
-      //   const response = await EventService.getMatches(eventID);
-      //   setMatches(response.data);
-      // } catch (error) {
-      //   console.error("Error fetching matches:", error);
-      //   setError("Failed to load matches.");
-      // }
+      try {
+        const response = await EventService.getMatches(eventID);
+        setMatches(response.data);
+      } catch (error) {
+        console.error("Error fetching matches:", error);
+        setError("Failed to load matches.");
+      }
     };
 
     if (eventID) {
@@ -131,7 +131,6 @@ export default function ViewEvent() {
         // Code to run after all functions complete
         console.log("All functions have completed.");
         setLoading(false);
-        console.log("Matches: ", matches);
       });
     }
   }, [eventID]);
@@ -427,7 +426,7 @@ export default function ViewEvent() {
                     )
                   ) : (
                     <tr className="text-center border-b border-gray-300">
-                      <td colSpan={7}>No poule data available</td>
+                      <td colSpan={7}>No poules available yet</td>
                     </tr>
                   )}
                 </tbody>
@@ -444,11 +443,17 @@ export default function ViewEvent() {
           </Tab>
           <Tab label="Bracket">
             <div className="py-4 h-full w-full">
-              <EventBracket
+              {matches.length === 0 ? 
+              (
+                <div className="flex justify-center items-center h-full">
+                  <h2 className="text-lg font-medium">No matches available yet</h2>
+                </div>
+              ) : 
+              (<EventBracket
                 matches={matches}
                 height={parentSize.height}
                 width={parentSize.width}
-              />
+              />)}
             </div>
           </Tab>
           <Tab label="Ranking">
