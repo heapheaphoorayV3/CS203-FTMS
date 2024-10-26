@@ -280,8 +280,6 @@ export default function ViewEvent() {
 
       console.log("Poules updated successfully");
 
-      // Optionally re-fetch the poule table data if needed
-      await fetchPouleTable();
     } catch (error) {
       console.error("Error updating poules:", error);
     } finally {
