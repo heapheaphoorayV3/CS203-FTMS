@@ -28,6 +28,7 @@ export default function ViewEvent() {
   const [recommendedPoulesData, setRecommendedPoulesData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isInputValid, setIsInputValid] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 10;
 
@@ -240,42 +241,50 @@ export default function ViewEvent() {
 
   const updatePoules = () => {
     setIsUpdating(true);
+    setIsInputValid(true);
   };
 
   const cancelUpdatePoules = () => {
     setIsUpdating(false);
+    setIsInputValid(true);
     setUpdatePoulesScores({});
   };
 
   function handleInputChange(event, index, rowIndex) {
-    const newScore = Number(event.target.value);
-    const poules = pouleTableData.pouleTable[pouleIndex];
+    const inputValue = event.target.value;
+    const newScore = Number(inputValue);
 
-    // Get the fencer's entry and its corresponding scores
-    const rowData = Object.entries(poules)[rowIndex];
-    const fencerName = rowData[0]; // e.g., "2 Fencer (Singapore) -- 2"
-    const scoresArray = rowData[1].split(",").map(Number);
+    if (!isNaN(newScore) && newScore >= 0 && newScore <= 5) {
+      const poules = pouleTableData.pouleTable[pouleIndex];
 
-    // Update the specific index in the scoresArray
-    scoresArray[index] = newScore;
+      // Get the fencer's entry and its corresponding scores
+      const rowData = Object.entries(poules)[rowIndex];
+      const fencerName = rowData[0]; // e.g., "2 Fencer (Singapore) -- 2"
+      const scoresArray = rowData[1].split(",").map(Number);
 
-    // Convert the updated scores back to a string
-    const editedScore = scoresArray.join(",");
+      // Update the specific index in the scoresArray
+      scoresArray[index] = newScore;
 
-    // Prepare the updated data object
-    const updatedData = {
-      [fencerName]: editedScore, // Using computed property names to set the key
-    };
+      // Convert the updated scores back to a string
+      const editedScore = scoresArray.join(",");
 
-    const pouleTable = pouleTableData.pouleTable[0]; // Access the first poule table
+      // Prepare the updated data object
+      const updatedData = {
+        [fencerName]: editedScore, // Using computed property names to set the key
+      };
 
-    // Iterate through the keys of the first poule table
-    for (const key in pouleTable) {
-      if (key === fencerName) {
-        // Check if the key matches fencerName
-        pouleTable[key] = updatedData[fencerName]; // Update the score
-        break; // Exit the loop after updating
+      const pouleTable = pouleTableData.pouleTable[0]; // Access the first poule table
+
+      // Iterate through the keys of the first poule table
+      for (const key in pouleTable) {
+        if (key === fencerName) {
+          // Check if the key matches fencerName
+          pouleTable[key] = updatedData[fencerName]; // Update the score
+          break; // Exit the loop after updating
+        }
       }
+    } else {
+      setIsInputValid(false);
     }
   }
 
@@ -352,8 +361,11 @@ export default function ViewEvent() {
                         onChange={handlePouleChange}
                         className="block w-full py-2 px-3 border border-gray-300 rounded"
                       >
-                        <option value="1">Poule 1</option>
-                        <option value="2">Poule 2</option>
+                        {pouleTableData.pouleTable.map((poule, index) => (
+                          <option key={index} value={index + 1}>
+                            {`Poule ${index + 1}`}
+                          </option>
+                        ))}
                       </select>
                     </div>
 
@@ -379,6 +391,11 @@ export default function ViewEvent() {
                           >
                             Cancel Changes
                           </button>
+                          {!isInputValid && (
+                            <span className="px-4 py-2 text-red-500 italic">
+                              Invalid input. Input a number between 0 and 5.
+                            </span>
+                          )}
                         </>
                       )}
                     </div>
@@ -389,7 +406,7 @@ export default function ViewEvent() {
               <table className="table text-lg">
                 {/* head */}
                 <thead className="text-lg text-neutral">
-                  <tr className="border-b border-gray-300">
+                  <tr className="border-b border-gray-300 h-[50px]">
                     <th className="w-60 text-primary">Fencer</th>
                     <th className="w-24"></th>
                     <th className="text-center w-24">1</th>
@@ -410,7 +427,10 @@ export default function ViewEvent() {
                         );
 
                         return (
-                          <tr key={idx} className="border-b border-gray-300">
+                          <tr
+                            key={idx}
+                            className="border-b border-gray-300 h-[68px]"
+                          >
                             <td className="w-60">{cleanedFencerName}</td>
                             <td className="font-bold text-center border-r border-gray-300 w-24">
                               {idx + 1}
@@ -424,14 +444,20 @@ export default function ViewEvent() {
                                     : ""
                                 }`}
                               >
-                                {isUpdating ? (
+                                {result === "-1" ? (
+                                  result
+                                ) : isUpdating ? (
                                   <input
                                     type="text"
                                     placeholder={result}
                                     onChange={(event) =>
                                       handleInputChange(event, resultIndex, idx)
                                     }
-                                    className="w-full text-center"
+                                    className={`w-full text-center ${
+                                      !isInputValid
+                                        ? "border-red-500"
+                                        : "border-gray-300"
+                                    }`}
                                   />
                                 ) : (
                                   result
