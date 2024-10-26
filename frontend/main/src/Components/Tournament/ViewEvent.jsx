@@ -453,7 +453,7 @@ export default function ViewEvent() {
                 matches={matches}
                 height="999999999"
                 width="999999999"
-              />
+              />)}
             </div>
           </Tab>
           <Tab label="Ranking">
