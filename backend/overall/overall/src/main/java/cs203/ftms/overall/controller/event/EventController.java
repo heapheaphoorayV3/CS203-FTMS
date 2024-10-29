@@ -186,7 +186,7 @@ public class EventController {
     @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
     public ResponseEntity<List<DirectEliminationBracketDTO>> getDirectEliminationMatches(@PathVariable int eid) {
         List<DirectEliminationBracketDTO> dtos = eventService.generateDirectEliminationBracketDTOs(eid);
-        if (dtos != null && dtos.size() != 0) {
+        if (dtos != null) {
             return new ResponseEntity<>(dtos, HttpStatus.OK);
         }
         return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);

@@ -32,12 +32,12 @@ public class DirectEliminationBracketFencerDTO {
         this.resultText = resultText;
     }
 
-    public boolean isWinner() {
+    public boolean getIsWinner() {
         return isWinner;
     }
 
-    public void setWinner(boolean winner) {
-        isWinner = winner;
+    public void setIsWinner(boolean isWinner) {
+        this.isWinner = isWinner;
     }
 
     public String getStatus() {
