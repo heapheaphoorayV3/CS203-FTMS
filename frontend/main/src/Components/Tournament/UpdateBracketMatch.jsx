@@ -3,8 +3,10 @@ import { get, set, useForm } from "react-hook-form";
 import { XCircleIcon } from "@heroicons/react/16/solid";
 
 const UpdateBracketMatch = ({ matches, onClose, onSubmit }) => {
-  const [matchData, setMatchData] = useState(["Select Match"]);
-  const [trackSelectedMatch, setTrackSelectedMatch] = useState(null);
+  const [matchData, setMatchData] = useState(["Select Match"]); // Match data for the dropdown
+  const [showConfirmation, setShowConfirmation] = useState(false); // Confirmation popup state
+  const [trackSelectedMatch, setTrackSelectedMatch] = useState(null); // Track the selected match
+  const [pendingData, setPendingData] = useState(null); // State to store form data temporarily
   const {
     register,
     handleSubmit,
@@ -47,10 +49,16 @@ const UpdateBracketMatch = ({ matches, onClose, onSubmit }) => {
     console.log("Selected Match: ", matchObject);
   };
 
-  // To pass this particular match data to the ViewEvent component
+  // Trigger the confirmation popup instead of directly submitting
   const handleFormSubmit = (data) => {
-    // Include trackSelectedMatch along with the other form data
-    onSubmit({ ...data, trackSelectedMatch });
+    setPendingData(data); // Store the form data temporarily
+    setShowConfirmation(true); // Show the confirmation popup
+  };
+
+  // To pass this particular match data to the ViewEvent component, confirms submission if the user chooses "Yes"
+  const confirmSubmit = () => {
+    setShowConfirmation(false); // Hide the popup
+    onSubmit({ ...pendingData, trackSelectedMatch }); // Submit the form data
   };
 
   return (
@@ -100,7 +108,15 @@ const UpdateBracketMatch = ({ matches, onClose, onSubmit }) => {
           <div>
             <label className="block font-medium mb-1">Match</label>
             <select
-              {...register("match", { required: "Please fill this in!" })}
+              {...register("match", {
+                required: "Please fill this in!",
+                validate: (value) => {
+                  return (
+                    (value != "Select Match") ||
+                    "Please select a match"
+                  );
+                },
+              })}
               onChange={(e) => handleMatchSelect(e.target.value)}
               className={`w-full border rounded-md p-2 ${errors.match ? "border-red-500" : "border-gray-300"
                 }`}
@@ -184,6 +200,29 @@ const UpdateBracketMatch = ({ matches, onClose, onSubmit }) => {
             </button>
           </div>
         </form>
+        {/* Confirmation popup */}
+        {showConfirmation && (
+          <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+            <div className="relative top-[-30%] bg-white p-6 rounded-lg shadow-lg text-center">
+              <h2 className="text-lg font-bold">Confirm Update</h2>
+              <p>Are you sure you want to make the match update below?</p>
+              <div className="mt-4 flex justify-center">
+                <button
+                  onClick={() => confirmSubmit()}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg mr-2"
+                >
+                  Update
+                </button>
+                <button
+                  onClick={() => setShowConfirmation(false)}
+                  className="px-4 py-2 bg-gray-300 rounded-lg"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

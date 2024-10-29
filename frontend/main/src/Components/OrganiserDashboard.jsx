@@ -63,8 +63,8 @@ const OrganiserDashboard = () => {
       <div className="bg-white border rounded-2xl shadow-lg p-6 flex w-full relative overflow-x-hidden">
         
         <div className="w-1/5 flex-shrink-0 flex flex-col items-center my-auto">
-          <div className="text-4xl font-semibold mt-4 mr-4">{userData.name}'s</div>
-          <div className="text-4xl font-semibold mt-4 mr-4">Dashboard</div>
+          <div className="text-4xl font-semibold mr-4">{userData.name}'s</div>
+          <div className="text-4xl font-semibold mr-4">Dashboard</div>
         </div>
 
         <div className="grid grid-cols-[2fr_8fr] gap-y-2 gap-x-4 ml-4 my-4 text-xl w-full">

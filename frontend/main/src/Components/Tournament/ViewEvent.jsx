@@ -135,8 +135,8 @@ export default function ViewEvent() {
       setPaginatedData([]);
     }
   }, [eventRanking, currentPage, limit]);
-  console.log("-----------");
-  console.log(paginatedData);
+  // console.log("-----------");
+  // console.log(paginatedData);
 
   if (loading) {
     return <div className="mt-10">Loading...</div>; // Show loading state
