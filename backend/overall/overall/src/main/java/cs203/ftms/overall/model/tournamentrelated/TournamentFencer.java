@@ -24,7 +24,7 @@ public class TournamentFencer {
     private Fencer fencer; 
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "event_id", nullable = false)
+    @JoinColumn(name = "event_id")
     private Event event; 
 
     @ManyToMany(fetch = FetchType.EAGER)

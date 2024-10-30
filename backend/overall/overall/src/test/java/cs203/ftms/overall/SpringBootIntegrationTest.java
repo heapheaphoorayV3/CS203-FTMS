@@ -111,7 +111,14 @@ class SpringBootIntegrationTest {
             "+6591969123", 
             "Abcd1234!", 
             "Singapore");
-        return authenticationService.createOrganiser(registerOrganiserDTO).getEmail();
+
+        authenticationService.createOrganiser(registerOrganiserDTO);
+
+        User u = users.findByEmail("organizer.one@example.com").orElse(null);
+        ((Organiser) u).setVerified(true);
+        users.save(u);
+
+        return u.getEmail();
     }
 
     @Transactional
@@ -251,6 +258,10 @@ class SpringBootIntegrationTest {
         HttpEntity<RegisterOrganiserDTO> regOrgDTOEntity = new HttpEntity<>(registerOrganiserDTO);
         restTemplate.postForEntity(new URI(baseUrl + port + "/api/v1/auth/register-organiser"), regOrgDTOEntity, String.class);
 
+        User u = users.findByEmail("organizer.one@example.com").orElse(null);
+        ((Organiser) u).setVerified(true);
+        users.save(u);
+
         URI uri = new URI(baseUrl + port + "/api/v1/auth/login");
         AuthenticationDTO authenticationDTO = new AuthenticationDTO("organizer.one@example.com", "Abcd1234!");
         HttpEntity<AuthenticationDTO> authDTOEntity = new HttpEntity<>(authenticationDTO);
@@ -341,7 +352,7 @@ class SpringBootIntegrationTest {
             LocalTime.of(18, 0)
         ));
         request.add(new CreateEventDTO(
-            'F',
+            'W',
             'E',
             64,
             LocalDate.of(2024, 12, 21),

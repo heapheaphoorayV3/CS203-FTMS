@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidGender {
 
-    String message() default "Gender must be either M or F";  // Default validation message
+    String message() default "Gender must be either M or W";  // Deault validation message
 
     Class<?>[] groups() default {}; // Grouping constraints
 
