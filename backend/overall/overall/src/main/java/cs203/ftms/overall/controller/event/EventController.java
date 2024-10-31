@@ -2,7 +2,6 @@ package cs203.ftms.overall.controller.event;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,15 +21,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import cs203.ftms.overall.dto.CreateEventDTO;
-import cs203.ftms.overall.dto.CreatePoulesDTO;
-import cs203.ftms.overall.dto.DirectEliminationBracketDTO;
-import cs203.ftms.overall.dto.PouleResultsDTO;
-import cs203.ftms.overall.dto.PouleTableDTO;
-import cs203.ftms.overall.dto.SinglePouleTableDTO;
-import cs203.ftms.overall.dto.UpdateDirectEliminationMatchDTO;
 import cs203.ftms.overall.dto.clean.CleanEventDTO;
-import cs203.ftms.overall.dto.clean.CleanPouleDTO;
 import cs203.ftms.overall.dto.clean.CleanTournamentFencerDTO;
+import cs203.ftms.overall.exception.EntityDoesNotExistException;
 import cs203.ftms.overall.exception.EventAlreadyExistsException;
 import cs203.ftms.overall.exception.FencerProfileIncompleteException;
 import cs203.ftms.overall.model.tournamentrelated.Event;
@@ -89,86 +82,18 @@ public class EventController {
     
     @GetMapping("/event-details/{eid}")
     public ResponseEntity<CleanEventDTO> getEvent(@PathVariable int eid) {
-        Event e = eventService.getEvent(eid);
-        CleanEventDTO ce = eventService.getCleanEventDTO(e);
+        Event event;
+        try {
+            event = eventService.getEvent(eid);
+        } catch (EntityDoesNotExistException e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+
+        CleanEventDTO ce = eventService.getCleanEventDTO(event);
         if (ce == null) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(ce, HttpStatus.OK);
-    }
-
-    @GetMapping("/{eid}/get-recommended-poules")
-    @PreAuthorize("hasRole('ORGANISER')")
-    public ResponseEntity<Set<String>> getRecommendedPoules(@PathVariable int eid) {
-        Set<String> poules = eventService.recommendPoules(eid);
-        if (poules == null) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
-        return new ResponseEntity<>(poules, HttpStatus.OK);
-    }
-    
-
-    @PostMapping("/{eid}/create-poules")
-    @PreAuthorize("hasRole('ORGANISER')")
-    public ResponseEntity<PouleTableDTO> createPoules(@PathVariable int eid, @RequestBody CreatePoulesDTO dto) {
-        Set<CleanPouleDTO> create = eventService.createPoules(eid, dto);
-        PouleTableDTO pouleTable = eventService.getPouleTable(eid, true);
-        if (create != null && pouleTable != null) {
-            return new ResponseEntity<>(pouleTable, HttpStatus.CREATED);
-        }
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-    }
-
-    @GetMapping("/{eid}/get-poule-table")
-    @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
-    public ResponseEntity<PouleTableDTO> getPouleTable(@PathVariable int eid) {
-        PouleTableDTO pouleTable = eventService.getPouleTable(eid, false);
-        if (pouleTable != null) {
-            return new ResponseEntity<>(pouleTable, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-    }
-
-    @PutMapping("/{eid}/update-poule-table")
-    @PreAuthorize("hasRole('ORGANISER')")
-    public ResponseEntity<String> updatePouleScore(@PathVariable int eid, @RequestBody SinglePouleTableDTO dto) throws MethodArgumentNotValidException {
-        boolean update = eventService.updatePouleTable(eid, dto);
-        if (update) {
-            return new ResponseEntity<>("poule update successful", HttpStatus.OK);
-        }
-        return new ResponseEntity<>("poule update unsuccessful", HttpStatus.BAD_REQUEST);
-    }
-    
-    @GetMapping("/{eid}/get-poules-result")
-    @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
-    public ResponseEntity<PouleResultsDTO> getPouleResults(@PathVariable int eid) {
-        PouleResultsDTO poulesResult = eventService.poulesResult(eid);
-        if(poulesResult.getFenceOffFencers() != null){
-            return new ResponseEntity<>(poulesResult, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-    }
-    
-    @PostMapping("/{eid}/create-direct-elimination-matches")
-    @PreAuthorize("hasRole('ORGANISER')")
-    public ResponseEntity<List<DirectEliminationBracketDTO>> createDirectEliminationMatches(@PathVariable int eid) {
-        eventService.createAllDEMatches(eid);
-        List<DirectEliminationBracketDTO> dtos = eventService.generateDirectEliminationBracketDTOs(eid);
-        if (dtos != null && dtos.size() != 0) {
-            return new ResponseEntity<>(dtos, HttpStatus.CREATED);
-        }
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-    }
-
-    @PutMapping("/{eid}/update-direct-elimination-match")
-    @PreAuthorize("hasRole('ORGANISER')")
-    public ResponseEntity<List<DirectEliminationBracketDTO>> updateDirectEliminationMatch(@PathVariable int eid, @RequestBody UpdateDirectEliminationMatchDTO dto) {
-        eventService.updateDEMatch(eid, dto);
-        List<DirectEliminationBracketDTO> dtos = eventService.generateDirectEliminationBracketDTOs(eid);
-        if (dtos != null && dtos.size() != 0) {
-            return new ResponseEntity<>(dtos, HttpStatus.CREATED);
-        }
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("/{eid}/get-event-ranking")
@@ -180,16 +105,6 @@ public class EventController {
             resultDTO.add(eventService.getCleanTournamentFencerDTO(tf));
         }
         return new ResponseEntity<>(resultDTO, HttpStatus.OK);
-    }
-
-    @GetMapping("/{eid}/get-direct-elimination-matches")
-    @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
-    public ResponseEntity<List<DirectEliminationBracketDTO>> getDirectEliminationMatches(@PathVariable int eid) {
-        List<DirectEliminationBracketDTO> dtos = eventService.generateDirectEliminationBracketDTOs(eid);
-        if (dtos != null) {
-            return new ResponseEntity<>(dtos, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
 
     @PutMapping("/{eid}/end-event")
