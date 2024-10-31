@@ -131,7 +131,8 @@ public class TournamentServiceTest {
             createTournamentDTO.getEndDate(),
             createTournamentDTO.getLocation(),
             createTournamentDTO.getDescription(),
-            createTournamentDTO.getRules()
+            createTournamentDTO.getRules(),
+            createTournamentDTO.getDifficulty()
         );
 
         when(tournamentRepository.save(any(Tournament.class))).thenReturn(tournament);

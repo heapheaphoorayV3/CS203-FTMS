@@ -58,7 +58,7 @@ public class TournamentService {
     }
 
     public Tournament createTournament(CreateTournamentDTO t, Organiser o) throws MethodArgumentNotValidException {
-        Tournament tournament = new Tournament(t.getName(), o, t.getSignupEndDate(), t.getAdvancementRate(), t.getStartDate(), t.getEndDate(), t.getLocation(), t.getDescription(), t.getRules());
+        Tournament tournament = new Tournament(t.getName(), o, t.getSignupEndDate(), t.getAdvancementRate(), t.getStartDate(), t.getEndDate(), t.getLocation(), t.getDescription(), t.getRules(), t.getDifficulty());
         OtherValidations.validTournamentSignUpEndDate(tournament);
         OtherValidations.validTournamentDates(tournament);
         return tournamentRepository.save(tournament);

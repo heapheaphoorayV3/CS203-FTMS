@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 
 import org.springframework.lang.NonNull;
 
+import cs203.ftms.overall.validation.ValidDifficulty;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -39,8 +40,12 @@ public class CreateTournamentDTO {
     @NotBlank
     private String rules;
 
+    @ValidDifficulty
+    private Character difficulty;
+
+
     
-    public CreateTournamentDTO(String name, LocalDate signupEndDate, int advancementRate, LocalDate startDate, LocalDate endDate, String location, String description, String rules){
+    public CreateTournamentDTO(String name, LocalDate signupEndDate, int advancementRate, LocalDate startDate, LocalDate endDate, String location, String description, String rules, Character difficulty){
         this.name = name;
         this.signupEndDate = signupEndDate;
         this.advancementRate = advancementRate;
@@ -49,7 +54,7 @@ public class CreateTournamentDTO {
         this.location = location;
         this.description = description;
         this.rules = rules;
- 
+        this.difficulty = difficulty;
     }
 
     public CreateTournamentDTO() {}
@@ -116,6 +121,14 @@ public class CreateTournamentDTO {
 
     public void setRules(String rules) {
         this.rules = rules;
+    }
+
+    public Character getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(Character difficulty) {
+        this.difficulty = difficulty;
     }
     
 }

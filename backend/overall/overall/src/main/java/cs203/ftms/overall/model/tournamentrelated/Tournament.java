@@ -48,12 +48,15 @@ public class Tournament {
     @Column(name = "rules")
     private String rules;
 
+    @Column(name = "difficulty")
+    private char difficulty; //B, I, A for Beginner, Intermediate, Advance 
+
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL)
     private Set<Event> events;
 
     public Tournament() {}
 
-    public Tournament(String name, Organiser organiser, LocalDate signupEndDate, int advancementRate, LocalDate startDate, LocalDate endDate, String location, String description, String rules) {
+    public Tournament(String name, Organiser organiser, LocalDate signupEndDate, int advancementRate, LocalDate startDate, LocalDate endDate, String location, String description, String rules, char difficulty) {
         this.name = name;
         this.organiser = organiser;
         this.signupEndDate = signupEndDate;
@@ -64,6 +67,7 @@ public class Tournament {
         this.description = description;
         this.rules = rules;
         this.events = new HashSet<>();
+        this.difficulty = difficulty;
     }
 
     public int getId() {
@@ -162,6 +166,13 @@ public class Tournament {
         return false;
     }
 
+    public char getDifficulty(){
+        return difficulty;
+    }
+
+    public void setDifficulty(char difficulty){
+        this.difficulty = difficulty;
+    }
 
     
 }

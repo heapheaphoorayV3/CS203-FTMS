@@ -154,7 +154,8 @@ class SpringBootIntegrationTest {
                 LocalDate.of(2024, 12, 30), 
                 "location", 
                 "description", 
-                "rules"
+                "rules",
+                'B'
         );
 
         return tournamentService.createTournament(createTournamentDTO, o);
@@ -310,7 +311,8 @@ class SpringBootIntegrationTest {
                 LocalDate.of(2024, 12, 30), 
                 "location", 
                 "description", 
-                "rules"
+                "rules",
+                'B'
                 );
                 
         HttpHeaders headers = new HttpHeaders();
@@ -457,7 +459,8 @@ class SpringBootIntegrationTest {
                 LocalDate.of(2023, 11, 30), 
                 "", 
                 "", 
-                "" 
+                "" ,
+                'S'
                 );
                 
         HttpHeaders headers = new HttpHeaders();

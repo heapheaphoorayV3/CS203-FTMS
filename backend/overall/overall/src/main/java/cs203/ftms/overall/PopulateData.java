@@ -89,16 +89,23 @@ public class PopulateData {
     }
 
     public void createTournament() throws MethodArgumentNotValidException {
-        tournamentService.createTournament(new CreateTournamentDTO("Tournament", LocalDate.of(2024, 12, 10), 100, LocalDate.of(2024, 12, 20), LocalDate.of(2024, 12, 30), "location", "description", "rules"), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
+        tournamentService.createTournament(new CreateTournamentDTO("Tournament0", LocalDate.of(2024, 12, 10), 100, LocalDate.of(2024, 12, 20), LocalDate.of(2024, 12, 30), "location", "description", "rules", 'B'), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
+        tournamentService.createTournament(new CreateTournamentDTO("Tournament1", LocalDate.of(2024, 12, 10), 100, LocalDate.of(2024, 12, 20), LocalDate.of(2024, 12, 30), "location", "description", "rules", 'I'), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
+        tournamentService.createTournament(new CreateTournamentDTO("Tournament2", LocalDate.of(2024, 12, 10), 100, LocalDate.of(2024, 12, 20), LocalDate.of(2024, 12, 30), "location", "description", "rules", 'A'), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
+
     }
 
     public void createEvent() throws MethodArgumentNotValidException {
-       eventService.createEvent(tournamentRepository.findByName("Tournament").get().getId(), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get(), List.of(new CreateEventDTO('M', 'S', 10, LocalDate.of(2024, 12, 30), LocalTime.of(10, 0, 0), LocalTime.of(17, 0, 0))));
+        for(int i = 0; i < 3; i++){
+            eventService.createEvent(tournamentRepository.findByName("Tournament" + i).get().getId(), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get(), List.of(new CreateEventDTO('M', 'S', 10, LocalDate.of(2024, 12, 30), LocalTime.of(10, 0, 0), LocalTime.of(17, 0, 0))));
+        }
     }
 
     public void registerFencerForEvent() {
-        for (int i = 1; i <= FENCER_COUNT; i++) {
-            eventService.registerEvent(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament").get(), 'M', 'S').get().getId(), (Fencer) userRepository.findByEmail("fencer" + i + "@gmail.com").get());
+        for(int i = 0; i < 3; i++){
+            for (int j = 1; j <= FENCER_COUNT; j++) {
+                eventService.registerEvent(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament" + i).get(), 'M', 'S').get().getId(), (Fencer) userRepository.findByEmail("fencer" + j + "@gmail.com").get());
+            }
         }
     }
 
