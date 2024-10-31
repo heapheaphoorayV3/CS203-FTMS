@@ -12,6 +12,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import cs203.ftms.overall.comparator.FencerPointsComparator;
 import cs203.ftms.overall.dto.CompleteFencerProfileDTO;
+import cs203.ftms.overall.dto.UpdateFencerProfileDTO;
 import cs203.ftms.overall.dto.clean.CleanFencerDTO;
 import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.User;
@@ -84,5 +85,15 @@ public class FencerService {
         u.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(u);
         return "password changed successfully";
+    }
+
+    public void updateProfile(Fencer f, UpdateFencerProfileDTO dto) {
+        f.setClub(dto.getClub());
+        f.setContactNo(dto.getContactNo());
+        f.setCountry(dto.getCountry());
+        f.setEmail(dto.getEmail());
+        f.setName(dto.getName());
+        f.setDominantArm(dto.getDominantArm());
+        userRepository.save(f);
     }
 }

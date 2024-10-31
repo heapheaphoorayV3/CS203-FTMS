@@ -12,7 +12,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import cs203.ftms.overall.dto.ChangePasswordDTO;
 import cs203.ftms.overall.dto.CompleteFencerProfileDTO;
+import cs203.ftms.overall.dto.UpdateFencerProfileDTO;
 import cs203.ftms.overall.dto.clean.CleanFencerDTO;
 import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.User;
@@ -79,5 +79,14 @@ public class FencerController {
         User user = (User) authentication.getPrincipal();
         String res = fencerService.changePassword(user, changePasswordDTO.getOldPassword(), changePasswordDTO.getNewPassword());
         return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    @PutMapping("/update-profile")
+    @PreAuthorize("hasRole('ORGANISER')")
+    public ResponseEntity<String> updateProfile(@RequestBody UpdateFencerProfileDTO dto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        fencerService.updateProfile((Fencer) user, dto);
+        return new ResponseEntity<>("Profile updated sucessfully!", HttpStatus.OK);
     }
 }
