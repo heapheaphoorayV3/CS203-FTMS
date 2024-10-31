@@ -2,23 +2,25 @@ package cs203.ftms.overall.dto.clean;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.List;
 
 public class CleanEventDTO{
     private int id;
-    private String eventName;
+    private char gender;
+    private char weapon;
     private String tournamentName;
-    private Set<CleanFencerDTO> fencers;
+    private List<CleanFencerDTO> fencers;
     private int minParticipants;
     private int participantCount;
     private LocalDate date;
     private LocalTime startTime;
     private LocalTime endTime;
     
-    public CleanEventDTO(int id, String eventName, String tournamentName, Set<CleanFencerDTO> fencers, int minParticipants,
+    public CleanEventDTO(int id, char gender, char weapon, String tournamentName, List<CleanFencerDTO> fencers, int minParticipants,
             int participantCount, LocalDate date, LocalTime startTime, LocalTime endTime) {
         this.id = id;
-        this.eventName = eventName;
+        this.gender = gender; 
+        this.weapon = weapon; 
         this.tournamentName = tournamentName;
         this.fencers = fencers;
         this.minParticipants = minParticipants;
@@ -26,14 +28,6 @@ public class CleanEventDTO{
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
-    }
-
-    public String getEventName() {
-        return eventName;
-    }
-
-    public void setEventName(String eventName) {
-        this.eventName = eventName;
     }
 
     public String getTournamentName() {
@@ -44,11 +38,11 @@ public class CleanEventDTO{
         this.tournamentName = tournamentName;
     }
 
-    public Set<CleanFencerDTO> getFencers() {
+    public List<CleanFencerDTO> getFencers() {
         return fencers;
     }
 
-    public void setFencers(Set<CleanFencerDTO> fencers) {
+    public void setFencers(List<CleanFencerDTO> fencers) {
         this.fencers = fencers;
     }
 
@@ -99,6 +93,23 @@ public class CleanEventDTO{
     public void setId(int id) {
         this.id = id;
     }
+
+    public char getGender() {
+        return gender;
+    }
+
+    public void setGender(char gender) {
+        this.gender = gender;
+    }
+
+    public char getWeapon() {
+        return weapon;
+    }
+
+    public void setWeapon(char weapon) {
+        this.weapon = weapon;
+    }
+    
     
     
 }

@@ -10,6 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import cs203.ftms.overall.security.model.RefreshToken;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
@@ -23,6 +24,7 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -70,6 +72,9 @@ public class User implements UserDetails {
 
     @Column(name = "verificiation_token_creation")
     private Date verificationTokenCreatedAt;
+
+    @OneToOne(mappedBy = "user")
+    private RefreshToken refreshToken; 
 
     public User() {}
 
@@ -209,4 +214,18 @@ public class User implements UserDetails {
         }
         return false;
     }
+
+    public boolean isLocked() {
+        return locked;
+    }
+
+    public RefreshToken getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(RefreshToken refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
+    
 }

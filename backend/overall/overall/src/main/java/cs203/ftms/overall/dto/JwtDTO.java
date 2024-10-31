@@ -5,13 +5,15 @@ public class JwtDTO {
     private String token;
     private long expiresIn;
     private char userType;
+    private String refreshToken;
 
 
-    public JwtDTO(String message, String token, long expiresIn, char userType) {
+    public JwtDTO(String message, String token, long expiresIn, char userType, String refreshToken) {
         this.message = message;
         this.token = token;
         this.expiresIn = expiresIn;
         this.userType = userType;
+        this.refreshToken = refreshToken; 
     }
 
     public String getMessage() {
@@ -44,5 +46,13 @@ public class JwtDTO {
 
     public void setUserType(char userType) {
         this.userType = userType;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 }

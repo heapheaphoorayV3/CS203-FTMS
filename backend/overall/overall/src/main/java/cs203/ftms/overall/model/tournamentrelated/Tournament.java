@@ -1,7 +1,7 @@
 package cs203.ftms.overall.model.tournamentrelated;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -21,21 +21,21 @@ public class Tournament {
     private String name;
 
     @ManyToOne
-    @JoinColumn(name = "organiserId", nullable = false)
+    @JoinColumn(name = "organiser_id", nullable = false)
     private Organiser organiser;
 
-    @Column(name = "signupEndDate")
+    @Column(name = "signup_end_date")
     @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate signupEndDate;
 
-    @Column(name = "advancementRate")
+    @Column(name = "advancement_rate")
     private int advancementRate;
     
-    @Column(name = "startDate")
+    @Column(name = "start_date")
     @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate startDate;
     
-    @Column(name = "endDate")
+    @Column(name = "end_date")
     @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate endDate;
 

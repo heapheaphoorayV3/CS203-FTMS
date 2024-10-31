@@ -1,10 +1,19 @@
 package cs203.ftms.overall;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
-import java.time.Year;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +25,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import cs203.ftms.overall.dto.CompleteFencerProfileDTO;
 import cs203.ftms.overall.dto.clean.CleanFencerDTO;
 import cs203.ftms.overall.model.userrelated.Fencer;
+import cs203.ftms.overall.repository.userrelated.FencerRepository;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
 import cs203.ftms.overall.service.fencer.FencerService;
 
@@ -23,6 +33,9 @@ class FencerServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private FencerRepository fencerRepository;
 
     @InjectMocks
     private FencerService fencerService;
@@ -115,5 +128,46 @@ class FencerServiceTest {
         });
 
         verify(userRepository, times(0)).save(any(Fencer.class));
+    }
+
+    // Tests for getInternationalRank
+    @Test
+    void testGetInternationalRank_ReturnsSortedFencers() {
+        // Arrange
+        Fencer fencer1 = new Fencer();
+        fencer1.setId(1);
+        fencer1.setPoints(50);
+        Fencer fencer2 = new Fencer();
+        fencer2.setId(2);
+        fencer2.setPoints(100);
+        Fencer fencer3 = new Fencer();
+        fencer3.setId(3);
+        fencer3.setPoints(75);
+        
+        List<Fencer> fencers = Arrays.asList(fencer1, fencer2, fencer3);
+        when(fencerRepository.findAll()).thenReturn(fencers);
+
+        // Act
+        List<Fencer> result = fencerService.getInternationalRank();
+
+        // Assert
+        assertEquals(3, result.size());
+        assertEquals(2, result.get(0).getId());  // Highest points
+        assertEquals(3, result.get(1).getId());  // Second highest points
+        assertEquals(1, result.get(2).getId());  // Lowest points
+        verify(fencerRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testGetInternationalRank_ReturnsEmptyList_WhenNoFencersExist() {
+        // Arrange
+        when(fencerRepository.findAll()).thenReturn(Collections.emptyList());
+
+        // Act
+        List<Fencer> result = fencerService.getInternationalRank();
+
+        // Assert
+        assertTrue(result.isEmpty());
+        verify(fencerRepository, times(1)).findAll();
     }
 }

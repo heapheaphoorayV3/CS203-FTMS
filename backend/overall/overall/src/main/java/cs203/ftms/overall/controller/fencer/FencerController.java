@@ -1,5 +1,8 @@
 package cs203.ftms.overall.controller.fencer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -56,5 +59,14 @@ public class FencerController {
         return new ResponseEntity<>("fencer profile completion unsuccessful", HttpStatus.BAD_REQUEST);
     }
     
-
+    @GetMapping("/international-ranking")
+    @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
+    public ResponseEntity<List<CleanFencerDTO>> getInternationalRanking() {
+        List<Fencer> fencers = fencerService.getInternationalRank(); 
+        List<CleanFencerDTO> res = new ArrayList<>();
+        for (Fencer fencer : fencers) {
+            res.add(fencerService.getCleanFencerDTO(fencer));
+        }
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
 }

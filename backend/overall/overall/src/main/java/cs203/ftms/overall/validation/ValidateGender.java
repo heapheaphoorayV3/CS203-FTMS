@@ -12,10 +12,10 @@ public class ValidateGender implements ConstraintValidator<ValidGender , Charact
 
     @Override
     public boolean isValid(Character value, ConstraintValidatorContext context) {
-        // The valid values for gender are "M" and "F"
+        // The valid values for gender are "M" and "W"
         if (value == null) {
             return false;  // Gender must not be null
         }
-        return value.equals('M') || value.equals('F');
+        return value.equals('M') || value.equals('W');
     }
 }
