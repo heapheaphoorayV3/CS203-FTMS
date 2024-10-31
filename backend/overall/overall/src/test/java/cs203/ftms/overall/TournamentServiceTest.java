@@ -1,23 +1,28 @@
 package cs203.ftms.overall;
 
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
@@ -168,5 +173,48 @@ public class TournamentServiceTest {
         assertDoesNotThrow(() -> {
             OtherValidations.validTournamentSignUpEndDate(tournament);
         });
+    }
+
+    @Test
+    void testGetAllTournaments_ReturnsListOfTournaments() {
+        // Arrange
+        Tournament tournament1 = new Tournament();
+        tournament1.setName("Tournament 1");
+        Tournament tournament2 = new Tournament();
+        tournament2.setName("Tournament 2");
+        List<Tournament> tournaments = Arrays.asList(tournament1, tournament2);
+
+        when(tournamentRepository.findAll()).thenReturn(tournaments);
+
+        // Act
+        List<Tournament> result = tournamentService.getAllTournaments();
+
+        // Assert
+        assertEquals(2, result.size());
+        assertEquals("Tournament 1", result.get(0).getName());
+        assertEquals("Tournament 2", result.get(1).getName());
+        verify(tournamentRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testGetAllTournaments_ReturnsEmptyListWhenNoTournamentsFound() {
+        // Arrange
+        when(tournamentRepository.findAll()).thenReturn(Collections.emptyList());
+
+        // Act
+        List<Tournament> result = tournamentService.getAllTournaments();
+
+        // Assert
+        assertTrue(result.isEmpty());
+        verify(tournamentRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testGetCleanOrganiserDTO_ReturnsNull_WhenOrganiserIsNull() {
+        // Act
+        CleanTournamentDTO result = tournamentService.getCleanTournamentDTO(null);
+
+        // Assert
+        assertNull(result);
     }
 }

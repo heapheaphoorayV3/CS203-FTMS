@@ -16,26 +16,26 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    // @Column(name = "name")
-    // private String name;
-
     @ManyToOne
-    @JoinColumn(name = "tournamentId", nullable = false)
+    @JoinColumn(name = "tournament_id", nullable = false)
     private Tournament tournament; 
 
     @OneToMany(mappedBy = "event")
     private Set<TournamentFencer> fencers; 
     
+    @Column(name = "event_ended")
+    private boolean isOver;
+
     @Column(name = "gender")
     private char gender;
     
     @Column(name = "weapon") 
     private char weapon; 
 
-    @Column(name = "minParticipants")
+    @Column(name = "min_participants")
     private int minParticipants;
 
-    @Column(name = "participantCount")
+    @Column(name = "participant_count")
     private int participantCount;
 
     @Column(name = "date")
@@ -57,19 +57,6 @@ public class Event {
 
     public Event(Tournament tournament, char gender, char weapon, int minParticipants, LocalDate date, LocalTime startTime,
             LocalTime endTime) {
-        // switch(gender) {
-        //     case 'W' -> this.name = "Women";
-        //     case 'M' -> this.name = "Men";
-        //     default -> this.name = "Invalid";
-        // }
-
-        // switch (weapon){
-        //     case 'E' -> this.name += "Epee";
-        //     case 'F' -> this.name += "Foil";
-        //     case 'S' -> this.name += "Sabre";
-        //     default -> this.name = "Invalid";
-        // };
-        
         this.tournament = tournament;
         this.gender = gender;
         this.weapon = weapon;
@@ -187,13 +174,12 @@ public class Event {
         return false;
     }
 
-    // public String getName() {
-    //     return name;
-    // }
+    public boolean isOver(){
+        return isOver;
+    }
 
-    // public void setName(String name) {
-    //     this.name = name;
-    // }
-    
+    public void setOver(boolean isOver){
+        this.isOver = isOver;
+    }
     
 }

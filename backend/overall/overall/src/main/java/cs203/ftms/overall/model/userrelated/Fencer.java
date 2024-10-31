@@ -24,11 +24,11 @@ import jakarta.persistence.OneToMany;
 @DiscriminatorValue("F")
 public class Fencer extends User {
 
-    @Column(name = "dateOfBirth")
+    @Column(name = "date_of_birth")
     @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate dateOfBirth;
 
-    @Column(name = "dominantArm")
+    @Column(name = "dominant_arm")
     private char dominantArm;
 
     @Column(name = "weapon")
@@ -40,7 +40,7 @@ public class Fencer extends User {
     @Column(name = "points")
     private int points;
 
-    @Column(name = "debutYear")
+    @Column(name = "debut_year")
     private int debutYear;
 
     @Column(name = "gender")
@@ -49,20 +49,12 @@ public class Fencer extends User {
     @OneToMany(mappedBy = "fencer", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<TournamentFencer> tournamentFencerProfiles; 
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade={CascadeType.PERSIST, CascadeType.DETACH})
-    @JoinTable(
-            name = "tour_cat_part",
-            joinColumns = { @JoinColumn(name = "user_id") },
-            inverseJoinColumns = { @JoinColumn(name = "tour_cat_id") })
-    private Set<Event> eventsPart;
-
     public Fencer() {}
 
     public Fencer(String name, String email, String password, String contactNo, String country, LocalDate dateOfBirth){ 
         super(name, email, password, contactNo, country, "ROLE_FENCER");
         this.dateOfBirth = dateOfBirth;
         this.points = 0;
-        this.eventsPart = new HashSet<>();
         this.tournamentFencerProfiles = new LinkedHashSet<>();
     }
 
@@ -120,14 +112,6 @@ public class Fencer extends User {
 
     public void setGender(char gender) {
         this.gender = gender;
-    }
-
-    public Set<Event> getEventsPart() {
-        return eventsPart;
-    }
-
-    public void setEventsPart(Set<Event> tourCatPart) {
-        this.eventsPart = tourCatPart;
     }
 
     public Set<TournamentFencer> getTournamentFencerProfiles() {

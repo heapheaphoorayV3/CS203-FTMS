@@ -85,6 +85,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleSignUpDateNotOver(SignUpDateNotOverException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(EventCannotEndException.class)
+    public ResponseEntity<String> handlesEventCannotEnd(EventCannotEndException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 }
 
 

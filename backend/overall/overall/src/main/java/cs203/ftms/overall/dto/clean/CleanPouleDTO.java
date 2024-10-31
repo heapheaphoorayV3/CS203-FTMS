@@ -1,17 +1,17 @@
 package cs203.ftms.overall.dto.clean;
 
-import java.util.*;
+import java.util.List;
 
 public class CleanPouleDTO{
     private int id;
     private int pouleNumber;
     private String eventName; 
     private int eventId; 
-    private Set<CleanMatchDTO> pouleMatches;
-    private Set<CleanTournamentFencerDTO> fencers;
+    private List<CleanMatchDTO> pouleMatches;
+    private List<CleanTournamentFencerDTO> fencers;
     
-    public CleanPouleDTO(int id, int pouleNumber, String eventName, int eventId, Set<CleanMatchDTO> pouleMatches,
-            Set<CleanTournamentFencerDTO> fencers) {
+    public CleanPouleDTO(int id, int pouleNumber, String eventName, int eventId, List<CleanMatchDTO> pouleMatches,
+         List<CleanTournamentFencerDTO> fencers) {
         this.id = id;
         this.pouleNumber = pouleNumber;
         this.eventName = eventName;
@@ -52,19 +52,19 @@ public class CleanPouleDTO{
         this.eventId = eventId;
     }
 
-    public Set<CleanMatchDTO> getPouleMatches() {
+    public List<CleanMatchDTO> getPouleMatches() {
         return pouleMatches;
     }
 
-    public void setPouleMatches(Set<CleanMatchDTO> pouleMatches) {
+    public void setPouleMatches(List<CleanMatchDTO> pouleMatches) {
         this.pouleMatches = pouleMatches;
     }
 
-    public Set<CleanTournamentFencerDTO> getFencers() {
+    public List<CleanTournamentFencerDTO> getFencers() {
         return fencers;
     }
 
-    public void setFencers(Set<CleanTournamentFencerDTO> fencers) {
+    public void setFencers(List<CleanTournamentFencerDTO> fencers) {
         this.fencers = fencers;
     } 
 

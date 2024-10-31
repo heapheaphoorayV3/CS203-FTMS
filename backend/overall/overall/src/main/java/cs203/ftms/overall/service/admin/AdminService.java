@@ -9,19 +9,16 @@ import cs203.ftms.overall.dto.VerifyOrgDTO;
 import cs203.ftms.overall.dto.clean.CleanAdminDTO;
 import cs203.ftms.overall.model.userrelated.Admin;
 import cs203.ftms.overall.model.userrelated.Organiser;
-import cs203.ftms.overall.repository.userrelated.AdminRepository;
 import cs203.ftms.overall.repository.userrelated.OrganiserRepository;
 import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class AdminService {
-    private final AdminRepository adminRepository;
     private final OrganiserRepository organiserRepository;
     private final MailService mailService; 
 
     @Autowired
-    public AdminService(AdminRepository adminRepository, OrganiserRepository organiserRepository, MailService mailService) {
-        this.adminRepository = adminRepository;
+    public AdminService(OrganiserRepository organiserRepository, MailService mailService) {
         this.organiserRepository = organiserRepository;
         this.mailService = mailService;
     }

@@ -13,18 +13,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import cs203.ftms.overall.dto.AuthenticationDTO;
 import cs203.ftms.overall.dto.JwtDTO;
-import cs203.ftms.overall.dto.RefreshTokenRequestDTO;
 import cs203.ftms.overall.dto.RegisterAdminDTO;
 import cs203.ftms.overall.dto.RegisterFencerDTO;
 import cs203.ftms.overall.dto.RegisterOrganiserDTO;
-import cs203.ftms.overall.security.model.RefreshToken;
-import cs203.ftms.overall.security.service.JwtService;
-import cs203.ftms.overall.security.service.RefreshTokenService;
+import cs203.ftms.overall.exception.EntityDoesNotExistException;
 import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.model.userrelated.User;
+import cs203.ftms.overall.security.model.RefreshToken;
+import cs203.ftms.overall.security.service.JwtService;
+import cs203.ftms.overall.security.service.RefreshTokenService;
 import cs203.ftms.overall.service.authentication.AuthenticationService;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 
 @RestController
@@ -102,6 +101,6 @@ public class AuthenticationController {
                         userType = 'F';
                     }
                     return new ResponseEntity<>(new JwtDTO("refreshed token", accessToken, jwtService.getExpirationTime(), userType, token), HttpStatus.OK);
-                }).orElseThrow(() ->new RuntimeException("Refresh Token is not in DB..!!"));
+                }).orElseThrow(() ->new EntityDoesNotExistException("Refresh Token is not in DB..!!"));
     }
 }

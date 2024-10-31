@@ -20,11 +20,11 @@ public class TournamentFencer {
     private int id;
     
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "fencerId", nullable = false)
+    @JoinColumn(name = "fencer_id", nullable = false)
     private Fencer fencer; 
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "eventId", nullable = false)
+    @JoinColumn(name = "event_id")
     private Event event; 
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -32,11 +32,11 @@ public class TournamentFencer {
     private Set<Match> matches; 
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.DETACH})
-    @JoinColumn(name = "pouleId")
+    @JoinColumn(name = "poule_id")
     private Poule poule; 
 
-    @Column(name="tournament_points")
-    private int tournamentPoints; // specific to particular event
+    @Column(name="tournament_rank")
+    private int tournamentRank; // specific to particular event
 
     @Column(name = "poule_wins")
     private int pouleWins;
@@ -86,12 +86,12 @@ public class TournamentFencer {
         this.poule = poule;
     }
 
-    public int getTournamentPoints() {
-        return tournamentPoints;
+    public int getTournamentRank() {
+        return tournamentRank;
     }
 
-    public void setTournamentPoints(int tournamentPoints) {
-        this.tournamentPoints = tournamentPoints;
+    public void setTournamentRank(int tournamentPoints) {
+        this.tournamentRank = tournamentPoints;
     } 
 
     // public int compareTo(TournamentFencer tf) {

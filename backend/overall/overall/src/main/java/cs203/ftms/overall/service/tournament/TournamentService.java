@@ -1,6 +1,7 @@
 package cs203.ftms.overall.service.tournament;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,9 +19,6 @@ import cs203.ftms.overall.repository.userrelated.UserRepository;
 import cs203.ftms.overall.service.event.EventService;
 import cs203.ftms.overall.service.fencer.FencerService;
 import cs203.ftms.overall.validation.OtherValidations;
-
-import static cs203.ftms.overall.validation.OtherValidations.validTournamentDates;
-import static cs203.ftms.overall.validation.OtherValidations.validTournamentSignUpEndDate;
 
 @Service
 public class TournamentService {
@@ -43,7 +41,7 @@ public class TournamentService {
     public CleanTournamentDTO getCleanTournamentDTO(Tournament t) {
         if (t==null) return null;
 
-        Set<CleanEventDTO> cleanEvents = new HashSet<>();
+        List<CleanEventDTO> cleanEvents = new ArrayList<>();
         for (Event e : t.getEvents()) {
             cleanEvents.add(eventService.getCleanEventDTO(e));
         }

@@ -2,21 +2,21 @@ package cs203.ftms.overall.dto.clean;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.List;
 
 public class CleanEventDTO{
     private int id;
     private char gender;
     private char weapon;
     private String tournamentName;
-    private Set<CleanFencerDTO> fencers;
+    private List<CleanFencerDTO> fencers;
     private int minParticipants;
     private int participantCount;
     private LocalDate date;
     private LocalTime startTime;
     private LocalTime endTime;
     
-    public CleanEventDTO(int id, char gender, char weapon, String tournamentName, Set<CleanFencerDTO> fencers, int minParticipants,
+    public CleanEventDTO(int id, char gender, char weapon, String tournamentName, List<CleanFencerDTO> fencers, int minParticipants,
             int participantCount, LocalDate date, LocalTime startTime, LocalTime endTime) {
         this.id = id;
         this.gender = gender; 
@@ -38,11 +38,11 @@ public class CleanEventDTO{
         this.tournamentName = tournamentName;
     }
 
-    public Set<CleanFencerDTO> getFencers() {
+    public List<CleanFencerDTO> getFencers() {
         return fencers;
     }
 
-    public void setFencers(Set<CleanFencerDTO> fencers) {
+    public void setFencers(List<CleanFencerDTO> fencers) {
         this.fencers = fencers;
     }
 

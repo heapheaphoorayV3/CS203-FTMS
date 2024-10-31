@@ -9,8 +9,8 @@ public class TournamentFencerComparator implements Comparator<TournamentFencer> 
         if(t1 == null || t2 == null){
             return 0;
         }
-        if ((t1.getTournamentPoints() != t2.getTournamentPoints())) { // at start, all 0, so no diff
-            return -(t1.getTournamentPoints() - t2.getTournamentPoints());
+        if ((t1.getTournamentRank() != t2.getTournamentRank())) { // at start, all 0, so no diff
+            return t1.getTournamentRank() - t2.getTournamentRank();
         }
         
         return -(t1.getFencer().getPoints() - t2.getFencer().getPoints());
