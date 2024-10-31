@@ -1,5 +1,8 @@
 package cs203.ftms.overall.controller.tournament;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +25,6 @@ import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.model.userrelated.User;
 import cs203.ftms.overall.service.tournament.TournamentService;
 import jakarta.validation.Valid;
-
 
 @RestController
 @CrossOrigin
@@ -50,6 +52,8 @@ public class TournamentController {
 
     @GetMapping("/tournament-details/{tid}")
     public ResponseEntity<CleanTournamentDTO> getTournament(@PathVariable int tid) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
         Tournament t = tournamentService.getTournament(tid);
         CleanTournamentDTO ct = tournamentService.getCleanTournamentDTO(t);
         if (ct == null) {
@@ -58,7 +62,17 @@ public class TournamentController {
         return new ResponseEntity<>(ct, HttpStatus.OK);
     }
     
-    
+    @GetMapping("/tournaments")
+    public ResponseEntity<List<CleanTournamentDTO>> getAllTournaments() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        List<Tournament> tList = tournamentService.getAllTournaments();
 
+        List<CleanTournamentDTO> ctList = new ArrayList<>();
+        for (Tournament t : tList) {
+            ctList.add(tournamentService.getCleanTournamentDTO(t));
+        }
+        return new ResponseEntity<>(ctList, HttpStatus.OK);
+    }
 
 }

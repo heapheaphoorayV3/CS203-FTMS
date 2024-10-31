@@ -1,10 +1,11 @@
 import axios from "axios";
+import AuthService from "./Authentication/AuthService";
 
 const API_BASE_URL = "http://localhost:8080/api/v1";
 
 let ProtectedAPI = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 3000,
+  timeout: 10000,
 });
 
 // Add a request interceptor --> add token to header
@@ -17,10 +18,6 @@ ProtectedAPI.interceptors.request.use(
       console.error("No token found in session storage");
     }
     return config;
-  },
-  (error) => {
-    // Do something with request error if needed
-    return Promise.reject(error);
   }
 );
 

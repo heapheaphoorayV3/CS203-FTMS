@@ -2,6 +2,9 @@ package cs203.ftms.overall.model.tournamentrelated;
 
 import java.time.*;
 import java.util.*;
+
+import org.antlr.v4.runtime.tree.Trees;
+
 import jakarta.persistence.*;
 
 import cs203.ftms.overall.model.userrelated.Fencer;
@@ -13,25 +16,26 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "name")
-    private String name;
-
     @ManyToOne
+    @JoinColumn(name = "tournament_id", nullable = false)
     private Tournament tournament; 
 
-    @ManyToMany(mappedBy = "eventsPart")
-    private Set<Fencer> fencers; 
+    @OneToMany(mappedBy = "event")
+    private Set<TournamentFencer> fencers; 
     
+    @Column(name = "event_ended")
+    private boolean isOver;
+
     @Column(name = "gender")
     private char gender;
     
     @Column(name = "weapon") 
     private char weapon; 
 
-    @Column(name = "minParticipants")
+    @Column(name = "min_participants")
     private int minParticipants;
 
-    @Column(name = "participantCount")
+    @Column(name = "participant_count")
     private int participantCount;
 
     @Column(name = "date")
@@ -53,19 +57,6 @@ public class Event {
 
     public Event(Tournament tournament, char gender, char weapon, int minParticipants, LocalDate date, LocalTime startTime,
             LocalTime endTime) {
-        switch(gender) {
-            case 'W' -> this.name = "Women";
-            case 'M' -> this.name = "Men";
-            default -> this.name = "Invalid";
-        }
-
-        switch (weapon){
-            case 'E' -> this.name += "Epee";
-            case 'F' -> this.name += "Foil";
-            case 'S' -> this.name += "Sabre";
-            default -> this.name = "Invalid";
-        };
-        
         this.tournament = tournament;
         this.gender = gender;
         this.weapon = weapon;
@@ -73,7 +64,7 @@ public class Event {
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.poules = new HashSet<>();
+        this.poules = new TreeSet<>();
         this.directEliminationMatches = new HashSet<>();
         this.fencers = new HashSet<>();
     }
@@ -160,11 +151,11 @@ public class Event {
         this.endTime = endTime;
     }
 
-    public Set<Fencer> getFencers() {
+    public Set<TournamentFencer> getFencers() {
         return fencers;
     }
 
-    public void setFencers(Set<Fencer> fencers) {
+    public void setFencers(Set<TournamentFencer> fencers) {
         this.fencers = fencers;
     }
 
@@ -183,13 +174,12 @@ public class Event {
         return false;
     }
 
-    public String getName() {
-        return name;
+    public boolean isOver(){
+        return isOver;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setOver(boolean isOver){
+        this.isOver = isOver;
     }
-    
     
 }

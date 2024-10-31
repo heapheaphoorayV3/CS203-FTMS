@@ -1,12 +1,12 @@
 package cs203.ftms.overall.model.userrelated;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import cs203.ftms.overall.model.tournamentrelated.Event;
+import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
@@ -18,20 +18,17 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 
 @Entity
 @DiscriminatorValue("F")
 public class Fencer extends User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-
-    @Column(name = "dateOfBirth")
+    @Column(name = "date_of_birth")
     @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate dateOfBirth;
 
-    @Column(name = "dominantArm")
+    @Column(name = "dominant_arm")
     private char dominantArm;
 
     @Column(name = "weapon")
@@ -43,18 +40,14 @@ public class Fencer extends User {
     @Column(name = "points")
     private int points;
 
-    @Column(name = "debutYear")
+    @Column(name = "debut_year")
     private int debutYear;
 
     @Column(name = "gender")
     private char gender;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade={CascadeType.PERSIST, CascadeType.DETACH})
-    @JoinTable(
-            name = "tour_cat_part",
-            joinColumns = { @JoinColumn(name = "user_id") },
-            inverseJoinColumns = { @JoinColumn(name = "tour_cat_id") })
-    private Set<Event> eventsPart;
+    @OneToMany(mappedBy = "fencer", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Set<TournamentFencer> tournamentFencerProfiles; 
 
     public Fencer() {}
 
@@ -62,15 +55,7 @@ public class Fencer extends User {
         super(name, email, password, contactNo, country, "ROLE_FENCER");
         this.dateOfBirth = dateOfBirth;
         this.points = 0;
-        this.eventsPart = new HashSet<>();
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
+        this.tournamentFencerProfiles = new LinkedHashSet<>();
     }
 
     public LocalDate getDateOfBirth() {
@@ -129,13 +114,11 @@ public class Fencer extends User {
         this.gender = gender;
     }
 
-    public Set<Event> getEventsPart() {
-        return eventsPart;
+    public Set<TournamentFencer> getTournamentFencerProfiles() {
+        return tournamentFencerProfiles;
     }
 
-    public void setEventsPart(Set<Event> tourCatPart) {
-        this.eventsPart = tourCatPart;
+    public void setTournamentFencerProfiles(Set<TournamentFencer> tournamentFencerProfiles) {
+        this.tournamentFencerProfiles = tournamentFencerProfiles;
     }
-
-    
 }

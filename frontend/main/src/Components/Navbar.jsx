@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../Assets/logosvg.svg";
-import jacpic from "../Assets/jackinpic.jpg";
+import logoutIcon from "../Assets/logout.png";
+import { UserCircleIcon } from '@heroicons/react/24/outline';
 import NavbarButton from "./Others/NavbarButton";
-import SubmitButton from "./Others/SubmitButton";
 import FencerService from "../Services/Fencer/FencerService";
 import OrganiserService from "../Services/Organiser/OrganiserService";
+import AdminService from "../Services/Admin/AdminService";
 
 const Navbar = () => {
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
@@ -17,12 +18,16 @@ const Navbar = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        if (!isLoggedIn) return;
         let response = null;
-        if(userType === "F"){
+        if (userType === "F") {
           response = await FencerService.getProfile()
         }
-        else if(userType === "O"){
+        else if (userType === "O") {
           response = await OrganiserService.getProfile();
+        }
+        else if (userType === "A") {
+          response = await AdminService.getProfile();
         }
         setUserData(response.data);
 
@@ -47,6 +52,8 @@ const Navbar = () => {
   const handleLogout = () => {
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("userType");
+    sessionStorage.removeItem("refreshToken");
+    setIsUserDropdownOpen(!isUserDropdownOpen);
     navigate("/signin");
   };
 
@@ -55,23 +62,23 @@ const Navbar = () => {
       {isLoggedIn ? (
         <nav className="h-full w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
           <div className="w-full flex items-center justify-between mx-auto p-2.5">
-            <a href="/" className="flex items-center">
+            {userType === "F" ? <a href="/fencer-dashboard" className="flex items-center">
               <img src={logo} className="pl-3 h-8" alt="Logo" />
             </a>
-
+              : <a href="/organiser-dashboard" className="flex items-center">
+                <img src={logo} className="pl-3 h-8" alt="Logo" />
+              </a>
+            }
             <div className="relative ml-auto">
               <button
                 onClick={toggleUserDropdown}
                 type="button"
-                className="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+                className="flex justify-center items-center text-sm rounded-full focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
                 aria-expanded={isUserDropdownOpen}
               >
                 <span className="sr-only">Open user menu</span>
-                <img
-                  className="w-8 h-8 rounded-full"
-                  src={jacpic}
-                  alt="user photo"
-                />
+                {/* <UserCircleIcon className="h-8 w-8 text-black" /> */}
+                <img src={logoutIcon} className="h-6 w-6" alt="Logout Icon"/>
               </button>
 
               <div

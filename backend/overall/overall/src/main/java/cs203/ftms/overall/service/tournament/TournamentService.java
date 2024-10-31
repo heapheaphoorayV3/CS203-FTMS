@@ -1,7 +1,7 @@
 package cs203.ftms.overall.service.tournament;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,8 +18,7 @@ import cs203.ftms.overall.repository.tournamentrelated.TournamentRepository;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
 import cs203.ftms.overall.service.event.EventService;
 import cs203.ftms.overall.service.fencer.FencerService;
-import static cs203.ftms.overall.validation.OtherValidations.validTournamentDates;
-import static cs203.ftms.overall.validation.OtherValidations.validTournamentSignUpEndDate;
+import cs203.ftms.overall.validation.OtherValidations;
 
 @Service
 public class TournamentService {
@@ -42,7 +41,7 @@ public class TournamentService {
     public CleanTournamentDTO getCleanTournamentDTO(Tournament t) {
         if (t==null) return null;
 
-        Set<CleanEventDTO> cleanEvents = new HashSet<>();
+        List<CleanEventDTO> cleanEvents = new ArrayList<>();
         for (Event e : t.getEvents()) {
             cleanEvents.add(eventService.getCleanEventDTO(e));
         }
@@ -54,10 +53,14 @@ public class TournamentService {
         return tournamentRepository.findById(id).orElse(null);
     }
 
+    public List<Tournament> getAllTournaments() {
+        return tournamentRepository.findAll();
+    }
+
     public Tournament createTournament(CreateTournamentDTO t, Organiser o) throws MethodArgumentNotValidException {
         Tournament tournament = new Tournament(t.getName(), o, t.getSignupEndDate(), t.getAdvancementRate(), t.getStartDate(), t.getEndDate(), t.getLocation(), t.getDescription(), t.getRules());
-        validTournamentSignUpEndDate(tournament);
-        validTournamentDates(tournament);
+        OtherValidations.validTournamentSignUpEndDate(tournament);
+        OtherValidations.validTournamentDates(tournament);
         return tournamentRepository.save(tournament);
     }
 

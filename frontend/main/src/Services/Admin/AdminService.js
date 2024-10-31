@@ -1,4 +1,4 @@
-import { API } from "../API";
+import { ProtectedAPI } from "../ProtectedAPI";
 
 const baseURL = "/admin";
 
@@ -6,8 +6,16 @@ const baseURL = "/admin";
 - Update getUnverifiedOrganisers() URL to GET from correct endpoint
 */
 class AdminService {
-  async getUnverifiedOrganisers(credentials) {
-    return await API.get(`${baseURL}/unverified-organisation`, credentials);
+  async getProfile() {
+    return await ProtectedAPI.get(`${baseURL}/profile`);
+  }
+
+  async getUnverifiedOrganisers() {
+    return await ProtectedAPI.get(`${baseURL}/unverified-organiser`);
+  }
+
+  async verifyOrganiser(organisers) {
+    return await ProtectedAPI.put(`${baseURL}/verify-organiser`, organisers);
   }
 
 }
