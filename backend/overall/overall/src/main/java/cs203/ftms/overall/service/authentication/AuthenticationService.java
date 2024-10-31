@@ -1,6 +1,9 @@
 package cs203.ftms.overall.service.authentication;
 
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,6 +30,9 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService; 
+
+    @Value("${frontend.source}")
+    private String frontendSource;
 
     @Autowired
     public AuthenticationService(UserRepository userRepository, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, MailService mailService) {
@@ -83,5 +89,32 @@ public class AuthenticationService {
 
     public User getUser(int id) {
         return userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User with ID " + id + " not found"));
+    }
+
+
+    public String forgetPassword(String email) {
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            return "User not found";
+        }
+        String token = UUID.randomUUID().toString();
+        user.setVerificationToken(token);
+        userRepository.save(user);
+        String content = String.format("Please reset your password at http://%s/reset-password/%s \nThe token will expire in 15 minutes.", frontendSource, token);
+        mailService.sendMail(email, "Reset Password", content);
+        return "Email sent";
+    }
+
+    public String resetPassword(String token, String newPassword) {
+        User user = userRepository.findByVerificationToken(token).orElse(null);
+        if (user == null) {
+            return "User not found";
+        } else if (!user.tokenStillValid()) {
+            return "Expired token";
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setVerificationToken(null);
+        userRepository.save(user);
+        return "Password changed";
     }
 }

@@ -110,7 +110,7 @@ public class PopulateData {
     }
 
     public void createPoules() {
-        Set<String> recommendation = eventService.recommendPoules(tournamentRepository.findByName("Tournament").get().getId());
+        Set<String> recommendation = eventService.recommendPoules(tournamentRepository.findByName("Tournament0").get().getId());
         String[] recommendationArray = recommendation.toArray(new String[0]);
         int poulesCount = recommendationArray[recommendationArray.length - 1].charAt(0) - '0';
         eventService.createPoules(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament").get(), 'M', 'S').get().getId(), new CreatePoulesDTO(poulesCount));

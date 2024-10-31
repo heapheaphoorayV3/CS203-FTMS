@@ -201,7 +201,8 @@ public class User implements UserDetails {
 
     public boolean tokenStillValid() {
         Date now = new Date();
-        if ((now.getTime() - this.verificationTokenCreatedAt.getTime()) >= 15*60*1000) {
+        int minsInMilli = 15*60*1000; // 15 mins
+        if ((now.getTime() - this.verificationTokenCreatedAt.getTime()) >= minsInMilli) {
             setVerificationToken(null);
             return false;
         }
