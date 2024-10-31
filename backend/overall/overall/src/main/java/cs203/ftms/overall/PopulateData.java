@@ -113,11 +113,11 @@ public class PopulateData {
         Set<String> recommendation = eventService.recommendPoules(tournamentRepository.findByName("Tournament0").get().getId());
         String[] recommendationArray = recommendation.toArray(new String[0]);
         int poulesCount = recommendationArray[recommendationArray.length - 1].charAt(0) - '0';
-        eventService.createPoules(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament").get(), 'M', 'S').get().getId(), new CreatePoulesDTO(poulesCount));
+        eventService.createPoules(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament0").get(), 'M', 'S').get().getId(), new CreatePoulesDTO(poulesCount));
     }
 
     public void createPouleMatches() {
-        PouleTableDTO dto = eventService.getPouleTable(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament").get(), 'M', 'S').get().getId(), true);
+        PouleTableDTO dto = eventService.getPouleTable(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament0").get(), 'M', 'S').get().getId(), true);
         for (Map<String,String> line : dto.getPouleTable()) {
             for (String key : line.keySet()) {
                 System.out.println(key + " " + line.get(key));
@@ -133,18 +133,18 @@ public class PopulateData {
         singlePoule1.put("5 Fencer (Singapore) -- 5", "0,2,-1,5,5");
         singlePoule1.put("7 Fencer (Singapore) -- 7", "0,3,2,-1,5");
         singlePoule1.put("9 Fencer (Singapore) -- 9", "0,3,1,3,-1");
-        eventService.updatePouleTable(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament").get(), 'M', 'S').get().getId(), new SinglePouleTableDTO(2, singlePoule1));
+        eventService.updatePouleTable(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament0").get(), 'M', 'S').get().getId(), new SinglePouleTableDTO(2, singlePoule1));
         Map<String, String> singlePoule2 = new LinkedHashMap<>();
         singlePoule2.put("2 Fencer (Singapore) -- 2", "-1,5,5,5,5");
         singlePoule2.put("4 Fencer (Singapore) -- 4", "0,-1,5,5,5");
         singlePoule2.put("6 Fencer (Singapore) -- 6", "0,2,-1,5,5");
         singlePoule2.put("8 Fencer (Singapore) -- 8", "0,3,2,-1,5");
         singlePoule2.put("10 Fencer (Singapore) -- 10", "0,3,1,3,-1");
-        eventService.updatePouleTable(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament").get(), 'M', 'S').get().getId(), new SinglePouleTableDTO(1, singlePoule2));
+        eventService.updatePouleTable(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament0").get(), 'M', 'S').get().getId(), new SinglePouleTableDTO(1, singlePoule2));
     }
 
     public void printUpdatedPouleTable() {
-        PouleTableDTO dto = eventService.getPouleTable(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament").get(), 'M', 'S').get().getId(), false);
+        PouleTableDTO dto = eventService.getPouleTable(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament0").get(), 'M', 'S').get().getId(), false);
         for (Map<String,String> line : dto.getPouleTable()) {
             for (String key : line.keySet()) {
                 System.out.println(key + " " + line.get(key));
@@ -153,7 +153,7 @@ public class PopulateData {
     }
 
     public void printPouleResult() {
-        PouleResultsDTO pouleResults = eventService.poulesResult(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament").get(), 'M', 'S').get().getId());
+        PouleResultsDTO pouleResults = eventService.poulesResult(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament0").get(), 'M', 'S').get().getId());
         System.out.println("Bypass Fencers:");
         for (CleanTournamentFencerDTO ctf : pouleResults.getBypassFencers()) {
             System.out.println(ctf.getFencerName() + " - Poule wins:" + ctf.getPouleWins() + ", Poule points:" + ctf.getPoulePoints());
@@ -169,7 +169,7 @@ public class PopulateData {
     }
 
     public void createDirectEliminationMatches() {
-        eventService.createAllDEMatches(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament").get(), 'M', 'S').get().getId());
+        eventService.createAllDEMatches(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament0").get(), 'M', 'S').get().getId());
     }
 
     @EventListener(ContextRefreshedEvent.class)

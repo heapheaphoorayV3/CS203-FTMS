@@ -1,33 +1,37 @@
 package cs203.ftms.overall.service.fencer;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 import java.util.Collections;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
+import cs203.ftms.overall.comparator.FencerPointsComparator;
 import cs203.ftms.overall.dto.CompleteFencerProfileDTO;
 import cs203.ftms.overall.dto.clean.CleanFencerDTO;
-import cs203.ftms.overall.model.tournamentrelated.Event;
-import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
 import cs203.ftms.overall.model.userrelated.Fencer;
+import cs203.ftms.overall.model.userrelated.User;
 import cs203.ftms.overall.repository.userrelated.FencerRepository;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
-import cs203.ftms.overall.validation.OtherValidations; 
-import cs203.ftms.overall.comparator.FencerPointsComparator;
+import cs203.ftms.overall.validation.OtherValidations;
 
 @Service
 public class FencerService {
     private final UserRepository userRepository; 
     private final FencerRepository fencerRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
     @Autowired
-    public FencerService(UserRepository userRepository, FencerRepository fencerRepository) {
+    public FencerService(UserRepository userRepository, FencerRepository fencerRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager) {
         this.userRepository = userRepository; 
         this.fencerRepository = fencerRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
     }
 
     
@@ -64,5 +68,21 @@ public class FencerService {
         List<Fencer> fencers = fencerRepository.findAll();
         Collections.sort(fencers, new FencerPointsComparator());
         return fencers;
+    }
+
+    private User authenticateUser(String email, String password) {
+        authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(email, password));
+        return userRepository.findByEmail(email).orElse(null);
+    }
+
+    public String changePassword(User u, String oldPassword, String newPassword) {
+        User verifiedUser = authenticateUser(u.getEmail(), oldPassword);
+        if (verifiedUser == null) {
+            return "old password is incorrect";
+        }
+        u.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(u);
+        return "password changed successfully";
     }
 }

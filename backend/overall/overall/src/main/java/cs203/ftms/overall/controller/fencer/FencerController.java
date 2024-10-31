@@ -12,11 +12,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import cs203.ftms.overall.dto.ChangePasswordDTO;
 import cs203.ftms.overall.dto.CompleteFencerProfileDTO;
 import cs203.ftms.overall.dto.clean.CleanFencerDTO;
 import cs203.ftms.overall.model.userrelated.Fencer;
@@ -67,6 +69,15 @@ public class FencerController {
         for (Fencer fencer : fencers) {
             res.add(fencerService.getCleanFencerDTO(fencer));
         }
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    @PutMapping("/change-password")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordDTO changePasswordDTO) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        String res = fencerService.changePassword(user, changePasswordDTO.getOldPassword(), changePasswordDTO.getNewPassword());
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 }
