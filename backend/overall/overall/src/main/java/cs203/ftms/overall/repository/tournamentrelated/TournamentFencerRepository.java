@@ -7,5 +7,4 @@ import java.util.List;
 
 public interface TournamentFencerRepository extends JpaRepository<TournamentFencer, Integer> {
     List<TournamentFencer> findByEvent(Event event);
-
 }
