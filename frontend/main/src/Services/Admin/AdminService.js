@@ -6,6 +6,10 @@ const baseURL = "/admin";
 - Update getUnverifiedOrganisers() URL to GET from correct endpoint
 */
 class AdminService {
+  async getProfile() {
+    return await ProtectedAPI.get(`${baseURL}/profile`);
+  }
+
   async getUnverifiedOrganisers() {
     return await ProtectedAPI.get(`${baseURL}/unverified-organiser`);
   }

@@ -19,12 +19,32 @@ class EventService {
     return await ProtectedAPI.get(`${baseURL}/${eid}/get-poule-table`);
   }
 
-  async createPoules(eid) {
-    return await ProtectedAPI.post(`${baseURL}/${eid}/create-poules`);
+  async updatePouleTable(eid, data) {
+    return await ProtectedAPI.put(`${baseURL}/${eid}/update-poule-table`, data);
+  }
+
+  async createPoules(eid, data) {
+    return await ProtectedAPI.post(`${baseURL}/${eid}/create-poules`, data);
   }
 
   async getRecommendedPoules(eid) {
     return await ProtectedAPI.get(`${baseURL}/${eid}/get-recommended-poules`);
+  }
+
+  async getMatches(eid) {
+    return await ProtectedAPI.get(`${baseURL}/${eid}/get-direct-elimination-matches`);
+  }
+
+  async getPoulesResult(eid) {
+    return await ProtectedAPI.get(`${baseURL}/${eid}/get-poules-result`);
+  }
+
+  async getEventRanking(eid) {
+    return await ProtectedAPI.get(`${baseURL}/${eid}/get-event-ranking`);
+  }
+
+  async updateDEMatch(eid, data) {
+    return await ProtectedAPI.put(`${baseURL}/${eid}/update-direct-elimination-match`, data);
   }
 }
 

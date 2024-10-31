@@ -4,8 +4,10 @@ import AdminService from "../../Services/Admin/AdminService";
 import { set } from "react-hook-form";
 
 /*
-- Submit Button
-- Integrate with Backend
+TODO
+- Add loading state
+- Axios Timeout since Backend needs to send emails to all organisers when verified before sending a 200 response 
+  no solution yet, needs more work on backend
 */
 export default function VerifyOrganiser() {
 

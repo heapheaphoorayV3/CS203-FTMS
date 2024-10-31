@@ -19,42 +19,19 @@ export default function ViewTournament() {
   const [tournamentData, setTournamentData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [eventsArray, setEventsArray] = useState();
+  const [eventsArray, setEventsArray] = useState([]);
   const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
   const [registeredEvents, setRegisteredEvents] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const limit = 10;
 
-  const testData = Array.from({ length: 20 }, (_, index) => ({
-    id: index + 1,
-    name: "Name",
-    country: "SG",
-    score: 0,
-  }));
-
-  const [paginatedData, setPaginatedData] = useState([]);
-
-  // Effect to update the organisers and total pages based on current page
-  useEffect(() => {
-    const startIndex = (currentPage - 1) * limit;
-    const endIndex = startIndex + limit;
-    const paginatedData = testData.slice(startIndex, endIndex);
-    setPaginatedData(paginatedData); // Set paginated data for the current page
-  }, [currentPage]);
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-  const totalPages = Math.ceil(testData.length / limit);
   const [isCreating, setIsCreating] = useState(false);
   const allEventTypes = [
     { value: "", label: "Select Weapon" },
-    { value: "MF", label: "Male Foil" },
-    { value: "ME", label: "Male Épée" },
-    { value: "MS", label: "Male Sabre" },
-    { value: "FF", label: "Female Foil" },
-    { value: "FE", label: "Female Épée" },
-    { value: "FS", label: "Female Sabre" },
+    { value: "MF", label: "Men's Foil" },
+    { value: "ME", label: "Men's Épée" },
+    { value: "MS", label: "Men's Sabre" },
+    { value: "FF", label: "Women's Foil" },
+    { value: "FE", label: "Women's Épée" },
+    { value: "FS", label: "Women's Sabre" },
   ];
   const [eventTypes, setEventTypes] = useState(allEventTypes);
 
@@ -70,7 +47,8 @@ export default function ViewTournament() {
         setTournamentData(response.data);
         console.log("response.data => ", response.data);
         // Set eventsArray
-        setEventsArray(response.data.events);
+        const eventsArray = response.data.events; // Accessing events directly
+        setEventsArray(eventsArray);
       } catch (error) {
         console.error("Error fetching tournament data:", error);
         setError("Failed to load tournament data.");
@@ -79,20 +57,37 @@ export default function ViewTournament() {
       }
     };
 
+
     if (tournamentID) {
       fetchData();
     }
   }, [tournamentID]);
 
+  console.log("=============");
+  console.log(eventsArray);
+
+  const userType = sessionStorage.getItem('userType');
+
+  let homeLink;
+  if (userType === 'F') {
+    homeLink = '/fencer-dashboard';
+  } else if (userType === 'O') {
+    homeLink = '/organiser-dashboard';
+  } else if (userType === 'A') {
+    homeLink = '/admin-dashboard';
+  } else {
+    homeLink = '/'; // Default link if userType is not recognized
+  }
+
   const breadcrumbsItems = [
-    { name: "Home", link: "/" },
+    { name: "Home", link: homeLink },
     { name: "Tournaments", link: "/tournaments" },
     {
       name: loading
         ? "Loading..."
         : tournamentData
-        ? tournamentData.name
-        : "Not Found",
+          ? tournamentData.name
+          : "Not Found",
     },
   ];
 
@@ -213,10 +208,10 @@ export default function ViewTournament() {
     // Switch statement for gender
     switch (gender) {
       case "M":
-        eventName += "Male ";
+        eventName += "Men's ";
         break;
       case "F":
-        eventName += "Female ";
+        eventName += "Women's ";
         break;
     }
     // Switch statement for weapon
@@ -299,7 +294,7 @@ export default function ViewTournament() {
   return (
     // Grid for Navbar, Sidebar and Content
 
-    <div className="row-span-2 col-start-2 bg-gray-200 h-full overflow-y-auto">
+    <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">
       <Breadcrumbs items={breadcrumbsItems} />
       <h1 className="my-10 ml-12 text-left text-4xl font-semibold">
         {tournamentData.name}
@@ -334,10 +329,10 @@ export default function ViewTournament() {
             </div>
           </Tab>
           <Tab label="Events">
-            <table className="table text-lg text-center">
+            <table className="table text-lg text-center border-collapse">
               {/* head */}
               <thead className="text-lg text-primary">
-                <tr>
+                <tr className="border-b border-gray-300">
                   {/* <th></th> */}
                   <th>Event Name</th>
                   <th>Date</th>
@@ -354,7 +349,7 @@ export default function ViewTournament() {
                 {/* Render events */}
                 {eventsArray.length > 0 ? (
                   eventsArray.map((event, index) => (
-                    <tr key={index}>
+                    <tr key={index} className="border-b border-gray-300 hover:bg-gray-100">
                       {/* <td>Event details</td> */}
                       <td>
                         <a
@@ -443,46 +438,6 @@ export default function ViewTournament() {
                 ]}
               />
             )}
-          </Tab>
-          <Tab label="Tournament Ranking">
-            <label className="block font-medium ml-1 mb-1">Event</label>
-            <select>
-              <option value="">Select Event</option>
-              {eventsArray.map((event) => (
-                <option key={event.id} value={event.id}>
-                  {event.eventName}
-                </option>
-              ))}
-            </select>
-            <table className="table text-lg">
-              {/* head */}
-              <thead className="text-lg text-primary">
-                <tr>
-                  <th className="text-center w-20">Rank</th>
-                  <th className="w-1/2">Name</th>
-                  <th className="text-center">Country</th>
-                  <th className="text-center">Points</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedData.map((item) => (
-                  <tr key={item.id}>
-                    <td className="text-center">{item.id}</td>
-                    <td>{item.name}</td>
-                    <td className="text-center">{item.country}</td>
-                    <td className="text-center">{item.score}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div className="flex flex-col justify-center items-center">
-              <PaginationButton
-                totalPages={totalPages}
-                buttonSize="w-10 h-10"
-                currentPage={currentPage}
-                onPageChange={handlePageChange}
-              />
-            </div>
           </Tab>
         </Tabs>
       </div>

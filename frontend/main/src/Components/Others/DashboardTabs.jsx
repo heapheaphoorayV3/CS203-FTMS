@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
-const Tabs = ({ children }) => {
+
+const Tabs = ({ children, parentRef }) => {
     const [activeTab, setActiveTab] = useState(children[0].props.label);
+
     const handleClick = (e, newActiveTab) => {
         e.preventDefault();
         setActiveTab(newActiveTab);
     };
+
     return (
-        <div className="w-full h-full flex flex-col">
+        <div className="w-full h-full flex flex-col flex-grow">
             <div className="flex border-b border-gray-300">
                 {children.map(child => (
                     <button
@@ -19,10 +22,10 @@ const Tabs = ({ children }) => {
                     </button>
                 ))}
             </div>
-            <div className="py-4 flex flex-col flex-grow">
+            <div className="py-4 min-h-96 flex flex-col" ref={parentRef}>
                 {children.map(child => {
                     if (child.props.label === activeTab) {
-                        return <div className="h-full" key={child.props.label}>{child.props.children} </div>;
+                        return <div className="h-full" key={child.props.label}>{child.props.children}</div>;
                     }
                     return null;
                 })}
@@ -30,6 +33,7 @@ const Tabs = ({ children }) => {
         </div>
     );
 };
+
 const Tab = ({ label, children }) => {
     return (
         <div label={label} className="hidden">
@@ -37,4 +41,5 @@ const Tab = ({ label, children }) => {
         </div>
     );
 };
+
 export { Tabs, Tab };

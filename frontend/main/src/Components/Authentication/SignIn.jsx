@@ -26,10 +26,11 @@ export default function SignIn() {
     try {
       // Get response from server
       const response = await AuthService.loginUser(data);
-      const { token, userType } = response.data;
+      const { token, userType, refreshToken } = response.data;
 
       sessionStorage.setItem("token", token);
       sessionStorage.setItem("userType", userType);
+      sessionStorage.setItem("refreshToken", refreshToken);
 
       if (!token) {
         setError(true);
@@ -63,8 +64,8 @@ export default function SignIn() {
   };
 
   return (
-    <div className="h-full flex flex-col justify-center items-center bg-gray-200">
-      <div className="flex flex-col items-center bg-white p-8 rounded-lg shadow-lg w-[600px]">
+    <div className="h-full flex flex-col justify-center items-center bg-white">
+      <div className="flex flex-col items-center bg-white border p-8 rounded-lg shadow-lg w-[600px]">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <h1 className="text-3xl font-semibold mb-10 text-center">Sign In</h1>
         </div>

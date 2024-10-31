@@ -59,18 +59,12 @@ const OrganiserDashboard = () => {
   console.log("verified=" + userData.verified);
 
   return (
-    <div className="bg-gray-200 w-full h-full flex flex-col gap-2 p-8 overflow-auto">
+    <div className="bg-white w-full h-full flex flex-col gap-2 p-8 overflow-auto">
       <div className="bg-white border rounded-2xl shadow-lg p-6 flex w-full relative overflow-x-hidden">
-        {/* Profile Image and Name */}
-        <div className="flex-shrink-0 flex flex-col items-center my-auto">
-          <img
-            className="w-56 h-56 rounded-full mr-4"
-            src={jackinpic}
-            alt="Profile picture"
-          />
-          <div className="text-xl font-semibold mt-4 mr-4">
-            {userData.name}
-          </div>
+        
+        <div className="w-1/5 flex-shrink-0 flex flex-col items-center my-auto">
+          <div className="text-4xl font-semibold mr-4">{userData.name}'s</div>
+          <div className="text-4xl font-semibold mr-4">Dashboard</div>
         </div>
 
         <div className="grid grid-cols-[2fr_8fr] gap-y-2 gap-x-4 ml-4 my-4 text-xl w-full">
