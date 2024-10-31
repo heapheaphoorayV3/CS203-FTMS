@@ -46,6 +46,11 @@ class EventService {
   async updateDEMatch(eid, data) {
     return await ProtectedAPI.put(`${baseURL}/${eid}/update-direct-elimination-match`, data);
   }
+
+  // TODO: Check Endpoint with Backend
+  async deleteEvent(eid) {
+    return await ProtectedAPI.delete(`${baseURL}/${eid}/delete-event`);
+  }
 }
 
 export default new EventService();

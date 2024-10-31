@@ -8,9 +8,7 @@ import Breadcrumbs from "../Others/Breadcrumbs.jsx";
 import { Tab, Tabs } from "../Others/DashboardTabs.jsx";
 import CreateEvent from "./CreateEvent.jsx";
 import SubmitButton from "../Others/SubmitButton.jsx";
-import EventBracket from "./EventBracket.jsx";
-import PaginationButton from "../Others/Pagination.jsx";
-import axios from "axios";
+import DeleteEvent from "./DeleteEvent.jsx";
 
 export default function ViewTournament() {
   // Retrieve tournament ID from URL
@@ -22,6 +20,8 @@ export default function ViewTournament() {
   const [eventsArray, setEventsArray] = useState([]);
   const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
   const [registeredEvents, setRegisteredEvents] = useState([]);
+  const [deleteEventPopUp, setDeleteEventPopUp] = useState(false);
+  const [deletedEventID, setDeletedEventID] = useState(null);
 
   const [isCreating, setIsCreating] = useState(false);
   const allEventTypes = [
@@ -291,6 +291,14 @@ export default function ViewTournament() {
     }
   };
 
+  const closeDeleteEventPopUp = () => {
+    setDeleteEventPopUp(false);
+  }
+  const deleteEvent = async (eventID) => {
+    setDeleteEventPopUp(true);
+    setDeletedEventID(eventID);
+  }
+
   return (
     // Grid for Navbar, Sidebar and Content
 
@@ -364,7 +372,7 @@ export default function ViewTournament() {
                       <td>{event.startTime}</td>
                       <td>{event.endTime}</td>
                       <td>
-                        {sessionStorage.getItem("userType") === "F" ? (
+                        {sessionStorage.getItem("userType") === "F" && (
                           <SubmitButton
                             onSubmit={() => registerEvent(event.id)}
                             disabled={registeredEvents.includes(event.id)}
@@ -373,16 +381,13 @@ export default function ViewTournament() {
                               ? "Registered"
                               : "Register"}
                           </SubmitButton>
-                        ) : (
-                          <span>delete event button</span>
-                          /* <SubmitButton
-                            onSubmit={() => registerEvent(event.id)}
-                            disabled={registeredEvents.includes(event.id)}
+                        )}
+                        {sessionStorage.getItem("userType") === "O" && (
+                          <SubmitButton
+                            onSubmit={() => deleteEvent(event.id)}
                           >
-                            {registeredEvents.includes(event.id)
-                              ? "Registered"
-                              : "Register"}
-                          </SubmitButton> */
+                            Delete Event
+                          </SubmitButton>
                         )}
                       </td>
                     </tr>
@@ -436,6 +441,14 @@ export default function ViewTournament() {
                   tournamentData.startDate,
                   tournamentData.endDate,
                 ]}
+              />
+            )}
+
+            {/* Delete Event Popup --> need to pass in submit/close */}
+            {deleteEventPopUp && (
+              <DeleteEvent
+                id={deletedEventID}
+                closeDeleteEventPopUp={closeDeleteEventPopUp}
               />
             )}
           </Tab>
