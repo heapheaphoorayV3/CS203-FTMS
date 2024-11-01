@@ -12,6 +12,11 @@ import UpdateEvent from "./UpdateEvent.jsx";
 import DeleteEvent from "./DeleteEvent.jsx";
 import SubmitButton from "../Others/SubmitButton.jsx";
 
+function formatTimeTo24Hour(timeString) {
+  const [hours, minutes] = timeString.split(":"); // Get hours and minutes
+  return `${hours}${minutes}`; // Return formatted time
+}
+
 
 export default function ViewTournament() {
   // Retrieve tournament ID from URL
@@ -383,8 +388,8 @@ export default function ViewTournament() {
                         {/* no eventName attribute in new backend (pending) --> {event.eventName} */}
                       </td>
                       <td>{event.date}</td>
-                      <td>{event.startTime}</td>
-                      <td>{event.endTime}</td>
+                      <td>{formatTimeTo24Hour(event.startTime)}</td>
+                      <td>{formatTimeTo24Hour(event.endTime)}</td>
                       <td>
                         {sessionStorage.getItem("userType") === "F" && (
                           <SubmitButton
