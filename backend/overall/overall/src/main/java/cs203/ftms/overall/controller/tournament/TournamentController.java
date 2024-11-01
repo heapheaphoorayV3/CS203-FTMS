@@ -1,5 +1,6 @@
 package cs203.ftms.overall.controller.tournament;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,6 +72,31 @@ public class TournamentController {
         List<CleanTournamentDTO> ctList = new ArrayList<>();
         for (Tournament t : tList) {
             ctList.add(tournamentService.getCleanTournamentDTO(t));
+        }
+        return new ResponseEntity<>(ctList, HttpStatus.OK);
+    }
+
+    @GetMapping("/upcoming-tournaments")
+    public ResponseEntity<List<CleanTournamentDTO>> getUpcomingTournaments() {
+
+        List<Tournament> tList = tournamentService.getAllTournaments();
+        List<CleanTournamentDTO> ctList = new ArrayList<>();
+        for (Tournament t : tList) {
+            if(t.getStartDate().isAfter(LocalDate.now())){
+                ctList.add(tournamentService.getCleanTournamentDTO(t));
+            }
+        }
+        return new ResponseEntity<>(ctList, HttpStatus.OK);
+    }
+
+    @GetMapping("/past-tournaments")
+    public ResponseEntity<List<CleanTournamentDTO>> getPastTournaments() {
+        List<Tournament> tList = tournamentService.getAllTournaments();
+        List<CleanTournamentDTO> ctList = new ArrayList<>();
+        for (Tournament t : tList) {
+            if(t.getStartDate().isBefore(LocalDate.now())){
+                ctList.add(tournamentService.getCleanTournamentDTO(t));
+            }
         }
         return new ResponseEntity<>(ctList, HttpStatus.OK);
     }

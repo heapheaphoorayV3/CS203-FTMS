@@ -82,10 +82,50 @@ public class PopulateData {
         }
     }
 
-    public void createFencer() throws MethodArgumentNotValidException {
+    public void createMenSabreFencer() throws MethodArgumentNotValidException {
         for (int i = 1; i <= FENCER_COUNT; i++) {
-            Fencer f = (Fencer) authenticationService.createFencer(new RegisterFencerDTO("Fencer", "" + i, "fencer" + i + "@gmail.com", "Abcd1234!", "+6591234567", "Singapore", LocalDate.of(1999,1,1)));
+            Fencer f = (Fencer) authenticationService.createFencer(new RegisterFencerDTO("MSFencer", "" + i, "MSfencer" + i + "@gmail.com", "Abcd1234!", "+6591234567", "Singapore", LocalDate.of(1999,1,1)));
             fencerService.completeProfile(f, new CompleteFencerProfileDTO('L', 'S', 'M', "Club", 2021));
+            // f.setPoints(random.nextInt(1000));
+            f.setPoints(i * 100);
+        }
+    }
+    public void createWomenSabreFencer() throws MethodArgumentNotValidException {
+        for (int i = 1; i <= FENCER_COUNT; i++) {
+            Fencer f = (Fencer) authenticationService.createFencer(new RegisterFencerDTO("WSFencer", "" + i, "WSfencer" + i + "@gmail.com", "Abcd1234!", "+6591234567", "Singapore", LocalDate.of(1999,1,1)));
+            fencerService.completeProfile(f, new CompleteFencerProfileDTO('L', 'S', 'W', "Club", 2021));
+            // f.setPoints(random.nextInt(1000));
+            f.setPoints(i * 100);
+        }
+    }
+    public void createMenEpeeFencer() throws MethodArgumentNotValidException {
+        for (int i = 1; i <= FENCER_COUNT; i++) {
+            Fencer f = (Fencer) authenticationService.createFencer(new RegisterFencerDTO("MEFencer", "" + i, "MEfencer" + i + "@gmail.com", "Abcd1234!", "+6591234567", "Singapore", LocalDate.of(1999,1,1)));
+            fencerService.completeProfile(f, new CompleteFencerProfileDTO('L', 'E', 'M', "Club", 2021));
+            // f.setPoints(random.nextInt(1000));
+            f.setPoints(i * 100);
+        }
+    }
+    public void createWomenEpeeFencer() throws MethodArgumentNotValidException {
+        for (int i = 1; i <= FENCER_COUNT; i++) {
+            Fencer f = (Fencer) authenticationService.createFencer(new RegisterFencerDTO("WEFencer", "" + i, "WEfencer" + i + "@gmail.com", "Abcd1234!", "+6591234567", "Singapore", LocalDate.of(1999,1,1)));
+            fencerService.completeProfile(f, new CompleteFencerProfileDTO('L', 'E', 'W', "Club", 2021));
+            // f.setPoints(random.nextInt(1000));
+            f.setPoints(i * 100);
+        }
+    }
+    public void createMenFoilFencer() throws MethodArgumentNotValidException {
+        for (int i = 1; i <= FENCER_COUNT; i++) {
+            Fencer f = (Fencer) authenticationService.createFencer(new RegisterFencerDTO("MFFencer", "" + i, "MFfencer" + i + "@gmail.com", "Abcd1234!", "+6591234567", "Singapore", LocalDate.of(1999,1,1)));
+            fencerService.completeProfile(f, new CompleteFencerProfileDTO('L', 'F', 'M', "Club", 2021));
+            // f.setPoints(random.nextInt(1000));
+            f.setPoints(i * 100);
+        }
+    }
+    public void createWomenFoilFencer() throws MethodArgumentNotValidException {
+        for (int i = 1; i <= FENCER_COUNT; i++) {
+            Fencer f = (Fencer) authenticationService.createFencer(new RegisterFencerDTO("WFFencer", "" + i, "WFfencer" + i + "@gmail.com", "Abcd1234!", "+6591234567", "Singapore", LocalDate.of(1999,1,1)));
+            fencerService.completeProfile(f, new CompleteFencerProfileDTO('L', 'F', 'W', "Club", 2021));
             // f.setPoints(random.nextInt(1000));
             f.setPoints(i * 100);
         }
@@ -107,7 +147,7 @@ public class PopulateData {
     public void registerFencerForEvent() {
         for(int i = 0; i < 3; i++){
             for (int j = 1; j <= FENCER_COUNT; j++) {
-                eventService.registerEvent(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament" + i).get(), 'M', 'S').get().getId(), (Fencer) userRepository.findByEmail("fencer" + j + "@gmail.com").get());
+                eventService.registerEvent(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament" + i).get(), 'M', 'S').get().getId(), (Fencer) userRepository.findByEmail("MSfencer" + j + "@gmail.com").get());
             }
         }
     }
@@ -181,7 +221,12 @@ public class PopulateData {
         if (userRepository.count() == 0) {
             createAdmin();
             createOrganiser();
-            createFencer();
+            createMenSabreFencer();
+            createWomenSabreFencer();
+            createMenEpeeFencer();
+            createWomenEpeeFencer();
+            createMenFoilFencer();
+            createWomenFoilFencer();
             createTournament();
             createEvent();
             registerFencerForEvent();
