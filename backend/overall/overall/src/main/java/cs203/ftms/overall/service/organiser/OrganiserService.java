@@ -1,5 +1,7 @@
 package cs203.ftms.overall.service.organiser;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,5 +64,27 @@ public class OrganiserService {
         o.setEmail(dto.getEmail());
         o.setName(dto.getName());
         userRepository.save(o);
+    }
+
+    public List<Tournament> getOrganiserUpcomingTournaments(Organiser o) {
+        List<Tournament> tournaments = tournamentRepository.findByOrganiserId(o.getId()).orElse(null);
+        List<Tournament> upcomingTournaments = new ArrayList<>();
+        for (Tournament t : tournaments) {
+            if (t.getStartDate().isAfter(LocalDate.now())) {
+                upcomingTournaments.add(t);
+            }
+        }
+        return upcomingTournaments;
+    }
+
+    public List<Tournament> getOrganiserPastTournaments(Organiser o) {
+        List<Tournament> tournaments = tournamentRepository.findByOrganiserId(o.getId()).orElse(null);
+        List<Tournament> pastTournaments = new ArrayList<>();
+        for (Tournament t : tournaments) {
+            if (t.getStartDate().isBefore(LocalDate.now())) {
+                pastTournaments.add(t);
+            }
+        }
+        return pastTournaments;
     }
 }

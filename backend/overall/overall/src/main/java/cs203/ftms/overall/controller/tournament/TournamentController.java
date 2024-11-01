@@ -1,6 +1,5 @@
 package cs203.ftms.overall.controller.tournament;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +11,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -89,24 +87,20 @@ public class TournamentController {
     @GetMapping("/upcoming-tournaments")
     public ResponseEntity<List<CleanTournamentDTO>> getUpcomingTournaments() {
 
-        List<Tournament> tList = tournamentService.getAllTournaments();
+        List<Tournament> tList = tournamentService.getUpcomingTournaments();
         List<CleanTournamentDTO> ctList = new ArrayList<>();
         for (Tournament t : tList) {
-            if(t.getStartDate().isAfter(LocalDate.now())){
-                ctList.add(tournamentService.getCleanTournamentDTO(t));
-            }
+            ctList.add(tournamentService.getCleanTournamentDTO(t));
         }
         return new ResponseEntity<>(ctList, HttpStatus.OK);
     }
 
     @GetMapping("/past-tournaments")
     public ResponseEntity<List<CleanTournamentDTO>> getPastTournaments() {
-        List<Tournament> tList = tournamentService.getAllTournaments();
+        List<Tournament> tList = tournamentService.getPastTournaments();
         List<CleanTournamentDTO> ctList = new ArrayList<>();
         for (Tournament t : tList) {
-            if(t.getStartDate().isBefore(LocalDate.now())){
-                ctList.add(tournamentService.getCleanTournamentDTO(t));
-            }
+            ctList.add(tournamentService.getCleanTournamentDTO(t));
         }
         return new ResponseEntity<>(ctList, HttpStatus.OK);
     }

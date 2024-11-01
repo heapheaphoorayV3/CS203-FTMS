@@ -174,19 +174,19 @@ public class PopulateData {
 
     public void updatePouleTable() throws MethodArgumentNotValidException {
         Map<String, String> singlePoule1 = new LinkedHashMap<>();
-        singlePoule1.put("9 Fencer (Singapore) -- 9", "-1,5,5,5,5");
-        singlePoule1.put("7 Fencer (Singapore) -- 7", "0,-1,5,5,5");
-        singlePoule1.put("5 Fencer (Singapore) -- 5", "0,2,-1,5,5");
-        singlePoule1.put("3 Fencer (Singapore) -- 3", "0,3,2,-1,5");
-        singlePoule1.put("1 Fencer (Singapore) -- 1", "0,3,1,3,-1");
+        singlePoule1.put("9 MSFencer (Singapore) -- 9", "-1,5,5,5,5");
+        singlePoule1.put("7 MSFencer (Singapore) -- 7", "0,-1,5,5,5");
+        singlePoule1.put("5 MSFencer (Singapore) -- 5", "0,2,-1,5,5");
+        singlePoule1.put("3 MSFencer (Singapore) -- 3", "0,3,2,-1,5");
+        singlePoule1.put("1 MSFencer (Singapore) -- 1", "0,3,1,3,-1");
         pouleService.updatePouleTable(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament0").get(), 'M', 'S').get().getId(), new SinglePouleTableDTO(2, singlePoule1));
       
         Map<String, String> singlePoule2 = new LinkedHashMap<>();
-        singlePoule2.put("10 Fencer (Singapore) -- 10", "-1,5,5,5,5");
-        singlePoule2.put("8 Fencer (Singapore) -- 8", "0,-1,5,5,5");
-        singlePoule2.put("6 Fencer (Singapore) -- 6", "0,2,-1,5,5");
-        singlePoule2.put("4 Fencer (Singapore) -- 4", "0,3,2,-1,5");
-        singlePoule2.put("2 Fencer (Singapore) -- 2", "0,3,1,3,-1");
+        singlePoule2.put("10 MSFencer (Singapore) -- 10", "-1,5,5,5,5");
+        singlePoule2.put("8 MSFencer (Singapore) -- 8", "0,-1,5,5,5");
+        singlePoule2.put("6 MSFencer (Singapore) -- 6", "0,2,-1,5,5");
+        singlePoule2.put("4 MSFencer (Singapore) -- 4", "0,3,2,-1,5");
+        singlePoule2.put("2 MSFencer (Singapore) -- 2", "0,3,1,3,-1");
         pouleService.updatePouleTable(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament0").get(), 'M', 'S').get().getId(), new SinglePouleTableDTO(1, singlePoule2));
     }
 

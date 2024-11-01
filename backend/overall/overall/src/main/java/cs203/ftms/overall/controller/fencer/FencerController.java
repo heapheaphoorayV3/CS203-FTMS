@@ -1,6 +1,5 @@
 package cs203.ftms.overall.controller.fencer;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,13 +22,11 @@ import cs203.ftms.overall.dto.CompleteFencerProfileDTO;
 import cs203.ftms.overall.dto.UpdateFencerProfileDTO;
 import cs203.ftms.overall.dto.clean.CleanEventDTO;
 import cs203.ftms.overall.dto.clean.CleanFencerDTO;
-import cs203.ftms.overall.dto.clean.CleanTournamentDTO;
 import cs203.ftms.overall.model.tournamentrelated.Event;
-import cs203.ftms.overall.model.tournamentrelated.Tournament;
 import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.User;
-import cs203.ftms.overall.service.fencer.FencerService;
 import cs203.ftms.overall.service.event.EventService;
+import cs203.ftms.overall.service.fencer.FencerService;
 import jakarta.validation.Valid;
 
 
@@ -104,7 +101,6 @@ public class FencerController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         List<Event> eList = fencerService.getFencerEvents((Fencer) user);
-        
         List<CleanEventDTO> ctList = new ArrayList<>();
         for (Event e : eList) {
             ctList.add(eventService.getCleanEventDTO(e));
@@ -117,13 +113,10 @@ public class FencerController {
     public ResponseEntity<List<CleanEventDTO>> getFencerUpcomingEvents() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
-        List<Event> eList = fencerService.getFencerEvents((Fencer) user);
-        
+        List<Event> eList = fencerService.getFencerUpcomingEvents((Fencer) user);    
         List<CleanEventDTO> ctList = new ArrayList<>();
         for (Event e : eList) {
-            if(e.getDate().isAfter(LocalDate.now())){
-                ctList.add(eventService.getCleanEventDTO(e));
-            }
+            ctList.add(eventService.getCleanEventDTO(e));
         }
         return new ResponseEntity<>(ctList, HttpStatus.OK);
     }
@@ -133,13 +126,10 @@ public class FencerController {
     public ResponseEntity<List<CleanEventDTO>> getFencerPastEvents() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
-        List<Event> eList = fencerService.getFencerEvents((Fencer) user);
-        
+        List<Event> eList = fencerService.getFencerPastEvents((Fencer) user);
         List<CleanEventDTO> ctList = new ArrayList<>();
         for (Event e : eList) {
-            if(e.getDate().isBefore(LocalDate.now())){
-                ctList.add(eventService.getCleanEventDTO(e));
-            }
+            ctList.add(eventService.getCleanEventDTO(e));
         }
         return new ResponseEntity<>(ctList, HttpStatus.OK);
     }
@@ -147,12 +137,10 @@ public class FencerController {
     @GetMapping("/men-sabre-ranking")
     @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
     public ResponseEntity<List<CleanFencerDTO>> getMenSabreRanking() {
-        List<Fencer> fencers = fencerService.getInternationalRank(); 
+        List<Fencer> fencers = fencerService.getFilterdInternationalRank('S', 'M'); 
         List<CleanFencerDTO> res = new ArrayList<>();
         for (Fencer fencer : fencers) {
-            if(fencer.getGender() == 'M' && fencer.getWeapon() == 'S'){
-                res.add(fencerService.getCleanFencerDTO(fencer));
-            }
+            res.add(fencerService.getCleanFencerDTO(fencer));
         }
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
@@ -160,12 +148,10 @@ public class FencerController {
     @GetMapping("/women-sabre-ranking")
     @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
     public ResponseEntity<List<CleanFencerDTO>> getWomenSabreRanking() {
-        List<Fencer> fencers = fencerService.getInternationalRank(); 
+        List<Fencer> fencers = fencerService.getFilterdInternationalRank('S', 'W'); 
         List<CleanFencerDTO> res = new ArrayList<>();
         for (Fencer fencer : fencers) {
-            if(fencer.getGender() == 'W' && fencer.getWeapon() == 'S'){
-                res.add(fencerService.getCleanFencerDTO(fencer));
-            }
+            res.add(fencerService.getCleanFencerDTO(fencer));
         }
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
@@ -173,12 +159,10 @@ public class FencerController {
     @GetMapping("/men-epee-ranking")
     @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
     public ResponseEntity<List<CleanFencerDTO>> getMenEpeeRanking() {
-        List<Fencer> fencers = fencerService.getInternationalRank(); 
+        List<Fencer> fencers = fencerService.getFilterdInternationalRank('E', 'M'); 
         List<CleanFencerDTO> res = new ArrayList<>();
         for (Fencer fencer : fencers) {
-            if(fencer.getGender() == 'M' && fencer.getWeapon() == 'E'){
-                res.add(fencerService.getCleanFencerDTO(fencer));
-            }
+            res.add(fencerService.getCleanFencerDTO(fencer));
         }
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
@@ -186,12 +170,10 @@ public class FencerController {
     @GetMapping("/women-epee-ranking")
     @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
     public ResponseEntity<List<CleanFencerDTO>> getWomenEpeeRanking() {
-        List<Fencer> fencers = fencerService.getInternationalRank(); 
+        List<Fencer> fencers = fencerService.getFilterdInternationalRank('E', 'W'); 
         List<CleanFencerDTO> res = new ArrayList<>();
         for (Fencer fencer : fencers) {
-            if(fencer.getGender() == 'W' && fencer.getWeapon() == 'E'){
-                res.add(fencerService.getCleanFencerDTO(fencer));
-            }
+            res.add(fencerService.getCleanFencerDTO(fencer));
         }
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
@@ -199,12 +181,10 @@ public class FencerController {
     @GetMapping("/men-foil-ranking")
     @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
     public ResponseEntity<List<CleanFencerDTO>> getMenFoilRanking() {
-        List<Fencer> fencers = fencerService.getInternationalRank(); 
+        List<Fencer> fencers = fencerService.getFilterdInternationalRank('F', 'M'); 
         List<CleanFencerDTO> res = new ArrayList<>();
         for (Fencer fencer : fencers) {
-            if(fencer.getGender() == 'M' && fencer.getWeapon() == 'F'){
-                res.add(fencerService.getCleanFencerDTO(fencer));
-            }
+            res.add(fencerService.getCleanFencerDTO(fencer));
         }
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
@@ -212,12 +192,10 @@ public class FencerController {
     @GetMapping("/women-foil-ranking")
     @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
     public ResponseEntity<List<CleanFencerDTO>> getWomenFoilRanking() {
-        List<Fencer> fencers = fencerService.getInternationalRank(); 
+        List<Fencer> fencers = fencerService.getFilterdInternationalRank('F', 'W'); 
         List<CleanFencerDTO> res = new ArrayList<>();
         for (Fencer fencer : fencers) {
-            if(fencer.getGender() == 'W' && fencer.getWeapon() == 'F'){
-                res.add(fencerService.getCleanFencerDTO(fencer));
-            }
+            res.add(fencerService.getCleanFencerDTO(fencer));
         }
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
