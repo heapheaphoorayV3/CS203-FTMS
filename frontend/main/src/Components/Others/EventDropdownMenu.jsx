@@ -46,7 +46,7 @@ const EventDropdownMenu = ({ updateEvent, deleteEvent }) => {
             {/* Dropdown Menu */}
             <div
                 id="dropdownDivider"
-                className={`absolute right-0 mt-2 z-10 ${isOpen ? 'block' : 'hidden'} bg-white divide-y divide-gray-100 rounded-lg shadow w-56 dark:bg-gray-700`}
+                className={`absolute right-0 mt-2 z-10 ${isOpen ? 'block' : 'hidden'} bg-white divide-y divide-gray-100 rounded-lg shadow-md border border-gray-200  w-40 dark:bg-gray-700`}
             >
                 <ul
                     className="py-2 text-sm text-gray-700 dark:text-gray-200"

@@ -57,7 +57,7 @@ const UpdateEvent = ({ selectedEvent, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white rounded-lg w-1/3 min-w-[500px] flex flex-col justify-center pt-6 py-12 lg:px-8">
+      <div className="bg-white rounded-lg w-1/3 min-w-[300px] flex flex-col justify-center pt-6 py-12 lg:px-8">
         {/* Close Button --> ml-auto pushes button to the right of the form */}
         <button
           onClick={onClose}

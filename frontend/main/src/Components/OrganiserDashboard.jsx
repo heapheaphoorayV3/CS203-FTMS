@@ -48,6 +48,20 @@ const OrganiserDashboard = () => {
     fetchTournamentData();
   }, []);
 
+  const formatDateRange = (start, end) => {
+    const startDate = new Date(start).toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+    const endDate = new Date(end).toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+    return `${startDate} - ${endDate}`;
+  };
+
   if (loading) {
     return <div className="mt-10">Loading...</div>; // Show loading state
   }
@@ -104,7 +118,7 @@ const OrganiserDashboard = () => {
                         {tournament.name}
                       </a>,
                       tournament.location,
-                      `${new Date(tournament.startDate).toLocaleDateString()} - ${new Date(tournament.endDate).toLocaleDateString()}`,
+                      formatDateRange(tournament.startDate, tournament.endDate),
                       10,
                     ])}
                 />
@@ -129,7 +143,7 @@ const OrganiserDashboard = () => {
                         {tournament.name}
                       </a>,
                       tournament.location,
-                      `${new Date(tournament.startDate).toLocaleDateString()} - ${new Date(tournament.endDate).toLocaleDateString()}`,
+                      formatDateRange(tournament.startDate, tournament.endDate),
                       10,
                     ])}
                 />
@@ -154,7 +168,7 @@ const OrganiserDashboard = () => {
                         {tournament.name}
                       </a>,
                       tournament.location,
-                      `${new Date(tournament.startDate).toLocaleDateString()} - ${new Date(tournament.endDate).toLocaleDateString()}`,
+                      formatDateRange(tournament.startDate, tournament.endDate),
                       10,
                     ])}
                 />
