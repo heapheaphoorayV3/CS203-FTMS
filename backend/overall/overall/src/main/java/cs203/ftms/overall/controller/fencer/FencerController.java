@@ -18,7 +18,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import cs203.ftms.overall.dto.ChangePasswordDTO;
 import cs203.ftms.overall.dto.CompleteFencerProfileDTO;
+import cs203.ftms.overall.dto.UpdateFencerProfileDTO;
 import cs203.ftms.overall.dto.clean.CleanEventDTO;
 import cs203.ftms.overall.dto.clean.CleanFencerDTO;
 import cs203.ftms.overall.dto.clean.CleanTournamentDTO;
@@ -76,6 +78,24 @@ public class FencerController {
             res.add(fencerService.getCleanFencerDTO(fencer));
         }
         return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    @PutMapping("/change-password")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordDTO changePasswordDTO) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        String res = fencerService.changePassword(user, changePasswordDTO.getOldPassword(), changePasswordDTO.getNewPassword());
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    @PutMapping("/update-profile")
+    @PreAuthorize("hasRole('ORGANISER')")
+    public ResponseEntity<String> updateProfile(@RequestBody UpdateFencerProfileDTO dto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        fencerService.updateProfile((Fencer) user, dto);
+        return new ResponseEntity<>("Profile updated sucessfully!", HttpStatus.OK);
     }
 
     @GetMapping("/events")
@@ -201,5 +221,4 @@ public class FencerController {
         }
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
-
 }

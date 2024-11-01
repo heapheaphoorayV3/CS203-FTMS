@@ -12,9 +12,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import cs203.ftms.overall.dto.ChangePasswordDTO;
+import cs203.ftms.overall.dto.UpdateOrganiserProfileDTO;
 import cs203.ftms.overall.dto.clean.CleanOrganiserDTO;
 import cs203.ftms.overall.dto.clean.CleanTournamentDTO;
 import cs203.ftms.overall.model.tournamentrelated.Tournament;
@@ -60,6 +64,23 @@ public class OrganiserController {
         }
         return new ResponseEntity<>(ctList, HttpStatus.OK);
     }
+
+    @PutMapping("/change-password")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordDTO changePasswordDTO) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        String res = organiserService.changePassword(user, changePasswordDTO.getOldPassword(), changePasswordDTO.getNewPassword());
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    @PutMapping("/update-profile")
+    @PreAuthorize("hasRole('ORGANISER')")
+    public ResponseEntity<String> updateProfile(@RequestBody UpdateOrganiserProfileDTO dto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        organiserService.updateProfile((Organiser) user, dto);
+        return new ResponseEntity<>("Profile updated sucessfully!", HttpStatus.OK);
 
     @GetMapping("/upcoming-tournaments")
     @PreAuthorize("hasRole('ORGANISER')")
