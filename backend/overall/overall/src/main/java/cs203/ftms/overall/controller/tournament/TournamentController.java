@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -75,4 +76,12 @@ public class TournamentController {
         return new ResponseEntity<>(ctList, HttpStatus.OK);
     }
 
+    @DeleteMapping("/delete-tournament/{tid}")
+    @PreAuthorize("hasRole('ORGANISER')")
+    public ResponseEntity<String> deleteTournament(@PathVariable int tid) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        tournamentService.deleteTournament((Organiser) user, tid);
+        return new ResponseEntity<>("Deleted successfully", HttpStatus.OK);
+    }
 }
