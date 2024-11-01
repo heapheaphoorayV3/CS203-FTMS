@@ -1,14 +1,17 @@
 import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import EventDropdownMenu from "../Others/EventDropdownMenu.jsx";
 import EventService from "../../Services/Event/EventService";
 import FencerService from "../../Services/Fencer/FencerService.js";
 import TournamentService from "../../Services/Tournament/TournamentService.js";
 import Breadcrumbs from "../Others/Breadcrumbs.jsx";
 import { Tab, Tabs } from "../Others/DashboardTabs.jsx";
 import CreateEvent from "./CreateEvent.jsx";
-import SubmitButton from "../Others/SubmitButton.jsx";
+import UpdateEvent from "./UpdateEvent.jsx";
 import DeleteEvent from "./DeleteEvent.jsx";
+import SubmitButton from "../Others/SubmitButton.jsx";
+
 
 export default function ViewTournament() {
   // Retrieve tournament ID from URL
@@ -18,10 +21,13 @@ export default function ViewTournament() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [eventsArray, setEventsArray] = useState([]);
+  // One Popup for create-event the other for update-event
   const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
+  const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
   const [registeredEvents, setRegisteredEvents] = useState([]);
-  const [deleteEventPopUp, setDeleteEventPopUp] = useState(false);
-  const [deletedEventID, setDeletedEventID] = useState(null);
+  const [isDeleteEventPopUpVisible, setIsDeleteEventPopUpVisible] = useState(false);
+  // Selected Event for deletion / update (organiser)
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   const [isCreating, setIsCreating] = useState(false);
   const allEventTypes = [
@@ -291,12 +297,20 @@ export default function ViewTournament() {
     }
   };
 
-  const closeDeleteEventPopUp = () => {
-    setDeleteEventPopUp(false);
+  const closeUpdatePopup = () => {
+    setIsUpdatePopupVisible(false);
   }
-  const deleteEvent = async (eventID) => {
-    setDeleteEventPopUp(true);
-    setDeletedEventID(eventID);
+  const updateEvent = (selectedEvent) => {
+    setIsUpdatePopupVisible(true);
+    setSelectedEvent(selectedEvent);
+  }
+
+  const closeDeleteEventPopUp = () => {
+    setIsDeleteEventPopUpVisible(false);
+  }
+  const deleteEvent = (selectedEvent) => {
+    setIsDeleteEventPopUpVisible(true);
+    setSelectedEvent(selectedEvent);
   }
 
   return (
@@ -348,7 +362,7 @@ export default function ViewTournament() {
                   <th>End Time</th>
                   <th>
                     {sessionStorage.getItem("userType") === "O"
-                      ? "Delete Event"
+                      ? ""
                       : "Register"}
                   </th>
                 </tr>
@@ -383,11 +397,10 @@ export default function ViewTournament() {
                           </SubmitButton>
                         )}
                         {sessionStorage.getItem("userType") === "O" && (
-                          <SubmitButton
-                            onSubmit={() => deleteEvent(event.id)}
-                          >
-                            Delete Event
-                          </SubmitButton>
+                          <EventDropdownMenu 
+                            updateEvent={() => updateEvent(event)}
+                            deleteEvent={() => deleteEvent(event.id)}
+                          />
                         )}
                       </td>
                     </tr>
@@ -444,10 +457,22 @@ export default function ViewTournament() {
               />
             )}
 
+            {/* Create Event Popup --> need to pass in submit/close */}
+            {isUpdatePopupVisible && (
+              <UpdateEvent
+                onClose={closeUpdatePopup}
+                selectedEvent={selectedEvent}
+                tournamentDates={[
+                  tournamentData.startDate,
+                  tournamentData.endDate,
+                ]}
+              />
+            )}
+
             {/* Delete Event Popup --> need to pass in submit/close */}
-            {deleteEventPopUp && (
+            {isDeleteEventPopUpVisible && (
               <DeleteEvent
-                id={deletedEventID}
+                id={selectedEvent.id}
                 closeDeleteEventPopUp={closeDeleteEventPopUp}
               />
             )}

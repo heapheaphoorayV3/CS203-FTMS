@@ -3,7 +3,7 @@ import { useState } from "react";
 import EventService from "../../Services/Event/EventService";
 
 const DeleteEvent = ({ id, closeDeleteEventPopUp }) => {
-    const [error, setError] = useState(true);
+    const [error, setError] = useState(false);
 
     const handleDeleteEvent = async () => {
         try {
