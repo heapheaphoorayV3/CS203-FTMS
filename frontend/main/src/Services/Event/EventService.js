@@ -7,8 +7,9 @@ class EventService {
     return await ProtectedAPI.post(`${baseURL}/${tid}/create-event`, events);
   }
 
-  async getEvent(eid) {
-    return await ProtectedAPI.get(`${baseURL}/event-details/${eid}`);
+  // TODO
+  async updateEvent(eid, data) {
+    return await ProtectedAPI.put(`${baseURL}/update-event/${eid}`, data);
   }
 
   async registerEvent(eid) {
@@ -45,6 +46,11 @@ class EventService {
 
   async updateDEMatch(eid, data) {
     return await ProtectedAPI.put(`${baseURL}/${eid}/update-direct-elimination-match`, data);
+  }
+
+  // TODO: Check Endpoint with Backend
+  async deleteEvent(eid) {
+    return await ProtectedAPI.delete(`${baseURL}/${eid}/delete-event`);
   }
 }
 

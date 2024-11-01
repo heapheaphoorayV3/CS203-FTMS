@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { DateTime } from "luxon";
-import TournamentService from "../../Services/Tournament/TournamentService";
 import EventService from "../../Services/Event/EventService";
 import { XCircleIcon } from "@heroicons/react/16/solid";
 
@@ -16,11 +15,6 @@ const UpdateEvent = ({ selectedEvent, onClose }) => {
 
   const navigate = useNavigate();
 
-  // Get event
-  const { eventID } = useParams();
-  console.log("eventid=" + eventID);
-  const [event, setEvent] = useState(null);
-
   useEffect(() => {
     if (selectedEvent) {
       // Prefill form with the event details
@@ -29,6 +23,7 @@ const UpdateEvent = ({ selectedEvent, onClose }) => {
       setValue("gender", selectedEvent.gender);
       setValue("minParticipants", selectedEvent.minParticipants);
       setValue("date", selectedEvent.date);
+      setValue("weapon", selectedEvent.weapon);
     }
   }, [selectedEvent, setValue]);
 
@@ -53,8 +48,8 @@ const UpdateEvent = ({ selectedEvent, onClose }) => {
     };
 
     try {
-      await EventService.updateEvent(eventID, formData); // Call the update method
-      navigate(`/view-tournament/${eventID}`); // Redirect to a view page after update
+      await EventService.updateEvent(selectedEvent.id, formData); // Call the update method
+      onClose(); // Redirect to a view page after update
     } catch (error) {
       console.error("Error updating event:", error);
     }

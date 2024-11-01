@@ -1,16 +1,22 @@
 import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import EventDropdownMenu from "../Others/EventDropdownMenu.jsx";
 import EventService from "../../Services/Event/EventService";
 import FencerService from "../../Services/Fencer/FencerService.js";
 import TournamentService from "../../Services/Tournament/TournamentService.js";
 import Breadcrumbs from "../Others/Breadcrumbs.jsx";
 import { Tab, Tabs } from "../Others/DashboardTabs.jsx";
 import CreateEvent from "./CreateEvent.jsx";
+import UpdateEvent from "./UpdateEvent.jsx";
+import DeleteEvent from "./DeleteEvent.jsx";
 import SubmitButton from "../Others/SubmitButton.jsx";
-import EventBracket from "./EventBracket.jsx";
-import PaginationButton from "../Others/Pagination.jsx";
-import axios from "axios";
+
+function formatTimeTo24Hour(timeString) {
+  const [hours, minutes] = timeString.split(":"); // Get hours and minutes
+  return `${hours}${minutes}`; // Return formatted time
+}
+
 
 export default function ViewTournament() {
   // Retrieve tournament ID from URL
@@ -20,8 +26,13 @@ export default function ViewTournament() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [eventsArray, setEventsArray] = useState([]);
+  // One Popup for create-event the other for update-event
   const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
+  const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
   const [registeredEvents, setRegisteredEvents] = useState([]);
+  const [isDeleteEventPopUpVisible, setIsDeleteEventPopUpVisible] = useState(false);
+  // Selected Event for deletion / update (organiser)
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   const [isCreating, setIsCreating] = useState(false);
   const allEventTypes = [
@@ -291,6 +302,22 @@ export default function ViewTournament() {
     }
   };
 
+  const closeUpdatePopup = () => {
+    setIsUpdatePopupVisible(false);
+  }
+  const updateEvent = (selectedEvent) => {
+    setIsUpdatePopupVisible(true);
+    setSelectedEvent(selectedEvent);
+  }
+
+  const closeDeleteEventPopUp = () => {
+    setIsDeleteEventPopUpVisible(false);
+  }
+  const deleteEvent = (selectedEvent) => {
+    setIsDeleteEventPopUpVisible(true);
+    setSelectedEvent(selectedEvent);
+  }
+
   return (
     // Grid for Navbar, Sidebar and Content
 
@@ -340,7 +367,7 @@ export default function ViewTournament() {
                   <th>End Time</th>
                   <th>
                     {sessionStorage.getItem("userType") === "O"
-                      ? "Delete Event"
+                      ? ""
                       : "Register"}
                   </th>
                 </tr>
@@ -361,10 +388,10 @@ export default function ViewTournament() {
                         {/* no eventName attribute in new backend (pending) --> {event.eventName} */}
                       </td>
                       <td>{event.date}</td>
-                      <td>{event.startTime}</td>
-                      <td>{event.endTime}</td>
+                      <td>{formatTimeTo24Hour(event.startTime)}</td>
+                      <td>{formatTimeTo24Hour(event.endTime)}</td>
                       <td>
-                        {sessionStorage.getItem("userType") === "F" ? (
+                        {sessionStorage.getItem("userType") === "F" && (
                           <SubmitButton
                             onSubmit={() => registerEvent(event.id)}
                             disabled={registeredEvents.includes(event.id)}
@@ -373,16 +400,12 @@ export default function ViewTournament() {
                               ? "Registered"
                               : "Register"}
                           </SubmitButton>
-                        ) : (
-                          <span>delete event button</span>
-                          /* <SubmitButton
-                            onSubmit={() => registerEvent(event.id)}
-                            disabled={registeredEvents.includes(event.id)}
-                          >
-                            {registeredEvents.includes(event.id)
-                              ? "Registered"
-                              : "Register"}
-                          </SubmitButton> */
+                        )}
+                        {sessionStorage.getItem("userType") === "O" && (
+                          <EventDropdownMenu 
+                            updateEvent={() => updateEvent(event)}
+                            deleteEvent={() => deleteEvent(event.id)}
+                          />
                         )}
                       </td>
                     </tr>
@@ -436,6 +459,26 @@ export default function ViewTournament() {
                   tournamentData.startDate,
                   tournamentData.endDate,
                 ]}
+              />
+            )}
+
+            {/* Create Event Popup --> need to pass in submit/close */}
+            {isUpdatePopupVisible && (
+              <UpdateEvent
+                onClose={closeUpdatePopup}
+                selectedEvent={selectedEvent}
+                tournamentDates={[
+                  tournamentData.startDate,
+                  tournamentData.endDate,
+                ]}
+              />
+            )}
+
+            {/* Delete Event Popup --> need to pass in submit/close */}
+            {isDeleteEventPopUpVisible && (
+              <DeleteEvent
+                id={selectedEvent.id}
+                closeDeleteEventPopUp={closeDeleteEventPopUp}
               />
             )}
           </Tab>

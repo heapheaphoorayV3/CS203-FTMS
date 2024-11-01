@@ -2,6 +2,7 @@ package cs203.ftms.overall.service.fencer;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,6 +17,8 @@ import cs203.ftms.overall.dto.UpdateFencerProfileDTO;
 import cs203.ftms.overall.dto.clean.CleanFencerDTO;
 import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.User;
+import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
+import cs203.ftms.overall.model.tournamentrelated.Event;
 import cs203.ftms.overall.repository.userrelated.FencerRepository;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
 import cs203.ftms.overall.validation.OtherValidations;
@@ -35,8 +38,6 @@ public class FencerService {
         this.authenticationManager = authenticationManager;
     }
 
-    
-
     public CleanFencerDTO getCleanFencerDTO(Fencer f) {
         if (f == null) return null;
         return new CleanFencerDTO(f.getId(), f.getName(), f.getEmail(), f.getContactNo(), f.getCountry(),
@@ -44,8 +45,6 @@ public class FencerService {
     }
 
     public Fencer completeProfile(Fencer f, CompleteFencerProfileDTO dto) throws MethodArgumentNotValidException {
-        // if (dto.getClub() == null || dto.getDebutYear() != 0 || dto.getDominantArm() != '\u0000' || 
-        // dto.getGender() != '\u0000' || dto.getWeapon() != '\u0000') return null; 
         OtherValidations.validDebutYear(f, dto.getDebutYear());
         f.setClub(dto.getClub());
         f.setDebutYear(dto.getDebutYear());
@@ -54,16 +53,6 @@ public class FencerService {
         f.setWeapon(dto.getWeapon());
         return userRepository.save(f);
     }
-
-    // public List<Event> getLastEvents(Fencer f, int count) {
-    //     List<TournamentFencer> tfProfiles = new ArrayList<>(f.getTournamentFencerProfiles()); 
-    //     List<Event> events = new ArrayList<>(); 
-    //     int startIndex = (tfProfiles.size()-count-1 < 0) ? 0 : tfProfiles.size()-count-1;
-    //     for (int i = startIndex; i < tfProfiles.size(); i++) {
-    //         events.add(tfProfiles.get(i).getEvent());
-    //     }
-    //     return events;
-    // }
 
     public List<Fencer> getInternationalRank(){
         List<Fencer> fencers = fencerRepository.findAll();
@@ -95,5 +84,12 @@ public class FencerService {
         f.setName(dto.getName());
         f.setDominantArm(dto.getDominantArm());
         userRepository.save(f);
+
+    public List<Event> getFencerEvents(Fencer f) {
+        List<Event> events = new ArrayList<>();
+        for(TournamentFencer tf: f.getTournamentFencerProfiles()){
+            events.add(eventRepository.findById(tf.getEvent().getId()).orElse(null));
+        }
+        return events;
     }
 }

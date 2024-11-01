@@ -7,6 +7,7 @@ import LineGraph from "./Others/LineGraph";
 
 const FencerDashboard = () => {
   const [userData, setUserData] = useState(null);
+  const [rankingData, setRankingData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -31,7 +32,22 @@ const FencerDashboard = () => {
         setLoading(false);
       }
     };
+
+    const fetchInternationalRanking = async () => {
+      setLoading(true);
+      try {
+        const response = await FencerService.getInternationalRanking();
+        setRankingData(response.data);
+      } catch (error) {
+        console.error("Error fetching international ranking: ", error);
+        setError("Failed to load international ranking");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchData();
+    fetchInternationalRanking();
   }, []);
 
   const formatDate = (date) => {
@@ -140,13 +156,23 @@ const FencerDashboard = () => {
     },
   };
 
+  const getUserRank = () => {
+    if (!rankingData || !Array.isArray(rankingData)) {
+      return "Ranking data not available";
+    }
+    
+    const sortedRankingData = rankingData.sort((a, b) => b.points - a.points);
+    const userIndex = sortedRankingData.findIndex((rank) => rank.id === userData.id);
+    return userIndex !== -1 ? userIndex + 1 : "User rank not found";
+  };
+
+  console.log(userData);
+
   return (
     <div className="bg-white w-full h-full flex flex-col gap-2 p-8 overflow-auto">
       <div className="bg-white border rounded-2xl shadow-lg p-6 flex w-full relative overflow-x-hidden">
         <div className="w-1/5 flex-shrink-0 flex flex-col items-center my-auto">
-          <div className="text-4xl font-semibold mr-4">
-            {userData.name}'s
-          </div>
+          <div className="text-4xl font-semibold mr-4">{userData.name}'s</div>
           <div className="text-4xl font-semibold mr-4">Dashboard</div>
         </div>
 
@@ -303,11 +329,9 @@ const FencerDashboard = () => {
         <Tabs>
           <Tab label="Ranking & Statistics">
             <div className="grid grid-cols-[2fr_3fr_3fr]">
-              <div className="grid grid-cols-[2fr_1fr] gap-y-2 ml-4 my-4 text-xl w-75">
+              <div className="grid grid-cols-[2fr_1fr] gap-y-4 ml-4 my-4 text-xl w-75">
                 <div className="flex font-medium">International Rank</div>
-                <div className="flex">
-                  {userData.rank ? userData.rank : "-"}
-                </div>
+                <div className="flex">{getUserRank()}</div>
                 <div className="flex font-medium">Total Points</div>
                 <div className="flex">
                   {userData.points ? userData.points : "-"}

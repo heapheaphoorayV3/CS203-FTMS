@@ -13,13 +13,6 @@ export default function InternationalRanking() {
   const [paginatedData, setPaginatedData] = useState([]);
   const limit = 10;
 
-  const testData = Array.from({ length: 20 }, (_, index) => ({
-    id: index + 1,
-    name: "Name",
-    country: "SG",
-    score: 0,
-  }));
-
   useEffect(() => {
     const fetchInternationalRanking = async () => {
       setLoading(true);

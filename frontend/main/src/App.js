@@ -22,6 +22,7 @@ import VerifyOrganiser from "./Components/Admin/VerifyOrganiser";
 import LandingPage from "./Components/Others/LandingPage";
 import InternationalRanking from "./Components/InternationalRanking";
 import AuthProvider from "./Components/Authentication/AuthProvider";
+import Chatbot from "./Components/Chatbot";
 
 function App() {
   return (
@@ -63,6 +64,10 @@ function App() {
           <Route
             path="/international-ranking"
             element={<InternationalRanking />}
+          />
+          <Route
+            path="/chatbot"
+            element={<Chatbot />}
           />
         </Route>
       </Routes>
