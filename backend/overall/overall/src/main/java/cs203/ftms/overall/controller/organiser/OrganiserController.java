@@ -81,6 +81,7 @@ public class OrganiserController {
         User user = (User) authentication.getPrincipal();
         organiserService.updateProfile((Organiser) user, dto);
         return new ResponseEntity<>("Profile updated sucessfully!", HttpStatus.OK);
+    }
 
     @GetMapping("/upcoming-tournaments")
     @PreAuthorize("hasRole('ORGANISER')")

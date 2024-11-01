@@ -35,6 +35,7 @@ import cs203.ftms.overall.repository.userrelated.UserRepository;
 import cs203.ftms.overall.service.authentication.AuthenticationService;
 import cs203.ftms.overall.service.event.EventService;
 import cs203.ftms.overall.service.fencer.FencerService;
+import cs203.ftms.overall.service.match.DirectEliminationService;
 import cs203.ftms.overall.service.match.PouleService;
 import cs203.ftms.overall.service.tournament.TournamentService;
 
@@ -55,9 +56,10 @@ public class PopulateData {
     private final TournamentRepository tournamentRepository;
     private final EventRepository eventRepository;
     private final PouleRepository pouleRepository; 
+    private final DirectEliminationService directEliminationService;
 
     @Autowired
-    public PopulateData(AuthenticationService authenticationService, TournamentService tournamentService, EventService eventService, FencerService fencerService, PouleService poulesService, UserRepository userRepository, TournamentRepository tournamentRepository, EventRepository eventRepository, PouleRepository pouleRepository) {
+    public PopulateData(AuthenticationService authenticationService, TournamentService tournamentService, EventService eventService, FencerService fencerService, PouleService poulesService, UserRepository userRepository, TournamentRepository tournamentRepository, EventRepository eventRepository, PouleRepository pouleRepository, DirectEliminationService directEliminationService) {
         this.authenticationService = authenticationService;
         this.tournamentService = tournamentService;
         this.eventService = eventService;
@@ -67,6 +69,7 @@ public class PopulateData {
         this.tournamentRepository = tournamentRepository;
         this.eventRepository = eventRepository;
         this.pouleRepository = pouleRepository;
+        this.directEliminationService = directEliminationService;
     }
 
     public void createAdmin() {
@@ -153,14 +156,14 @@ public class PopulateData {
     }
 
     public void createPoules() {
-        Set<String> recommendation = eventService.recommendPoules(tournamentRepository.findByName("Tournament0").get().getId());
+        Set<String> recommendation = pouleService.recommendPoules(tournamentRepository.findByName("Tournament0").get().getId());
         String[] recommendationArray = recommendation.toArray(new String[0]);
         int poulesCount = recommendationArray[recommendationArray.length - 1].charAt(0) - '0';
-        eventService.createPoules(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament0").get(), 'M', 'S').get().getId(), new CreatePoulesDTO(poulesCount));
+        pouleService.createPoules(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament0").get(), 'M', 'S').get().getId(), new CreatePoulesDTO(poulesCount));
     }
 
     public void createPouleMatches() {
-        PouleTableDTO dto = eventService.getPouleTable(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament0").get(), 'M', 'S').get().getId(), true);
+        PouleTableDTO dto = pouleService.getPouleTable(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament0").get(), 'M', 'S').get().getId(), true);
         for (Map<String,String> line : dto.getPouleTable()) {
             for (String key : line.keySet()) {
                 System.out.println(key + " " + line.get(key));
@@ -197,7 +200,7 @@ public class PopulateData {
     }
 
     public void printPouleResult() {
-        PouleResultsDTO pouleResults = eventService.poulesResult(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament0").get(), 'M', 'S').get().getId());
+        PouleResultsDTO pouleResults = pouleService.poulesResult(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament0").get(), 'M', 'S').get().getId());
         System.out.println("Bypass Fencers:");
         for (CleanTournamentFencerDTO ctf : pouleResults.getBypassFencers()) {
             System.out.println(ctf.getFencerName() + " - Poule wins:" + ctf.getPouleWins() + ", Poule points:" + ctf.getPoulePoints());
@@ -213,7 +216,7 @@ public class PopulateData {
     }
 
     public void createDirectEliminationMatches() {
-        eventService.createAllDEMatches(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament0").get(), 'M', 'S').get().getId());
+        directEliminationService.createAllDEMatches(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament0").get(), 'M', 'S').get().getId());
     }
 
     @EventListener(ContextRefreshedEvent.class)

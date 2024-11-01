@@ -19,6 +19,7 @@ import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.User;
 import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
 import cs203.ftms.overall.model.tournamentrelated.Event;
+import cs203.ftms.overall.repository.tournamentrelated.EventRepository;
 import cs203.ftms.overall.repository.userrelated.FencerRepository;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
 import cs203.ftms.overall.validation.OtherValidations;
@@ -27,13 +28,15 @@ import cs203.ftms.overall.validation.OtherValidations;
 public class FencerService {
     private final UserRepository userRepository; 
     private final FencerRepository fencerRepository;
+    private final EventRepository eventRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
     @Autowired
-    public FencerService(UserRepository userRepository, FencerRepository fencerRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager) {
+    public FencerService(UserRepository userRepository, FencerRepository fencerRepository, EventRepository eventRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager) {
         this.userRepository = userRepository; 
         this.fencerRepository = fencerRepository;
+        this.eventRepository = eventRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
     }
@@ -84,6 +87,7 @@ public class FencerService {
         f.setName(dto.getName());
         f.setDominantArm(dto.getDominantArm());
         userRepository.save(f);
+    }
 
     public List<Event> getFencerEvents(Fencer f) {
         List<Event> events = new ArrayList<>();
