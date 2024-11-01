@@ -1,8 +1,9 @@
 package cs203.ftms.overall.service.fencer;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,10 +16,10 @@ import cs203.ftms.overall.comparator.FencerPointsComparator;
 import cs203.ftms.overall.dto.CompleteFencerProfileDTO;
 import cs203.ftms.overall.dto.UpdateFencerProfileDTO;
 import cs203.ftms.overall.dto.clean.CleanFencerDTO;
+import cs203.ftms.overall.model.tournamentrelated.Event;
+import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
 import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.User;
-import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
-import cs203.ftms.overall.model.tournamentrelated.Event;
 import cs203.ftms.overall.repository.tournamentrelated.EventRepository;
 import cs203.ftms.overall.repository.userrelated.FencerRepository;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
@@ -95,5 +96,39 @@ public class FencerService {
             events.add(eventRepository.findById(tf.getEvent().getId()).orElse(null));
         }
         return events;
+    }
+
+    public List<Event> getFencerUpcomingEvents(Fencer f) {
+        List<Event> events = new ArrayList<>();
+        for(TournamentFencer tf: f.getTournamentFencerProfiles()){
+            Event e = eventRepository.findById(tf.getEvent().getId()).orElse(null);
+            if(e.getDate().isAfter(LocalDate.now())){
+                events.add(e);
+            }
+        }
+        return events;
+    }
+
+    public List<Event> getFencerPastEvents(Fencer f) {
+        List<Event> events = new ArrayList<>();
+        for(TournamentFencer tf: f.getTournamentFencerProfiles()){
+            Event e = eventRepository.findById(tf.getEvent().getId()).orElse(null);
+            if(e.getDate().isBefore(LocalDate.now())){
+                events.add(e);
+            }
+        }
+        return events;
+    }
+
+    public List<Fencer> getFilterdInternationalRank(char weapon, char gender){
+        List<Fencer> fencers = fencerRepository.findAll();
+        Collections.sort(fencers, new FencerPointsComparator());
+        List<Fencer> filteredFencers = new ArrayList<>();
+        for(Fencer f: fencers){
+            if(f.getWeapon() == weapon && f.getGender() == gender){
+                filteredFencers.add(f);
+            }
+        }
+        return filteredFencers;
     }
 }

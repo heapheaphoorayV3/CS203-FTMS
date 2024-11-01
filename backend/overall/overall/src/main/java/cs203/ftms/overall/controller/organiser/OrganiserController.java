@@ -1,6 +1,5 @@
 package cs203.ftms.overall.controller.organiser;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -88,13 +87,10 @@ public class OrganiserController {
     public ResponseEntity<List<CleanTournamentDTO>> getOrganiserUpcomingTournaments() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
-        List<Tournament> tList = organiserService.getOrganiserTournaments((Organiser) user);
-        
+        List<Tournament> tList = organiserService.getOrganiserUpcomingTournaments((Organiser) user);
         List<CleanTournamentDTO> ctList = new ArrayList<>();
         for (Tournament t : tList) {
-            if(t.getStartDate().isAfter(LocalDate.now())){
-            ctList.add(tournamentService.getCleanTournamentDTO(t));
-            }
+            ctList.add(tournamentService.getCleanTournamentDTO(t)); 
         }
         return new ResponseEntity<>(ctList, HttpStatus.OK);
     }
@@ -104,13 +100,10 @@ public class OrganiserController {
     public ResponseEntity<List<CleanTournamentDTO>> getOrganiserPastTournaments() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
-        List<Tournament> tList = organiserService.getOrganiserTournaments((Organiser) user);
-        
+        List<Tournament> tList = organiserService.getOrganiserPastTournaments((Organiser) user);
         List<CleanTournamentDTO> ctList = new ArrayList<>();
         for (Tournament t : tList) {
-            if(t.getStartDate().isBefore(LocalDate.now())){
             ctList.add(tournamentService.getCleanTournamentDTO(t));
-            }
         }
         return new ResponseEntity<>(ctList, HttpStatus.OK);
     }

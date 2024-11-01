@@ -1,8 +1,8 @@
 package cs203.ftms.overall.service.tournament;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,14 +14,12 @@ import cs203.ftms.overall.dto.clean.CleanTournamentDTO;
 import cs203.ftms.overall.exception.EntityDoesNotExistException;
 import cs203.ftms.overall.model.tournamentrelated.Event;
 import cs203.ftms.overall.model.tournamentrelated.Tournament;
-import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
 import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.repository.tournamentrelated.EventRepository;
 import cs203.ftms.overall.repository.tournamentrelated.TournamentFencerRepository;
 import cs203.ftms.overall.repository.tournamentrelated.TournamentRepository;
 import cs203.ftms.overall.service.event.EventService;
 import cs203.ftms.overall.validation.OtherValidations;
-import jakarta.transaction.Transactional;
 
 @Service
 public class TournamentService {
@@ -62,6 +60,28 @@ public class TournamentService {
         OtherValidations.validTournamentSignUpEndDate(tournament);
         OtherValidations.validTournamentDates(tournament);
         return tournamentRepository.save(tournament);
+    }
+    
+    public List<Tournament> getUpcomingTournaments() {
+        List<Tournament> tList = tournamentRepository.findAll();
+        List<Tournament> upcomingTournaments = new ArrayList<>();
+        for (Tournament t : tList) {
+            if (t.getStartDate().isAfter(LocalDate.now())) {
+                upcomingTournaments.add(t);
+            }
+        }
+        return upcomingTournaments;
+    }
+
+    public List<Tournament> getPastTournaments() {
+        List<Tournament> tList = tournamentRepository.findAll();
+        List<Tournament> pastTournaments = new ArrayList<>();
+        for (Tournament t : tList) {
+            if (t.getStartDate().isBefore(LocalDate.now())) {
+                pastTournaments.add(t);
+            }
+        }
+        return pastTournaments;
     }
 
     // @Transactional
