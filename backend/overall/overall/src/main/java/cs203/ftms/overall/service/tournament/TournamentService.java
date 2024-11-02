@@ -20,6 +20,7 @@ import cs203.ftms.overall.repository.tournamentrelated.TournamentFencerRepositor
 import cs203.ftms.overall.repository.tournamentrelated.TournamentRepository;
 import cs203.ftms.overall.service.event.EventService;
 import cs203.ftms.overall.validation.OtherValidations;
+import jakarta.transaction.Transactional;
 
 @Service
 public class TournamentService {
@@ -60,6 +61,46 @@ public class TournamentService {
         OtherValidations.validTournamentSignUpEndDate(tournament);
         OtherValidations.validTournamentDates(tournament);
         return tournamentRepository.save(tournament);
+    }
+
+    @Transactional
+    public Tournament updateTournament(int tid, CreateTournamentDTO dto, Organiser o) throws MethodArgumentNotValidException {
+        Tournament tournament = getTournament(tid);
+        validateOrganiser(tournament, o);
+        validateTournamentDates(dto);
+        validateEventsDates(tournament, dto);
+
+        updateTournamentDetails(tournament, dto);
+        return tournamentRepository.save(tournament);
+    }
+
+    private void validateOrganiser(Tournament tournament, Organiser organiser) {
+        if (tournament.getOrganiser().getId() != organiser.getId()) {
+            throw new IllegalArgumentException("Organiser does not match the tournament organiser.");
+        }
+    }
+
+    private void validateTournamentDates(CreateTournamentDTO dto) throws MethodArgumentNotValidException {
+        OtherValidations.validTournamentSignUpEndDate(dto.getStartDate(), dto.getSignupEndDate());
+        OtherValidations.validTournamentDates(dto.getStartDate(), dto.getEndDate());
+    }
+
+    private void validateEventsDates(Tournament tournament, CreateTournamentDTO dto) throws MethodArgumentNotValidException {
+        for (Event event : tournament.getEvents()) {
+            OtherValidations.validUpdateTournamentDate(event, dto.getStartDate(), dto.getEndDate());
+        }
+    }
+
+    private void updateTournamentDetails(Tournament tournament, CreateTournamentDTO dto) {
+        tournament.setName(dto.getName());
+        tournament.setSignupEndDate(dto.getSignupEndDate());
+        tournament.setAdvancementRate(dto.getAdvancementRate());
+        tournament.setStartDate(dto.getStartDate());
+        tournament.setEndDate(dto.getEndDate());
+        tournament.setLocation(dto.getLocation());
+        tournament.setDescription(dto.getDescription());
+        tournament.setRules(dto.getRules());
+        tournament.setDifficulty(dto.getDifficulty());
     }
     
     public List<Tournament> getUpcomingTournaments() {

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,6 +47,19 @@ public class TournamentController {
         if (newTournament != null) {
             CleanTournamentDTO dto = tournamentService.getCleanTournamentDTO(newTournament);
             return new ResponseEntity<>(dto, HttpStatus.CREATED);
+        }
+        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+    }
+
+    @PutMapping("/update-tournament/{tid}")
+    @PreAuthorize("hasRole('ORGANISER')")
+    public ResponseEntity<CleanTournamentDTO> updateTournament(@PathVariable int tid, @Valid @RequestBody CreateTournamentDTO t) throws MethodArgumentNotValidException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        Tournament updatedTournament = tournamentService.updateTournament(tid, t, (Organiser) user);
+        if (updatedTournament != null) {
+            CleanTournamentDTO dto = tournamentService.getCleanTournamentDTO(updatedTournament);
+            return new ResponseEntity<>(dto, HttpStatus.OK);
         }
         return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }

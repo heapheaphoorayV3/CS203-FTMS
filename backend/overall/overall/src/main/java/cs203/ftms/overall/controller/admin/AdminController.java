@@ -68,19 +68,4 @@ public class AdminController {
         return new ResponseEntity<>("operation successful", HttpStatus.OK);
     }
 
-
-    // @GetMapping("/verify/{orgId}")
-    // @PreAuthorize("hasRole('ADMIN')")
-    // public ResponseEntity<String> verifyOrg(@PathVariable int orgId) {
-    //     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    //     User user = (User) authentication.getPrincipal();
-    //     if (user instanceof Admin) {
-    //         Organiser o = adminService.updateVerified(orgId);
-    //         if (o != null) {
-    //             return new ResponseEntity<>("operation successful", HttpStatus.OK);
-    //         }
-    //     }
-    //     return new ResponseEntity<>("operation unsuccessful", HttpStatus.BAD_REQUEST);
-    // }
-
 }

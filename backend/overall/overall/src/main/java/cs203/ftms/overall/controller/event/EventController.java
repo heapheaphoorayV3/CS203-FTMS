@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import cs203.ftms.overall.dto.CreateEventDTO;
+import cs203.ftms.overall.dto.UpdateEventDTO;
 import cs203.ftms.overall.dto.clean.CleanEventDTO;
 import cs203.ftms.overall.dto.clean.CleanTournamentFencerDTO;
 import cs203.ftms.overall.exception.EntityDoesNotExistException;
@@ -64,6 +65,18 @@ public class EventController {
         return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
 
+    @PutMapping("/{eid}/update-event")
+    @PreAuthorize("hasRole('ORGANISER')")
+    public ResponseEntity<CleanEventDTO> updateEvent(@PathVariable int eid, @RequestBody @Valid UpdateEventDTO e) throws MethodArgumentNotValidException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        Event event = eventService.updateEvent(eid, (Organiser) user, e);
+        if (event != null) {
+            return new ResponseEntity<>(eventService.getCleanEventDTO(event), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+    }
+
     @PutMapping("/register/{eid}")
     @PreAuthorize("hasRole('FENCER')")
     public ResponseEntity<String> registerEvent(@PathVariable int eid) {
@@ -77,6 +90,18 @@ public class EventController {
             return new ResponseEntity<>("event registration successful", HttpStatus.OK);
         }
         return new ResponseEntity<>("event registration unsuccessful", HttpStatus.BAD_REQUEST);
+    }
+
+    @PutMapping("/unregister/{eid}")
+    @PreAuthorize("hasRole('FENCER')")
+    public ResponseEntity<String> unregisterEvent(@PathVariable int eid) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        boolean unregister = eventService.unregisterEvent(eid, (Fencer) user);
+        if (unregister) {
+            return new ResponseEntity<>("event unregistration successful", HttpStatus.OK);
+        }
+        return new ResponseEntity<>("event unregistration unsuccessful", HttpStatus.BAD_REQUEST);
     }
 
     
