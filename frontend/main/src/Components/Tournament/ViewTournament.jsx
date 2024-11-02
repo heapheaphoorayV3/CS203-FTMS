@@ -10,13 +10,14 @@ import { Tab, Tabs } from "../Others/DashboardTabs.jsx";
 import CreateEvent from "./CreateEvent.jsx";
 import UpdateEvent from "./UpdateEvent.jsx";
 import DeleteEvent from "./DeleteEvent.jsx";
+import UpdateTournament from "./UpdateTournament.jsx";
 import SubmitButton from "../Others/SubmitButton.jsx";
+import editLogo from "../../Assets/edit.png";
 
 function formatTimeTo24Hour(timeString) {
   const [hours, minutes] = timeString.split(":"); // Get hours and minutes
   return `${hours}${minutes}`; // Return formatted time
 }
-
 
 export default function ViewTournament() {
   // Retrieve tournament ID from URL
@@ -26,14 +27,17 @@ export default function ViewTournament() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [eventsArray, setEventsArray] = useState([]);
+  //Popup for updating tournament
+  const [isUpdateTournamentPopupVisible, setIsUpdateTournamentPopupVisible] =
+    useState(false);
   // One Popup for create-event the other for update-event
   const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
   const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
   const [registeredEvents, setRegisteredEvents] = useState([]);
-  const [isDeleteEventPopUpVisible, setIsDeleteEventPopUpVisible] = useState(false);
+  const [isDeleteEventPopUpVisible, setIsDeleteEventPopUpVisible] =
+    useState(false);
   // Selected Event for deletion / update (organiser)
   const [selectedEvent, setSelectedEvent] = useState(null);
-
   const [isCreating, setIsCreating] = useState(false);
   const allEventTypes = [
     { value: "", label: "Select Weapon" },
@@ -68,23 +72,22 @@ export default function ViewTournament() {
       }
     };
 
-
     if (tournamentID) {
       fetchData();
     }
   }, [tournamentID]);
 
-  const userType = sessionStorage.getItem('userType');
+  const userType = sessionStorage.getItem("userType");
 
   let homeLink;
-  if (userType === 'F') {
-    homeLink = '/fencer-dashboard';
-  } else if (userType === 'O') {
-    homeLink = '/organiser-dashboard';
-  } else if (userType === 'A') {
-    homeLink = '/admin-dashboard';
+  if (userType === "F") {
+    homeLink = "/fencer-dashboard";
+  } else if (userType === "O") {
+    homeLink = "/organiser-dashboard";
+  } else if (userType === "A") {
+    homeLink = "/admin-dashboard";
   } else {
-    homeLink = '/'; // Default link if userType is not recognized
+    homeLink = "/"; // Default link if userType is not recognized
   }
 
   const breadcrumbsItems = [
@@ -94,8 +97,8 @@ export default function ViewTournament() {
       name: loading
         ? "Loading..."
         : tournamentData
-          ? tournamentData.name
-          : "Not Found",
+        ? tournamentData.name
+        : "Not Found",
     },
   ];
 
@@ -301,44 +304,61 @@ export default function ViewTournament() {
 
   const closeUpdatePopup = () => {
     setIsUpdatePopupVisible(false);
-  }
+  };
   const updateEvent = (selectedEvent) => {
     setIsUpdatePopupVisible(true);
     setSelectedEvent(selectedEvent);
-  }
+  };
 
   const closeDeleteEventPopUp = () => {
     setIsDeleteEventPopUpVisible(false);
-  }
+  };
   const deleteEvent = (selectedEvent) => {
     setIsDeleteEventPopUpVisible(true);
     setSelectedEvent(selectedEvent);
-  }
+  };
 
   const formatDifficulty = (difficultyChar) => {
     let difficulty = "";
-    
+
     if (difficultyChar === "B") {
-        difficulty = "Beginner";
+      difficulty = "Beginner";
     } else if (difficultyChar === "I") {
-        difficulty = "Intermediate";
+      difficulty = "Intermediate";
     } else if (difficultyChar === "A") {
-        difficulty = "Advanced";
+      difficulty = "Advanced";
     } else {
-        difficulty = "Unknown";
+      difficulty = "Unknown";
     }
-    
+
     return difficulty;
-};
+  };
+
+  const updateTournament = () => {
+    setIsUpdateTournamentPopupVisible(true);
+  };
+
+  const closeUpdateTournamentPopup = () => {
+    setIsUpdateTournamentPopupVisible(false);
+  };
 
   return (
     // Grid for Navbar, Sidebar and Content
-
     <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">
       <Breadcrumbs items={breadcrumbsItems} />
-      <h1 className="my-10 ml-12 text-left text-4xl font-semibold">
-        {tournamentData.name}
-      </h1>
+      <div className="flex justify-between mr-20 my-10">
+        <h1 className=" ml-12 text-left text-4xl font-semibold">
+          {tournamentData.name}
+        </h1>
+        <div className="cursor-pointer text-gray-600">
+          <img
+            src={editLogo}
+            alt="Edit Tournament"
+            className="w-6 h-6"
+            onClick={updateTournament}
+          />
+        </div>
+      </div>
 
       <div className="ml-12 mr-8 mb-10 grid grid-cols-5 auto-rows-fr gap-x-[10px] gap-y-[10px]">
         <div className="font-semibold text-lg">Organiser</div>
@@ -347,7 +367,9 @@ export default function ViewTournament() {
         <div className="font-semibold text-lg">Location</div>
         <div className="font-semibold text-lg">Status</div>
         <div className="text-lg">{tournamentData.organiserName}</div>
-        <div className="text-lg">{formatDifficulty(tournamentData.difficulty)}</div>
+        <div className="text-lg">
+          {formatDifficulty(tournamentData.difficulty)}
+        </div>
         <div className="text-lg">
           {formatDateRange(tournamentData.startDate, tournamentData.endDate)}
         </div>
@@ -359,7 +381,13 @@ export default function ViewTournament() {
           )}
         </div>
       </div>
-
+      {/* Create Event Popup --> need to pass in submit/close */}
+      {isUpdateTournamentPopupVisible && (
+        <UpdateTournament
+          onClose={closeUpdateTournamentPopup}
+          // onSubmit={submitUpdateTournament}
+        />
+      )}
       <div className="ml-12 mr-8 text-lg overflow-x-auto">
         <Tabs>
           <Tab label="Overview">
@@ -391,7 +419,10 @@ export default function ViewTournament() {
                 {/* Render events */}
                 {eventsArray.length > 0 ? (
                   eventsArray.map((event, index) => (
-                    <tr key={index} className="border-b border-gray-300 hover:bg-gray-100">
+                    <tr
+                      key={index}
+                      className="border-b border-gray-300 hover:bg-gray-100"
+                    >
                       {/* <td>Event details</td> */}
                       <td>
                         <a
@@ -417,7 +448,7 @@ export default function ViewTournament() {
                           </SubmitButton>
                         )}
                         {sessionStorage.getItem("userType") === "O" && (
-                          <EventDropdownMenu 
+                          <EventDropdownMenu
                             updateEvent={() => updateEvent(event)}
                             deleteEvent={() => deleteEvent(event.id)}
                           />

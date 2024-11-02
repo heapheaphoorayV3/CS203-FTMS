@@ -16,6 +16,10 @@ class TournamentService {
         return await ProtectedAPI.get(`${baseURL}/tournaments`);
         // return await API.get(`${baseURL}/tournaments`);
     }
+
+    async updateTournament(tid, data) {
+        return await ProtectedAPI.put(`${baseURL}/update-tournament/${tid}`, data);
+    }
 }
 
 export default new TournamentService();
