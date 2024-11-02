@@ -9,13 +9,7 @@ import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Min;
 
 
-public class CreateEventDTO{
-    @ValidGender
-    private Character gender;
-
-    @ValidWeapon
-    private Character weapon;
-
+public class UpdateEventDTO{
     @Min(value=8, message = "Event needs to have at least 8 participants")
     private int minParticipants;
 
@@ -27,35 +21,12 @@ public class CreateEventDTO{
     private LocalTime endTime;
 
 
-    public CreateEventDTO(Character gender, Character weapon, int minParticipants, LocalDate date, LocalTime startTime, LocalTime endTime) {
-        this.gender = gender;
-        this.weapon = weapon;
+    public UpdateEventDTO(int minParticipants, LocalDate date, LocalTime startTime, LocalTime endTime) {
         this.minParticipants = minParticipants;
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
     }
-
-
-    public Character getGender() {
-        return gender;
-    }
-
-
-    public void setGender(Character gender) {
-        this.gender = gender;
-    }
-
-
-    public Character getWeapon() {
-        return weapon;
-    }
-
-
-    public void setWeapon(Character weapon) {
-        this.weapon = weapon;
-    }
-
 
     public int getMinParticipants() {
         return minParticipants;
