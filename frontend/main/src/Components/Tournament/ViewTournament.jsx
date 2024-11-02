@@ -74,9 +74,6 @@ export default function ViewTournament() {
     }
   }, [tournamentID]);
 
-  console.log("=============");
-  console.log(eventsArray);
-
   const userType = sessionStorage.getItem('userType');
 
   let homeLink;
@@ -318,6 +315,22 @@ export default function ViewTournament() {
     setSelectedEvent(selectedEvent);
   }
 
+  const formatDifficulty = (difficultyChar) => {
+    let difficulty = "";
+    
+    if (difficultyChar === "B") {
+        difficulty = "Beginner";
+    } else if (difficultyChar === "I") {
+        difficulty = "Intermediate";
+    } else if (difficultyChar === "A") {
+        difficulty = "Advanced";
+    } else {
+        difficulty = "Unknown";
+    }
+    
+    return difficulty;
+};
+
   return (
     // Grid for Navbar, Sidebar and Content
 
@@ -327,12 +340,14 @@ export default function ViewTournament() {
         {tournamentData.name}
       </h1>
 
-      <div className="ml-12 mr-8 mb-10 grid grid-cols-4 auto-rows-fr gap-x-[10px] gap-y-[10px]">
+      <div className="ml-12 mr-8 mb-10 grid grid-cols-5 auto-rows-fr gap-x-[10px] gap-y-[10px]">
         <div className="font-semibold text-lg">Organiser</div>
+        <div className="font-semibold text-lg">Difficulty</div>
         <div className="font-semibold text-lg">Dates</div>
         <div className="font-semibold text-lg">Location</div>
         <div className="font-semibold text-lg">Status</div>
         <div className="text-lg">{tournamentData.organiserName}</div>
+        <div className="text-lg">{formatDifficulty(tournamentData.difficulty)}</div>
         <div className="text-lg">
           {formatDateRange(tournamentData.startDate, tournamentData.endDate)}
         </div>

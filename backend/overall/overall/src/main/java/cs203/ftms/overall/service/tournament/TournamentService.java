@@ -45,7 +45,7 @@ public class TournamentService {
             cleanEvents.add(eventService.getCleanEventDTO(e));
         }
 
-        return new CleanTournamentDTO(t.getId(), t.getName(), t.getOrganiser().getName(), t.getSignupEndDate(), t.getStartDate(), t.getEndDate(), t.getLocation(), t.getDescription(), t.getRules(), cleanEvents);
+        return new CleanTournamentDTO(t.getId(), t.getName(), t.getOrganiser().getName(), t.getSignupEndDate(), t.getStartDate(), t.getEndDate(), t.getLocation(), t.getDescription(), t.getRules(), cleanEvents, t.getDifficulty());
     }
 
     public Tournament getTournament(int id) {

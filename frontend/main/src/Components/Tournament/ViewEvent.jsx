@@ -47,6 +47,7 @@ export default function ViewEvent() {
       try {
         const response = await EventService.getEvent(eventID);
         setEventData(response.data);
+        console.log("event data =>");
         console.log(response.data);
       } catch (error) {
         console.error("Error fetching event data:", error);
@@ -98,7 +99,7 @@ export default function ViewEvent() {
     const fetchEventRanking = async () => {
       try {
         const response = await EventService.getEventRanking(eventID);
-        console.log(response.data);
+        // console.log(response.data);
         setEventRanking(response.data);
       } catch (error) {
         console.error("Error fetching event ranking: ", error);
@@ -135,8 +136,6 @@ export default function ViewEvent() {
       setPaginatedData([]);
     }
   }, [eventRanking, currentPage, limit]);
-  // console.log("-----------");
-  // console.log(paginatedData);
 
   if (loading) {
     return <div className="mt-10">Loading...</div>; // Show loading state
@@ -259,30 +258,24 @@ export default function ViewEvent() {
     if (!isNaN(newScore) && newScore >= 0 && newScore <= 5) {
       const poules = pouleTableData.pouleTable[pouleIndex];
 
-      // Get the fencer's entry and its corresponding scores
       const rowData = Object.entries(poules)[rowIndex];
-      const fencerName = rowData[0]; // e.g., "2 Fencer (Singapore) -- 2"
+      const fencerName = rowData[0];
       const scoresArray = rowData[1].split(",").map(Number);
 
-      // Update the specific index in the scoresArray
       scoresArray[index] = newScore;
 
-      // Convert the updated scores back to a string
       const editedScore = scoresArray.join(",");
 
-      // Prepare the updated data object
       const updatedData = {
-        [fencerName]: editedScore, // Using computed property names to set the key
+        [fencerName]: editedScore,
       };
 
-      const pouleTable = pouleTableData.pouleTable[0]; // Access the first poule table
+      const pouleTable = pouleTableData.pouleTable[0];
 
-      // Iterate through the keys of the first poule table
       for (const key in pouleTable) {
         if (key === fencerName) {
-          // Check if the key matches fencerName
-          pouleTable[key] = updatedData[fencerName]; // Update the score
-          break; // Exit the loop after updating
+          pouleTable[key] = updatedData[fencerName]; 
+          break;
         }
       }
     } else {
@@ -311,15 +304,12 @@ export default function ViewEvent() {
 
       console.log(combinedData);
 
-      // Send the update request to the server
       await EventService.updateDEMatch(eventID, combinedData);
 
       console.log("Bracket matches updated successfully");
 
-      // Close the popup after successful submission
       closeUpdatePopup();
 
-      // Refresh the page
       window.location.reload();
     } catch (error) {
       console.error("Error updating bracket matches:", error);
@@ -328,13 +318,11 @@ export default function ViewEvent() {
 
   const submitUpdatePoules = async () => {
     try {
-      // Get the data for the selected poule
+
       const updatedPouleData = pouleTableData.pouleTable[selectedPoule - 1];
 
-      // Create a Map from the updated data
       const singleTableMap = new Map(Object.entries(updatedPouleData));
 
-      // Structure the combined data to match the backend's expected DTO format
       const combinedData = {
         pouleNumber: selectedPoule,
         singleTable: Object.fromEntries(singleTableMap),
@@ -342,19 +330,20 @@ export default function ViewEvent() {
 
       console.log(combinedData);
 
-      // Send the update request to the server
       await EventService.updatePouleTable(eventID, combinedData);
 
       console.log("Poules updated successfully");
     } catch (error) {
       console.error("Error updating poules:", error);
     } finally {
-      // Ensure isUpdating is set to false regardless of success or failure
       setIsUpdating(false);
     }
   };
 
   const totalPages = Math.ceil(eventRanking.length / limit);
+
+  console.log("-------------");
+  console.log(eventData);
 
   return (
     <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">
