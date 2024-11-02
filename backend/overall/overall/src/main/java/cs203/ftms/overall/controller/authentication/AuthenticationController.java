@@ -22,10 +22,10 @@ import cs203.ftms.overall.exception.EntityDoesNotExistException;
 import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.model.userrelated.User;
-import cs203.ftms.overall.security.model.RefreshToken;
-import cs203.ftms.overall.security.service.JwtService;
-import cs203.ftms.overall.security.service.RefreshTokenService;
 import cs203.ftms.overall.service.authentication.AuthenticationService;
+import cs203.ftms.tournament.service.security.model.RefreshToken;
+import cs203.ftms.tournament.service.security.service.JwtService;
+import cs203.ftms.tournament.service.security.service.RefreshTokenService;
 import jakarta.validation.Valid;
 
 @RestController

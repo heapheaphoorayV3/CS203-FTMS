@@ -3,8 +3,8 @@ package cs203.ftms.overall.dto;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-import cs203.ftms.overall.validation.ValidGender;
-import cs203.ftms.overall.validation.ValidWeapon;
+import cs203.ftms.tournament.controller.ValidGender;
+import cs203.ftms.tournament.controller.ValidWeapon;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Min;
 

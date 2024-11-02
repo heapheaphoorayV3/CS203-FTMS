@@ -1,4 +1,4 @@
-package cs203.ftms.overall.validation;
+package cs203.ftms.tournament.controller;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

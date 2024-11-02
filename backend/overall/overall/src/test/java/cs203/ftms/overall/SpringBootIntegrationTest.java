@@ -38,12 +38,12 @@ import cs203.ftms.overall.model.userrelated.User;
 import cs203.ftms.overall.repository.tournamentrelated.TournamentFencerRepository;
 import cs203.ftms.overall.repository.tournamentrelated.TournamentRepository;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
-import cs203.ftms.overall.security.repository.RefreshTokenRepository;
-import cs203.ftms.overall.security.service.JwtService;
 import cs203.ftms.overall.service.authentication.AuthenticationService;
 import cs203.ftms.overall.service.event.EventService;
 import cs203.ftms.overall.service.fencer.FencerService;
 import cs203.ftms.overall.service.tournament.TournamentService;
+import cs203.ftms.tournament.service.security.repository.RefreshTokenRepository;
+import cs203.ftms.tournament.service.security.service.JwtService;
 import jakarta.transaction.Transactional;
 
 
