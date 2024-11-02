@@ -52,28 +52,29 @@ export default function ViewTournament() {
 
   const navigate = useNavigate();
 
-  // Fetch tournament data if tournamentID changes
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await TournamentService.getTournamentDetails(
-          tournamentID
-        );
-        setTournamentData(response.data);
-        console.log("response.data => ", response.data);
-        // Set eventsArray
-        const eventsArray = response.data.events; // Accessing events directly
-        setEventsArray(eventsArray);
-      } catch (error) {
-        console.error("Error fetching tournament data:", error);
-        setError("Failed to load tournament data.");
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Fetch tournament data
+  const fetchTournamentData = async () => {
+    try {
+      const response = await TournamentService.getTournamentDetails(
+        tournamentID
+      );
+      setTournamentData(response.data);
+      console.log("response.data => ", response.data);
+      // Set eventsArray
+      const eventsArray = response.data.events; // Accessing events directly
+      setEventsArray(eventsArray);
+    } catch (error) {
+      console.error("Error fetching tournament data:", error);
+      setError("Failed to load tournament data.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  // Fetch fetch data when tournamentID changes
+  useEffect(() => {
     if (tournamentID) {
-      fetchData();
+      fetchTournamentData();
     }
   }, [tournamentID]);
 
@@ -508,7 +509,7 @@ export default function ViewTournament() {
               />
             )}
 
-            {/* Create Event Popup --> need to pass in submit/close */}
+            {/* Update Event Popup --> need to pass in submit/close */}
             {isUpdatePopupVisible && (
               <UpdateEvent
                 onClose={closeUpdatePopup}
@@ -517,6 +518,7 @@ export default function ViewTournament() {
                   tournamentData.startDate,
                   tournamentData.endDate,
                 ]}
+                fetchTournamentData={fetchTournamentData}
               />
             )}
 

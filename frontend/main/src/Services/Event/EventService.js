@@ -9,13 +9,12 @@ class EventService {
     return await ProtectedAPI.post(`${baseURL}/${tid}/create-event`, events);
   }
 
-  // TODO
-  async updateEvent(eid, data) {
-    return await ProtectedAPI.put(`${baseURL}/update-event/${eid}`, data);
-  }
-
   async getEvent(eid) {
     return await ProtectedAPI.get(`${baseURL}/event-details/${eid}`);
+  }
+
+  async updateEvent(eid, data) {
+    return await ProtectedAPI.put(`${baseURL}/${eid}/update-event`, data);
   }
 
   async registerEvent(eid) {

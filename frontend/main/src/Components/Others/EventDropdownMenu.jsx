@@ -37,7 +37,7 @@ const EventDropdownMenu = ({ updateEvent, deleteEvent }) => {
             <button
                 id="dropdownDividerButton"
                 onClick={toggleDropdown}
-                className="p-2 focus:outline-none hover:border hover:border-gray-400 rounded"
+                className="p-2 focus:outline-none hover:bg-gray-300 rounded"
                 type="button"
             >
                 <EllipsisVerticalIcon className="h-5 w-5 text-black" />
