@@ -12,12 +12,14 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import cs203.ftms.overall.comparator.TournamentFencerComparator;
 import cs203.ftms.overall.dto.CreateEventDTO;
+import cs203.ftms.overall.dto.UpdateEventDTO;
 import cs203.ftms.overall.dto.clean.CleanEventDTO;
 import cs203.ftms.overall.dto.clean.CleanFencerDTO;
 import cs203.ftms.overall.dto.clean.CleanTournamentFencerDTO;
 import cs203.ftms.overall.exception.EntityDoesNotExistException;
 import cs203.ftms.overall.exception.EventAlreadyExistsException;
 import cs203.ftms.overall.exception.EventCannotEndException;
+import cs203.ftms.overall.exception.FencerAlreadyRegisteredForEventException;
 import cs203.ftms.overall.exception.SignUpDateOverExcpetion;
 import cs203.ftms.overall.model.tournamentrelated.DirectEliminationMatch;
 import cs203.ftms.overall.model.tournamentrelated.Event;
@@ -44,15 +46,17 @@ public class EventService {
     private final UserRepository userRepository;
     private final FencerService fencerService;
     private final DirectEliminationMatchRepository directEliminationMatchRepository; 
+    private final TournamentFencerRepository tournamentFencerRepository;
 
     @Autowired
     public EventService(TournamentRepository tournamentRepository, EventRepository eventRepository, UserRepository userRepository, 
-    FencerService fencerService, DirectEliminationMatchRepository directEliminationMatchRepository) {
+    FencerService fencerService, DirectEliminationMatchRepository directEliminationMatchRepository, TournamentFencerRepository tournamentFencerRepository) {
         this.tournamentRepository = tournamentRepository;
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
         this.fencerService = fencerService; 
         this.directEliminationMatchRepository = directEliminationMatchRepository; 
+        this.tournamentFencerRepository = tournamentFencerRepository;
     }
 
     public Event getEvent(int eid) {
@@ -121,13 +125,40 @@ public class EventService {
         );
     }
 
+    @Transactional
+    public Event updateEvent(int eid, Organiser organiser, UpdateEventDTO dto) throws MethodArgumentNotValidException {
+        Event event = getEvent(eid);
+        validateOrganiser(event, organiser);
+        OtherValidations.validUpdateEventDate(dto.getDate(), event.getTournament());
+        updateEventDetails(event, dto);
+        return eventRepository.save(event);
+    }
+
+    private void validateOrganiser(Event event, Organiser organiser) {
+        Tournament tournament = event.getTournament();
+        if (!tournament.getOrganiser().equals(organiser)) {
+            throw new IllegalArgumentException("Organiser does not match the tournament organiser.");
+        }
+    }
+
+    private void updateEventDetails(Event event, UpdateEventDTO dto) {
+        event.setMinParticipants(dto.getMinParticipants());
+        event.setDate(dto.getDate());
+        event.setStartTime(dto.getStartTime());
+        event.setEndTime(dto.getEndTime());
+    }
+
     // fencer register for event
     @Transactional
     public boolean registerEvent(int eid, Fencer f) {
-        Event event = eventRepository.findById(eid).orElseThrow(() -> new EntityDoesNotExistException("Event does not exist!"));
-
+        Event event = getEvent(eid);
+        
         if (event.getTournament().getSignupEndDate().isBefore(LocalDate.now())) {
             throw new SignUpDateOverExcpetion("Sign up date is over!");
+        }
+
+        if (tournamentFencerRepository.findByFencerAndEvent(f, event) != null) {
+            throw new FencerAlreadyRegisteredForEventException("Fencer already registered for event!");
         }
 
         // handle relevant relationships
@@ -141,6 +172,33 @@ public class EventService {
         Set<TournamentFencer> fencerTFs = f.getTournamentFencerProfiles();
         fencerTFs.add(tf);
         f.setTournamentFencerProfiles(fencerTFs);
+        
+        Fencer nf = userRepository.save(f);
+
+        if (nf != null) {
+            Event tc = eventRepository.save(event);
+            if (tc != null) {
+                return true;
+            }
+        }
+        return false; 
+    }
+
+    // fencer unregister for event
+    @Transactional
+    public boolean unregisterEvent(int eid, Fencer f) {
+        Event event = getEvent(eid);
+
+        Set<TournamentFencer> fencers = event.getFencers(); 
+        fencers.removeIf(tf -> tf.getFencer().equals(f));
+        event.setFencers(fencers);
+        event.setParticipantCount(event.getParticipantCount()-1);
+
+        Set<TournamentFencer> fencerTFs = f.getTournamentFencerProfiles();
+        fencerTFs.removeIf(tf -> tf.getEvent().equals(event));
+        f.setTournamentFencerProfiles(fencerTFs);
+
+        tournamentFencerRepository.delete(tournamentFencerRepository.findByFencerAndEvent(f, event));
         
         Fencer nf = userRepository.save(f);
 

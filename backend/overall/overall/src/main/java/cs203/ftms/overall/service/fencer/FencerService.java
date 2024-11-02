@@ -1,36 +1,46 @@
 package cs203.ftms.overall.service.fencer;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 import java.util.Collections;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
+import cs203.ftms.overall.comparator.FencerPointsComparator;
 import cs203.ftms.overall.dto.CompleteFencerProfileDTO;
+import cs203.ftms.overall.dto.UpdateFencerProfileDTO;
 import cs203.ftms.overall.dto.clean.CleanFencerDTO;
 import cs203.ftms.overall.model.tournamentrelated.Event;
 import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
 import cs203.ftms.overall.model.userrelated.Fencer;
+import cs203.ftms.overall.model.userrelated.User;
+import cs203.ftms.overall.repository.tournamentrelated.EventRepository;
 import cs203.ftms.overall.repository.userrelated.FencerRepository;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
-import cs203.ftms.overall.validation.OtherValidations; 
-import cs203.ftms.overall.comparator.FencerPointsComparator;
+import cs203.ftms.overall.validation.OtherValidations;
 
 @Service
 public class FencerService {
     private final UserRepository userRepository; 
     private final FencerRepository fencerRepository;
+    private final EventRepository eventRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
     @Autowired
-    public FencerService(UserRepository userRepository, FencerRepository fencerRepository) {
+    public FencerService(UserRepository userRepository, FencerRepository fencerRepository, EventRepository eventRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager) {
         this.userRepository = userRepository; 
         this.fencerRepository = fencerRepository;
+        this.eventRepository = eventRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
     }
-
-    
 
     public CleanFencerDTO getCleanFencerDTO(Fencer f) {
         if (f == null) return null;
@@ -39,8 +49,6 @@ public class FencerService {
     }
 
     public Fencer completeProfile(Fencer f, CompleteFencerProfileDTO dto) throws MethodArgumentNotValidException {
-        // if (dto.getClub() == null || dto.getDebutYear() != 0 || dto.getDominantArm() != '\u0000' || 
-        // dto.getGender() != '\u0000' || dto.getWeapon() != '\u0000') return null; 
         OtherValidations.validDebutYear(f, dto.getDebutYear());
         f.setClub(dto.getClub());
         f.setDebutYear(dto.getDebutYear());
@@ -50,19 +58,77 @@ public class FencerService {
         return userRepository.save(f);
     }
 
-    // public List<Event> getLastEvents(Fencer f, int count) {
-    //     List<TournamentFencer> tfProfiles = new ArrayList<>(f.getTournamentFencerProfiles()); 
-    //     List<Event> events = new ArrayList<>(); 
-    //     int startIndex = (tfProfiles.size()-count-1 < 0) ? 0 : tfProfiles.size()-count-1;
-    //     for (int i = startIndex; i < tfProfiles.size(); i++) {
-    //         events.add(tfProfiles.get(i).getEvent());
-    //     }
-    //     return events;
-    // }
-
     public List<Fencer> getInternationalRank(){
         List<Fencer> fencers = fencerRepository.findAll();
         Collections.sort(fencers, new FencerPointsComparator());
         return fencers;
+    }
+
+    private User authenticateUser(String email, String password) {
+        authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(email, password));
+        return userRepository.findByEmail(email).orElse(null);
+    }
+
+    public String changePassword(User u, String oldPassword, String newPassword) {
+        User verifiedUser = authenticateUser(u.getEmail(), oldPassword);
+        if (verifiedUser == null) {
+            return "old password is incorrect";
+        }
+        u.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(u);
+        return "password changed successfully";
+    }
+
+    public void updateProfile(Fencer f, UpdateFencerProfileDTO dto) {
+        f.setClub(dto.getClub());
+        f.setContactNo(dto.getContactNo());
+        f.setCountry(dto.getCountry());
+        f.setEmail(dto.getEmail());
+        f.setName(dto.getName());
+        f.setDominantArm(dto.getDominantArm());
+        userRepository.save(f);
+    }
+
+    public List<Event> getFencerEvents(Fencer f) {
+        List<Event> events = new ArrayList<>();
+        for(TournamentFencer tf: f.getTournamentFencerProfiles()){
+            events.add(eventRepository.findById(tf.getEvent().getId()).orElse(null));
+        }
+        return events;
+    }
+
+    public List<Event> getFencerUpcomingEvents(Fencer f) {
+        List<Event> events = new ArrayList<>();
+        for(TournamentFencer tf: f.getTournamentFencerProfiles()){
+            Event e = eventRepository.findById(tf.getEvent().getId()).orElse(null);
+            if(e.getDate().isAfter(LocalDate.now())){
+                events.add(e);
+            }
+        }
+        return events;
+    }
+
+    public List<Event> getFencerPastEvents(Fencer f) {
+        List<Event> events = new ArrayList<>();
+        for(TournamentFencer tf: f.getTournamentFencerProfiles()){
+            Event e = eventRepository.findById(tf.getEvent().getId()).orElse(null);
+            if(e.getDate().isBefore(LocalDate.now())){
+                events.add(e);
+            }
+        }
+        return events;
+    }
+
+    public List<Fencer> getFilterdInternationalRank(char weapon, char gender){
+        List<Fencer> fencers = fencerRepository.findAll();
+        Collections.sort(fencers, new FencerPointsComparator());
+        List<Fencer> filteredFencers = new ArrayList<>();
+        for(Fencer f: fencers){
+            if(f.getWeapon() == weapon && f.getGender() == gender){
+                filteredFencers.add(f);
+            }
+        }
+        return filteredFencers;
     }
 }
