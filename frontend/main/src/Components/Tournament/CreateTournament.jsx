@@ -86,32 +86,57 @@ const CreateTournament = () => {
                 )}
               </div>
 
-              {/* Signups End Date */}
+              {/* poules Elimination % / advancement rate*/}
               <div>
                 <label className="block font-medium mb-1">
-                  Sign Ups End Date
+                  Advancement Rate (%)
                 </label>
                 <input
-                  type="date"
-                  {...register("signupEndDate", {
+                  type="number"
+                  {...register("advancementRate", {
                     required: "Please fill this in!",
                     validate: (value) => {
-                      const today = new Date();
-                      today.setHours(0, 0, 0, 0); // Set time to midnight to compare only dates
-                      const selectedDate = new Date(value);
                       return (
-                        selectedDate >= today ||
-                        "Signup End Date must be after today!"
+                        (value >= 60 && value <= 100) ||
+                        "Please enter a valid percentage from 60 to 100!"
                       );
                     },
                   })}
                   className={`w-full border rounded-md p-2 ${
-                    errors.signupEndDate ? "border-red-500" : "border-gray-300"
+                    errors.advancementRate
+                      ? "border-red-500"
+                      : "border-gray-300"
                   }`}
                 />
-                {errors.signupEndDate && (
+                {errors.advancementRate && (
                   <p className="text-red-500 text-sm italic">
-                    {errors.signupEndDate.message}
+                    {errors.advancementRate.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Difficulty */}
+              <div>
+                <label className="block font-medium mb-1">Difficulty</label>
+                <select
+                  {...register("difficulty", {
+                    required: "Please select a difficulty level!",
+                  })}
+                  className={`w-full border rounded-md p-2 ${
+                    errors.difficulty ? "border-red-500" : "border-gray-300"
+                  }`}
+                  defaultValue=""
+                >
+                  <option value="" disabled>
+                    Select difficulty
+                  </option>
+                  <option value="B">Beginner</option>
+                  <option value="I">Intermediate</option>
+                  <option value="A">Advanced</option>
+                </select>
+                {errors.difficulty && (
+                  <p className="text-red-500 text-sm italic">
+                    {errors.difficulty.message}
                   </p>
                 )}
               </div>
@@ -171,31 +196,32 @@ const CreateTournament = () => {
                 )}
               </div>
 
-              {/* poules Elimination % / advancement rate*/}
+              {/* Signups End Date */}
               <div>
                 <label className="block font-medium mb-1">
-                  Advancement Rate (%)
+                  Sign Ups End Date
                 </label>
                 <input
-                  type="number"
-                  {...register("advancementRate", {
+                  type="date"
+                  {...register("signupEndDate", {
                     required: "Please fill this in!",
                     validate: (value) => {
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0); // Set time to midnight to compare only dates
+                      const selectedDate = new Date(value);
                       return (
-                        (value >= 60 && value <= 100) ||
-                        "Please enter a valid percentage from 60 to 100!"
+                        selectedDate >= today ||
+                        "Signup End Date must be after today!"
                       );
                     },
                   })}
                   className={`w-full border rounded-md p-2 ${
-                    errors.advancementRate
-                      ? "border-red-500"
-                      : "border-gray-300"
+                    errors.signupEndDate ? "border-red-500" : "border-gray-300"
                   }`}
                 />
-                {errors.advancementRate && (
+                {errors.signupEndDate && (
                   <p className="text-red-500 text-sm italic">
-                    {errors.advancementRate.message}
+                    {errors.signupEndDate.message}
                   </p>
                 )}
               </div>

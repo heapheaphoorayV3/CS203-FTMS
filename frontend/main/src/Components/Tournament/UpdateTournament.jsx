@@ -1,18 +1,19 @@
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { DateTime } from "luxon";
 import TournamentService from "../../Services/Tournament/TournamentService";
 import { XCircleIcon } from "@heroicons/react/16/solid";
 
 const UpdateTournament = ({ selectedTournament, onClose }) => {
+  const { tournamentID } = useParams();
   const {
     register,
     watch,
     handleSubmit,
     setValue,
     formState: { errors },
-  } = useForm();
+  } = useForm({ defaultValues: selectedTournament });
 
   const signupEndDate = watch("signupEndDate");
   const startDate = watch("startDate");
@@ -21,6 +22,8 @@ const UpdateTournament = ({ selectedTournament, onClose }) => {
 
   useEffect(() => {
     if (selectedTournament) {
+      console.log("==============");
+      console.log(selectedTournament);
       setValue("description", selectedTournament.description);
       setValue("difficulty", selectedTournament.difficulty);
       setValue("endDate", selectedTournament.endDate);
@@ -32,27 +35,30 @@ const UpdateTournament = ({ selectedTournament, onClose }) => {
     }
   }, [selectedTournament, setValue]);
 
-  console.log(selectedTournament);
-
   const onSubmit = async (data) => {
     // Prepare formData to be sent to the API
+    const difficultyChar = data.difficulty.charAt(0);
     const formData = {
       ...data,
+      difficulty: difficultyChar,
     };
 
-    // try {
-    //   await EventService.updateEvent(selectedEvent.id, formData); // Call the update method
-    //   onClose(); // Redirect to a view page after update
-    // } catch (error) {
-    //   console.error("Error updating event:", error);
-    // }
-    onClose();
+    console.log("Updating tournament with data:", formData);
+
+    try {
+      await TournamentService.updateTournament(tournamentID, formData); // Call the update method
+      onClose(); // Redirect to a view page after update
+    } catch (error) {
+      console.error("Error updating tournament:", error);
+    }
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="mt-20 bg-white rounded-lg w-1/3 max-h-[93vh] overflow-y-auto flex flex-col justify-center pt-6 py-12 lg:px-8">
+      <div className="mt-20 bg-white rounded-lg w-1/3 max-h-[80vh] overflow-y-auto flex flex-col justify-center pt-6 py-12 lg:px-8">
+        <div className="mt-[350px]"></div>
         {/* Close Button --> ml-auto pushes button to the right of the form */}
+
         <button
           onClick={onClose}
           className="ml-auto w-5 text-gray-300 hover:text-gray-800 focus:outline-none"
@@ -61,7 +67,7 @@ const UpdateTournament = ({ selectedTournament, onClose }) => {
           <XCircleIcon /> {/* This is the close icon (×) */}
         </button>
 
-        <h2 className="text-2xl font-bold mb-6 text-center">Update</h2>
+        <h2 className="text-2xl font-bold mb-4 text-center">Update</h2>
 
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -105,30 +111,55 @@ const UpdateTournament = ({ selectedTournament, onClose }) => {
             )}
           </div>
 
-          {/* Signups End Date */}
+          {/* poules Elimination % / advancement rate*/}
           <div>
-            <label className="block font-medium mb-1">Sign Ups End Date</label>
+            <label className="block font-medium mb-1">
+              Advancement Rate (%)
+            </label>
             <input
-              type="date"
-              {...register("signupEndDate", {
+              type="number"
+              {...register("advancementRate", {
                 required: "Please fill this in!",
                 validate: (value) => {
-                  const today = new Date();
-                  today.setHours(0, 0, 0, 0); // Set time to midnight to compare only dates
-                  const selectedDate = new Date(value);
                   return (
-                    selectedDate >= today ||
-                    "Signup End Date must be after today!"
+                    (value >= 60 && value <= 100) ||
+                    "Please enter a valid percentage from 60 to 100!"
                   );
                 },
               })}
               className={`w-full border rounded-md p-2 ${
-                errors.signupEndDate ? "border-red-500" : "border-gray-300"
+                errors.advancementRate ? "border-red-500" : "border-gray-300"
               }`}
             />
-            {errors.signupEndDate && (
+            {errors.advancementRate && (
               <p className="text-red-500 text-sm italic">
-                {errors.signupEndDate.message}
+                {errors.advancementRate.message}
+              </p>
+            )}
+          </div>
+
+          {/* Difficulty */}
+          <div>
+            <label className="block font-medium mb-1">Difficulty</label>
+            <select
+              {...register("difficulty", {
+                required: "Please select a difficulty level!",
+              })}
+              className={`w-full border rounded-md p-2 ${
+                errors.difficulty ? "border-red-500" : "border-gray-300"
+              }`}
+              defaultValue={selectedTournament?.difficulty || ""}
+            >
+              <option value="" disabled>
+                Select difficulty
+              </option>
+              <option value="B">Beginner</option>
+              <option value="I">Intermediate</option>
+              <option value="A">Advanced</option>
+            </select>
+            {errors.difficulty && (
+              <p className="text-red-500 text-sm italic">
+                {errors.difficulty.message}
               </p>
             )}
           </div>
@@ -188,29 +219,30 @@ const UpdateTournament = ({ selectedTournament, onClose }) => {
             )}
           </div>
 
-          {/* poules Elimination % / advancement rate*/}
+          {/* Signups End Date */}
           <div>
-            <label className="block font-medium mb-1">
-              Advancement Rate (%)
-            </label>
+            <label className="block font-medium mb-1">Sign Ups End Date</label>
             <input
-              type="number"
-              {...register("advancementRate", {
+              type="date"
+              {...register("signupEndDate", {
                 required: "Please fill this in!",
                 validate: (value) => {
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0); // Set time to midnight to compare only dates
+                  const selectedDate = new Date(value);
                   return (
-                    (value >= 60 && value <= 100) ||
-                    "Please enter a valid percentage from 60 to 100!"
+                    selectedDate >= today ||
+                    "Signup End Date must be after today!"
                   );
                 },
               })}
               className={`w-full border rounded-md p-2 ${
-                errors.advancementRate ? "border-red-500" : "border-gray-300"
+                errors.signupEndDate ? "border-red-500" : "border-gray-300"
               }`}
             />
-            {errors.advancementRate && (
+            {errors.signupEndDate && (
               <p className="text-red-500 text-sm italic">
-                {errors.advancementRate.message}
+                {errors.signupEndDate.message}
               </p>
             )}
           </div>

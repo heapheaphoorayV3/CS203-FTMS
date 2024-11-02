@@ -30,6 +30,7 @@ export default function ViewTournament() {
   //Popup for updating tournament
   const [isUpdateTournamentPopupVisible, setIsUpdateTournamentPopupVisible] =
     useState(false);
+  const [tournamentToUpdate, setTournamentToUpdate] = useState(false);
   // One Popup for create-event the other for update-event
   const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
   const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
@@ -335,12 +336,24 @@ export default function ViewTournament() {
     return difficulty;
   };
 
-  const updateTournament = () => {
+  const updateTournament = (tournamentToUpdate) => {
     setIsUpdateTournamentPopupVisible(true);
+    setTournamentToUpdate(tournamentToUpdate);
   };
 
   const closeUpdateTournamentPopup = () => {
     setIsUpdateTournamentPopupVisible(false);
+    setTournamentToUpdate(null);
+  };
+
+  const submitUpdateTournament = async (data) => {
+    try {
+      console.log(data);
+      await TournamentService.updateTournament(tournamentID, data);
+    } catch (error) {
+      console.error("Error updating tournament:", error);
+      // Add error notification here
+    }
   };
 
   return (
@@ -386,7 +399,7 @@ export default function ViewTournament() {
       {isUpdateTournamentPopupVisible && (
         <UpdateTournament
           onClose={closeUpdateTournamentPopup}
-          // onSubmit={submitUpdateTournament}
+          onSubmit={submitUpdateTournament}
         />
       )}
       <div className="ml-12 mr-8 text-lg overflow-x-auto">
@@ -400,7 +413,10 @@ export default function ViewTournament() {
             </div>
           </Tab>
           <Tab label="Events">
-            <table className="table text-lg text-center border-collapse">
+            <table
+              className="table text-lg text-center border-collapse "
+              style={{ zIndex: 20 }}
+            >
               {/* head */}
               <thead className="text-lg text-primary">
                 <tr className="border-b border-gray-300">
