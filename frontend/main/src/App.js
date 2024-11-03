@@ -11,11 +11,7 @@ import SignIn from "./Components/Authentication/SignIn";
 import SignUpFencer from "./Components/Authentication/SignUpFencer";
 import SignUpOrganiser from "./Components/Authentication/SignUpOrganiser";
 import DefaultLayout from "./Layouts/DefaultLayout";
-import UnauthenticatedLayout from "./Layouts/UnauthenticatedLayout";
-import AuthLayout from "./Layouts/AuthLayout";
-import AdminLayout from "./Layouts/AdminLayout";
 import ViewTournament from "./Components/Tournament/ViewTournament";
-import ProtectedRoute from "./Components/Authentication/ProtectedRoute";
 import ViewEvent from "./Components/Tournament/ViewEvent";
 import Tournaments from "./Components/Tournament/Tournaments";
 import VerifyOrganiser from "./Components/Admin/VerifyOrganiser";
@@ -23,6 +19,7 @@ import LandingPage from "./Components/Others/LandingPage";
 import InternationalRanking from "./Components/InternationalRanking";
 import AuthProvider from "./Components/Authentication/AuthProvider";
 import Chatbot from "./Components/Chatbot";
+
 
 function App() {
   return (
