@@ -1,7 +1,8 @@
 import axios from "axios";
 import AuthService from "./Authentication/AuthService";
 
-const API_BASE_URL = "http://localhost:8080/api/v1";
+// const API_BASE_URL = "http://localhost:8080/api/v1";
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 let ProtectedAPI = axios.create({
   baseURL: API_BASE_URL,
