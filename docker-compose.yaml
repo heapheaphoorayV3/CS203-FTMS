@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  database:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      # MYSQL_USER: ${MYSQL_USER}
+      # MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "${DB_PORT}:3306"
+
+  backend:
+    build:
+      context: ./backend/overall/overall
+      dockerfile: Dockerfile
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    # env_file:
+    #   - ./backend/overall/overall/.env
+    environment:
+      - DB_URL=jdbc:mysql://database:3306/${MYSQL_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - GMAIL_ADDR=${GMAIL_ADDR}
+      - GMAIL_APP_PW=${GMAIL_APP_PW}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - FRONTEND_SOURCE=http://localhost:${FRONTEND_PORT}
+    depends_on:
+      - database
+
+  frontend:
+    build:
+      context: ./frontend/main
+      dockerfile: dockerfile
+    ports:
+      - "${FRONTEND_PORT}:3000"  # Map port specified in .env file
+    # env_file:
+    #   - ./frontend/main/.env
+    environment:
+      - REACT_APP_BACKEND_SOURCE=http://localhost:${BACKEND_PORT}/api/v1
+    depends_on:
+      - backend
