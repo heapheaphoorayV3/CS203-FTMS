@@ -4,7 +4,12 @@ import { DateTime } from "luxon";
 import EventService from "../../Services/Event/EventService";
 import { XCircleIcon } from "@heroicons/react/16/solid";
 
-const UpdateEvent = ({ tournamentDates, selectedEvent, onClose, fetchTournamentData }) => {
+const UpdateEvent = ({
+  tournamentDates,
+  selectedEvent,
+  onClose,
+  fetchTournamentData,
+}) => {
   const {
     register,
     handleSubmit,
@@ -28,7 +33,7 @@ const UpdateEvent = ({ tournamentDates, selectedEvent, onClose, fetchTournamentD
   function getGender(gender) {
     if (gender === "M") {
       return "Male";
-    } 
+    }
     return "Female";
   }
 
@@ -69,15 +74,17 @@ const UpdateEvent = ({ tournamentDates, selectedEvent, onClose, fetchTournamentD
       console.log("Updating event with data:", formData);
       await EventService.updateEvent(selectedEvent.id, formData); // Call the update method
       onClose();
-      fetchTournamentData(); 
+      fetchTournamentData();
     } catch (error) {
       console.error("Error updating event:", error);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white rounded-lg w-1/3 min-w-[300px] flex flex-col justify-center pt-6 py-12 lg:px-8">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" style={{ zIndex: 3 }}>
+      <div
+        className="bg-white rounded-lg w-1/3 min-w-[300px] flex flex-col justify-center pt-6 py-12 lg:px-8"
+      >
         {/* Close Button --> ml-auto pushes button to the right of the form */}
         <button
           onClick={onClose}
@@ -123,8 +130,9 @@ const UpdateEvent = ({ tournamentDates, selectedEvent, onClose, fetchTournamentD
                   );
                 },
               })}
-              className={`w-full border rounded-md p-2 ${errors.date ? "border-red-500" : "border-gray-300"
-                }`}
+              className={`w-full border rounded-md p-2 ${
+                errors.date ? "border-red-500" : "border-gray-300"
+              }`}
             />
             {errors.date && (
               <p className="text-red-500 text-sm italic">
@@ -192,7 +200,8 @@ const UpdateEvent = ({ tournamentDates, selectedEvent, onClose, fetchTournamentD
               {...register("minParticipants", {
                 required: "Please fill this in!",
                 validate: (value) =>
-                  value >= 8 || "Please enter a number greater than or equal to 8!",
+                  value >= 8 ||
+                  "Please enter a number greater than or equal to 8!",
               })}
               className={`w-full border rounded-md p-2 ${
                 errors.minParticipants ? "border-red-500" : "border-gray-300"

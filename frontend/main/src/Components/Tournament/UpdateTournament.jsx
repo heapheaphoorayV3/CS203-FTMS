@@ -13,7 +13,7 @@ const UpdateTournament = ({ selectedTournament, onClose }) => {
     handleSubmit,
     setValue,
     formState: { errors },
-  } = useForm({ defaultValues: selectedTournament });
+  } = useForm();
 
   const signupEndDate = watch("signupEndDate");
   const startDate = watch("startDate");
@@ -22,8 +22,9 @@ const UpdateTournament = ({ selectedTournament, onClose }) => {
 
   useEffect(() => {
     if (selectedTournament) {
-      console.log("==============");
-      console.log(selectedTournament);
+      console.log("Selected tournament:", selectedTournament);
+      const advancementRate = parseInt(selectedTournament.advancementRate, 10);
+      setValue("advancementRate", advancementRate);
       setValue("description", selectedTournament.description);
       setValue("difficulty", selectedTournament.difficulty);
       setValue("endDate", selectedTournament.endDate);
@@ -54,7 +55,10 @@ const UpdateTournament = ({ selectedTournament, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
+      style={{ zIndex: 3 }}
+    >
       <div className="mt-20 bg-white rounded-lg w-1/3 max-h-[80vh] overflow-y-auto flex flex-col justify-center pt-6 py-12 lg:px-8">
         <div className="mt-[350px]"></div>
         {/* Close Button --> ml-auto pushes button to the right of the form */}
@@ -117,6 +121,7 @@ const UpdateTournament = ({ selectedTournament, onClose }) => {
               Advancement Rate (%)
             </label>
             <input
+              id="advancementRate"
               type="number"
               {...register("advancementRate", {
                 required: "Please fill this in!",

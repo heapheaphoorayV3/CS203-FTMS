@@ -400,6 +400,7 @@ export default function ViewTournament() {
         <UpdateTournament
           onClose={closeUpdateTournamentPopup}
           onSubmit={submitUpdateTournament}
+          selectedTournament={tournamentData}
         />
       )}
       <div className="ml-12 mr-8 text-lg overflow-x-auto">
@@ -415,7 +416,7 @@ export default function ViewTournament() {
           <Tab label="Events">
             <table
               className="table text-lg text-center border-collapse "
-              style={{ zIndex: 20 }}
+              style={{ position: "relative", zIndex: 1 }}
             >
               {/* head */}
               <thead className="text-lg text-primary">
