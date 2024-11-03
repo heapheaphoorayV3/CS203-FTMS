@@ -1,3 +1,6 @@
+.env
+*.tfvars 
+
 # Compiled class file
 *.class
 
