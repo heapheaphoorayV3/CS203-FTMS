@@ -12,15 +12,16 @@ RUN npm install
 COPY . .
 
 # Build the React app for production
-RUN npm run build
+# RUN npm run build
 
-# Use Nginx to serve the frontend
-FROM nginx:alpine
+# # Use Nginx to serve the frontend
+# FROM nginx:alpine
 
-# Copy the build output to Nginx's default public directory
-COPY --from=build /app/build /usr/share/nginx/html
+# # Copy the build output to Nginx's default public directory
+# COPY --from=build /app/build /usr/share/nginx/html
 
 # Expose port 80
-EXPOSE 80
+EXPOSE 3000
 
 # No CMD required, Nginx runs by default
+CMD ["npm", "start"]
