@@ -2,7 +2,7 @@ import React, { useEffect, useLayoutEffect, useState } from "react";
 import jackinpic from "../Assets/jackinpic.jpg";
 import editLogo from "../Assets/edit.png";
 import FencerService from "../Services/Fencer/FencerService";
-import { Tabs, Tab } from "./Others/DashboardTabs";
+import { Tabs, Tab } from "./Others/Tabs";
 import LineGraph from "./Others/LineGraph";
 
 const FencerDashboard = () => {
@@ -171,7 +171,7 @@ const FencerDashboard = () => {
   return (
     <div className="bg-white w-full h-full flex flex-col gap-2 p-8 overflow-auto">
       <div className="bg-white border rounded-2xl shadow-lg p-6 flex w-full relative overflow-x-hidden">
-        <div className="w-1/5 flex-shrink-0 flex flex-col items-center my-auto">
+        <div className="w-1/4 flex-shrink-0 flex flex-col items-center my-auto">
           <div className="text-4xl font-semibold mr-4">{userData.name}'s</div>
           <div className="text-4xl font-semibold mr-4">Dashboard</div>
         </div>

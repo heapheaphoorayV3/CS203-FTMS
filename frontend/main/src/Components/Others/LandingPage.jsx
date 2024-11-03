@@ -41,7 +41,7 @@ const LandingPage = () => {
                 <div className="text-center">
                     <h2 className="text-xl font-semibold mb-2">Manage Fencing Tournaments</h2>
                     <p>
-                        Register as an Organiser and organise your own fencing tournaments. Manage all the events, participants, and results with ease.
+                        Register as an organiser and organise your own fencing tournaments. Manage all the events, participants, and results with ease.
                     </p>
                 </div>
                 <div className="text-center">

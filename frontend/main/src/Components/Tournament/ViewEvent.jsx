@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { Tabs, Tab } from "../Others/DashboardTabs.jsx";
+import { Tabs, Tab } from "../Others/Tabs.jsx";
 import EventService from "../../Services/Event/EventService.js";
 import PaginationButton from "../Others/Pagination.jsx";
 import EventBracket from "./EventBracket.jsx";

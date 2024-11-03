@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 const Tabs = ({ children, parentRef }) => {
     const [activeTab, setActiveTab] = useState(children[0].props.label);
+    console.log(children[0].props.label);
 
     const handleClick = (e, newActiveTab) => {
         e.preventDefault();
@@ -11,11 +12,11 @@ const Tabs = ({ children, parentRef }) => {
     return (
         <div className="w-full h-full flex flex-col flex-grow">
             <div className="flex border-b border-gray-300">
-                {children.map(child => (
+                {children.map((child, index) => (
                     <button
-                        key={child.props.label}
+                        key={`${child.props.label}-${index}`}
                         className={`${activeTab === child.props.label ? 'border-b-2 border-purple-500' : ''
-                            } flex-1 text-gray-700 font-medium py-2`}
+                            } flex-1 text-gray-700 font-medium py-2 text-xl`}
                         onClick={e => handleClick(e, child.props.label)}
                     >
                         {child.props.label}

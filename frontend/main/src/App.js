@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import FencerDashboard from "./Components/FencerDashboard";
 import CreateTournament from "./Components/Tournament/CreateTournament";
 import OrganiserDashboard from "./Components/OrganiserDashboard";
+import AdminDashboard from "./Components/Admin/AdminDashboard";
 import CreateEvent from "./Components/Tournament/CreateEvent";
 import SignUpEvent from "./Components/Tournament/SignUpEvent";
 import SignupOptions from "./Components/Authentication/SignupOptions";
@@ -57,6 +58,7 @@ function App() {
             element={<CreateEvent />}
           />
           <Route path="/signup-event" element={<SignUpEvent />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/verify-organiser" element={<VerifyOrganiser />} />
           <Route
             path="/international-ranking"
