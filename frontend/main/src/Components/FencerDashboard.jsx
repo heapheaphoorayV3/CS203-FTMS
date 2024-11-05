@@ -4,10 +4,18 @@ import editLogo from "../Assets/edit.png";
 import FencerService from "../Services/Fencer/FencerService";
 import { Tabs, Tab } from "./Others/Tabs";
 import LineGraph from "./Others/LineGraph";
+import { Link } from "react-router-dom";
+
+function formatTimeTo24Hour(timeString) {
+  const [hours, minutes] = timeString.split(":"); // Get hours and minutes
+  return `${hours}${minutes}`; // Return formatted time
+}
 
 const FencerDashboard = () => {
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState({});
   const [rankingData, setRankingData] = useState(null);
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
+  const [pastEvents, setPastEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -46,8 +54,36 @@ const FencerDashboard = () => {
       }
     };
 
+    const fetchUpcomingEvents = async () => {
+      setLoading(true);
+      try {
+        const response = await FencerService.getFencerUpcomingEvents();
+        setUpcomingEvents(response.data);
+      } catch (error) {
+        console.error("Error fetching upcoming events: ", error);
+        setError("Failed to load upcoming events");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchPastEvents = async () => {
+      setLoading(true);
+      try {
+        const response = await FencerService.getFencerPastEvents();
+        setPastEvents(response.data);
+      } catch (error) {
+        console.error("Error fetching past events: ", error);
+        setError("Failed to load past events");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchData();
     fetchInternationalRanking();
+    fetchUpcomingEvents();
+    fetchPastEvents();
   }, []);
 
   const formatDate = (date) => {
@@ -160,13 +196,32 @@ const FencerDashboard = () => {
     if (!rankingData || !Array.isArray(rankingData)) {
       return "Ranking data not available";
     }
-    
+
     const sortedRankingData = rankingData.sort((a, b) => b.points - a.points);
-    const userIndex = sortedRankingData.findIndex((rank) => rank.id === userData.id);
+    const userIndex = sortedRankingData.findIndex(
+      (rank) => rank.id === userData.id
+    );
     return userIndex !== -1 ? userIndex + 1 : "User rank not found";
   };
 
+  const formatDateRange = (start, end) => {
+    const startDate = new Date(start).toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+    const endDate = new Date(end).toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+    return `${startDate} - ${endDate}`;
+  };
+
   console.log(userData);
+  console.log("------------------");
+  console.log("upcoming:", upcomingEvents);
+  console.log("past: ", pastEvents);
 
   return (
     <div className="bg-white w-full h-full flex flex-col gap-2 p-8 overflow-auto">
@@ -340,9 +395,7 @@ const FencerDashboard = () => {
                   Tournament Participations
                 </div>
                 {/* placeholder stuff */}
-                <div className="flex">
-                  {userData.tournaments ? userData.tournaments : "-"}
-                </div>
+                <div className="flex">{pastEvents.length}</div>
               </div>
 
               <div className="w-[99%] h-full">
@@ -363,42 +416,95 @@ const FencerDashboard = () => {
           </Tab>
           <Tab label="Past Tournaments">
             <div className="py-4">
-              <h2 className="text-lg font-medium mb-2">Tab 2</h2>
-              <p className="text-gray-700">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime
-                mollitia, molestiae quas vel sint commodi repudiandae
-                consequuntur voluptatum laborum numquam blanditiis harum
-                quisquam eius sed odit fugiat iusto fuga praesentium optio,
-                eaque rerum! Provident similique accusantium nemo autem.
-                Veritatis obcaecati tenetur iure eius earum ut molestias
-                architecto voluptate aliquam nihil, eveniet aliquid culpa
-                officia aut! Impedit sit sunt quaerat, odit, tenetur error,
-                harum nesciunt ipsum debitis quas aliquid. Reprehenderit, quia.
-                Quo neque error repudiandae fuga? Ipsa laudantium molestias eos
-                sapiente officiis modi at sunt excepturi expedita sint? Sed
-                quibusdam recusandae alias error harum maxime adipisci amet
-                laborum.
-              </p>
+              <table className="table text-lg border-collapse">
+                {/* head */}
+                <thead className="text-lg text-primary">
+                  <tr className="border-b border-gray-300">
+                    <th className="w-20"></th>
+                    <th className="w-1/4">Tournament Name</th>
+                    <th className="text-center">Date</th>
+                    <th className="text-center">Rank</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pastEvents && pastEvents.length > 0 ? (
+                    pastEvents.map((item, index) => (
+                      <tr
+                        key={item.id}
+                        className="border-b border-gray-300 hover:bg-gray-100"
+                      >
+                        <td className="text-center">{index + 1}</td>
+                        <td className="underline hover:text-primary">
+                          {item.tournamentName}
+                        </td>
+                        <td className="text-center">{formatDate(item.date)}</td>
+                        <td className="text-center">{item.rank}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan="4"
+                        className="text-center border-b border-gray-300"
+                      >
+                        No past events available.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </Tab>
           <Tab label="Upcoming Tournaments">
             <div className="py-4">
-              <h2 className="text-lg font-medium mb-2">Tab 3</h2>
-              <p className="text-gray-700">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime
-                mollitia, molestiae quas vel sint commodi repudiandae
-                consequuntur voluptatum laborum numquam blanditiis harum
-                quisquam eius sed odit fugiat iusto fuga praesentium optio,
-                eaque rerum! Provident similique accusantium nemo autem.
-                Veritatis obcaecati tenetur iure eius earum ut molestias
-                architecto voluptate aliquam nihil, eveniet aliquid culpa
-                officia aut! Impedit sit sunt quaerat, odit, tenetur error,
-                harum nesciunt ipsum debitis quas aliquid. Reprehenderit, quia.
-                Quo neque error repudiandae fuga? Ipsa laudantium molestias eos
-                sapiente officiis modi at sunt excepturi expedita sint? Sed
-                quibusdam recusandae alias error harum maxime adipisci amet
-                laborum.
-              </p>
+              <table className="table text-lg border-collapse">
+                {/* head */}
+                <thead className="text-lg text-primary">
+                  <tr className="border-b border-gray-300">
+                    <th className="w-20"></th>
+                    <th className="w-1/4">Tournament Name</th>
+                    <th className="text-center">Date</th>
+                    <th className="text-center">Start Time</th>
+                    <th className="text-center">End Time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {upcomingEvents && upcomingEvents.length > 0 ? (
+                    upcomingEvents.map((item, index) => (
+                      <tr
+                        key={item.id}
+                        className="border-b border-gray-300 hover:bg-gray-100"
+                      >
+                        <td className="text-center">{index + 1}</td>
+                        <td>
+                          <Link
+                            to={`/tournaments/${item.id}`}
+                            className="underline hover:text-primary"
+                          >
+                            {item.tournamentName}
+                          </Link>
+                        </td>
+                        <td className="text-center">{formatDate(item.date)}</td>
+                        <td className="text-center">
+                          {formatTimeTo24Hour(item.startTime)}
+                        </td>
+                        <td className="text-center">
+                          {formatTimeTo24Hour(item.endTime)}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan="4"
+                        className="text-center border-b border-gray-300"
+                      >
+                        No upcoming events available.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </Tab>
         </Tabs>

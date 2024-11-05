@@ -14,6 +14,14 @@ class FencerService {
   async getInternationalRanking() {
     return await ProtectedAPI.get(`${baseURL}/international-ranking`);
   }
+
+  async getFencerUpcomingEvents() {
+    return await ProtectedAPI.get(`${baseURL}/upcoming-events`);
+  }
+
+  async getFencerPastEvents() {
+    return await ProtectedAPI.get(`${baseURL}/past-events`);
+  }
 }
 
 export default new FencerService();
