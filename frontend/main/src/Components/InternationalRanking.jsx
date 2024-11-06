@@ -16,8 +16,30 @@ export default function InternationalRanking() {
   useEffect(() => {
     const fetchInternationalRanking = async () => {
       setLoading(true);
+      let response;
       try {
-        const response = await FencerService.getInternationalRanking();
+        switch (`${selectedGender}-${selectedWeapon}`) {
+          case "M-S":
+            response = await FencerService.getMenSabreRanking();
+            break;
+          case "W-S":
+            response = await FencerService.getWomenSabreRanking();
+            break;
+          case "M-E":
+            response = await FencerService.getMenEpeeRanking();
+            break;
+          case "W-E":
+            response = await FencerService.getWomenEpeeRanking();
+            break;
+          case "M-F":
+            response = await FencerService.getMenFoilRanking();
+            break;
+          case "W-F":
+            response = await FencerService.getWomenFoilRanking();
+            break;
+          default:
+            throw new Error("Error");
+        }
         setRankingData(response.data);
       } catch (error) {
         console.error("Error fetching international ranking: ", error);
@@ -28,7 +50,7 @@ export default function InternationalRanking() {
     };
 
     fetchInternationalRanking();
-  }, []);
+  }, [selectedGender, selectedWeapon]);
 
   useEffect(() => {
     if (Array.isArray(rankingData) && rankingData.length) {
@@ -65,14 +87,11 @@ export default function InternationalRanking() {
 
   const filteredFencerData = paginatedData?.filter((fencer) => {
     return (
-      fencer.name.toLowerCase().includes(InputSearch.toLowerCase()) &&
-      (selectedGender ? fencer.gender === selectedGender : true) &&  
-      (selectedWeapon ? fencer.weapon === selectedWeapon : true) 
+      fencer.name.toLowerCase().includes(InputSearch.toLowerCase()) 
+      // (selectedGender ? fencer.gender === selectedGender : true) &&
+      // (selectedWeapon ? fencer.weapon === selectedWeapon : true)
     );
   });
-
-  console.log("==========");
-  console.log(filteredFencerData);
 
   if (loading) {
     return <div className="mt-10">Loading...</div>; // Show loading state

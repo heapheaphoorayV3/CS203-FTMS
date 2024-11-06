@@ -22,6 +22,30 @@ class FencerService {
   async getFencerPastEvents() {
     return await ProtectedAPI.get(`${baseURL}/past-events`);
   }
+
+  async getMenSabreRanking() {
+    return await ProtectedAPI.get(`${baseURL}/men-sabre-ranking`);
+  }
+
+  async getWomenSabreRanking() {
+    return await ProtectedAPI.get(`${baseURL}/women-sabre-ranking`);
+  }
+
+  async getMenEpeeRanking() {
+    return await ProtectedAPI.get(`${baseURL}/men-epee-ranking`);
+  }
+
+  async getWomenEpeeRanking() {
+    return await ProtectedAPI.get(`${baseURL}/women-epee-ranking`);
+  }
+
+  async getMenFoilRanking() {
+    return await ProtectedAPI.get(`${baseURL}/men-foil-ranking`);
+  }
+
+  async getWomenFoilRanking() {
+    return await ProtectedAPI.get(`${baseURL}/women-foil-ranking`);
+  }
 }
 
 export default new FencerService();
