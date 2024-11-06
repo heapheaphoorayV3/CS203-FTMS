@@ -90,6 +90,7 @@ export default function ViewEvent() {
       try {
         const response = await EventService.getMatches(eventID);
         setMatches(response.data);
+        console.log("matches:", response.data);
       } catch (error) {
         console.error("Error fetching matches:", error);
         setError("Failed to load matches.");

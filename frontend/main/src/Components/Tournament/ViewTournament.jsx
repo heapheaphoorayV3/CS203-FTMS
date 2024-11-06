@@ -375,6 +375,8 @@ export default function ViewTournament() {
       // Add error notification here
     }
   };
+  console.log("---------------");
+  console.log(registeredEvents);
 
   return (
     // Grid for Navbar, Sidebar and Content
