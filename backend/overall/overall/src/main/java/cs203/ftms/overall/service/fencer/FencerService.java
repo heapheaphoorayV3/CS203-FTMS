@@ -23,6 +23,7 @@ import cs203.ftms.overall.model.userrelated.User;
 import cs203.ftms.overall.repository.tournamentrelated.EventRepository;
 import cs203.ftms.overall.repository.userrelated.FencerRepository;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
+import cs203.ftms.overall.service.authentication.AuthenticationService;
 import cs203.ftms.overall.validation.OtherValidations;
 
 @Service
@@ -31,21 +32,25 @@ public class FencerService {
     private final FencerRepository fencerRepository;
     private final EventRepository eventRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
+    private final AuthenticationService authenticationService;
 
     @Autowired
-    public FencerService(UserRepository userRepository, FencerRepository fencerRepository, EventRepository eventRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager) {
+    public FencerService(UserRepository userRepository, FencerRepository fencerRepository, EventRepository eventRepository, PasswordEncoder passwordEncoder, AuthenticationService authenticationService) {
         this.userRepository = userRepository; 
         this.fencerRepository = fencerRepository;
         this.eventRepository = eventRepository;
         this.passwordEncoder = passwordEncoder;
-        this.authenticationManager = authenticationManager;
+        this.authenticationService = authenticationService;
     }
 
     public CleanFencerDTO getCleanFencerDTO(Fencer f) {
         if (f == null) return null;
         return new CleanFencerDTO(f.getId(), f.getName(), f.getEmail(), f.getContactNo(), f.getCountry(),
         f.getDateOfBirth(), f.getDominantArm(), f.getWeapon(), f.getClub(), f.getPoints(), f.getDebutYear(), f.getGender());
+    }
+
+    public List<Fencer> getAllFencers() {
+        return fencerRepository.findAll();
     }
 
     public Fencer completeProfile(Fencer f, CompleteFencerProfileDTO dto) throws MethodArgumentNotValidException {
@@ -64,14 +69,8 @@ public class FencerService {
         return fencers;
     }
 
-    private User authenticateUser(String email, String password) {
-        authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(email, password));
-        return userRepository.findByEmail(email).orElse(null);
-    }
-
     public String changePassword(User u, String oldPassword, String newPassword) {
-        User verifiedUser = authenticateUser(u.getEmail(), oldPassword);
+        User verifiedUser = authenticationService.authenticateUser(u.getEmail(), oldPassword);
         if (verifiedUser == null) {
             return "old password is incorrect";
         }

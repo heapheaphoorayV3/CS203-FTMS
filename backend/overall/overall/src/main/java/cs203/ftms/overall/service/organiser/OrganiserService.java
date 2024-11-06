@@ -16,21 +16,25 @@ import cs203.ftms.overall.model.tournamentrelated.Tournament;
 import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.model.userrelated.User;
 import cs203.ftms.overall.repository.tournamentrelated.TournamentRepository;
+import cs203.ftms.overall.repository.userrelated.OrganiserRepository;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
+import cs203.ftms.overall.service.authentication.AuthenticationService;
 
 @Service
 public class OrganiserService {
     private final TournamentRepository tournamentRepository;
     private final PasswordEncoder passwordEncoder; 
+    private final OrganiserRepository organiserRepository;
     private final UserRepository userRepository;
-    private final AuthenticationManager authenticationManager;
+    private final AuthenticationService authenticationService;
 
     @Autowired
-    public OrganiserService(TournamentRepository tournamentRepository, PasswordEncoder passwordEncoder, UserRepository userRepository, AuthenticationManager authenticationManager) {
+    public OrganiserService(TournamentRepository tournamentRepository, PasswordEncoder passwordEncoder, UserRepository userRepository, OrganiserRepository organiserRepository, AuthenticationService authenticationService) {
         this.tournamentRepository = tournamentRepository;
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
-        this.authenticationManager = authenticationManager;
+        this.organiserRepository = organiserRepository;
+        this.authenticationService = authenticationService;
     }
 
     public CleanOrganiserDTO getCleanOrganiserDTO(Organiser o) {
@@ -38,18 +42,16 @@ public class OrganiserService {
         return new CleanOrganiserDTO(o.getId(), o.isVerified(), o.getName(), o.getEmail(), o.getContactNo(), o.getCountry());
     }
 
+    public List<Organiser> getAllOrganisers() {
+        return organiserRepository.findAll();
+    }
+
     public List<Tournament> getOrganiserTournaments(Organiser o) {
         return tournamentRepository.findByOrganiserId(o.getId()).orElse(null);
     }
 
-    private User authenticateUser(String email, String password) {
-        authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(email, password));
-        return userRepository.findByEmail(email).orElse(null);
-    }
-
     public String changePassword(User u, String oldPassword, String newPassword) {
-        User verifiedUser = authenticateUser(u.getEmail(), oldPassword);
+        User verifiedUser = authenticationService.authenticateUser(u.getEmail(), oldPassword);
         if (verifiedUser == null) {
             return "old password is incorrect";
         }

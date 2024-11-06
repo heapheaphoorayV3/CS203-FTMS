@@ -65,6 +65,17 @@ public class FencerController {
         }
         return new ResponseEntity<>("fencer profile completion unsuccessful", HttpStatus.BAD_REQUEST);
     }
+
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<CleanFencerDTO>> getAllFencers() {
+        List<Fencer> fencers = fencerService.getAllFencers();
+        List<CleanFencerDTO> res = new ArrayList<>();
+        for (Fencer fencer : fencers) {
+            res.add(fencerService.getCleanFencerDTO(fencer));
+        }
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
     
     @GetMapping("/international-ranking")
     @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")

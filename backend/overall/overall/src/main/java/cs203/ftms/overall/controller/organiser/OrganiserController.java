@@ -49,6 +49,17 @@ public class OrganiserController {
         if (co == null) return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(co, HttpStatus.OK);
     }
+
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<CleanOrganiserDTO>> getAllOrganisers() {
+        List<Organiser> oList = organiserService.getAllOrganisers();
+        List<CleanOrganiserDTO> coList = new ArrayList<>();
+        for (Organiser o : oList) {
+            coList.add(organiserService.getCleanOrganiserDTO(o));
+        }
+        return new ResponseEntity<>(coList, HttpStatus.OK);
+    }
   
     @GetMapping("/tournaments")
     @PreAuthorize("hasRole('ORGANISER')")
