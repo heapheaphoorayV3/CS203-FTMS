@@ -13,6 +13,7 @@ import DeleteEvent from "./DeleteEvent.jsx";
 import UpdateTournament from "./UpdateTournament.jsx";
 import SubmitButton from "../Others/SubmitButton.jsx";
 import editLogo from "../../Assets/edit.png";
+import { use } from "framer-motion/client";
 
 function formatTimeTo24Hour(timeString) {
   const [hours, minutes] = timeString.split(":"); // Get hours and minutes
@@ -72,12 +73,31 @@ export default function ViewTournament() {
     }
   };
 
+  // Fetch Registered Tournament Events
+  const fetchRegisteredEvents = async () => {
+    try {
+      const response = await FencerService.getFencerUpcomingEvents();
+      // Assuming response.data is an array of Event Objects
+      const eventIds = response.data.map(event => event.id);
+      setRegisteredEvents(eventIds);
+
+    } catch (error) {
+      console.log("Error fetching registered events", error);
+      setError("Failed to load registered events");
+    }
+  };
+
   // Fetch fetch data when tournamentID changes
   useEffect(() => {
     if (tournamentID) {
       fetchTournamentData();
+      fetchRegisteredEvents();
     }
   }, [tournamentID]);
+
+
+
+
 
   const userType = sessionStorage.getItem("userType");
 
@@ -99,8 +119,8 @@ export default function ViewTournament() {
       name: loading
         ? "Loading..."
         : tournamentData
-        ? tournamentData.name
-        : "Not Found",
+          ? tournamentData.name
+          : "Not Found",
     },
   ];
 

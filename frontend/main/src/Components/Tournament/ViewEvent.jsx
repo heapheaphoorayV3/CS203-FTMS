@@ -117,6 +117,7 @@ export default function ViewEvent() {
       ]).then(() => {
         // Code to run after all functions complete
         console.log("All functions have completed.");
+        console.log("Matches: ", matches);
         setLoading(false);
       });
     }
