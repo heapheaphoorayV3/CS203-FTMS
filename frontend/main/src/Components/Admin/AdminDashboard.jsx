@@ -251,7 +251,7 @@ const AdminDashboard = () => {
                     </svg>
                     </div>
                   </div>
-                  <Link to="/verify-organiser" className="ml-4">
+                  <Link to="/verify-organisers" className="ml-4">
                     <button className="bg-blue-500 text-white px-4 py-2 rounded-md ml-auto">
                       Verify Pending Organisers
                     </button>

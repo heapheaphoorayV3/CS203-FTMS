@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Pagination from "../Others/Pagination.jsx";
-import AdminService from "../../Services/Admin/AdminService";
+import AdminService from "../../Services/Admin/AdminService.js";
 import { set } from "react-hook-form";
 
 /*
@@ -9,7 +9,7 @@ TODO
 - Axios Timeout since Backend needs to send emails to all organisers when verified before sending a 200 response 
   no solution yet, needs more work on backend
 */
-export default function VerifyOrganiser() {
+export default function VerifyOrganisers() {
 
     const [organisers, setOrganisers] = useState([]); // State to store fetched organisers
     const [currentPage, setCurrentPage] = useState(1); // State for current page
@@ -107,7 +107,7 @@ export default function VerifyOrganiser() {
         const data = categoriseStatus(checkboxState);
         try {
             console.log('Submitting verifications: ', data);
-            await AdminService.verifyOrganiser(data);
+            await AdminService.verifyOrganisers(data);
             window.location.reload();
         } catch (error) {
             setSubmitError(true);
