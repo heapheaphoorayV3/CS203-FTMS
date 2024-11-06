@@ -79,6 +79,19 @@ export default function ViewTournament() {
     }
   }, [tournamentID]);
 
+  // useEffect(() => {
+  //   const fetchUpcomingEvents = async () => {
+  //     try {
+  //       const response = await FencerService.getFencerUpcomingEvents();
+  //       setRegisteredEvents(response.data);
+  //     } catch (error) {
+  //       console.error("Error fetching upcoming events:", error);
+  //     }
+  //   };
+
+  //   fetchUpcomingEvents();
+  // }, []); 
+
   const userType = sessionStorage.getItem("userType");
 
   let homeLink;
@@ -355,6 +368,8 @@ export default function ViewTournament() {
       // Add error notification here
     }
   };
+  console.log("---------------");
+  console.log(registeredEvents);
 
   return (
     // Grid for Navbar, Sidebar and Content

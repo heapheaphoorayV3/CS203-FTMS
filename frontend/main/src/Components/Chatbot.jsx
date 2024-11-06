@@ -61,13 +61,17 @@ export default function Chatbot() {
     setLoading(true);
     try {
       const response = await ChatbotService.recommendTournaments();
+      console.log("recc tourns: ", response.data);
       if (response.data.length === 0) {
         addMessage(
           "There are currently no recommended tournaments available.",
           "bot"
-        ); // Message for empty list
+        );
       } else {
-        addMessage(`Recommended tournaments: ${response.data}`, "bot"); // Normal message for non-empty list
+        let tournamentNames = response.data
+          .map((tournament) => tournament.name)
+          .join(", ");
+        addMessage(`Recommended tournaments: ${tournamentNames}`, "bot");
       }
     } catch (error) {
       console.error("Error fetching recommended tournaments: ", error);
@@ -82,7 +86,7 @@ export default function Chatbot() {
   };
 
   useEffect(() => {
-    if (selectedChoice === "tournaments") {
+    if (selectedChoice === "recommended tournaments") {
       fetchRecommendedTournaments();
     } else {
       setShowInput(true);
@@ -91,14 +95,14 @@ export default function Chatbot() {
 
   const handleOptionClick = (choice) => {
     setSelectedChoice(choice);
-    addMessage(`User selected: ${choice}`, "user");
+    addMessage(`I want to get my ${choice}!`, "user");
     setEventID("");
   };
 
   const handleSubmitEventID = () => {
     if (eventID) {
       addMessage(`Event ID entered: ${eventID}`, "user");
-      if (selectedChoice === "points") fetchProjectedPoints();
+      if (selectedChoice === "projected points") fetchProjectedPoints();
       if (selectedChoice === "win rate") fetchWinRate();
     }
   };
@@ -111,7 +115,7 @@ export default function Chatbot() {
         transition={{ duration: 0.5 }}
         whileHover={{ scale: 1.1, transition: { duration: 0.3 } }}
         className="bg-blue-500 p-4 text-white rounded-md w-full"
-        onClick={() => handleOptionClick("points")}
+        onClick={() => handleOptionClick("projected points")}
       >
         Get my projected points
       </motion.button>
@@ -131,7 +135,7 @@ export default function Chatbot() {
         transition={{ duration: 0.5 }}
         whileHover={{ scale: 1.1, transition: { duration: 0.3 } }}
         className="bg-blue-500 p-4 text-white rounded-md w-full"
-        onClick={() => handleOptionClick("tournaments")}
+        onClick={() => handleOptionClick("recommended tournaments")}
       >
         Recommend me tournaments
       </motion.button>
@@ -165,7 +169,7 @@ export default function Chatbot() {
               </div>
             ) : (
               <div className="flex items-center">
-                <div className="bg-blue-800 rounded-md p-4 text-white max-w-xs">
+                <div className="bg-blue-800 rounded-md p-4 text-white max-w-lg">
                   <p>{msg.text}</p>
                 </div>
                 <img
@@ -178,32 +182,34 @@ export default function Chatbot() {
           </motion.div>
         ))}
         {/* Show input field and submit button only if required */}
-        {selectedChoice && selectedChoice !== "tournaments" && showInput && (
-          <div className="flex ml-[200px] w-[70%] mb-4">
-            <div className="flex flex-col h-auto w-full">
-              <div className="rounded-md bg-gray-200 pt-4 pl-4 text-black mb-4">
-                <p>
-                  {selectedChoice === "points"
-                    ? "Enter event ID for projected points:"
-                    : "Enter event ID for win rate:"}
-                </p>
-                <input
-                  type="text"
-                  value={eventID}
-                  onChange={(e) => setEventID(e.target.value)}
-                  placeholder="Enter event ID"
-                  className="p-2 mt-2 rounded-md mr-4"
-                />
-                <button
-                  onClick={handleSubmitEventID}
-                  className="h-8 w-24 justify-center rounded-md bg-indigo-600 my-5 text-lg font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                >
-                  Submit
-                </button>
+        {selectedChoice &&
+          selectedChoice !== "recommended tournaments" &&
+          showInput && (
+            <div className="flex ml-[200px] w-[70%] mb-4">
+              <div className="flex flex-col h-auto w-full">
+                <div className="rounded-md bg-gray-200 pt-4 pl-4 text-black mb-4">
+                  <p>
+                    {selectedChoice === "projected points"
+                      ? "Enter event ID for projected points:"
+                      : "Enter event ID for win rate:"}
+                  </p>
+                  <input
+                    type="text"
+                    value={eventID}
+                    onChange={(e) => setEventID(e.target.value)}
+                    placeholder="Enter event ID"
+                    className="p-2 mt-2 rounded-md mr-4"
+                  />
+                  <button
+                    onClick={handleSubmitEventID}
+                    className="h-8 w-24 justify-center rounded-md bg-indigo-600 my-5 text-lg font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                  >
+                    Submit
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
         {/* Show option buttons after each bot response */}
         <OptionButtons />
       </div>

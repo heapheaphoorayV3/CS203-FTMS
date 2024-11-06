@@ -496,7 +496,7 @@ const FencerDashboard = () => {
                   ) : (
                     <tr>
                       <td
-                        colSpan="4"
+                        colSpan="5"
                         className="text-center border-b border-gray-300"
                       >
                         No upcoming events available.
