@@ -5,6 +5,7 @@ import FencerService from "../Services/Fencer/FencerService";
 import { Tabs, Tab } from "./Others/Tabs";
 import LineGraph from "./Others/LineGraph";
 import { Link } from "react-router-dom";
+import EventService from "../Services/Event/EventService";
 
 function formatTimeTo24Hour(timeString) {
   const [hours, minutes] = timeString.split(":"); // Get hours and minutes
@@ -16,6 +17,7 @@ const FencerDashboard = () => {
   const [rankingData, setRankingData] = useState(null);
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [pastEvents, setPastEvents] = useState([]);
+  const [pastRank, setPastRank] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -218,21 +220,21 @@ const FencerDashboard = () => {
     return `${startDate} - ${endDate}`;
   };
 
-  console.log(userData);
   console.log("------------------");
-  console.log("upcoming:", upcomingEvents);
   console.log("past: ", pastEvents);
 
   return (
     <div className="bg-white w-full h-full flex flex-col gap-2 p-8 overflow-auto">
-      <div className="bg-white border rounded-2xl shadow-lg p-6 flex w-full relative overflow-x-hidden">
-        <div className="w-1/4 flex-shrink-0 flex flex-col items-center my-auto">
-          <div className="text-4xl font-semibold mr-4">{userData.name}'s</div>
-          <div className="text-4xl font-semibold mr-4">Dashboard</div>
+      <div className="bg-white border rounded-2xl shadow-lg p-6 flex flex-col w-full relative overflow-x-hidden">
+        <div className="w-full flex-shrink-0 flex flex-col my-4 ml-4">
+          <div className="text-4xl font-semibold">
+            Welcome back, {userData.name}
+          </div>
         </div>
 
         <div className="grid grid-cols-[2fr_8fr] gap-y-2 gap-x-4 ml-4 my-4 text-xl w-full">
           {/* Email, Birth Date, Gender, Category, Hand, Year, Org, Country */}
+          {/* <div className="text-4xl font-semibold mr-4">{userData.name}'s</div><div></div> */}
           <div className="flex font-medium">Email:</div>
           <div className="flex">{userData.email}</div>
           <div className="flex font-medium">Birth Date:</div>
@@ -447,7 +449,7 @@ const FencerDashboard = () => {
                         colSpan="4"
                         className="text-center border-b border-gray-300"
                       >
-                        No past events available.
+                        No past tournaments available.
                       </td>
                     </tr>
                   )}
@@ -499,7 +501,7 @@ const FencerDashboard = () => {
                         colSpan="5"
                         className="text-center border-b border-gray-300"
                       >
-                        No upcoming events available.
+                        No upcoming tournaments available.
                       </td>
                     </tr>
                   )}

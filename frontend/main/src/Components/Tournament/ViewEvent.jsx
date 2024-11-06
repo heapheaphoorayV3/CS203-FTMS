@@ -586,7 +586,7 @@ export default function ViewEvent() {
               {/* <h2 className="text-lg font-medium mb-2">Participants</h2> */}
               <table className="table text-lg border-collapse mb-4">
                 {/* head */}
-                <thead className="text-lg text-primary">
+                <thead className="text-lg text-primary text-center">
                   <tr className="border-b border-gray-300">
                     <th className="w-20"></th>
                     <th className="w-60">Name</th>
@@ -594,7 +594,7 @@ export default function ViewEvent() {
                     <th className="w-60">Points</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="text-center">
                   {eventData.fencers.map((fencer, index) => (
                     <tr
                       key={fencer.id}
