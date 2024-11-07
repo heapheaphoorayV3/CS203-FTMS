@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Tabs, Tab } from "../Others/Tabs.jsx";
 import EventService from "../../Services/Event/EventService.js";
-import PaginationButton from "../Others/Pagination.jsx";
+import PaginationButton from "../Others/PaginationButton.jsx";
 import EventBracket from "./EventBracket.jsx";
 import CreatePoules from "./CreatePoules.jsx";
 import Breadcrumbs from "../Others/Breadcrumbs.jsx";

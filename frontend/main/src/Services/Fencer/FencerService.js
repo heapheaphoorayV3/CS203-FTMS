@@ -11,6 +11,10 @@ class FencerService {
     return await ProtectedAPI.put(`${baseURL}/complete-profile`, data);
   }
 
+  async getAllFencers() {
+    return await ProtectedAPI.get(`${baseURL}/all`);
+  }
+
   async getInternationalRanking() {
     return await ProtectedAPI.get(`${baseURL}/international-ranking`);
   }

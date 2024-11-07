@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Pagination from "../Others/Pagination.jsx";
+import Pagination from "../Others/PaginationButton.jsx";
 import AdminService from "../../Services/Admin/AdminService.js";
 import { set } from "react-hook-form";
 

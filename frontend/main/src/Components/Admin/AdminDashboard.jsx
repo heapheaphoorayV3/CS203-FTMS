@@ -5,19 +5,25 @@ import OrganiserService from "../../Services/Organiser/OrganiserService";
 import FencerService from "../../Services/Fencer/FencerService";
 import { Tabs, Tab } from "../Others/Tabs";
 import editIcon from "../../Assets/edit.png";
-import PaginationButton from "../Others/Pagination";
+import PaginationButton from "../Others/PaginationButton";
+import { set } from "react-hook-form";
 
 const AdminDashboard = () => {
   const [userData, setUserData] = useState(null);
-  const [rankingData, setRankingData] = useState(null);
+  const [allFencersData, setAllFencersData] = useState(null);
+  const [allOrganisersData, setAllOrganisersData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [InputFencerSearch, setInputFencerSearch] = useState("");
   const [InputOrganiserSearch, setInputOrganiserSearch] = useState("");
   const [selectedWeapon, setSelectedWeapon] = useState("A");
   const [selectedGender, setSelectedGender] = useState("A");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [paginatedData, setPaginatedData] = useState([]);
+  const [currentFencerPage, setCurrentFencerPage] = useState(1);
+  const [currentOrganiserPage, setCurrentOrganiserPage] = useState(1);
+  const [paginatedFencerData, setPaginatedFencerData] = useState([]);
+  const [paginatedOrganiserData, setPaginatedOrganiserData] = useState([]);
+  const [totalFencerPages, setTotalFencerPages] = useState(0);
+  const [totalOrganiserPages, setTotalOrganiserPages] = useState(0);
   const limit = 10;
 
   useEffect(() => {
@@ -34,43 +40,42 @@ const AdminDashboard = () => {
       }
     };
 
-    const fetchInternationalRanking = async () => {
+    const fetchAllFencersData = async () => {
       setLoading(true);
       try {
-        const response = await FencerService.getInternationalRanking();
-        setRankingData(response.data);
+        const response = await FencerService.getAllFencers();
+        // console.log(response.data);
+        setAllFencersData(response.data);
       } catch (error) {
-        console.error("Error fetching international ranking: ", error);
-        setError("Failed to load international ranking");
+        console.error("Error fetching all fencer data: ", error);
+        setError("Failed to load all fencer data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchAllOrganisersData = async () => {
+      setLoading(true);
+      try {
+        const response = await OrganiserService.getAllOrganisers();
+        // console.log(response.data);
+        setAllOrganisersData(response.data);
+      } catch (error) {
+        console.error("Error fetching all fencer data: ", error);
+        setError("Failed to load all fencer data");
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-    fetchInternationalRanking();
+    fetchAllFencersData();
+    fetchAllOrganisersData();
   }, []);
 
-  useEffect(() => {
-    if (Array.isArray(rankingData) && rankingData.length) {
-      const sortedRanking = [...rankingData].sort(
-        (a, b) => b.points - a.points
-      );
-
-      const startIndex = Math.max(0, (currentPage - 1) * limit);
-      const endIndex = Math.min(sortedRanking.length, startIndex + limit);
-      setPaginatedData(sortedRanking.slice(startIndex, endIndex));
-    } else {
-      setPaginatedData([]);
-    }
-  }, [rankingData, currentPage, limit]);
-
-  console.log(rankingData);
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
+  const handleFencerPageChange = (page) => {
+    setCurrentFencerPage(page);
   };
-  const totalPages = Math.ceil(paginatedData.length / limit);
 
   const handleWeaponChange = (event) => {
     setSelectedWeapon(event.target.value);
@@ -84,23 +89,62 @@ const AdminDashboard = () => {
     setInputFencerSearch(e.target.value);
   }
 
+  const handleOrganiserPageChange = (page) => {
+    setCurrentOrganiserPage(page);
+  };
+
   function handleOrganiserSearch(e) {
     setInputOrganiserSearch(e.target.value);
   }
 
-  const filteredFencerData = paginatedData?.filter((fencer) => {
-    return (
-      // Sort by gender and weapon - if set to "A", return all
-      fencer.name.toLowerCase().includes(InputFencerSearch.toLowerCase()) &&
-      (selectedGender === "A" || !selectedGender || fencer.gender === selectedGender) &&
-      (selectedWeapon === "A" || !selectedWeapon || fencer.weapon === selectedWeapon)
-    );
-  });
+  // Update Fencer page details based on search and pagination
+  useEffect(() => {
+    const getFilteredFencerData = () => {
+      if (!allFencersData) return [];
 
-  console.log("==========");
-  console.log(filteredFencerData);
+      return allFencersData?.filter(fencer => {
+        const matchesSearch = fencer.name.toLowerCase().includes(InputFencerSearch.toLowerCase());
+        const matchesWeapon = selectedWeapon === 'A' || fencer.weapon === selectedWeapon;
+        const matchesGender = selectedGender === 'A' || fencer.gender === selectedGender;
+        return matchesSearch && matchesWeapon && matchesGender;
+      });
+    };
 
-  if (loading) {
+    const filteredFencerData = getFilteredFencerData();
+
+    // Calculate fencer pagination details based on the filtered data
+    setTotalFencerPages(Math.ceil(filteredFencerData.length / limit));
+    setPaginatedFencerData(filteredFencerData.slice((currentFencerPage - 1) * limit, currentFencerPage * limit));
+
+    // If any filter changes, reset to page 1
+    if (currentFencerPage > totalFencerPages) {
+      setCurrentFencerPage(1);
+    }
+  }, [allFencersData, currentFencerPage, totalFencerPages, InputFencerSearch, selectedWeapon, selectedGender]);
+
+  // Update Organiser page details based on search and pagination
+  useEffect(() => {
+    const getFilteredOrganiserData = () => {
+      if (!allOrganisersData) return [];
+
+      return allOrganisersData?.filter(organiser => {
+        return organiser.name.toLowerCase().includes(InputOrganiserSearch.toLowerCase());
+      });
+    };
+
+    const filteredOrganiserData = getFilteredOrganiserData();
+
+    // Calculate organiser pagination details based on the filtered data
+    setTotalOrganiserPages(Math.ceil(filteredOrganiserData.length / limit));
+    setPaginatedOrganiserData(filteredOrganiserData.slice((currentOrganiserPage - 1) * limit, currentOrganiserPage * limit));
+
+    // If any filter changes, reset to page 1
+    if (currentOrganiserPage > totalOrganiserPages) {
+      setCurrentOrganiserPage(1);
+    }
+  }, [allOrganisersData, currentOrganiserPage, totalOrganiserPages, InputOrganiserSearch]);
+
+  if (loading || !userData) {
     return <div className="mt-10">Loading...</div>; // Show loading state
   }
 
@@ -134,29 +178,48 @@ const AdminDashboard = () => {
       </div>
 
       <div className="bg-white border rounded-2xl shadow-lg p-6 flex flex-col flex-grow w-full relative mx-auto mt-4">
-        <Tabs>
+        <Tabs >
           <Tab label="List of Fencers">
             <div className="h-full px-4 pt-4">
               <div className="w-full max-w-sm min-w-[200px] ml-4 pb-8">
                 <div className="relative">
                   <input
+                    value={InputFencerSearch || ''}
                     className="w-full bg-slate-50 placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md pl-3 pr-28 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
                     placeholder="Search Fencers by Name..."
                     onChange={handleFencerSearch}
                   />
                   <div className="absolute top-1 right-1 flex items-center pt-1.5 px-1">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      class="w-4 h-4 mr-2"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
+                    {InputFencerSearch ? (
+                      // Show the "X" icon when there's input
+                      <svg
+                        onClick={() => setInputFencerSearch('')}
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="w-4 h-4 mr-2 cursor-pointer text-gray-500 hover:text-gray-700"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M4.293 4.293a1 1 0 011.414 0L12 10.586l6.293-6.293a1 1 0 111.414 1.414L13.414 12l6.293 6.293a1 1 0 01-1.414 1.414L12 13.414l-6.293 6.293a1 1 0 01-1.414-1.414L10.586 12 4.293 5.707a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    ) : (
+                      // Show the magnifying glass icon when input is empty
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="w-4 h-4 mr-2"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
                   </div>
                 </div>
                 <div className="grid grid-flow-col gap-4">
@@ -193,7 +256,7 @@ const AdminDashboard = () => {
                   {/* head */}
                   <thead className="text-lg text-neutral">
                     <tr className="border-b border-gray-300">
-                      <th className="text-center w-20">No.</th>
+                      <th className="text-center w-20">ID</th>
                       <th className="w-1/2">Name</th>
                       <th className="text-center">Weapon</th>
                       <th className="text-center">Country</th>
@@ -201,12 +264,12 @@ const AdminDashboard = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredFencerData.map((item, index) => (
+                    {paginatedFencerData.map((item) => (
                       <tr
                         key={item.id}
                         className="border-b border-gray-300 hover:bg-gray-100"
                       >
-                        <td className="text-center">{index + 1}</td>
+                        <td className="text-center">{item.id}</td>
                         <td>{item.name}</td>
                         <td className="text-center">{item.weapon}</td>
                         <td className="text-center">{item.country}</td>
@@ -217,10 +280,10 @@ const AdminDashboard = () => {
                 </table>
                 <div className="flex flex-col mt-2 justify-center items-center">
                   <PaginationButton
-                    totalPages={totalPages}
+                    totalPages={totalFencerPages}
                     buttonSize="w-10 h-10"
-                    currentPage={currentPage}
-                    onPageChange={handlePageChange}
+                    currentPage={currentFencerPage}
+                    onPageChange={handleFencerPageChange}
                   />
                 </div>
               </div>
@@ -229,26 +292,45 @@ const AdminDashboard = () => {
           <Tab label="List of Organisers">
             <div className="h-full px-4 pt-4">
               <div className="w-full px-4 pb-8">
-              <div className="flex items-center justify-between">
-                <div className="relative min-w-[400px]">
-                  <input
-                    className="w-full bg-slate-50 placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md pl-3 pr-28 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                    placeholder="Search Organisers by Name..."
-                    onChange={handleOrganiserSearch}
-                  />
-                  <div className="absolute top-1 right-1 flex items-center pt-1.5 px-1">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      class="w-4 h-4 mr-2"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
+                <div className="flex items-center justify-between">
+                  <div className="relative min-w-[400px]">
+                    <input
+                      value={InputOrganiserSearch || ''}
+                      className="w-full bg-slate-50 placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md pl-3 pr-28 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+                      placeholder="Search Organisers by Name..."
+                      onChange={handleOrganiserSearch}
+                    />
+                    <div className="absolute top-1 right-1 flex items-center pt-1.5 px-1">
+                    {InputOrganiserSearch ? (
+                      // Show the "X" icon when there's input
+                      <svg
+                        onClick={() => setInputOrganiserSearch('')}
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="w-4 h-4 mr-2 cursor-pointer text-gray-500 hover:text-gray-700"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M4.293 4.293a1 1 0 011.414 0L12 10.586l6.293-6.293a1 1 0 111.414 1.414L13.414 12l6.293 6.293a1 1 0 01-1.414 1.414L12 13.414l-6.293 6.293a1 1 0 01-1.414-1.414L10.586 12 4.293 5.707a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    ) : (
+                      // Show the magnifying glass icon when input is empty
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="w-4 h-4 mr-2"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
                     </div>
                   </div>
                   <Link to="/verify-organisers" className="ml-4">
@@ -264,7 +346,7 @@ const AdminDashboard = () => {
                   {/* head */}
                   <thead className="text-lg text-neutral">
                     <tr className="border-b border-gray-300">
-                      <th className="text-center w-20">No.</th>
+                      <th className="text-center w-20">ID</th>
                       <th className="w-1/2">Name</th>
                       <th className="text-center">Weapon</th>
                       <th className="text-center">Country</th>
@@ -272,26 +354,23 @@ const AdminDashboard = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredFencerData.map((item, index) => (
+                    {paginatedOrganiserData.map((item) => (
                       <tr
                         key={item.id}
                         className="border-b border-gray-300 hover:bg-gray-100"
                       >
-                        <td className="text-center">{index + 1}</td>
+                        <td className="text-center">{item.id}</td>
                         <td>{item.name}</td>
-                        <td className="text-center">{item.weapon}</td>
-                        <td className="text-center">{item.country}</td>
-                        <td className="text-center">{item.points}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
                 <div className="flex flex-col mt-2 justify-center items-center">
                   <PaginationButton
-                    totalPages={totalPages}
+                    totalPages={totalOrganiserPages}
                     buttonSize="w-10 h-10"
-                    currentPage={currentPage}
-                    onPageChange={handlePageChange}
+                    currentPage={currentOrganiserPage}
+                    onPageChange={handleOrganiserPageChange}
                   />
                 </div>
               </div>

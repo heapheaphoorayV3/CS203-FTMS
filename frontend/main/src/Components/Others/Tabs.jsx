@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 
 const Tabs = ({ children, parentRef }) => {
     const [activeTab, setActiveTab] = useState(children[0].props.label);
-    console.log(children[0].props.label);
 
     const handleClick = (e, newActiveTab) => {
         e.preventDefault();

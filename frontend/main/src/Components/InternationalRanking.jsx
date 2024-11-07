@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import PaginationButton from "./Others/Pagination";
+import PaginationButton from "./Others/PaginationButton";
 import FencerService from "../Services/Fencer/FencerService";
 
 export default function InternationalRanking() {
