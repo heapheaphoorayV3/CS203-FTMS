@@ -3,6 +3,7 @@ name: Build Docker Image and Provision Infrastructure with Terraform
 on:
   push:
     branches:
+      # - main
       - sprint-3-main-test-cicd
 
 jobs:

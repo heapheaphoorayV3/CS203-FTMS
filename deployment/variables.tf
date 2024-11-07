@@ -1,28 +1,13 @@
-variable "aws_region" {
-  default = "us-east-1"
+variable "secret_key" {
+  description = "The secret key for the AWS account"
+  
 }
 
-variable "aws_access_key" {}
-variable "aws_secret_key" {}
-
-variable "environment" {
-  default = "dev"
+variable "access_key" {
+  description = "The access key for the AWS account"
 }
 
-variable "vpc_cidr" {
-  default = "10.0.0.0/16"
+variable "db_endpoint" {
+  description = "The endpoint for the RDS instance"
+  
 }
-
-variable "availability_zones" {
-  type    = list(string)
-  default = ["us-east-1a", "us-east-1b"]
-}
-
-variable "frontend_bucket_name" {}
-variable "container_image" {}
-variable "app_port" {
-  default = 8080
-}
-variable "db_name" {}
-variable "db_username" {}
-variable "db_password" {}
