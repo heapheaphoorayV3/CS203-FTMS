@@ -57,18 +57,26 @@ const Navbar = () => {
     navigate("/signin");
   };
 
+  // Determine the dashboard link based on userType
+  let dashboardLink = '/';
+
+  if (userType === 'F') {
+    dashboardLink = '/fencer-dashboard';
+  } else if (userType === 'O') {
+    dashboardLink = '/organiser-dashboard';
+  } else if (userType === 'A') {
+    dashboardLink = '/admin-dashboard';
+  }
+
   return (
     <>
       {isLoggedIn ? (
         <nav className="h-full w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
           <div className="w-full flex items-center justify-between mx-auto p-2.5">
-            {userType === "F" ? <a href="/fencer-dashboard" className="flex items-center">
+            {/* Clicking the logo will redirect to the respective user dashboards */}
+            <a href={dashboardLink} className="flex items-center">
               <img src={logo} className="pl-3 h-8" alt="Logo" />
             </a>
-              : <a href="/organiser-dashboard" className="flex items-center">
-                <img src={logo} className="pl-3 h-8" alt="Logo" />
-              </a>
-            }
             <div className="relative ml-auto">
               <button
                 onClick={toggleUserDropdown}
@@ -78,7 +86,7 @@ const Navbar = () => {
               >
                 <span className="sr-only">Open user menu</span>
                 {/* <UserCircleIcon className="h-8 w-8 text-black" /> */}
-                <img src={logoutIcon} className="h-6 w-6" alt="Logout Icon"/>
+                <img src={logoutIcon} className="h-6 w-6" alt="Logout Icon" />
               </button>
 
               <div
