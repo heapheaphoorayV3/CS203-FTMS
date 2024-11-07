@@ -15,7 +15,7 @@ import DefaultLayout from "./Layouts/DefaultLayout";
 import ViewTournament from "./Components/Tournament/ViewTournament";
 import ViewEvent from "./Components/Tournament/ViewEvent";
 import Tournaments from "./Components/Tournament/Tournaments";
-import VerifyOrganiser from "./Components/Admin/VerifyOrganisers";
+import VerifyOrganisers from "./Components/Admin/VerifyOrganisers";
 import LandingPage from "./Components/Others/LandingPage";
 import InternationalRanking from "./Components/InternationalRanking";
 import AuthProvider from "./Components/Authentication/AuthProvider";
@@ -59,7 +59,7 @@ function App() {
           />
           <Route path="/signup-event" element={<SignUpEvent />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
-          <Route path="/verify-organisers" element={<VerifyOrganiser />} />
+          <Route path="/verify-organisers" element={<VerifyOrganisers />} />
           <Route
             path="/international-ranking"
             element={<InternationalRanking />}

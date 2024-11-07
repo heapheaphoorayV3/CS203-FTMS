@@ -116,7 +116,7 @@ export default function VerifyOrganisers() {
     }
 
     return (
-        <div className="flex flex-col justify-center items-center gap-10 p-8">
+        <div className="flex flex-col bg-white justify-center items-center gap-10 p-8">
             <h1 className="text-4xl font-bold">Verify Organisers</h1>
             <table className="table text-lg">
                 <thead>
