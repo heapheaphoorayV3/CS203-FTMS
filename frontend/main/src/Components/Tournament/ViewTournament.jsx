@@ -91,7 +91,7 @@ export default function ViewTournament() {
   useEffect(() => {
     if (tournamentID) {
       fetchTournamentData();
-      // fetchRegisteredEvents();
+      fetchRegisteredEvents();
     }
   }, [tournamentID]);
 
