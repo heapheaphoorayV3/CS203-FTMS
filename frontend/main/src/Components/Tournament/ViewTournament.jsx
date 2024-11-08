@@ -235,6 +235,14 @@ export default function ViewTournament() {
     setIsCreating(true);
   };
 
+  // Check if today is past the start date of the tournament (for the register button)
+  const isPastStartDate = () => {
+    const today = new Date();
+    const eventStartDate = new Date(tournamentData.startDate);
+    return today > eventStartDate;
+  };
+
+
   // Return Proper Event Names in table (instead of initials)
   const constructEventName = (gender, weapon) => {
     let eventName = "";
@@ -478,15 +486,19 @@ export default function ViewTournament() {
                       <td>{formatTimeTo24Hour(event.endTime)}</td>
                       <td>
                         {sessionStorage.getItem("userType") === "F" && (
+                          (registeredEvents.includes(event.id) ? (
+                            <SubmitButton
+                              disabled
+                            >
+                              {isPastStartDate() ? "Signups Closed" : "Registered"}
+                            </SubmitButton>
+                          ): (
                           <SubmitButton
                             onSubmit={() => registerEvent(event.id)}
-                            disabled={registeredEvents.includes(event.id)}
                           >
-                            {registeredEvents.includes(event.id)
-                              ? "Registered"
-                              : "Register"}
-                          </SubmitButton>
-                        )}
+                            Register
+                          </SubmitButton>)
+                        ))}
                         {sessionStorage.getItem("userType") === "O" && (
                           <EventDropdownMenu
                             updateEvent={() => updateEvent(event)}
