@@ -36,7 +36,7 @@ const CreateTournament = () => {
   return (
     <div className="app-container">
       <div className="flex flex-col items-center bg-white relative">
-        <div className="flex flex-col items-center bg-white mt-8 mb-4 rounded-lg shadow-lg w-[600px]">
+        <div className="flex flex-col items-center bg-white mt-8 mb-4 rounded-lg w-[600px] shadow-[0_4px_6px_1px_rgba(0,0,0,0.1),0_4px_6px_1px_rgba(0,0,0,0.1)]">
           <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
             <h2 className="text-2xl font-bold mb-6 text-center">
               Create New Tournament

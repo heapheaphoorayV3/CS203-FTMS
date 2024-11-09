@@ -34,7 +34,7 @@ export default function ViewTournament() {
   const [tournamentToUpdate, setTournamentToUpdate] = useState(false);
   // One Popup for create-event the other for update-event
   const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
-  const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
+  const [isUpdateEventPopupVisible, setIsUpdateEventPopupVisible] = useState(false);
   const [registeredEvents, setRegisteredEvents] = useState([]);
   const [isDeleteEventPopUpVisible, setIsDeleteEventPopUpVisible] =
     useState(false);
@@ -91,7 +91,9 @@ export default function ViewTournament() {
   useEffect(() => {
     if (tournamentID) {
       fetchTournamentData();
-      fetchRegisteredEvents();
+      if (sessionStorage.getItem("userType") === "F") {
+        fetchRegisteredEvents();
+      }
     }
   }, [tournamentID]);
 
@@ -238,7 +240,7 @@ export default function ViewTournament() {
   // Check if today is past the start date of the tournament (for the register button)
   const isPastStartDate = () => {
     const today = new Date();
-    const eventStartDate = new Date(tournamentData.startDate);
+    const eventStartDate = new Date(tournamentData.signupEndDate);
     return today > eventStartDate;
   };
 
@@ -332,11 +334,11 @@ export default function ViewTournament() {
     }
   };
 
-  const closeUpdatePopup = () => {
-    setIsUpdatePopupVisible(false);
+  const closeUpdateEventPopup = () => {
+    setIsUpdateEventPopupVisible(false);
   };
   const updateEvent = (selectedEvent) => {
-    setIsUpdatePopupVisible(true);
+    setIsUpdateEventPopupVisible(true);
     setSelectedEvent(selectedEvent);
   };
 
@@ -394,29 +396,32 @@ export default function ViewTournament() {
         <h1 className=" ml-12 text-left text-4xl font-semibold">
           {tournamentData.name}
         </h1>
-        <div className="cursor-pointer text-gray-600">
+        {sessionStorage.getItem("userType") === 'O' && <div className="cursor-pointer text-gray-600">
           <img
             src={editLogo}
             alt="Edit Tournament"
             className="w-6 h-6"
             onClick={updateTournament}
           />
-        </div>
+        </div>}
       </div>
 
-      <div className="ml-12 mr-8 mb-10 grid grid-cols-5 auto-rows-fr gap-x-[10px] gap-y-[10px]">
+      <div className="ml-12 mr-8 mb-10 grid grid-cols-3 auto-rows-fr gap-x-[10px]">
         <div className="font-semibold text-lg">Organiser</div>
         <div className="font-semibold text-lg">Difficulty</div>
         <div className="font-semibold text-lg">Dates</div>
-        <div className="font-semibold text-lg">Location</div>
-        <div className="font-semibold text-lg">Status</div>
-        <div className="text-lg">{tournamentData.organiserName}</div>
-        <div className="text-lg">
+        <div className="text-lg mt-[-8px]">{tournamentData.organiserName}</div>
+        <div className="text-lg mt-[-8px]">
           {formatDifficulty(tournamentData.difficulty)}
         </div>
-        <div className="text-lg">
+        <div className="text-lg mt-[-8px]">
           {formatDateRange(tournamentData.startDate, tournamentData.endDate)}
         </div>
+        
+        <div className="font-semibold text-lg mt-2">Signup End Date</div>
+        <div className="font-semibold text-lg mt-2">Location</div>
+        <div className="font-semibold text-lg mt-2">Status</div>
+        <div className="text-lg">{tournamentData.signupEndDate}</div>
         <div className="text-lg">{tournamentData.location}</div>
         <div className="text-lg">
           {getTournamentStatus(
@@ -489,6 +494,7 @@ export default function ViewTournament() {
                           (registeredEvents.includes(event.id) ? (
                             <SubmitButton
                               disabled
+                              styling={`h-12 w-full justify-center rounded-md my-5 text-lg font-semibold leading-6 text-white shadow-sm ${isPastStartDate() ? 'bg-grey-400' : 'bg-green-400'}`}
                             >
                               {isPastStartDate() ? "Signups Closed" : "Registered"}
                             </SubmitButton>
@@ -561,9 +567,9 @@ export default function ViewTournament() {
             )}
 
             {/* Update Event Popup --> need to pass in submit/close */}
-            {isUpdatePopupVisible && (
+            {isUpdateEventPopupVisible && (
               <UpdateEvent
-                onClose={closeUpdatePopup}
+                onClose={closeUpdateEventPopup}
                 selectedEvent={selectedEvent}
                 tournamentDates={[
                   tournamentData.startDate,
