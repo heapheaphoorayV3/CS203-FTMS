@@ -395,6 +395,15 @@ export default function ViewTournament() {
     return difficulty;
   };
 
+  const formatDate = (date) => {
+    const formattedDate = new Date(date).toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+    return `${formattedDate}`;
+  };
+
   const updateTournament = (tournamentToUpdate) => {
     setIsUpdateTournamentPopupVisible(true);
     setTournamentToUpdate(tournamentToUpdate);
@@ -448,7 +457,7 @@ export default function ViewTournament() {
         <div className="font-semibold text-lg mt-2">Signup End Date</div>
         <div className="font-semibold text-lg mt-2">Location</div>
         <div className="font-semibold text-lg mt-2">Status</div>
-        <div className="text-lg">{tournamentData.signupEndDate}</div>
+        <div className="text-lg">{formatDate(tournamentData.signupEndDate)}</div>
         <div className="text-lg">{tournamentData.location}</div>
         <div className="text-lg">
           {getTournamentStatus(
@@ -544,7 +553,7 @@ export default function ViewTournament() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="6" className="text-center">
+                    <td colSpan="6" className="text-center border-b border-gray-300">
                       No events available.
                     </td>
                   </tr>
@@ -591,6 +600,7 @@ export default function ViewTournament() {
                   tournamentData.startDate,
                   tournamentData.endDate,
                 ]}
+                style={{ position: "relative", zIndex: 5 }}
               />
             )}
 
@@ -604,6 +614,7 @@ export default function ViewTournament() {
                   tournamentData.endDate,
                 ]}
                 fetchTournamentData={fetchTournamentData}
+                style={{ position: "relative", zIndex: 5 }}
               />
             )}
 
@@ -612,6 +623,7 @@ export default function ViewTournament() {
               <DeleteEvent
                 id={selectedEvent.id}
                 closeDeleteEventPopUp={closeDeleteEventPopUp}
+                style={{ position: "relative", zIndex: 5 }}
               />
             )}
           </Tab>

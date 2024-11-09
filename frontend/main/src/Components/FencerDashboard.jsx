@@ -17,7 +17,7 @@ const FencerDashboard = () => {
   const [rankingData, setRankingData] = useState(null);
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [pastEvents, setPastEvents] = useState([]);
-  const [pastRank, setPastRank] = useState(null);
+  const [pastRank, setPastRank] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -82,10 +82,37 @@ const FencerDashboard = () => {
       }
     };
 
+    const fetchPastRank = async () => {
+      if (!pastEvents || pastEvents.length === 0) return;
+      setLoading(true);
+      try {
+        const eventIDs = pastEvents.map((event) => event.id);
+        const ranks = [];
+
+        for (const eventId of eventIDs) {
+          const response = await EventService.getEventRanking(eventId);
+          let userRank = response.data.find(
+            (arr) => arr.fencerId === userData.id
+          );
+
+          if (userRank) {
+            ranks.push({ eventId, rank: userRank.tournamentRank });
+          }
+        }
+
+        setPastRank(ranks);
+      } catch (error) {
+        console.error("Error fetching rank: ", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchData();
     fetchInternationalRanking();
     fetchUpcomingEvents();
     fetchPastEvents();
+    fetchPastRank();
   }, []);
 
   const formatDate = (date) => {
@@ -220,8 +247,11 @@ const FencerDashboard = () => {
     return `${startDate} - ${endDate}`;
   };
 
-  console.log("------------------");
-  console.log("past: ", pastEvents);
+  const test = {
+    name: "tournament",
+    dates: "dates",
+    rank: 2,
+  };
 
   return (
     <div className="bg-white w-full h-full flex flex-col gap-2 p-8 overflow-auto">
@@ -429,6 +459,12 @@ const FencerDashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
+                  {/* <tr>
+                    <td className="w-20">1</td>
+                    <td className="w-1/4">{test.name}</td>
+                    <td className="text-center">{test.dates}</td>
+                    <td className="text-center">{pastRank}</td>
+                  </tr> */}
                   {pastEvents && pastEvents.length > 0 ? (
                     pastEvents.map((item, index) => (
                       <tr
@@ -440,7 +476,11 @@ const FencerDashboard = () => {
                           {item.tournamentName}
                         </td>
                         <td className="text-center">{formatDate(item.date)}</td>
-                        <td className="text-center">{item.rank}</td>
+                        <td className="text-center">
+                          {pastRank && pastRank[index]
+                            ? pastRank[index].rank
+                            : "-"}
+                        </td>
                       </tr>
                     ))
                   ) : (
