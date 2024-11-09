@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import EventDropdownMenu from "../Others/EventDropdownMenu.jsx";
 import EventService from "../../Services/Event/EventService";
 import FencerService from "../../Services/Fencer/FencerService.js";
+import Organiser from "../../Services/Organiser/OrganiserService.js";
 import TournamentService from "../../Services/Tournament/TournamentService.js";
 import Breadcrumbs from "../Others/Breadcrumbs.jsx";
 import { Tab, Tabs } from "../Others/Tabs.jsx";
@@ -25,6 +26,8 @@ export default function ViewTournament() {
   const { tournamentID } = useParams();
 
   const [tournamentData, setTournamentData] = useState(null);
+  // Check if organiser is the owner of the tournament
+  const [isOwner, setIsOwner] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [eventsArray, setEventsArray] = useState([]);
@@ -87,14 +90,40 @@ export default function ViewTournament() {
     }
   };
 
+  // Fetch Upcoming Tournament if Organiser to check if organiser is the owner of current tournament
+  const checkIfOwner = async () => {
+    try {
+      const response = await Organiser.getUpcomingTournaments();
+      const upcomingTournaments = response.data;
+      let found = false;
+      for (let i = 0; i < upcomingTournaments.length; i++) {
+        if (upcomingTournaments[i].id == tournamentID) {
+          found = true;
+          break;
+        }
+      }
+      setIsOwner(found);
+    } catch (error) {
+      console.error("Error fetching upcoming tournaments:", error);
+      setError("Failed to load upcoming tournaments.");
+    }
+  }
+
   // Fetch fetch data when tournamentID changes
   useEffect(() => {
-    if (tournamentID) {
-      fetchTournamentData();
-      if (sessionStorage.getItem("userType") === "F") {
-        fetchRegisteredEvents();
+    const fetchData = async () => {
+      if (tournamentID) {
+        await fetchTournamentData();
+
+        if (sessionStorage.getItem("userType") === "F") {
+          fetchRegisteredEvents();
+        } else if (sessionStorage.getItem("userType") === "O") {
+          checkIfOwner();
+        }
       }
-    }
+    };
+
+    fetchData();
   }, [tournamentID]);
 
 
@@ -385,8 +414,6 @@ export default function ViewTournament() {
       // Add error notification here
     }
   };
-  console.log("---------------");
-  console.log(registeredEvents);
 
   return (
     // Grid for Navbar, Sidebar and Content
@@ -396,7 +423,7 @@ export default function ViewTournament() {
         <h1 className=" ml-12 text-left text-4xl font-semibold">
           {tournamentData.name}
         </h1>
-        {sessionStorage.getItem("userType") === 'O' && <div className="cursor-pointer text-gray-600">
+        {sessionStorage.getItem("userType") === 'O' && isOwner && <div className="cursor-pointer text-gray-600">
           <img
             src={editLogo}
             alt="Edit Tournament"
@@ -417,7 +444,7 @@ export default function ViewTournament() {
         <div className="text-lg mt-[-8px]">
           {formatDateRange(tournamentData.startDate, tournamentData.endDate)}
         </div>
-        
+
         <div className="font-semibold text-lg mt-2">Signup End Date</div>
         <div className="font-semibold text-lg mt-2">Location</div>
         <div className="font-semibold text-lg mt-2">Status</div>
@@ -461,11 +488,11 @@ export default function ViewTournament() {
                   <th>Date</th>
                   <th>Start Time</th>
                   <th>End Time</th>
-                  <th>
-                    {sessionStorage.getItem("userType") === "O"
-                      ? ""
-                      : "Register"}
-                  </th>
+                  <th>Participant Count</th>
+                  {sessionStorage.getItem("userType") === "F" && (
+                    <th>Register</th>
+                  )}
+                  {sessionStorage.getItem("userType") === "O" && isOwner && <th></th>}
                 </tr>
               </thead>
               <tbody>
@@ -489,6 +516,7 @@ export default function ViewTournament() {
                       <td>{event.date}</td>
                       <td>{formatTimeTo24Hour(event.startTime)}</td>
                       <td>{formatTimeTo24Hour(event.endTime)}</td>
+                      <td>{event.fencers.length}</td>
                       <td>
                         {sessionStorage.getItem("userType") === "F" && (
                           (registeredEvents.includes(event.id) ? (
@@ -498,14 +526,14 @@ export default function ViewTournament() {
                             >
                               {isPastStartDate() ? "Signups Closed" : "Registered"}
                             </SubmitButton>
-                          ): (
-                          <SubmitButton
-                            onSubmit={() => registerEvent(event.id)}
-                          >
-                            Register
-                          </SubmitButton>)
-                        ))}
-                        {sessionStorage.getItem("userType") === "O" && (
+                          ) : (
+                            <SubmitButton
+                              onSubmit={() => registerEvent(event.id)}
+                            >
+                              Register
+                            </SubmitButton>)
+                          ))}
+                        {sessionStorage.getItem("userType") === "O" && isOwner && (
                           <EventDropdownMenu
                             updateEvent={() => updateEvent(event)}
                             deleteEvent={() => deleteEvent(event.id)}
@@ -521,8 +549,8 @@ export default function ViewTournament() {
                     </td>
                   </tr>
                 )}
-                {/* Add Event button row only if organiser */}
-                {sessionStorage.getItem("userType") === "O" && (
+                {/* Add Event button row only if organiser and isOwner */}
+                {sessionStorage.getItem("userType") === "O" && isOwner && (
                   <tr>
                     <td colSpan="6" className="text-center">
                       {isCreating && (

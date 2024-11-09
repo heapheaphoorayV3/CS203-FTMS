@@ -11,6 +11,10 @@ class OrganiserService {
     return await ProtectedAPI.get(`${baseURL}/tournaments`);
   }
 
+  async getUpcomingTournaments() {
+    return await ProtectedAPI.get(`${baseURL}/upcoming-tournaments`);
+  }
+
   async getAllOrganisers() {
     return await ProtectedAPI.get(`${baseURL}/all`);
   }
