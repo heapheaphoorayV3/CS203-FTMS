@@ -1,15 +1,15 @@
 import { XCircleIcon } from "@heroicons/react/20/solid";
 import { useState } from "react";
-import EventService from "../../Services/Event/EventService";
+import TournamentService from "../../Services/Tournament/TournamentService";
 
-const DeleteEvent = ({ id, closeDeleteEventPopUp }) => {
+const DeleteTournament = ({ id, closeDeletePopUp }) => {
     const [error, setError] = useState(false);
 
-    const handleDeleteEvent = async () => {
+    const handleDeleteTournament = async () => {
         try {
-            console.log(id);
-            await EventService.deleteEvent(id);
-            closeDeleteEventPopUp();
+            console.log("ID: " + id);
+            await TournamentService.deleteTournament(id);
+            closeDeletePopUp();
         } catch (error) {
             console.error(error);
             setError(error);
@@ -22,15 +22,15 @@ const DeleteEvent = ({ id, closeDeleteEventPopUp }) => {
                 <button
                     className="ml-auto w-5 text-gray-300 hover:text-gray-800 focus:outline-none"
                     aria-label="Close"
-                    onClick={() => closeDeleteEventPopUp()}
+                    onClick={() => closeDeletePopUp()}
                 >
                     <XCircleIcon />
                 </button>
                 <div className="flex flex-col justify-center items-center gap-5">
-                    <h1 className="text-xl font-semibold text-center mt-5">Are you sure you want to delete this event?</h1>
+                    <h1 className="text-xl font-semibold text-center mt-5">Are you sure you want to delete this tournament?</h1>
                     <button
                         className="w-1/5 bg-red-500 text-white font-semibold py-2 rounded-md hover:bg-red-600"
-                        onClick={handleDeleteEvent}
+                        onClick={handleDeleteTournament}
                     >
                         Delete
                     </button>
@@ -41,4 +41,4 @@ const DeleteEvent = ({ id, closeDeleteEventPopUp }) => {
     )
 }
 
-export default DeleteEvent;
+export default DeleteTournament;

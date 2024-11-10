@@ -16,15 +16,11 @@ class AuthService {
   }
 
   async forgetPassword(email) {
-    return await API.get(`${baseURL}/forget-password/${email}`);
+    return await API.put(`${baseURL}/forget-password/${email}`);
   }
 
-  async resetPassword(token, password) {
-    return await API.post(`${baseURL}/reset-password/${token}`, password);
-  }
-
-  async verifyToken() {
-    // return await API.get(`${baseURL}/verify-token`);
+  async resetPassword(password, token) {
+    return await API.put(`${baseURL}/reset-password/${token}`, password);
   }
 
   async refreshToken(token) {

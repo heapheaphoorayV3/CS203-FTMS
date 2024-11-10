@@ -53,14 +53,19 @@ public class TournamentFencer {
     @Column(name = "poule_points")
     private int poulePoints;
 
+    @Column(name = "points_after_event")
+    private int pointsAfterEvent;
+
     public TournamentFencer(Fencer fencer, Event event) {
         this.fencer = fencer;
         this.event = event;
         this.matches = new LinkedHashSet<>();
+        this.pointsAfterEvent = -1;
     }
 
     public TournamentFencer() {
         this.matches = new LinkedHashSet<>();
+        this.pointsAfterEvent = -1;
     }
 
     public Fencer getFencer() {
@@ -103,7 +108,6 @@ public class TournamentFencer {
         this.tournamentRank = tournamentPoints;
     } 
 
-
     public int getId() {
         return id;
     }
@@ -134,5 +138,13 @@ public class TournamentFencer {
 
     public void removeMatch(Match match){
         matches.remove(match);
+    }
+
+    public int getPointsAfterEvent() {
+        return pointsAfterEvent;
+    }
+
+    public void setPointsAfterEvent(int pointsAfterEvent) {
+        this.pointsAfterEvent = pointsAfterEvent;
     }
 }

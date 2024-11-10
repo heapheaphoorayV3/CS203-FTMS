@@ -108,13 +108,11 @@ public class AuthenticationController {
 
     @PutMapping("/forget-password/{email}")
     public ResponseEntity<String> forgetPassword(@PathVariable String email) {
-        String res = authenticationService.forgetPassword(email);
-        return new ResponseEntity<>(res, HttpStatus.OK);
+        return new ResponseEntity<>(authenticationService.forgetPassword(email), HttpStatus.OK);
     }
 
     @PutMapping("/reset-password/{token}")
     public ResponseEntity<String> resetPassword(@PathVariable String token, @RequestBody ResetPasswordDTO resetPasswordDTO) {
-        String res = authenticationService.resetPassword(token, resetPasswordDTO.getNewPassword());
-        return new ResponseEntity<>(res, HttpStatus.OK);
+        return new ResponseEntity<>(authenticationService.resetPassword(token, resetPasswordDTO.getNewPassword()), HttpStatus.OK);
     }
 }

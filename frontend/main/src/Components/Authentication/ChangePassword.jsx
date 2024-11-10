@@ -1,80 +1,144 @@
 import { useState } from "react";
+import { useForm, Controller } from "react-hook-form";
 import PasswordField from "../Others/PasswordField";
 import logo from "../../Assets/logo.png";
 import SubmitButton from "../Others/SubmitButton";
+import validator from "validator";
+import FencerService from "../../Services/Fencer/FencerService";
+import OrganiserService from "../../Services/Organiser/OrganiserService";
+import AdminService from "../../Services/Admin/AdminService";
+import { XCircleIcon } from "@heroicons/react/16/solid";
 
-export default function ChangePassword() {
+export default function ChangePassword({ isOpen, onClose }) {
+  const userType = sessionStorage.getItem("userType");
+
   // Save form data
   const [formData, setFormData] = useState({
     oldPassword: "",
     newPassword: "",
-    comfirmNewPassword: "",
+    confirmNewPassword: "",
   });
 
-  // Handle Input field change
-  const handleValueChange = (e) => {
-    // Ensure that the name attribute is set for the input field
-    if (!e.target.name) {
-      return;
-    }
+  const {
+    handleSubmit,
+    control,
+    watch,
+    formState: { errors },
+  } = useForm();
+  const [isError, setError] = useState(false);
 
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+  // Watch the password field (to see if confirm password and password matches)
+  const newPassword = watch("newPassword");
 
   //Send form data to server
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log("form data: " + formData);
-    // try {
-    //     const response = await fetch('http://', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json'
-    //         },
-    //         body: JSON.stringify(formData)
-    //     });
+  const onSubmit = async (data) => {
 
-    //     const data = await response.json();
-    //     console.log(data);
-    // } catch (error) {
-    //     console.log(error);
-    // }
+    formData.oldPassword = data.oldPassword;
+    formData.newPassword = data.newPassword;
+    formData.confirmNewPassword = data.confirmNewPassword;
+
+    try {
+      if (userType === "F") {
+        await FencerService.changePassword(formData);
+      } else if (userType === "O") {
+        await OrganiserService.changePassword(formData);
+      } else if (userType === "A") {
+        await AdminService.changePassword(formData);
+      }
+      onClose(); // Close the popup after submission
+    } catch (error) {
+      setError(true);
+      console.log(error);
+    }
   };
 
-  return (
-    <div className="flex flex-col justify-center items-center bg-white h-screen">
-      <img src={logo} alt="OnlyFence" className="h-50 mx-auto mb-10" />
+  if (!isOpen) return null;
 
-      <div className="flex flex-col items-center bg-white p-8 rounded-lg shadow-lg w-[600px]">
-        <h1 className="text-3xl font-semibold mb-6 text-center">
+  return (
+    // Overlay
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      {/* Popup content */}
+      <div className="bg-white p-8 rounded-lg shadow-lg w-[600px] relative">
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+        >
+          <XCircleIcon className="w-6 h-6" />
+        </button>
+
+        <h1 className="text-3xl font-semibold my-6 text-center">
           Change Password
         </h1>
 
-        <form className="flex flex-col w-96 gap-5">
-          <PasswordField
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col w-full max-w-md mx-auto gap-5"
+        >
+          <Controller
             name="oldPassword"
-            placeholder="Old Password"
-            value={formData.oldPassword}
-            onChange={handleValueChange}
+            control={control}
+            defaultValue=""
+            rules={{
+              required: "Old password is required!",
+            }}
+            render={({ field: { onChange, value } }) => (
+              <PasswordField
+                name="oldPassword"
+                placeholder="Old Password"
+                value={value}
+                onChange={onChange}
+                error={errors.oldPassword}
+              />
+            )}
           />
           <hr className="border border-black w-full" />
-          <PasswordField
+          <Controller
             name="newPassword"
-            placeholder="New Password"
-            value={formData.newPassword}
-            onChange={handleValueChange}
+            control={control}
+            defaultValue=""
+            rules={{
+              required: "Please fill this in!",
+              validate: (value) =>
+                validator.isStrongPassword(value) ||
+                "Password should be at least 8 characters, and contain at least one lowercase character, uppercase character, number, and symbol!",
+            }}
+            render={({ field: { onChange, value } }) => (
+              <PasswordField
+                placeholder="New Password"
+                type="text"
+                value={value}
+                onChange={onChange}
+                error={errors.newPassword}
+              />
+            )}
           />
-          <PasswordField
-            name="comfirmNewPassword"
-            placeholder="Confirm New Password"
-            value={formData.comfirmNewPassword}
-            onChange={handleValueChange}
+          <Controller
+            name="confirmNewPassword"
+            control={control}
+            defaultValue=""
+            rules={{
+              required: "Please fill this in!",
+              validate: (value) =>
+                value === newPassword || "Passwords do not match!",
+            }}
+            render={({ field: { onChange, value } }) => (
+              <PasswordField
+                placeholder="Confirm New Password"
+                type="text"
+                value={value}
+                onChange={onChange}
+                error={errors.confirmNewPassword}
+              />
+            )}
           />
           <SubmitButton onSubmit={handleSubmit}>Confirm</SubmitButton>
         </form>
+        {isError && (
+          <h1 className="text-xl font-semibold text-center text-red-500">
+            Original password is incorrect!
+          </h1>
+        )}
       </div>
     </div>
   );

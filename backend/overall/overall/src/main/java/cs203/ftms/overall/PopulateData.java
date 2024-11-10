@@ -26,11 +26,13 @@ import cs203.ftms.overall.dto.RegisterFencerDTO;
 import cs203.ftms.overall.dto.RegisterOrganiserDTO;
 import cs203.ftms.overall.dto.SinglePouleTableDTO;
 import cs203.ftms.overall.dto.clean.CleanTournamentFencerDTO;
+import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
 import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.repository.tournamentrelated.EventRepository;
 import cs203.ftms.overall.repository.tournamentrelated.PouleRepository;
 import cs203.ftms.overall.repository.tournamentrelated.TournamentRepository;
+import cs203.ftms.overall.repository.userrelated.FencerRepository;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
 import cs203.ftms.overall.service.authentication.AuthenticationService;
 import cs203.ftms.overall.service.event.EventService;
@@ -56,16 +58,18 @@ public class PopulateData {
     private final TournamentRepository tournamentRepository;
     private final EventRepository eventRepository;
     private final PouleRepository pouleRepository; 
+    private final FencerRepository fencerRepository;
     private final DirectEliminationService directEliminationService;
 
     @Autowired
-    public PopulateData(AuthenticationService authenticationService, TournamentService tournamentService, EventService eventService, FencerService fencerService, PouleService poulesService, UserRepository userRepository, TournamentRepository tournamentRepository, EventRepository eventRepository, PouleRepository pouleRepository, DirectEliminationService directEliminationService) {
+    public PopulateData(AuthenticationService authenticationService, TournamentService tournamentService, EventService eventService, FencerService fencerService, PouleService poulesService, UserRepository userRepository, TournamentRepository tournamentRepository, EventRepository eventRepository, PouleRepository pouleRepository, FencerRepository fencerRepository, DirectEliminationService directEliminationService) {
         this.authenticationService = authenticationService;
         this.tournamentService = tournamentService;
         this.eventService = eventService;
         this.fencerService = fencerService;
         this.pouleService = poulesService;
         this.userRepository = userRepository;
+        this.fencerRepository = fencerRepository;
         this.tournamentRepository = tournamentRepository;
         this.eventRepository = eventRepository;
         this.pouleRepository = pouleRepository;
@@ -143,7 +147,7 @@ public class PopulateData {
 
     public void createEvent() throws MethodArgumentNotValidException {
         for(int i = 0; i < 3; i++){
-            eventService.createEvent(tournamentRepository.findByName("Tournament" + i).get().getId(), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get(), List.of(new CreateEventDTO('M', 'S', 10, LocalDate.of(2024, 12, 30), LocalTime.of(10, 0, 0), LocalTime.of(17, 0, 0))));
+            eventService.createEvent(tournamentRepository.findByName("Tournament" + i).get().getId(), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get(), List.of(new CreateEventDTO('M', 'S', 10, LocalDate.of(2024, 12, 28 + i), LocalTime.of(10, 0, 0), LocalTime.of(17, 0, 0))));
         }
     }
 
@@ -219,6 +223,15 @@ public class PopulateData {
         directEliminationService.createAllDEMatches(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament0").get(), 'M', 'S').get().getId());
     }
 
+    public void setTournamentFencerPoints() {
+        Fencer f = fencerRepository.findById(3).get();
+        Set<TournamentFencer> tfs = f.getTournamentFencerProfiles();
+        tfs.forEach(tf -> {
+            tf.setPointsAfterEvent(100 + random.nextInt(300));
+        });
+
+    }
+
     @EventListener(ContextRefreshedEvent.class)
     @Transactional
     public void populateData() throws MethodArgumentNotValidException {
@@ -234,6 +247,7 @@ public class PopulateData {
             createTournament();
             createEvent();
             registerFencerForEvent();
+            setTournamentFencerPoints();
             return;
         }
 

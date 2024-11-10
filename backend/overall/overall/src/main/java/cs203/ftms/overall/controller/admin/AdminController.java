@@ -45,9 +45,9 @@ public class AdminController {
     public ResponseEntity<CleanAdminDTO> getProfile() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
-        CleanAdminDTO co = adminService.getCleanAdmin((Admin) user);
-        if (co == null) return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        return new ResponseEntity<>(co, HttpStatus.OK);
+        CleanAdminDTO res = adminService.getCleanAdmin((Admin) user);
+        if (res == null) return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
     @GetMapping("/unverified-organiser")

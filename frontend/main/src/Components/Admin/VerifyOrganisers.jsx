@@ -87,7 +87,7 @@ export default function VerifyOrganisers() {
     function categoriseStatus(checkboxState) {
         let approve = [];
         let deny = [];
-    
+
         for (let key in checkboxState) {
             if (checkboxState.hasOwnProperty(key)) {  // Check if the key is part of the object and not from its prototype
                 if (checkboxState[key] === "A") {
@@ -97,7 +97,7 @@ export default function VerifyOrganisers() {
                 }
             }
         }
-    
+
         return { approve, deny };
     }
 
@@ -107,7 +107,7 @@ export default function VerifyOrganisers() {
         const data = categoriseStatus(checkboxState);
         try {
             console.log('Submitting verifications: ', data);
-            await AdminService.verifyOrganisers(data);
+            await AdminService.verifyOrganiser(data);
             window.location.reload();
         } catch (error) {
             setSubmitError(true);
@@ -116,42 +116,42 @@ export default function VerifyOrganisers() {
     }
 
     return (
-        <div className="flex flex-col bg-white justify-center items-center gap-10 p-8">
-            <h1 className="text-4xl font-bold">Verify Organisers</h1>
+        <div className="flex flex-col bg-white items-center h-full gap-10 p-8">
+            <h1 className="text-4xl font-bold mt-4">Verify Organisers</h1>
+            {organisers.length > 0 ? (
             <table className="table text-lg">
                 <thead>
-                    <tr className="text-lg">
+                    <tr className="text-lg text-primary border-b border-gray-300">
                         <th>Organisation</th>
                         <th>Email</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {/* {organisers.length === 0 && (<tr><td colSpan="3">No organisers to verify</td></tr>)} */}
                     {organisers.map((organiser) => (
-                        <tr key={organiser.id}>
-                            <td>{organiser.name}</td>
-                            <td>{organiser.email}</td>
-                            <td className="flex gap-4">
-                                <label className="flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        checked={checkboxState[organiser.id] === 'A'}
-                                        onChange={() => handleCheckboxChange(organiser.id, 'A')}
-                                    />
-                                    <span className="ml-2">Approve</span>
-                                </label>
-                                <label className="flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        checked={checkboxState[organiser.id] === 'D'}
-                                        onChange={() => handleCheckboxChange(organiser.id, 'D')}
-                                    />
-                                    <span className="ml-2">Deny</span>
-                                </label>
-                            </td>
-                        </tr>
-                    ))}
+                            <tr key={organiser.id} className="border-b border-gray-300">
+                                <td>{organiser.name}</td>
+                                <td>{organiser.email}</td>
+                                <td className="flex gap-4">
+                                    <label className="flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            checked={checkboxState[organiser.id] === 'A'}
+                                            onChange={() => handleCheckboxChange(organiser.id, 'A')}
+                                        />
+                                        <span className="ml-2">Approve</span>
+                                    </label>
+                                    <label className="flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            checked={checkboxState[organiser.id] === 'D'}
+                                            onChange={() => handleCheckboxChange(organiser.id, 'D')}
+                                        />
+                                        <span className="ml-2">Deny</span>
+                                    </label>
+                                </td>
+                            </tr>
+                        ))}
 
                     {/* Add empty rows if there are less than 8 rows */}
                     {Array.from({ length: limit - organisers.length }).map((_, index) => (
@@ -162,8 +162,11 @@ export default function VerifyOrganisers() {
                         </tr>
                     ))}
                 </tbody>
-
-            </table>
+            </table>) : (
+                <h1 className="mt-16 text-xl font-semibold text-center text-gray-500">
+                    No unverified organisers yet
+                </h1>
+            )}
             {Object.keys(checkboxState).length > 0 && (
                 <button
                     onClick={submitVerfications}

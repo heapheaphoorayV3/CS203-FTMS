@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Tabs, Tab } from "../Others/Tabs.jsx";
 import EventService from "../../Services/Event/EventService.js";
+import OrganiserService from "../../Services/Organiser/OrganiserService.js";
 import PaginationButton from "../Others/PaginationButton.jsx";
 import EventBracket from "./EventBracket.jsx";
 import CreatePoules from "./CreatePoules.jsx";
@@ -14,7 +15,10 @@ function formatTimeTo24Hour(timeString) {
 }
 
 export default function ViewEvent() {
-  const { eventID } = useParams();
+  const { tournamentID, eventID } = useParams();
+
+  // Check if organiser is the owner of the event
+  const [isOwner, setIsOwner] = useState(false);
   const [userType, setUserType] = useState(sessionStorage.getItem("userType"));
 
   const [eventData, setEventData] = useState(null);
@@ -43,15 +47,42 @@ export default function ViewEvent() {
   useEffect(() => {
     setLoading(true);
 
-    const fetchData = async () => {
+    const fetchEventData = async () => {
       try {
         const response = await EventService.getEvent(eventID);
         setEventData(response.data);
-        console.log("event data =>");
-        console.log(response.data);
+        // console.log("event data =>");
       } catch (error) {
         console.error("Error fetching event data:", error);
         setError("Failed to load event data.");
+      }
+    };
+
+    // Fetch Upcoming Tournament if Organiser to check if organiser is the owner of current event
+    const checkIfOwner = async () => {
+      try {
+        const response =
+          await OrganiserService.getOrganiserUpcomingTournaments();
+        const upcomingTournaments = response.data;
+        console.log("upcoming tournaments:", upcomingTournaments);
+        let found = false;
+        for (let tournament of upcomingTournaments) {
+          if (Array.isArray(tournament.events)) {
+            for (let event of tournament.events) {
+              if (Number(event.id) === Number(eventID)) {
+                found = true;
+                break;
+              }
+            }
+          }
+          if (found) {
+            break;
+          }
+        }
+        setIsOwner(found);
+      } catch (error) {
+        console.error("Error fetching event:", error);
+        setError("Failed to load event.");
       }
     };
 
@@ -59,7 +90,6 @@ export default function ViewEvent() {
       try {
         const response = await EventService.getPouleTable(eventID);
         setPouleTableData(response.data);
-        console.log("Poule Table Data:", response.data);
 
         const processedData = response.data.pouleTable.map((poule) =>
           Object.entries(poule).map(([fencer, results]) => {
@@ -81,7 +111,7 @@ export default function ViewEvent() {
         const response = await EventService.getRecommendedPoules(eventID);
         setRecommendedPoulesData(response.data);
       } catch (error) {
-        console.log("Error fetching recommended poules", error);
+        console.error("Error fetching recommended poules", error);
         setError("Failed to load recommended poules");
       }
     };
@@ -90,7 +120,7 @@ export default function ViewEvent() {
       try {
         const response = await EventService.getMatches(eventID);
         setMatches(response.data);
-        console.log("matches:", response.data);
+        // console.log("matches:", response.data);
       } catch (error) {
         console.error("Error fetching matches:", error);
         setError("Failed to load matches.");
@@ -108,21 +138,29 @@ export default function ViewEvent() {
       }
     };
 
+    if (sessionStorage.getItem("userType") === "O") {
+      checkIfOwner();
+    }
+
     if (eventID) {
       Promise.all([
-        fetchData(),
+        fetchEventData(),
         fetchPouleTable(),
         userType === "O" && fetchRecommendedPoules(),
         fetchMatches(),
         fetchEventRanking(),
-      ]).then(() => {
-        // Code to run after all functions complete
-        console.log("All functions have completed.");
-        console.log("Matches: ", matches);
-        setLoading(false);
-      });
+      ])
+        .then(() => {
+          // Code to run after all functions complete
+          // console.log("All functions have completed.");
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error("Error in fetching some data:", error);
+          setLoading(false);
+        });
     }
-  }, [eventID]);
+  }, [eventID, tournamentID, userType]);
 
   useEffect(() => {
     if (Array.isArray(eventRanking) && eventRanking.length) {
@@ -192,15 +230,16 @@ export default function ViewEvent() {
       name: loading
         ? "Loading..."
         : eventData
-          ? eventData.tournamentName
-          : "Not Found",
+        ? eventData.tournamentName
+        : "Not Found",
+      link: `/tournaments/${tournamentID}`,
     },
     {
       name: loading
         ? "Loading..."
         : eventData
-          ? constructEventName(eventData.gender, eventData.weapon)
-          : "Not Found",
+        ? constructEventName(eventData.gender, eventData.weapon)
+        : "Not Found",
     },
   ];
 
@@ -237,7 +276,7 @@ export default function ViewEvent() {
     try {
       await EventService.createPoules(payload.eid, payload);
     } catch (error) {
-      console.log("error creating poules", error);
+      console.error("error creating poules", error);
     }
     closeCreatePopup();
   };
@@ -276,7 +315,7 @@ export default function ViewEvent() {
 
       for (const key in pouleTable) {
         if (key === fencerName) {
-          pouleTable[key] = updatedData[fencerName]; 
+          pouleTable[key] = updatedData[fencerName];
           break;
         }
       }
@@ -308,7 +347,7 @@ export default function ViewEvent() {
 
       await EventService.updateDEMatch(eventID, combinedData);
 
-      console.log("Bracket matches updated successfully");
+      // console.log("Bracket matches updated successfully");
 
       closeUpdatePopup();
 
@@ -320,7 +359,6 @@ export default function ViewEvent() {
 
   const submitUpdatePoules = async () => {
     try {
-
       const updatedPouleData = pouleTableData.pouleTable[selectedPoule - 1];
 
       const singleTableMap = new Map(Object.entries(updatedPouleData));
@@ -334,7 +372,7 @@ export default function ViewEvent() {
 
       await EventService.updatePouleTable(eventID, combinedData);
 
-      console.log("Poules updated successfully");
+      // console.log("Poules updated successfully");
     } catch (error) {
       console.error("Error updating poules:", error);
     } finally {
@@ -343,9 +381,6 @@ export default function ViewEvent() {
   };
 
   const totalPages = Math.ceil(eventRanking.length / limit);
-
-  console.log("-------------");
-  console.log(eventData);
 
   return (
     <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">
@@ -359,7 +394,7 @@ export default function ViewEvent() {
         <div className="font-semibold text-lg">Date</div>
         <div className="font-semibold text-lg">Start Time</div>
         <div className="font-semibold text-lg">End Time</div>
-        <div className="text-lg">{formatDate(eventData.date)}</div>
+        <div className="text-lg">{formatDate(eventData.eventDate)}</div>
         <div className="text-lg">{formatTimeTo24Hour(eventData.startTime)}</div>
         <div className="text-lg">{formatTimeTo24Hour(eventData.endTime)}</div>
       </div>
@@ -368,85 +403,90 @@ export default function ViewEvent() {
         <Tabs>
           <Tab label="Poules">
             <div className="py-4">
-              {userType === "O" && (
-                <div>
-                  {!pouleTableData && (
-                    <button
-                      onClick={createPoules}
-                      className="bg-blue-500 text-white px-4 py-2 rounded mt-2 mb-2"
-                    >
-                      Create Poules
-                    </button>
-                  )}
-                  <div className="flex items-end w-full">
-                    <div className="mr-12 h-20">
-                      <label className="block font-medium mb-1 ml-1">
-                        Poule Results
-                      </label>
-                      <select
-                        value={selectedPoule}
-                        onChange={handlePouleChange}
-                        className="block w-full py-2 px-3 border border-gray-300 rounded"
-                      >
-                        {pouleTableData.pouleTable.map((poule, index) => (
-                          <option key={index} value={index + 1}>
-                            {`Poule ${index + 1}`}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="flex mt-4 pb-2 space-x-2">
-                      <button
-                        onClick={updatePoules}
-                        className="bg-blue-500 text-white px-4 py-2 rounded"
-                      >
-                        Update Poules
-                      </button>
-
-                      {isUpdating && (
-                        <>
-                          <button
-                            onClick={submitUpdatePoules}
-                            className="bg-green-400 text-white px-4 py-2 rounded"
-                          >
-                            Confirm Changes
-                          </button>
-                          <button
-                            onClick={cancelUpdatePoules}
-                            className="bg-red-400 text-white px-4 py-2 rounded"
-                          >
-                            Cancel Changes
-                          </button>
-                          {!isInputValid && (
-                            <span className="px-4 py-2 text-red-500 italic">
-                              Invalid input. Input a number between 0 and 5.
-                            </span>
-                          )}
-                        </>
+              {pouleTableData && pouleTableData.pouleTable[pouleIndex] ? (
+                <>
+                  {userType === "O" && (
+                    <div>
+                      {!pouleTableData && (
+                        <button
+                          onClick={createPoules}
+                          className="bg-blue-500 text-white px-4 py-2 rounded mt-2 mb-2"
+                        >
+                          Create Poules
+                        </button>
                       )}
-                    </div>
-                  </div>
-                </div>
-              )}
+                      <div className="flex items-end w-full">
+                        <div className="mr-12 h-20">
+                          <label className="block font-medium mb-1 ml-1">
+                            Poule Results
+                          </label>
+                          <select
+                            value={selectedPoule}
+                            onChange={handlePouleChange}
+                            className="block w-full py-2 px-3 border border-gray-300 rounded"
+                          >
+                            {pouleTableData.pouleTable.map((poule, index) => (
+                              <option key={index} value={index}>
+                                {`Poule ${index + 1}`}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
 
-              <table className="table text-lg">
-                {/* head */}
-                <thead className="text-lg text-neutral">
-                  <tr className="border-b border-gray-300 h-[50px]">
-                    <th className="w-60 text-primary">Fencer</th>
-                    <th className="w-24"></th>
-                    <th className="text-center w-24">1</th>
-                    <th className="text-center w-24">2</th>
-                    <th className="text-center w-24">3</th>
-                    <th className="text-center w-24">4</th>
-                    <th className="text-center w-24">5</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pouleTableData && pouleTableData.pouleTable[pouleIndex] ? (
-                    Object.entries(pouleTableData.pouleTable[pouleIndex]).map(
-                      ([fencer, results], idx) => {
+                        {sessionStorage.getItem("userType") === "O" &&
+                          isOwner && (
+                            <div className="flex mt-4 pb-2 space-x-2">
+                              <button
+                                onClick={updatePoules}
+                                className="bg-blue-500 text-white px-4 py-2 rounded"
+                              >
+                                Update Poules
+                              </button>
+
+                              {isUpdating && (
+                                <>
+                                  <button
+                                    onClick={submitUpdatePoules}
+                                    className="bg-green-400 text-white px-4 py-2 rounded"
+                                  >
+                                    Confirm Changes
+                                  </button>
+                                  <button
+                                    onClick={cancelUpdatePoules}
+                                    className="bg-red-400 text-white px-4 py-2 rounded"
+                                  >
+                                    Cancel Changes
+                                  </button>
+                                  {!isInputValid && (
+                                    <span className="px-4 py-2 text-red-500 italic">
+                                      Invalid input. Input a number between 0
+                                      and 5.
+                                    </span>
+                                  )}
+                                </>
+                              )}
+                            </div>
+                          )}
+                      </div>
+                    </div>
+                  )}
+
+                  <table className="table text-lg">
+                    <thead className="text-lg text-neutral">
+                      <tr className="border-b border-gray-300 h-[50px]">
+                        <th className="w-60 text-primary">Fencer</th>
+                        <th className="w-24"></th>
+                        <th className="text-center w-24">1</th>
+                        <th className="text-center w-24">2</th>
+                        <th className="text-center w-24">3</th>
+                        <th className="text-center w-24">4</th>
+                        <th className="text-center w-24">5</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {Object.entries(
+                        pouleTableData.pouleTable[pouleIndex]
+                      ).map(([fencer, results], idx) => {
                         const resultArray = results.split(",");
                         const cleanedFencerName = fencer.replace(
                           / -- \d+$/,
@@ -465,10 +505,11 @@ export default function ViewEvent() {
                             {resultArray.map((result, resultIndex) => (
                               <td
                                 key={resultIndex}
-                                className={`border border-gray-300 hover:bg-gray-100 ${result === "-1"
-                                  ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
-                                  : ""
-                                  }`}
+                                className={`border border-gray-300 hover:bg-gray-100 ${
+                                  result === "-1"
+                                    ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
+                                    : ""
+                                }`}
                               >
                                 {result === "-1" ? (
                                   result
@@ -479,10 +520,11 @@ export default function ViewEvent() {
                                     onChange={(event) =>
                                       handleInputChange(event, resultIndex, idx)
                                     }
-                                    className={`w-full text-center ${!isInputValid
+                                    className={`w-full text-center ${
+                                      !isInputValid
                                         ? "border-red-500"
                                         : "border-gray-300"
-                                      }`}
+                                    }`}
                                   />
                                 ) : (
                                   result
@@ -491,15 +533,17 @@ export default function ViewEvent() {
                             ))}
                           </tr>
                         );
-                      }
-                    )
-                  ) : (
-                    <tr className="text-center border-b border-gray-300">
-                      <td colSpan={7}>No poules available yet</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+                      })}
+                    </tbody>
+                  </table>
+                </>
+              ) : (
+                <div className="flex justify-center items-center h-full">
+                  <h2 className="text-lg font-medium">
+                    No poules available yet
+                  </h2>
+                </div>
+              )}
             </div>
             {/* Create Event Popup --> need to pass in submit/close */}
             {isCreatePopupVisible && (
@@ -520,14 +564,16 @@ export default function ViewEvent() {
                 </div>
               ) : (
                 <>
-                  <div className="flex pb-2 space-x-2">
-                    <button
-                      onClick={updateBracketMatch}
-                      className="bg-blue-500 text-white px-4 py-2 rounded"
-                    >
-                      Update Matches
-                    </button>
-                  </div>
+                  {sessionStorage.getItem("userType") === "O" && isOwner && (
+                    <div className="flex pb-2 space-x-2">
+                      <button
+                        onClick={updateBracketMatch}
+                        className="bg-blue-500 text-white px-4 py-2 rounded"
+                      >
+                        Update Matches
+                      </button>
+                    </div>
+                  )}
                   <EventBracket
                     matches={matches}
                     height="999999999"
@@ -547,30 +593,38 @@ export default function ViewEvent() {
           <Tab label="Ranking">
             <div className="py-4">
               {/* <h2 className="text-lg font-medium mb-2">Ranking</h2> */}
-              <table className="table text-lg border-collapse mb-4">
-                {/* head */}
-                <thead className="text-lg text-primary">
-                  <tr className="border-b border-gray-300">
-                    <th className="text-center w-20">Rank</th>
-                    <th className="w-1/2">Name</th>
-                    <th className="text-center">Country</th>
-                    <th className="text-center">Points</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginatedData.map((item, index) => (
-                    <tr
-                      key={item.fencerId}
-                      className="border-b border-gray-300 hover:bg-gray-100"
-                    >
-                      <td className="text-center">{index + 1}</td>
-                      <td>{item.fencerName}</td>
-                      <td className="text-center">{item.country}</td>
-                      <td className="text-center">{item.poulePoints}</td>
+              {paginatedData.length > 0 ? (
+                <table className="table text-lg border-collapse mb-4">
+                  {/* head */}
+                  <thead className="text-lg text-primary">
+                    <tr className="border-b border-gray-300">
+                      <th className="text-center w-20">Rank</th>
+                      <th className="w-1/2">Name</th>
+                      <th className="text-center">Country</th>
+                      <th className="text-center">Points</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {paginatedData.map((item, index) => (
+                      <tr
+                        key={item.fencerId}
+                        className="border-b border-gray-300 hover:bg-gray-100"
+                      >
+                        <td className="text-center">{index + 1}</td>
+                        <td>{item.fencerName}</td>
+                        <td className="text-center">{item.country}</td>
+                        <td className="text-center">{item.poulePoints}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div className="flex justify-center items-center h-full">
+                  <h2 className="text-lg font-medium">
+                    No ranking available yet
+                  </h2>
+                </div>
+              )}
               <div className="flex flex-col justify-center items-center">
                 <PaginationButton
                   totalPages={totalPages}
@@ -584,32 +638,40 @@ export default function ViewEvent() {
           <Tab label="Participants">
             <div className="py-4">
               {/* <h2 className="text-lg font-medium mb-2">Participants</h2> */}
-              <table className="table text-lg border-collapse mb-4">
-                {/* head */}
-                <thead className="text-lg text-primary text-center">
-                  <tr className="border-b border-gray-300">
-                    <th className="w-20"></th>
-                    <th className="w-60">Name</th>
-                    <th className="w-60">Club</th>
-                    <th className="w-60">Points</th>
-                  </tr>
-                </thead>
-                <tbody className="text-center">
-                  {eventData.fencers.map((fencer, index) => (
-                    <tr
-                      key={fencer.id}
-                      className="border-b border-gray-300 hover:bg-gray-100"
-                    >
-                      <td>{index + 1}</td>
-                      <td>{fencer.name}</td>
-                      <td>{fencer.club}</td>{" "}
-                      {/* Assuming 'club' is a property in fencer */}
-                      <td>{fencer.points}</td>{" "}
-                      {/* Assuming 'points' is a property in fencer */}
+              {eventData.fencers.length > 0 ? (
+                <table className="table text-lg border-collapse mb-4">
+                  {/* head */}
+                  <thead className="text-lg text-primary text-center">
+                    <tr className="border-b border-gray-300">
+                      <th className="w-20"></th>
+                      <th className="w-60">Name</th>
+                      <th className="w-60">Club</th>
+                      <th className="w-60">Points</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="text-center">
+                    {eventData.fencers.map((fencer, index) => (
+                      <tr
+                        key={fencer.id}
+                        className="border-b border-gray-300 hover:bg-gray-100"
+                      >
+                        <td>{index + 1}</td>
+                        <td>{fencer.name}</td>
+                        <td>{fencer.club}</td>{" "}
+                        {/* Assuming 'club' is a property in fencer */}
+                        <td>{fencer.points}</td>{" "}
+                        {/* Assuming 'points' is a property in fencer */}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div className="flex justify-center items-center h-full">
+                  <h2 className="text-lg font-medium">
+                    No participants available yet
+                  </h2>
+                </div>
+              )}
               <div className="flex flex-col justify-center items-center">
                 <PaginationButton
                   totalPages={totalPages}

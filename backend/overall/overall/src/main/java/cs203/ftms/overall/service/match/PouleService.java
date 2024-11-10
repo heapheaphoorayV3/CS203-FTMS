@@ -118,6 +118,10 @@ public class PouleService {
 
         int fencerCount = event.getParticipantCount();
 
+        if (fencerCount <= 0) {
+            return new HashSet<>();
+        }
+
         int maxPoules = fencerCount / MIN_FENCERS_PER_POULE;
         int minPoules = (fencerCount % MAX_FENCERS_PER_POULE == 0) ? fencerCount / MAX_FENCERS_PER_POULE : fencerCount / MAX_FENCERS_PER_POULE + 1;
 

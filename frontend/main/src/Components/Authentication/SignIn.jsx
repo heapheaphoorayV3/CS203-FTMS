@@ -1,11 +1,9 @@
 import { React, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import logo from "../../Assets/logo.png";
 import SubmitButton from "../Others/SubmitButton";
 import PasswordField from "../Others/PasswordField";
 import InputField from "../Others/InputField";
 import AuthService from "../../Services/Authentication/AuthService";
-import { ProtectedAPI } from "../../Services/ProtectedAPI";
 import { Link } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 
@@ -117,6 +115,14 @@ export default function SignIn() {
               className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
             >
               Sign up here!
+            </Link>
+          </p>
+          <p className="mt-3 text-center text-sm text-gray-500">
+            <Link
+              to="/forgot-password"
+              className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
+            >
+              Forgot Password?
             </Link>
           </p>
 

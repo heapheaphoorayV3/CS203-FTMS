@@ -32,34 +32,33 @@ public class DirectEliminationController {
         this.directEliminationService = directEliminationService;
     }
 
-    @PostMapping("/{eid}/create-direct-elimination-matches")
+    @PostMapping("/create-direct-elimination-matches/{eid}")
     @PreAuthorize("hasRole('ORGANISER')")
     public ResponseEntity<List<DirectEliminationBracketDTO>> createDirectEliminationMatches(@PathVariable int eid) {
         directEliminationService.createAllDEMatches(eid);
-        List<DirectEliminationBracketDTO> dtos = directEliminationService.generateDirectEliminationBracketDTOs(eid);
-        if (dtos != null && dtos.size() != 0) {
-            return new ResponseEntity<>(dtos, HttpStatus.CREATED);
+        List<DirectEliminationBracketDTO> res = directEliminationService.generateDirectEliminationBracketDTOs(eid);
+        if (res != null && res.size() != 0) {
+            return new ResponseEntity<>(res, HttpStatus.CREATED);
         }
         return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
 
-    @PutMapping("/{eid}/update-direct-elimination-match")
+    @PutMapping("/update-direct-elimination-match/{eid}")
     @PreAuthorize("hasRole('ORGANISER')")
     public ResponseEntity<List<DirectEliminationBracketDTO>> updateDirectEliminationMatch(@PathVariable int eid, @RequestBody UpdateDirectEliminationMatchDTO dto) {
         directEliminationService.updateDEMatch(eid, dto);
-        List<DirectEliminationBracketDTO> dtos = directEliminationService.generateDirectEliminationBracketDTOs(eid);
-        if (dtos != null && dtos.size() != 0) {
-            return new ResponseEntity<>(dtos, HttpStatus.CREATED);
+        List<DirectEliminationBracketDTO> res = directEliminationService.generateDirectEliminationBracketDTOs(eid);
+        if (res != null && res.size() != 0) {
+            return new ResponseEntity<>(res, HttpStatus.CREATED);
         }
         return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
 
-    @GetMapping("/{eid}/get-direct-elimination-matches")
-    @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
+    @GetMapping("/get-direct-elimination-matches/{eid}")
     public ResponseEntity<List<DirectEliminationBracketDTO>> getDirectEliminationMatches(@PathVariable int eid) {
-        List<DirectEliminationBracketDTO> dtos = directEliminationService.generateDirectEliminationBracketDTOs(eid);
-        if (dtos != null) {
-            return new ResponseEntity<>(dtos, HttpStatus.OK);
+        List<DirectEliminationBracketDTO> res = directEliminationService.generateDirectEliminationBracketDTOs(eid);
+        if (res != null) {
+            return new ResponseEntity<>(res, HttpStatus.OK);
         }
         return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }

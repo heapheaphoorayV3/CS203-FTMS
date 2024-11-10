@@ -25,6 +25,7 @@ import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.model.userrelated.User;
 import cs203.ftms.overall.service.organiser.OrganiserService;
 import cs203.ftms.overall.service.tournament.TournamentService;
+import jakarta.validation.Valid;
 
 @RestController
 @CrossOrigin
@@ -45,20 +46,20 @@ public class OrganiserController {
     public ResponseEntity<CleanOrganiserDTO> getProfile() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
-        CleanOrganiserDTO co = organiserService.getCleanOrganiserDTO((Organiser) user);
-        if (co == null) return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        return new ResponseEntity<>(co, HttpStatus.OK);
+        CleanOrganiserDTO res = organiserService.getCleanOrganiserDTO((Organiser) user);
+        if (res == null) return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
     @GetMapping("/all")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<CleanOrganiserDTO>> getAllOrganisers() {
         List<Organiser> oList = organiserService.getAllOrganisers();
-        List<CleanOrganiserDTO> coList = new ArrayList<>();
+        List<CleanOrganiserDTO> res = new ArrayList<>();
         for (Organiser o : oList) {
-            coList.add(organiserService.getCleanOrganiserDTO(o));
+            res.add(organiserService.getCleanOrganiserDTO(o));
         }
-        return new ResponseEntity<>(coList, HttpStatus.OK);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
   
     @GetMapping("/tournaments")
@@ -68,11 +69,11 @@ public class OrganiserController {
         User user = (User) authentication.getPrincipal();
         List<Tournament> tList = organiserService.getOrganiserTournaments((Organiser) user);
         
-        List<CleanTournamentDTO> ctList = new ArrayList<>();
+        List<CleanTournamentDTO> res = new ArrayList<>();
         for (Tournament t : tList) {
-            ctList.add(tournamentService.getCleanTournamentDTO(t));
+            res.add(tournamentService.getCleanTournamentDTO(t));
         }
-        return new ResponseEntity<>(ctList, HttpStatus.OK);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
     @PutMapping("/change-password")
@@ -86,7 +87,7 @@ public class OrganiserController {
 
     @PutMapping("/update-profile")
     @PreAuthorize("hasRole('ORGANISER')")
-    public ResponseEntity<String> updateProfile(@RequestBody UpdateOrganiserProfileDTO dto) {
+    public ResponseEntity<String> updateProfile(@Valid @RequestBody UpdateOrganiserProfileDTO dto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         organiserService.updateProfile((Organiser) user, dto);
@@ -99,11 +100,11 @@ public class OrganiserController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         List<Tournament> tList = organiserService.getOrganiserUpcomingTournaments((Organiser) user);
-        List<CleanTournamentDTO> ctList = new ArrayList<>();
+        List<CleanTournamentDTO> res = new ArrayList<>();
         for (Tournament t : tList) {
-            ctList.add(tournamentService.getCleanTournamentDTO(t)); 
+            res.add(tournamentService.getCleanTournamentDTO(t)); 
         }
-        return new ResponseEntity<>(ctList, HttpStatus.OK);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
     @GetMapping("/past-tournaments")
@@ -112,10 +113,10 @@ public class OrganiserController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         List<Tournament> tList = organiserService.getOrganiserPastTournaments((Organiser) user);
-        List<CleanTournamentDTO> ctList = new ArrayList<>();
+        List<CleanTournamentDTO> res = new ArrayList<>();
         for (Tournament t : tList) {
-            ctList.add(tournamentService.getCleanTournamentDTO(t));
+            res.add(tournamentService.getCleanTournamentDTO(t));
         }
-        return new ResponseEntity<>(ctList, HttpStatus.OK);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 }

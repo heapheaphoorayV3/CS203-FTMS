@@ -12,12 +12,13 @@ public class CleanEventDTO{
     private List<CleanFencerDTO> fencers;
     private int minParticipants;
     private int participantCount;
-    private LocalDate date;
+    private LocalDate eventDate;
     private LocalTime startTime;
     private LocalTime endTime;
+    private LocalDate signupEndDate;
     
     public CleanEventDTO(int id, char gender, char weapon, String tournamentName, List<CleanFencerDTO> fencers, int minParticipants,
-            int participantCount, LocalDate date, LocalTime startTime, LocalTime endTime) {
+            int participantCount, LocalDate eventDate, LocalTime startTime, LocalTime endTime, LocalDate signupEndDate) {
         this.id = id;
         this.gender = gender; 
         this.weapon = weapon; 
@@ -25,9 +26,10 @@ public class CleanEventDTO{
         this.fencers = fencers;
         this.minParticipants = minParticipants;
         this.participantCount = participantCount;
-        this.date = date;
+        this.eventDate = eventDate;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.signupEndDate = signupEndDate;
     }
 
     public String getTournamentName() {
@@ -62,12 +64,12 @@ public class CleanEventDTO{
         this.participantCount = participantCount;
     }
 
-    public LocalDate getDate() {
-        return date;
+    public LocalDate getEventDate() {
+        return eventDate;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
+    public void setEventDate(LocalDate date) {
+        this.eventDate = date;
     }
 
     public LocalTime getStartTime() {
@@ -111,5 +113,11 @@ public class CleanEventDTO{
     }
     
     
-    
+    public LocalDate getSignupEndDate() {
+        return signupEndDate;
+    }
+
+    public void setSignupEndDate(LocalDate signupEndDate) {
+        this.signupEndDate = signupEndDate;
+    }
 }

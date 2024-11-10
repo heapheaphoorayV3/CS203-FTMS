@@ -51,9 +51,9 @@ public class FencerController {
     public ResponseEntity<CleanFencerDTO> getProfile() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
-        CleanFencerDTO cf = fencerService.getCleanFencerDTO((Fencer) user);
-        if (cf == null) return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        return new ResponseEntity<>(cf, HttpStatus.OK);
+        CleanFencerDTO res = fencerService.getCleanFencerDTO((Fencer) user);
+        if (res == null) return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
     
     @PutMapping("/complete-profile")
@@ -101,7 +101,7 @@ public class FencerController {
 
     @PutMapping("/update-profile")
     @PreAuthorize("hasRole('ORGANISER')")
-    public ResponseEntity<String> updateProfile(@RequestBody UpdateFencerProfileDTO dto) {
+    public ResponseEntity<String> updateProfile(@Valid @RequestBody UpdateFencerProfileDTO dto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         fencerService.updateProfile((Fencer) user, dto);
@@ -114,11 +114,11 @@ public class FencerController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         List<Event> eList = fencerService.getFencerEvents((Fencer) user);
-        List<CleanEventDTO> ctList = new ArrayList<>();
+        List<CleanEventDTO> res = new ArrayList<>();
         for (Event e : eList) {
-            ctList.add(eventService.getCleanEventDTO(e));
+            res.add(eventService.getCleanEventDTO(e));
         }
-        return new ResponseEntity<>(ctList, HttpStatus.OK);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
     @GetMapping("/upcoming-events")
@@ -127,11 +127,11 @@ public class FencerController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         List<Event> eList = fencerService.getFencerUpcomingEvents((Fencer) user);    
-        List<CleanEventDTO> ctList = new ArrayList<>();
+        List<CleanEventDTO> res = new ArrayList<>();
         for (Event e : eList) {
-            ctList.add(eventService.getCleanEventDTO(e));
+            res.add(eventService.getCleanEventDTO(e));
         }
-        return new ResponseEntity<>(ctList, HttpStatus.OK);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
     @GetMapping("/past-events")
@@ -140,11 +140,20 @@ public class FencerController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         List<Event> eList = fencerService.getFencerPastEvents((Fencer) user);
-        List<CleanEventDTO> ctList = new ArrayList<>();
+        List<CleanEventDTO> res = new ArrayList<>();
         for (Event e : eList) {
-            ctList.add(eventService.getCleanEventDTO(e));
+            res.add(eventService.getCleanEventDTO(e));
         }
-        return new ResponseEntity<>(ctList, HttpStatus.OK);
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    @GetMapping("/past-events-points")
+    @PreAuthorize("hasRole('FENCER')")
+    public ResponseEntity<List<CleanTournamentFencerDTO>> getFencerPastEventsPoints() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        List<CleanTournamentFencerDTO> tfs = fencerService.getFencerPastEventsPoints((Fencer) user);
+        return new ResponseEntity<>(tfs, HttpStatus.OK);
     }
 
     @GetMapping("/past-events-profiles")
@@ -161,7 +170,6 @@ public class FencerController {
     }
 
     @GetMapping("/men-sabre-ranking")
-    @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
     public ResponseEntity<List<CleanFencerDTO>> getMenSabreRanking() {
         List<Fencer> fencers = fencerService.getFilterdInternationalRank('S', 'M'); 
         List<CleanFencerDTO> res = new ArrayList<>();
@@ -172,7 +180,6 @@ public class FencerController {
     }
 
     @GetMapping("/women-sabre-ranking")
-    @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
     public ResponseEntity<List<CleanFencerDTO>> getWomenSabreRanking() {
         List<Fencer> fencers = fencerService.getFilterdInternationalRank('S', 'W'); 
         List<CleanFencerDTO> res = new ArrayList<>();
@@ -183,7 +190,6 @@ public class FencerController {
     }
 
     @GetMapping("/men-epee-ranking")
-    @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
     public ResponseEntity<List<CleanFencerDTO>> getMenEpeeRanking() {
         List<Fencer> fencers = fencerService.getFilterdInternationalRank('E', 'M'); 
         List<CleanFencerDTO> res = new ArrayList<>();
@@ -194,7 +200,6 @@ public class FencerController {
     }
 
     @GetMapping("/women-epee-ranking")
-    @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
     public ResponseEntity<List<CleanFencerDTO>> getWomenEpeeRanking() {
         List<Fencer> fencers = fencerService.getFilterdInternationalRank('E', 'W'); 
         List<CleanFencerDTO> res = new ArrayList<>();
@@ -205,7 +210,6 @@ public class FencerController {
     }
 
     @GetMapping("/men-foil-ranking")
-    @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
     public ResponseEntity<List<CleanFencerDTO>> getMenFoilRanking() {
         List<Fencer> fencers = fencerService.getFilterdInternationalRank('F', 'M'); 
         List<CleanFencerDTO> res = new ArrayList<>();
@@ -216,7 +220,6 @@ public class FencerController {
     }
 
     @GetMapping("/women-foil-ranking")
-    @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
     public ResponseEntity<List<CleanFencerDTO>> getWomenFoilRanking() {
         List<Fencer> fencers = fencerService.getFilterdInternationalRank('F', 'W'); 
         List<CleanFencerDTO> res = new ArrayList<>();

@@ -6,7 +6,7 @@ const DEBaseURL = "/direct-elimination";
 
 class EventService {
   async createEvents(tid, events) {
-    return await ProtectedAPI.post(`${baseURL}/${tid}/create-event`, events);
+    return await ProtectedAPI.post(`${baseURL}/create-event/${tid}`, events);
   }
 
   async getEvent(eid) {
@@ -14,7 +14,7 @@ class EventService {
   }
 
   async updateEvent(eid, data) {
-    return await ProtectedAPI.put(`${baseURL}/${eid}/update-event`, data);
+    return await ProtectedAPI.put(`${baseURL}/update-event/${eid}`, data);
   }
 
   async registerEvent(eid) {
@@ -22,40 +22,40 @@ class EventService {
   }
 
   async getPouleTable(eid) {
-    return await ProtectedAPI.get(`${pouleBaseURL}/${eid}/get-poule-table`);
+    return await ProtectedAPI.get(`${pouleBaseURL}/get-poule-table/${eid}`);
   }
 
   async updatePouleTable(eid, data) {
-    return await ProtectedAPI.put(`${pouleBaseURL}/${eid}/update-poule-table`, data);
+    return await ProtectedAPI.put(`${pouleBaseURL}/update-poule-table/${eid}`, data);
   }
 
   async createPoules(eid, data) {
-    return await ProtectedAPI.post(`${pouleBaseURL}/${eid}/create-poules`, data);
+    return await ProtectedAPI.post(`${pouleBaseURL}/create-poules/${eid}`, data);
   }
 
   async getRecommendedPoules(eid) {
-    return await ProtectedAPI.get(`${pouleBaseURL}/${eid}/get-recommended-poules`);
+    return await ProtectedAPI.get(`${pouleBaseURL}/get-recommended-poules/${eid}`);
   }
 
   async getMatches(eid) {
-    return await ProtectedAPI.get(`${DEBaseURL}/${eid}/get-direct-elimination-matches`);
+    return await ProtectedAPI.get(`${DEBaseURL}/get-direct-elimination-matches/${eid}`);
   }
 
   async getPoulesResult(eid) {
-    return await ProtectedAPI.get(`${pouleBaseURL}/${eid}/get-poules-result`);
+    return await ProtectedAPI.get(`${pouleBaseURL}/get-poules-result/${eid}`);
   }
 
   async getEventRanking(eid) {
-    return await ProtectedAPI.get(`${baseURL}/${eid}/get-event-ranking`);
+    return await ProtectedAPI.get(`${baseURL}/get-event-ranking/${eid}`);
   }
 
   async updateDEMatch(eid, data) {
-    return await ProtectedAPI.put(`${DEBaseURL}/${eid}/update-direct-elimination-match`, data);
+    return await ProtectedAPI.put(`${DEBaseURL}/update-direct-elimination-match/${eid}`, data);
   }
 
   // TODO: Check Endpoint with Backend
   async deleteEvent(eid) {
-    return await ProtectedAPI.delete(`${baseURL}/${eid}/delete-event`);
+    return await ProtectedAPI.delete(`${baseURL}/delete-event/${eid}`);
   }
 }
 

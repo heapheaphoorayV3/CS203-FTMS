@@ -2,17 +2,17 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../Assets/logosvg.svg";
 import logoutIcon from "../Assets/logout.png";
-import { UserCircleIcon } from '@heroicons/react/24/outline';
 import NavbarButton from "./Others/NavbarButton";
 import FencerService from "../Services/Fencer/FencerService";
 import OrganiserService from "../Services/Organiser/OrganiserService";
 import AdminService from "../Services/Admin/AdminService";
+import ChangePassword from "./Authentication/ChangePassword";
 
 const Navbar = () => {
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const isLoggedIn = sessionStorage.getItem("token");
   const userType = sessionStorage.getItem("userType");
-
+  const [isPasswordChange, setIsPasswordChange] = useState(false);
   const [userData, setUserData] = useState(null);
 
   useEffect(() => {
@@ -57,18 +57,31 @@ const Navbar = () => {
     navigate("/signin");
   };
 
+  const handlePasswordChange = () => {
+    setIsPasswordChange(true);
+    setIsUserDropdownOpen(!isUserDropdownOpen);
+  }
+
+  // Determine the dashboard link based on userType
+  let dashboardLink = '/';
+
+  if (userType === 'F') {
+    dashboardLink = '/fencer-dashboard';
+  } else if (userType === 'O') {
+    dashboardLink = '/organiser-dashboard';
+  } else if (userType === 'A') {
+    dashboardLink = '/admin-dashboard';
+  }
+
   return (
     <>
       {isLoggedIn ? (
         <nav className="h-full w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
           <div className="w-full flex items-center justify-between mx-auto p-2.5">
-            {userType === "F" ? <a href="/fencer-dashboard" className="flex items-center">
+            {/* Clicking the logo will redirect to the respective user dashboards */}
+            <a href={dashboardLink} className="flex items-center">
               <img src={logo} className="pl-3 h-8" alt="Logo" />
             </a>
-              : <a href="/organiser-dashboard" className="flex items-center">
-                <img src={logo} className="pl-3 h-8" alt="Logo" />
-              </a>
-            }
             <div className="relative ml-auto">
               <button
                 onClick={toggleUserDropdown}
@@ -78,7 +91,7 @@ const Navbar = () => {
               >
                 <span className="sr-only">Open user menu</span>
                 {/* <UserCircleIcon className="h-8 w-8 text-black" /> */}
-                <img src={logoutIcon} className="h-6 w-6" alt="Logout Icon"/>
+                <img src={logoutIcon} className="h-6 w-6" alt="Logout Icon" />
               </button>
 
               <div
@@ -101,11 +114,21 @@ const Navbar = () => {
                     </span>
                   )}
                 </div>
-                <ul className="py-2">
+                <ul className="pt-2">
+                  <li>
+                    <a
+                      onClick={handlePasswordChange}
+                      className="block w-full text-left px-4 py-2 text-sm cursor-pointer text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
+                    >
+                      Change Password
+                    </a>
+                  </li>
+                </ul>
+                <ul className="pb-2">
                   <li>
                     <a
                       onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
+                      className="block w-full text-left px-4 py-2 text-sm cursor-pointer text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
                     >
                       Sign out
                     </a>
@@ -114,6 +137,12 @@ const Navbar = () => {
               </div>
             </div>
           </div>
+          {isPasswordChange &&
+            <ChangePassword
+              isOpen={isPasswordChange}
+              onClose={() => setIsPasswordChange(false)}
+            />}
+
         </nav>
       ) : (
         <nav className="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">

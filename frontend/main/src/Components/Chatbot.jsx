@@ -3,11 +3,14 @@ import sender1 from "../Assets/sender1.svg";
 import user1 from "../Assets/user1.svg";
 import { motion } from "framer-motion";
 import ChatbotService from "../Services/Chatbot/ChatbotService";
+import FencerService from "../Services/Fencer/FencerService";
 import SubmitButton from "./Others/SubmitButton";
 
 export default function Chatbot() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [userData, setUserData] = useState({});
+  const [fencerUpcomingEvents, setFencerUpcomingEvents] = useState([]);
   const [selectedChoice, setSelectedChoice] = useState(null);
   const [showInput, setShowInput] = useState(false);
   const [eventID, setEventID] = useState("");
@@ -15,15 +18,46 @@ export default function Chatbot() {
     { text: "Hello! What would you like to know?", sender: "bot" },
   ]);
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await FencerService.getProfile();
+        setUserData(response.data);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        setError("Failed to load user data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const formatDate = (date) => {
+    const formattedDate = new Date(date).toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+    return formattedDate;
+  };
+
   const addMessage = (text, sender) => {
     setMessages((prev) => [...prev, { text, sender }]);
   };
 
-  const fetchProjectedPoints = async () => {
+  const fetchProjectedPoints = async (eventID) => {
     setLoading(true);
     try {
+      console.log("event ID:", eventID);
       const response = await ChatbotService.getProjectedPoints(eventID);
-      addMessage(`Your projected points: ${response.data}`, "bot");
+      console.log("response:", response.data);
+      if (response.status === 400 || response.data === null) {
+        addMessage("No projected points available for this event.", "bot");
+      } else {
+        addMessage(`Your projected points: ${response.data}`, "bot");
+      }
       setShowInput(false);
     } catch (error) {
       console.error("Error fetching projected points: ", error);
@@ -38,10 +72,11 @@ export default function Chatbot() {
     }
   };
 
-  const fetchWinRate = async () => {
+  const fetchWinRate = async (eventID) => {
     setLoading(true);
     try {
       const response = await ChatbotService.getWinRate(eventID);
+
       addMessage(`Your win rate: ${response.data}`, "bot");
       setShowInput(false);
     } catch (error) {
@@ -60,7 +95,12 @@ export default function Chatbot() {
   const fetchRecommendedTournaments = async () => {
     setLoading(true);
     try {
-      const response = await ChatbotService.recommendTournaments();
+      const fencerDetails = {
+        weapon: userData.weapon,
+        gender: userData.gender,
+        experience: new Date().getFullYear() - userData.debutYear,
+      };
+      const response = await ChatbotService.recommendTournaments(fencerDetails);
       console.log("recc tourns: ", response.data);
       if (response.data.length === 0) {
         addMessage(
@@ -85,28 +125,74 @@ export default function Chatbot() {
     }
   };
 
-  useEffect(() => {
-    if (selectedChoice === "recommended tournaments") {
-      fetchRecommendedTournaments();
-    } else {
-      setShowInput(true);
+  const fetchFencerUpcomingEvents = async () => {
+    setLoading(true);
+    try {
+      const response = await FencerService.getFencerUpcomingEvents();
+      setFencerUpcomingEvents(response.data);
+    } catch (error) {
+      console.error("Error fetching fencer's upcoming events: ", error);
+      setError("Failed to fetch fencer upcoming events");
+    } finally {
+      setLoading(false);
     }
-  }, [selectedChoice]);
+  };
+
+  useEffect(() => {
+    if (eventID) {
+      if (selectedChoice === "projected points") {
+        fetchProjectedPoints();
+      } else if (selectedChoice === "win rate") {
+        fetchWinRate();
+      }
+    }
+  }, [eventID, selectedChoice]);
 
   const handleOptionClick = (choice) => {
     setSelectedChoice(choice);
     addMessage(`I want to get my ${choice}!`, "user");
+
+    if (choice === "projected points" || choice === "win rate") {
+      setShowInput(true);
+      fetchFencerUpcomingEvents();
+    } else if (choice === "recommended tournaments") {
+      fetchRecommendedTournaments();
+    } else {
+      setShowInput(false);
+    }
+
     setEventID("");
   };
 
-  const handleSubmitEventID = () => {
-    if (eventID) {
-      addMessage(`Event ID entered: ${eventID}`, "user");
-      if (selectedChoice === "projected points") fetchProjectedPoints();
-      if (selectedChoice === "win rate") fetchWinRate();
-    }
+  const handleEventSelection = (id) => {
+    setEventID(id);
+    handleSubmitEventID(id);
   };
 
+  const handleSubmitEventID = (id) => {
+    if (id) {
+      const selectedEvent = fencerUpcomingEvents.find((event) => {
+        return event.id === id;
+      });
+
+      console.log("selected event:", selectedEvent);
+
+      const tournamentName = selectedEvent
+        ? selectedEvent.tournamentName
+        : "Unknown Event";
+
+      addMessage(`Tournament chosen: ${tournamentName}`, "user");
+      setEventID(id);
+
+      if (selectedChoice === "projected points") fetchProjectedPoints(id);
+      if (selectedChoice === "win rate") fetchWinRate(id);
+    }
+
+    setShowInput(false);
+    setEventID("");
+  };
+
+  console.log("user data:", userData);
   const OptionButtons = () => (
     <div className="flex justify-between gap-4 w-[70%] ml-[200px] mb-4">
       <motion.button
@@ -141,6 +227,14 @@ export default function Chatbot() {
       </motion.button>
     </div>
   );
+
+  // if (loading) {
+  //   return <div className="mt-10">Loading...</div>; // Show loading state
+  // }
+
+  // if (error) {
+  //   return <div className="mt-10">{error}</div>; // Show error message if any
+  // }
 
   return (
     <div className="bg-white h-full overflow-y-auto">
@@ -182,34 +276,26 @@ export default function Chatbot() {
           </motion.div>
         ))}
         {/* Show input field and submit button only if required */}
-        {selectedChoice &&
-          selectedChoice !== "recommended tournaments" &&
-          showInput && (
-            <div className="flex ml-[200px] w-[70%] mb-4">
-              <div className="flex flex-col h-auto w-full">
-                <div className="rounded-md bg-gray-200 pt-4 pl-4 text-black mb-4">
-                  <p>
-                    {selectedChoice === "projected points"
-                      ? "Enter event ID for projected points:"
-                      : "Enter event ID for win rate:"}
-                  </p>
-                  <input
-                    type="text"
-                    value={eventID}
-                    onChange={(e) => setEventID(e.target.value)}
-                    placeholder="Enter event ID"
-                    className="p-2 mt-2 rounded-md mr-4"
-                  />
-                  <button
-                    onClick={handleSubmitEventID}
-                    className="h-8 w-24 justify-center rounded-md bg-indigo-600 my-5 text-lg font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                  >
-                    Submit
-                  </button>
+        {showInput && selectedChoice && (
+          <div className="flex justify-center w-full mb-4">
+            <div className="flex flex-col h-auto w-[70%] max-w-xl">
+              <div className="rounded-lg bg-gray-100 p-6 text-gray-800 shadow-md">
+                <h2 className="text-2xl font-bold">Select a tournament</h2>
+                <div className="mt-2 space-y-2">
+                  {fencerUpcomingEvents.map((event) => (
+                    <button
+                      key={event.id}
+                      onClick={() => handleEventSelection(event.id)}
+                      className="block w-full text-left p-2 rounded-md bg-indigo-100 hover:text-primary"
+                    >
+                      {event.tournamentName} - {formatDate(event.eventDate)}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
-          )}
+          </div>
+        )}
         {/* Show option buttons after each bot response */}
         <OptionButtons />
       </div>
