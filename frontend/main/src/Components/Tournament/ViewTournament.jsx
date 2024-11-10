@@ -474,7 +474,7 @@ export default function ViewTournament() {
                           {constructEventName(event.gender, event.weapon)}
                         </a>
                       </td>
-                      <td>{event.eventDate || event.date}</td>
+                      <td>{formatDate(event.eventDate || event.date)}</td>
                       <td>{formatTimeTo24Hour(event.startTime)}</td>
                       <td>{formatTimeTo24Hour(event.endTime)}</td>
                       <td>{event.fencers ? event.fencers.length : 0}</td>
@@ -501,7 +501,8 @@ export default function ViewTournament() {
                           ))}
                         {sessionStorage.getItem("userType") === "O" &&
                           isOwner && 
-                          !newEventsArray.some(newEvent => newEvent.id === event.id) && (
+                          !newEventsArray.some(newEvent => newEvent.id === event.id) && 
+                          getTournamentStatus(tournamentData.startDate, tournamentData.endDate) === "Upcoming" && (
                             <DropdownMenu
                               entity="Event"
                               updateEntity={() => updateEvent(event)}
@@ -533,12 +534,14 @@ export default function ViewTournament() {
                           Cancel Changes
                         </button>
                       )}
-                      <button
+                      {isOwner && 
+                       getTournamentStatus(tournamentData.startDate, tournamentData.endDate) === "Upcoming" && (
+                        <button
                         onClick={openCreatePopup}
                         className="bg-blue-500 text-white px-4 py-2 rounded mx-36 mt-10"
                       >
                         Add Event
-                      </button>
+                      </button>)}
                       {isCreating && (
                         <button
                           onClick={submitEventsArray}
