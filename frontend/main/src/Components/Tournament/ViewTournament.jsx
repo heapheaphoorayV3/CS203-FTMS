@@ -93,7 +93,7 @@ export default function ViewTournament() {
   // Fetch Upcoming Tournament if Organiser to check if organiser is the owner of current tournament
   const checkIfOwner = async () => {
     try {
-      const response = await Organiser.getUpcomingTournaments();
+      const response = await Organiser.getOrganiserUpcomingTournaments();
       const upcomingTournaments = response.data;
       let found = false;
       for (let i = 0; i < upcomingTournaments.length; i++) {
