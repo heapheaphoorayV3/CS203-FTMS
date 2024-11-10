@@ -1,6 +1,6 @@
 import { DateTime, FixedOffsetZone } from "luxon";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import DropdownMenu from "../Others/DropdownMenu.jsx";
 import EventService from "../../Services/Event/EventService";
 import FencerService from "../../Services/Fencer/FencerService.js";
@@ -115,8 +115,8 @@ export default function ViewTournament() {
         checkIfOwner();
       }
     }
-  }
-  // Fetch data whenever tournamentID changes 
+  };
+  // Fetch data whenever tournamentID changes
   useEffect(() => {
     fetchData();
   }, [tournamentID]);
@@ -141,8 +141,8 @@ export default function ViewTournament() {
       name: loading
         ? "Loading..."
         : tournamentData
-          ? tournamentData.name
-          : "Not Found",
+        ? tournamentData.name
+        : "Not Found",
     },
   ];
 
@@ -250,7 +250,6 @@ export default function ViewTournament() {
     setNewEventsArray([...newEventsArray, formData]);
     checkEvents();
 
-
     // Close the popup and set isCreating to true
     closeCreatePopup();
     setIsCreating(true);
@@ -329,7 +328,6 @@ export default function ViewTournament() {
     return eventName;
   };
 
-
   const registerEvent = async (eventID) => {
     console.log("Registering event with ID:", eventID);
     try {
@@ -389,6 +387,9 @@ export default function ViewTournament() {
     return `${formattedDate}`;
   };
 
+  console.log("----------------");
+  console.log(tournamentData);
+  console.log("id:", tournamentID);
   return (
     // Grid for Navbar, Sidebar and Content
     <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">
@@ -467,12 +468,14 @@ export default function ViewTournament() {
                     >
                       {/* <td>Event details</td> */}
                       <td>
-                        <a
-                          href={`/view-event/${event.id}`}
+                        <Link
+                          to={{
+                            pathname: `/${tournamentID}/view-event/${event.id}`,
+                          }}
                           className="underline hover:text-primary"
                         >
                           {constructEventName(event.gender, event.weapon)}
-                        </a>
+                        </Link>
                       </td>
                       <td>{formatDate(event.eventDate || event.date)}</td>
                       <td>{formatTimeTo24Hour(event.startTime)}</td>
@@ -483,10 +486,11 @@ export default function ViewTournament() {
                           (registeredEvents.includes(event.id) ? (
                             <SubmitButton
                               disabled
-                              styling={`h-12 w-full justify-center rounded-md my-5 text-lg font-semibold leading-6 text-white shadow-sm ${isPastStartDate()
-                                ? "bg-grey-400"
-                                : "bg-green-400"
-                                }`}
+                              styling={`h-12 w-full justify-center rounded-md my-5 text-lg font-semibold leading-6 text-white shadow-sm ${
+                                isPastStartDate()
+                                  ? "bg-grey-400"
+                                  : "bg-green-400"
+                              }`}
                             >
                               {isPastStartDate()
                                 ? "Signups Closed"

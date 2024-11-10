@@ -14,7 +14,10 @@ function formatTimeTo24Hour(timeString) {
 }
 
 export default function ViewEvent() {
-  const { eventID } = useParams();
+  const { tournamentID, eventID } = useParams();
+
+  console.log(`Tournament ID: ${tournamentID}`);
+  console.log(`Event ID: ${eventID}`);
   const [userType, setUserType] = useState(sessionStorage.getItem("userType"));
 
   const [eventData, setEventData] = useState(null);
@@ -47,7 +50,7 @@ export default function ViewEvent() {
       try {
         const response = await EventService.getEvent(eventID);
         setEventData(response.data);
-        console.log("event data =>");
+        // console.log("event data =>");
       } catch (error) {
         console.error("Error fetching event data:", error);
         setError("Failed to load event data.");
@@ -79,7 +82,7 @@ export default function ViewEvent() {
         const response = await EventService.getRecommendedPoules(eventID);
         setRecommendedPoulesData(response.data);
       } catch (error) {
-        console.log("Error fetching recommended poules", error);
+        console.error("Error fetching recommended poules", error);
         setError("Failed to load recommended poules");
       }
     };
@@ -88,7 +91,7 @@ export default function ViewEvent() {
       try {
         const response = await EventService.getMatches(eventID);
         setMatches(response.data);
-        console.log("matches:", response.data);
+        // console.log("matches:", response.data);
       } catch (error) {
         console.error("Error fetching matches:", error);
         setError("Failed to load matches.");
@@ -115,8 +118,8 @@ export default function ViewEvent() {
         fetchEventRanking(),
       ]).then(() => {
         // Code to run after all functions complete
-        console.log("All functions have completed.");
-        console.log("Matches: ", matches);
+        // console.log("All functions have completed.");
+        // console.log("Matches: ", matches);
         setLoading(false);
       });
     }
@@ -192,6 +195,7 @@ export default function ViewEvent() {
         : eventData
           ? eventData.tournamentName
           : "Not Found",
+      link: `/tournaments/${tournamentID}`
     },
     {
       name: loading
@@ -235,7 +239,7 @@ export default function ViewEvent() {
     try {
       await EventService.createPoules(payload.eid, payload);
     } catch (error) {
-      console.log("error creating poules", error);
+      console.error("error creating poules", error);
     }
     closeCreatePopup();
   };
@@ -306,7 +310,7 @@ export default function ViewEvent() {
 
       await EventService.updateDEMatch(eventID, combinedData);
 
-      console.log("Bracket matches updated successfully");
+      // console.log("Bracket matches updated successfully");
 
       closeUpdatePopup();
 
@@ -332,7 +336,7 @@ export default function ViewEvent() {
 
       await EventService.updatePouleTable(eventID, combinedData);
 
-      console.log("Poules updated successfully");
+      // console.log("Poules updated successfully");
     } catch (error) {
       console.error("Error updating poules:", error);
     } finally {
@@ -341,9 +345,6 @@ export default function ViewEvent() {
   };
 
   const totalPages = Math.ceil(eventRanking.length / limit);
-
-  console.log("-------------");
-  console.log(eventData);
 
   return (
     <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">
