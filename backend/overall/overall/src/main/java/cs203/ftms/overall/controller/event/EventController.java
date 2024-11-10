@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -102,6 +103,15 @@ public class EventController {
             return new ResponseEntity<>("event unregistration successful", HttpStatus.OK);
         }
         return new ResponseEntity<>("event unregistration unsuccessful", HttpStatus.BAD_REQUEST);
+    }
+
+    @DeleteMapping("/delete-event/{eid}")
+    @PreAuthorize("hasRole('ORGANISER')")
+    public ResponseEntity<String> deleteEvent(@PathVariable int eid) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        eventService.deleteEvent(eid, (Organiser) user);
+        return new ResponseEntity<>("event deleted", HttpStatus.OK);
     }
 
     
