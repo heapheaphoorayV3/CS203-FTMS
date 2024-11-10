@@ -1,0 +1,68 @@
+name: Frontend CI/CD
+
+on:
+  workflow_run:
+    workflows: ["Backend CI/CD"]
+    types:
+      - completed
+
+permissions:
+  actions: read   
+  contents: read  
+
+jobs:
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }} # make sure backend workflow is successful
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Download workflow artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: Backend CI/CD
+          name: terraform-output
+          path: .
+          github_token: ${{ secrets.GH_TOKEN }}
+          run_id: ${{ github.event.workflow_run.id }}
+          repo: ${{ github.repository }}
+
+      - name: Read CloudFront Domain
+        id: cloudfront
+        run: |
+          DOMAIN=$(cat cloudfront_domain.txt)
+          echo "REACT_APP_BACKEND_SOURCE=https://$DOMAIN/api/v1" >> $GITHUB_ENV
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20'
+
+      - name: Install dependencies and build frontend
+        working-directory: frontend/main/
+        env:
+          REACT_APP_BACKEND_SOURCE: ${{ env.REACT_APP_BACKEND_SOURCE }}
+        run: |
+          npm ci
+          CI=false npm run build
+          npm install -g serve
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Sync frontend to S3
+        working-directory: frontend/main/
+        run: |
+          aws s3 sync build s3://${{ secrets.S3_BUCKET_NAME }} --delete
+
+      - name: Invalidate CloudFront cache
+        env:
+          CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.FRONTEND_CLOUDFRONT_DISTRIBUTION_ID }}
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${CLOUDFRONT_DISTRIBUTION_ID} --paths "/*"
