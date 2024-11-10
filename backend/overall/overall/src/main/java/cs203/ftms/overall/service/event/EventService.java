@@ -101,6 +101,22 @@ public class EventService {
         return events;
     }
 
+    @Transactional
+    public void deleteEvent(int eid, Organiser organiser) {
+        Event event = getEvent(eid);
+        Tournament tournament = event.getTournament();
+        validateOrganiser(event, organiser);
+        for (TournamentFencer tf : event.getFencers()) {
+            Fencer fencer = tf.getFencer();
+            unregisterEvent(eid, fencer);
+        }
+        Set<Event> events = tournament.getEvents();
+        events.remove(event);
+        tournament.setEvents(events);
+        tournamentRepository.save(tournament);
+        eventRepository.delete(event);
+    }
+
     private Tournament validateTournament(int tid, Organiser organiser) {
         Tournament tournament = tournamentRepository.findById(tid).orElse(null);
         if (tournament == null || !tournament.getOrganiser().equals(organiser)) {
