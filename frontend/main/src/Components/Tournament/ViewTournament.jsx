@@ -11,10 +11,8 @@ import { Tab, Tabs } from "../Others/Tabs.jsx";
 import CreateEvent from "./CreateEvent.jsx";
 import UpdateEvent from "./UpdateEvent.jsx";
 import DeleteEvent from "./DeleteEvent.jsx";
-import UpdateTournament from "./UpdateTournament.jsx";
 import SubmitButton from "../Others/SubmitButton.jsx";
-import editLogo from "../../Assets/edit.png";
-import { use } from "framer-motion/client";
+import { set } from "react-hook-form";
 
 function formatTimeTo24Hour(timeString) {
   const [hours, minutes] = timeString.split(":"); // Get hours and minutes
@@ -31,10 +29,6 @@ export default function ViewTournament() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [eventsArray, setEventsArray] = useState([]);
-  //Popup for updating tournament
-  const [isUpdateTournamentPopupVisible, setIsUpdateTournamentPopupVisible] =
-    useState(false);
-  const [tournamentToUpdate, setTournamentToUpdate] = useState(false);
   // One Popup for create-event the other for update-event
   const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
   const [isUpdateEventPopupVisible, setIsUpdateEventPopupVisible] =
@@ -55,6 +49,7 @@ export default function ViewTournament() {
     { value: "FS", label: "Women's Sabre" },
   ];
   const [eventTypes, setEventTypes] = useState(allEventTypes);
+  const [newEventsArray, setNewEventsArray] = useState([]);
 
   const navigate = useNavigate();
 
@@ -110,19 +105,19 @@ export default function ViewTournament() {
   };
 
   // Fetch fetch data when tournamentID changes
-  useEffect(() => {
-    const fetchData = async () => {
-      if (tournamentID) {
-        await fetchTournamentData();
+  const fetchData = async () => {
+    if (tournamentID) {
+      await fetchTournamentData();
 
-        if (sessionStorage.getItem("userType") === "F") {
-          fetchRegisteredEvents();
-        } else if (sessionStorage.getItem("userType") === "O") {
-          checkIfOwner();
-        }
+      if (sessionStorage.getItem("userType") === "F") {
+        fetchRegisteredEvents();
+      } else if (sessionStorage.getItem("userType") === "O") {
+        checkIfOwner();
       }
-    };
-
+    }
+  }
+  // Fetch data whenever tournamentID changes 
+  useEffect(() => {
     fetchData();
   }, [tournamentID]);
 
@@ -146,8 +141,8 @@ export default function ViewTournament() {
       name: loading
         ? "Loading..."
         : tournamentData
-        ? tournamentData.name
-        : "Not Found",
+          ? tournamentData.name
+          : "Not Found",
     },
   ];
 
@@ -203,7 +198,6 @@ export default function ViewTournament() {
     // Reset eventTypes to allEventTypes
     setEventTypes(allEventTypes);
     // Loop through eventsArray
-    console.log("Checking Events");
     eventsArray.forEach((event) => {
       const eventName = event.gender + event.weapon;
       removeEventType(eventName);
@@ -239,7 +233,7 @@ export default function ViewTournament() {
     const weapon = data.eventName.charAt(1); // Second character
     // Extract minParticipants and date
     const minParticipants = data.minParticipants;
-    const date = data.date;
+    const date = data.eventDate;
     // Create JSON to add to eventsArray
     const formData = {
       gender: gender,
@@ -253,13 +247,59 @@ export default function ViewTournament() {
     // Add event to eventsArray and delete from eventTypes
     console.log("FormData: " + JSON.stringify(formData));
     setEventsArray([...eventsArray, formData]);
-    console.log("CurrentEventsArray: " + JSON.stringify(eventsArray));
+    setNewEventsArray([...newEventsArray, formData]);
     checkEvents();
-    console.log("Event Types Left: " + JSON.stringify(eventTypes));
+
 
     // Close the popup and set isCreating to true
     closeCreatePopup();
     setIsCreating(true);
+  };
+
+  // "Cancel Changes"
+  const cancelCreatingChanges = async () => {
+    console.log("Cancelling Changes");
+    try {
+      const response = await TournamentService.getTournamentDetails(
+        tournamentID
+      );
+      setTournamentData(response.data);
+      // Set eventsArray
+      setEventsArray(response.data.events);
+    } catch (error) {
+      console.error("Error fetching tournament data:", error);
+      setError("Failed to load tournament data.");
+    } finally {
+      setLoading(false);
+    }
+    setIsCreating(false);
+  };
+  // "Confirm Changes" --> Submit Events Array
+  const submitEventsArray = async () => {
+    // Only submit new events --> old events have key "fencers"
+    console.log("New Events Array: " + JSON.stringify(newEventsArray));
+    try {
+      const response = await EventService.createEvents(
+        tournamentID,
+        newEventsArray
+      );
+    } catch (error) {
+      console.log(error);
+    }
+    // Set isCreating to false
+    setIsCreating(false);
+    // Refetch Event Data
+    fetchData();
+  };
+  // Get New Events Array (events without key "fencers")
+  const extractNewEvents = () => {
+    let newEvents = [];
+    eventsArray.forEach((event) => {
+      if (!event.hasOwnProperty("fencers")) {
+        newEvents.push(event);
+      }
+    });
+    return newEvents;
   };
 
   // Check if today is past the start date of the tournament (for the register button)
@@ -297,50 +337,6 @@ export default function ViewTournament() {
     return eventName;
   };
 
-  // Get New Events Array (events without key "fencers")
-  const extractNewEvents = () => {
-    let newEventsArray = [];
-    eventsArray.forEach((event) => {
-      if (!event.hasOwnProperty("fencers")) {
-        newEventsArray.push(event);
-      }
-    });
-    return newEventsArray;
-  };
-
-  // "Cancel Changes"
-  const cancelCreatingChanges = async () => {
-    console.log("Cancelling Changes");
-    try {
-      const response = await TournamentService.getTournamentDetails(
-        tournamentID
-      );
-      setTournamentData(response.data);
-      // Set eventsArray
-      setEventsArray(response.data.events);
-    } catch (error) {
-      console.error("Error fetching tournament data:", error);
-      setError("Failed to load tournament data.");
-    } finally {
-      setLoading(false);
-    }
-    setIsCreating(false);
-  };
-  // "Confirm Changes" --> Submit Events Array
-  const submitEventsArray = async () => {
-    // Only submit new events --> old events have key "fencers"
-    let newEventsArray = extractNewEvents(eventsArray);
-    try {
-      const response = await EventService.createEvents(
-        tournamentID,
-        newEventsArray
-      );
-    } catch (error) {
-      console.log(error);
-    }
-    // Set isCreating to false
-    setIsCreating(false);
-  };
 
   const registerEvent = async (eventID) => {
     console.log("Registering event with ID:", eventID);
@@ -483,9 +479,8 @@ export default function ViewTournament() {
                         >
                           {constructEventName(event.gender, event.weapon)}
                         </a>
-                        {/* no eventName attribute in new backend (pending) --> {event.eventName} */}
                       </td>
-                      <td>{event.date}</td>
+                      <td>{event.eventDate || event.date}</td>
                       <td>{formatTimeTo24Hour(event.startTime)}</td>
                       <td>{formatTimeTo24Hour(event.endTime)}</td>
                       <td>{event.fencers ? event.fencers.length : 0}</td>
@@ -494,11 +489,10 @@ export default function ViewTournament() {
                           (registeredEvents.includes(event.id) ? (
                             <SubmitButton
                               disabled
-                              styling={`h-12 w-full justify-center rounded-md my-5 text-lg font-semibold leading-6 text-white shadow-sm ${
-                                isPastStartDate()
-                                  ? "bg-grey-400"
-                                  : "bg-green-400"
-                              }`}
+                              styling={`h-12 w-full justify-center rounded-md my-5 text-lg font-semibold leading-6 text-white shadow-sm ${isPastStartDate()
+                                ? "bg-grey-400"
+                                : "bg-green-400"
+                                }`}
                             >
                               {isPastStartDate()
                                 ? "Signups Closed"
@@ -512,7 +506,8 @@ export default function ViewTournament() {
                             </SubmitButton>
                           ))}
                         {sessionStorage.getItem("userType") === "O" &&
-                          isOwner && (
+                          isOwner && 
+                          !newEventsArray.some(newEvent => newEvent.id === event.id) && (
                             <DropdownMenu
                               entity="Event"
                               updateEntity={() => updateEvent(event)}
