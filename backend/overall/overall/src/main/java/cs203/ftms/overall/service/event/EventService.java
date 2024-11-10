@@ -71,7 +71,7 @@ public class EventService {
             cleanFencers.add(fencerService.getCleanFencerDTO(f.getFencer()));
         }
 
-        return new CleanEventDTO(e.getId(), e.getGender(), e.getWeapon(), e.getTournament().getName(), cleanFencers, e.getMinParticipants(), e.getParticipantCount(), e.getDate(), e.getStartTime(), e.getEndTime());
+        return new CleanEventDTO(e.getId(), e.getGender(), e.getWeapon(), e.getTournament().getName(), cleanFencers, e.getMinParticipants(), e.getParticipantCount(), e.getDate(), e.getStartTime(), e.getEndTime(), e.getTournament().getSignupEndDate());
     } 
 
     public CleanTournamentFencerDTO getCleanTournamentFencerDTO(TournamentFencer tf) {

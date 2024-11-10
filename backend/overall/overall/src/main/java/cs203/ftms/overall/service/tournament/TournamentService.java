@@ -2,7 +2,9 @@ package cs203.ftms.overall.service.tournament;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,8 +14,11 @@ import cs203.ftms.overall.dto.CreateTournamentDTO;
 import cs203.ftms.overall.dto.clean.CleanEventDTO;
 import cs203.ftms.overall.dto.clean.CleanTournamentDTO;
 import cs203.ftms.overall.exception.EntityDoesNotExistException;
+import cs203.ftms.overall.exception.TournamentAlreadyStartedException;
 import cs203.ftms.overall.model.tournamentrelated.Event;
 import cs203.ftms.overall.model.tournamentrelated.Tournament;
+import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
+import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.repository.tournamentrelated.EventRepository;
 import cs203.ftms.overall.repository.tournamentrelated.TournamentFencerRepository;
@@ -124,6 +129,83 @@ public class TournamentService {
         }
         return pastTournaments;
     }
+
+    @Transactional
+public void deleteTournament(Organiser organiser, int tournamentId) {
+    Tournament tournament = getTournament(tournamentId);
+    validateOrganiser(tournament, organiser);
+    validateTournamentNotStarted(tournament);
+    unregisterAllFencers(tournament);
+    removeFromOrganiser(tournament, organiser);
+    deleteTournamentAndEvents(tournament);
+}
+
+private void validateOrganiser(Tournament tournament, Organiser organiser) {
+    if (tournament.getOrganiser().getId() != organiser.getId()) {
+        throw new EntityDoesNotExistException("Tournament does not exist!");
+    }
+}
+
+private void validateTournamentNotStarted(Tournament tournament) {
+    for (Event event : tournament.getEvents()) {
+        if (event.getPoules() != null && !event.getPoules().isEmpty()) {
+            throw new TournamentAlreadyStartedException("Cannot delete tournament that has already started!");
+        }
+    }
+}
+
+private void unregisterAllFencers(Tournament tournament) {
+    for (Event event : tournament.getEvents()) {
+        for (TournamentFencer tf : event.getFencers()) {
+            Fencer fencer = tf.getFencer();
+            eventService.unregisterEvent(event.getId(), fencer);
+        }
+    }
+}
+
+private void removeFromOrganiser(Tournament tournament, Organiser organiser) {
+    Set<Tournament> tourHost = organiser.getTourHost();
+    tourHost.removeIf(t -> t.getId() == tournament.getId());
+    organiser.setTourHost(tourHost);
+}
+
+private void deleteTournamentAndEvents(Tournament tournament) {
+    for (Event event : tournament.getEvents()) {
+        event.setTournament(null);
+        eventRepository.delete(event);
+    }
+    tournament.setOrganiser(null);
+    tournament.setEvents(null);
+    tournamentRepository.deleteTournamentById(tournament.getId());
+}
+
+    // @Transactional
+    // public void deleteTournament(Organiser o, int tid) {
+    //     Tournament t = getTournament(tid);
+    //     if (t.getOrganiser().getId() != o.getId()) {
+    //         throw new EntityDoesNotExistException("Tournament does not exist!");
+    //     }
+        
+    //     for (Event e : t.getEvents()) {
+    //         if (e.getPoules() != null && !e.getPoules().isEmpty()) {
+    //             throw new TournamentAlreadyStartedException("Cannot delete tournament that has already started!");
+    //         }
+    //         for (TournamentFencer tf : e.getFencers()) {
+    //             Fencer f = tf.getFencer();
+    //             eventService.unregisterEvent(tid, f);
+    //         }
+    //         e.setTournament(null); 
+    //         eventRepository.delete(e);
+    //     }
+
+    //     Set<Tournament> tourHost = o.getTourHost();
+    //     tourHost.removeIf(tournament -> tournament.getId() == tid);
+    //     o.setTourHost(tourHost);
+    //     t.setOrganiser(null);
+    //     t.setEvents(null);
+    //     tournamentRepository.deleteTournamentById(tid);
+    // }
+
 
     // @Transactional
     // public void deleteTournament(Organiser o, int tid) {

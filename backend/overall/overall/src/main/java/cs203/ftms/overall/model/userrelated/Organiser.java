@@ -12,7 +12,7 @@ public class Organiser extends User {
     @Column(name = "verified")
     private boolean verified;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "organiser")
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "organiser", orphanRemoval = true)
     private Set<Tournament> tourHost;
 
     public Organiser() {}

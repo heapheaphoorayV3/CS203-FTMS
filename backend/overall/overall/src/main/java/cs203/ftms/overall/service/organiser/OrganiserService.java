@@ -47,7 +47,7 @@ public class OrganiserService {
     }
 
     public List<Tournament> getOrganiserTournaments(Organiser o) {
-        return tournamentRepository.findByOrganiserId(o.getId()).orElse(null);
+        return tournamentRepository.findByOrganiserId(o.getId());
     }
 
     public String changePassword(User u, String oldPassword, String newPassword) {
@@ -69,7 +69,7 @@ public class OrganiserService {
     }
 
     public List<Tournament> getOrganiserUpcomingTournaments(Organiser o) {
-        List<Tournament> tournaments = tournamentRepository.findByOrganiserId(o.getId()).orElse(null);
+        List<Tournament> tournaments = tournamentRepository.findByOrganiserId(o.getId());
         List<Tournament> upcomingTournaments = new ArrayList<>();
         for (Tournament t : tournaments) {
             if (t.getStartDate().isAfter(LocalDate.now())) {
@@ -80,7 +80,7 @@ public class OrganiserService {
     }
 
     public List<Tournament> getOrganiserPastTournaments(Organiser o) {
-        List<Tournament> tournaments = tournamentRepository.findByOrganiserId(o.getId()).orElse(null);
+        List<Tournament> tournaments = tournamentRepository.findByOrganiserId(o.getId());
         List<Tournament> pastTournaments = new ArrayList<>();
         for (Tournament t : tournaments) {
             if (t.getStartDate().isBefore(LocalDate.now())) {

@@ -49,23 +49,23 @@ public class EventController {
         this.eventService = eventService;
     }
 
-    @PostMapping("/{tid}/create-event")
+    @PostMapping("/create-event/{tid}")
     @PreAuthorize("hasRole('ORGANISER')")
     public ResponseEntity<List<CleanEventDTO>> createEvent(@PathVariable int tid, @RequestBody @Valid List<CreateEventDTO> e) throws MethodArgumentNotValidException, EventAlreadyExistsException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         List<Event> newE = eventService.createEvent(tid, (Organiser) user, e);
         if (newE != null) {
-            List<CleanEventDTO> dto = new ArrayList<>();
+            List<CleanEventDTO> res = new ArrayList<>();
             for (Event event : newE) {
-                dto.add(eventService.getCleanEventDTO(event));
+                res.add(eventService.getCleanEventDTO(event));
             }
-            return new ResponseEntity<>(dto, HttpStatus.CREATED);
+            return new ResponseEntity<>(res, HttpStatus.CREATED);
         }
         return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
 
-    @PutMapping("/{eid}/update-event")
+    @PutMapping("/update-event/{eid}")
     @PreAuthorize("hasRole('ORGANISER')")
     public ResponseEntity<CleanEventDTO> updateEvent(@PathVariable int eid, @RequestBody @Valid UpdateEventDTO e) throws MethodArgumentNotValidException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -114,25 +114,25 @@ public class EventController {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
 
-        CleanEventDTO ce = eventService.getCleanEventDTO(event);
-        if (ce == null) {
+        CleanEventDTO res = eventService.getCleanEventDTO(event);
+        if (res == null) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(ce, HttpStatus.OK);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
-    @GetMapping("/{eid}/get-event-ranking")
+    @GetMapping("/get-event-ranking/{eid}")
     @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
     public ResponseEntity<List<CleanTournamentFencerDTO>> getEventRanking(@PathVariable int eid) {
         List<TournamentFencer> rankings = eventService.getTournamentRanks(eid);
-        List<CleanTournamentFencerDTO> resultDTO = new ArrayList<>(); 
+        List<CleanTournamentFencerDTO> res = new ArrayList<>(); 
         for (TournamentFencer tf : rankings) {
-            resultDTO.add(eventService.getCleanTournamentFencerDTO(tf));
+            res.add(eventService.getCleanTournamentFencerDTO(tf));
         }
-        return new ResponseEntity<>(resultDTO, HttpStatus.OK);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
-    @PutMapping("/{eid}/end-event")
+    @PutMapping("/end-event/{eid}")
     @PreAuthorize("hasRole('ORGANISER')")
     public ResponseEntity<String> endEvent(@PathVariable int eid) {
         eventService.endTournamentEvent(eid);

@@ -95,6 +95,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleFencerAlreadyRegisteredForEvent(FencerAlreadyRegisteredForEventException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(TournamentAlreadyStartedException.class)
+    public ResponseEntity<String> handleTournamentAlreadyStarted(TournamentAlreadyStartedException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 }
 
 

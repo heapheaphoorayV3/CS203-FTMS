@@ -49,9 +49,9 @@ public class FencerController {
     public ResponseEntity<CleanFencerDTO> getProfile() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
-        CleanFencerDTO cf = fencerService.getCleanFencerDTO((Fencer) user);
-        if (cf == null) return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        return new ResponseEntity<>(cf, HttpStatus.OK);
+        CleanFencerDTO res = fencerService.getCleanFencerDTO((Fencer) user);
+        if (res == null) return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
     
     @PutMapping("/complete-profile")
@@ -112,11 +112,11 @@ public class FencerController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         List<Event> eList = fencerService.getFencerEvents((Fencer) user);
-        List<CleanEventDTO> ctList = new ArrayList<>();
+        List<CleanEventDTO> res = new ArrayList<>();
         for (Event e : eList) {
-            ctList.add(eventService.getCleanEventDTO(e));
+            res.add(eventService.getCleanEventDTO(e));
         }
-        return new ResponseEntity<>(ctList, HttpStatus.OK);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
     @GetMapping("/upcoming-events")
@@ -125,11 +125,11 @@ public class FencerController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         List<Event> eList = fencerService.getFencerUpcomingEvents((Fencer) user);    
-        List<CleanEventDTO> ctList = new ArrayList<>();
+        List<CleanEventDTO> res = new ArrayList<>();
         for (Event e : eList) {
-            ctList.add(eventService.getCleanEventDTO(e));
+            res.add(eventService.getCleanEventDTO(e));
         }
-        return new ResponseEntity<>(ctList, HttpStatus.OK);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
     @GetMapping("/past-events")
@@ -138,11 +138,11 @@ public class FencerController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         List<Event> eList = fencerService.getFencerPastEvents((Fencer) user);
-        List<CleanEventDTO> ctList = new ArrayList<>();
+        List<CleanEventDTO> res = new ArrayList<>();
         for (Event e : eList) {
-            ctList.add(eventService.getCleanEventDTO(e));
+            res.add(eventService.getCleanEventDTO(e));
         }
-        return new ResponseEntity<>(ctList, HttpStatus.OK);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
     @GetMapping("/men-sabre-ranking")

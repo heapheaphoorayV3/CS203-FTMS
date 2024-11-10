@@ -21,7 +21,7 @@ public class Tournament {
     private String name;
 
     @ManyToOne
-    @JoinColumn(name = "organiser_id", nullable = false)
+    @JoinColumn(name = "organiser_id")
     private Organiser organiser;
 
     @Column(name = "signup_end_date")

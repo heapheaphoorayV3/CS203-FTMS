@@ -36,39 +36,39 @@ public class PouleController {
         this.pouleService = pouleService;
     }
 
-    @GetMapping("/{eid}/get-recommended-poules")
+    @GetMapping("/get-recommended-poules/{eid}")
     @PreAuthorize("hasRole('ORGANISER')")
     public ResponseEntity<Set<String>> getRecommendedPoules(@PathVariable int eid) {
-        Set<String> poules = pouleService.recommendPoules(eid);
-        if (poules == null) {
+        Set<String> res = pouleService.recommendPoules(eid);
+        if (res == null) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(poules, HttpStatus.OK);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
     
 
-    @PostMapping("/{eid}/create-poules")
+    @PostMapping("/create-poules/{eid}")
     @PreAuthorize("hasRole('ORGANISER')")
     public ResponseEntity<PouleTableDTO> createPoules(@PathVariable int eid, @RequestBody CreatePoulesDTO dto) {
         Set<CleanPouleDTO> create = pouleService.createPoules(eid, dto);
-        PouleTableDTO pouleTable = pouleService.getPouleTable(eid, true);
-        if (create != null && pouleTable != null) {
-            return new ResponseEntity<>(pouleTable, HttpStatus.CREATED);
+        PouleTableDTO res = pouleService.getPouleTable(eid, true);
+        if (create != null && res != null) {
+            return new ResponseEntity<>(res, HttpStatus.CREATED);
         }
         return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
 
-    @GetMapping("/{eid}/get-poule-table")
+    @GetMapping("/get-poule-table/{eid}")
     @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
     public ResponseEntity<PouleTableDTO> getPouleTable(@PathVariable int eid) {
-        PouleTableDTO pouleTable = pouleService.getPouleTable(eid, false);
-        if (pouleTable != null) {
-            return new ResponseEntity<>(pouleTable, HttpStatus.OK);
+        PouleTableDTO res = pouleService.getPouleTable(eid, false);
+        if (res != null) {
+            return new ResponseEntity<>(res, HttpStatus.OK);
         }
         return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
 
-    @PutMapping("/{eid}/update-poule-table")
+    @PutMapping("/update-poule-table/{eid}")
     @PreAuthorize("hasRole('ORGANISER')")
     public ResponseEntity<String> updatePouleScore(@PathVariable int eid, @RequestBody SinglePouleTableDTO dto) throws MethodArgumentNotValidException {
         boolean update = pouleService.updatePouleTable(eid, dto);
@@ -78,12 +78,12 @@ public class PouleController {
         return new ResponseEntity<>("poule update unsuccessful", HttpStatus.BAD_REQUEST);
     }
     
-    @GetMapping("/{eid}/get-poules-result")
+    @GetMapping("/get-poules-result/{eid}")
     @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
     public ResponseEntity<PouleResultsDTO> getPouleResults(@PathVariable int eid) {
-        PouleResultsDTO poulesResult = pouleService.poulesResult(eid);
-        if(poulesResult.getFenceOffFencers() != null){
-            return new ResponseEntity<>(poulesResult, HttpStatus.OK);
+        PouleResultsDTO res = pouleService.poulesResult(eid);
+        if(res.getFenceOffFencers() != null){
+            return new ResponseEntity<>(res, HttpStatus.OK);
         }
         return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }

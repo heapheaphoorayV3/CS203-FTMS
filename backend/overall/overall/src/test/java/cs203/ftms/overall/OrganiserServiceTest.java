@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import java.time.LocalDate;
 import java.time.Year;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -77,7 +78,7 @@ class OrganiserServiceTest {
         Tournament tournament2 = new Tournament();
         List<Tournament> tournaments = Arrays.asList(tournament1, tournament2);
 
-        when(tournamentRepository.findByOrganiserId(organiser.getId())).thenReturn(Optional.of(tournaments));
+        when(tournamentRepository.findByOrganiserId(organiser.getId())).thenReturn(tournaments);
 
         // Act
         List<Tournament> result = organiserService.getOrganiserTournaments(organiser);
@@ -93,7 +94,7 @@ class OrganiserServiceTest {
         // Arrange
         Organiser organiser = new Organiser("Organiser1", "organiser1@xyz.com", "Abcd1234!", "+6591234567", "Singapore");
         
-        when(tournamentRepository.findByOrganiserId(organiser.getId())).thenReturn(Optional.empty());
+        when(tournamentRepository.findByOrganiserId(organiser.getId())).thenReturn(new ArrayList<>());
 
         // Act
         List<Tournament> result = organiserService.getOrganiserTournaments(organiser);
