@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { EllipsisVerticalIcon } from "@heroicons/react/20/solid";
 
-const EventDropdownMenu = ({ updateEvent, deleteEvent }) => {
+const DropdownMenu = ({ entity, updateEntity, deleteEntity }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
 
@@ -22,13 +22,13 @@ const EventDropdownMenu = ({ updateEvent, deleteEvent }) => {
         };
     }, []);
 
-    const handleUpdateEvent = () => {
-        updateEvent();
+    const handleUpdateEntity = () => {
+        updateEntity();
         setIsOpen(false);
     };
 
-    const handleDeleteEvent = () => {
-        deleteEvent();
+    const handleDeleteEntity = () => {
+        deleteEntity();
         setIsOpen(false);
     };
 
@@ -55,17 +55,17 @@ const EventDropdownMenu = ({ updateEvent, deleteEvent }) => {
                     <li>
                         <button
                             className="w-full text-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                            onClick={handleUpdateEvent}
+                            onClick={handleUpdateEntity}
                         >
-                            Update Event
+                            Update {entity}
                         </button>
                     </li>
                     <li>
                         <button
                             className="w-full text-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                            onClick={handleDeleteEvent}
+                            onClick={handleDeleteEntity}
                         >
-                            Delete Event
+                            Delete {entity}
                         </button>
                     </li>                  
                 </ul>
@@ -74,4 +74,4 @@ const EventDropdownMenu = ({ updateEvent, deleteEvent }) => {
     );
 };
 
-export default EventDropdownMenu;
+export default DropdownMenu;
