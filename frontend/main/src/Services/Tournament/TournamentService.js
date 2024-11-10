@@ -20,6 +20,10 @@ class TournamentService {
     async updateTournament(tid, data) {
         return await ProtectedAPI.put(`${baseURL}/update-tournament/${tid}`, data);
     }
+
+    async deleteTournament(tid) {
+        return await ProtectedAPI.delete(`${baseURL}/delete-tournament/${tid}`);
+    }
 }
 
 export default new TournamentService();
