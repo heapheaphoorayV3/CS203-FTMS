@@ -29,7 +29,7 @@ const UpdateEvent = ({
       setValue("date", selectedEvent.eventDate);
       setValue("weapon", selectedEvent.weapon);
     }
-    console.log("Tournament Dates:", selectedEvent.date);
+    console.log("Tournament Dates:", selectedEvent.eventDate);
   }, [selectedEvent, setValue]);
 
   function getGender(gender) {
