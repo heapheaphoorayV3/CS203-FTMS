@@ -118,6 +118,7 @@ export default function VerifyOrganisers() {
     return (
         <div className="flex flex-col bg-white items-center h-full gap-10 p-8">
             <h1 className="text-4xl font-bold mt-4">Verify Organisers</h1>
+            {organisers.length > 0 ? (
             <table className="table text-lg">
                 <thead>
                     <tr className="text-lg text-primary border-b border-gray-300">
@@ -127,14 +128,7 @@ export default function VerifyOrganisers() {
                     </tr>
                 </thead>
                 <tbody>
-                    {organisers.length === 0 ? (
-                        <tr>
-                            <td colSpan="3" className="text-center py-4">
-                                No unverified organisers
-                            </td>
-                        </tr>
-                    ) : (
-                        organisers.map((organiser) => (
+                    {organisers.map((organiser) => (
                             <tr key={organiser.id} className="border-b border-gray-300">
                                 <td>{organiser.name}</td>
                                 <td>{organiser.email}</td>
@@ -157,8 +151,7 @@ export default function VerifyOrganisers() {
                                     </label>
                                 </td>
                             </tr>
-                        ))
-                    )}
+                        ))}
 
                     {/* Add empty rows if there are less than 8 rows */}
                     {Array.from({ length: limit - organisers.length }).map((_, index) => (
@@ -169,8 +162,11 @@ export default function VerifyOrganisers() {
                         </tr>
                     ))}
                 </tbody>
-
-            </table>
+            </table>) : (
+                <h1 className="mt-16 text-xl font-semibold text-center text-gray-500">
+                    No unverified organisers yet
+                </h1>
+            )}
             {Object.keys(checkboxState).length > 0 && (
                 <button
                     onClick={submitVerfications}

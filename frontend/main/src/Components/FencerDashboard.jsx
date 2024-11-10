@@ -60,6 +60,7 @@ const FencerDashboard = () => {
       try {
         const response = await FencerService.getFencerUpcomingEvents();
         setUpcomingEvents(response.data);
+        console.log(response.data);
       } catch (error) {
         console.error("Error fetching upcoming events: ", error);
         setError("Failed to load upcoming events");
@@ -147,8 +148,7 @@ const FencerDashboard = () => {
     if (!isValidDebutYear(Number(debutYear), dateOfBirth)) {
       setIsInputValid(false);
       console.error(
-        `Invalid input. Minimum debut year is ${
-          new Date(dateOfBirth).getFullYear() + 8
+        `Invalid input. Minimum debut year is ${new Date(dateOfBirth).getFullYear() + 8
         }.`
       );
       return;
@@ -353,9 +353,8 @@ const FencerDashboard = () => {
             )}
             {!isInputValid && (
               <span className="ml-8 text-red-500 italic">
-                {`Invalid input. Minimum debut year is ${
-                  new Date(userData.dateOfBirth).getFullYear() + 8
-                }.`}
+                {`Invalid input. Minimum debut year is ${new Date(userData.dateOfBirth).getFullYear() + 8
+                  }.`}
               </span>
             )}
           </div>
@@ -441,19 +440,19 @@ const FencerDashboard = () => {
           </Tab>
           <Tab label="Past Tournaments">
             <div className="py-4">
-              <table className="table text-lg border-collapse">
-                {/* head */}
-                <thead className="text-lg text-primary">
-                  <tr className="border-b border-gray-300">
-                    <th className="w-20"></th>
-                    <th className="w-1/4">Tournament Name</th>
-                    <th className="text-center">Date</th>
-                    <th className="text-center">Rank</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pastEvents && pastEvents.length > 0 ? (
-                    pastEvents.map((item, index) => (
+              {pastEvents.length > 0 ? (
+                <table className="table text-lg border-collapse">
+                  {/* head */}
+                  <thead className="text-lg text-primary">
+                    <tr className="border-b border-gray-300">
+                      <th className="w-20"></th>
+                      <th className="w-1/4">Tournament Name</th>
+                      <th className="text-center">Date</th>
+                      <th className="text-center">Rank</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pastEvents.map((item, index) => (
                       <tr
                         key={item.id}
                         className="border-b border-gray-300 hover:bg-gray-100"
@@ -462,7 +461,7 @@ const FencerDashboard = () => {
                         <td className="underline hover:text-primary">
                           {item.tournamentName}
                         </td>
-                        <td className="text-center">{formatDate(item.date)}</td>
+                        <td className="text-center">{formatDate(item.eventDate)}</td>
                         <td className="text-center">
                           {pastRank && pastRank[index]
                             ? pastRank[index].rank
@@ -470,36 +469,34 @@ const FencerDashboard = () => {
                         </td>
                       </tr>
                     ))
-                  ) : (
-                    <tr>
-                      <td
-                        colSpan="4"
-                        className="text-center border-b border-gray-300"
-                      >
-                        No past tournaments available.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+                    }
+                  </tbody>
+                </table>) :
+                (
+                  <div className="flex justify-center items-center h-full">
+                    <h2 className="text-lg font-medium">
+                      No past tournaments available yet
+                    </h2>
+                  </div>
+                )}
             </div>
           </Tab>
           <Tab label="Upcoming Tournaments">
             <div className="py-4">
-              <table className="table text-lg border-collapse">
-                {/* head */}
-                <thead className="text-lg text-primary">
-                  <tr className="border-b border-gray-300">
-                    <th className="w-20"></th>
-                    <th className="w-1/4">Tournament Name</th>
-                    <th className="text-center">Date</th>
-                    <th className="text-center">Start Time</th>
-                    <th className="text-center">End Time</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {upcomingEvents && upcomingEvents.length > 0 ? (
-                    upcomingEvents.map((item, index) => (
+              {upcomingEvents.length > 0 ? (
+                <table className="table text-lg border-collapse">
+                  {/* head */}
+                  <thead className="text-lg text-primary">
+                    <tr className="border-b border-gray-300">
+                      <th className="w-20"></th>
+                      <th className="w-1/4">Tournament Name</th>
+                      <th className="text-center">Date</th>
+                      <th className="text-center">Start Time</th>
+                      <th className="text-center">End Time</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {upcomingEvents.map((item, index) => (
                       <tr
                         key={item.id}
                         className="border-b border-gray-300 hover:bg-gray-100"
@@ -513,7 +510,7 @@ const FencerDashboard = () => {
                             {item.tournamentName}
                           </Link>
                         </td>
-                        <td className="text-center">{formatDate(item.date)}</td>
+                        <td className="text-center">{formatDate(item.eventDate)}</td>
                         <td className="text-center">
                           {formatTimeTo24Hour(item.startTime)}
                         </td>
@@ -521,19 +518,16 @@ const FencerDashboard = () => {
                           {formatTimeTo24Hour(item.endTime)}
                         </td>
                       </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td
-                        colSpan="5"
-                        className="text-center border-b border-gray-300"
-                      >
-                        No upcoming tournaments available.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+                    ))}
+                  </tbody>
+                </table>) :
+                (
+                  <div className="flex justify-center items-center h-full">
+                    <h2 className="text-lg font-medium">
+                      No upcoming tournaments available yet
+                    </h2>
+                  </div>
+                )}
             </div>
           </Tab>
         </Tabs>

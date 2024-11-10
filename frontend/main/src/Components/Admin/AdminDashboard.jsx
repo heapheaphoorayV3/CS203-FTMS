@@ -249,32 +249,39 @@ const AdminDashboard = () => {
               </div>
 
               <div className="ml-4 mr-4 mb-8 overflow-x-auto">
-                <table className="table text-lg border-collapse">
-                  {/* head */}
-                  <thead className="text-lg text-primary">
-                    <tr className="border-b border-gray-300">
-                      <th className="text-center w-20">ID</th>
-                      <th className="w-1/2">Name</th>
-                      <th className="text-center">Weapon</th>
-                      <th className="text-center">Country</th>
-                      <th className="text-center">Points</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {paginatedFencerData.map((item) => (
-                      <tr
-                        key={item.id}
-                        className="border-b border-gray-300 hover:bg-gray-100"
-                      >
-                        <td className="text-center">{item.id}</td>
-                        <td>{item.name}</td>
-                        <td className="text-center">{item.weapon}</td>
-                        <td className="text-center">{item.country}</td>
-                        <td className="text-center">{item.points}</td>
+                {paginatedFencerData.length > 0 ? (
+                  <table className="table text-lg border-collapse">
+                    {/* head */}
+                    <thead className="text-lg text-primary">
+                      <tr className="border-b border-gray-300">
+                        <th className="text-center w-20">ID</th>
+                        <th className="w-1/2">Name</th>
+                        <th className="text-center">Weapon</th>
+                        <th className="text-center">Country</th>
+                        <th className="text-center">Points</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {paginatedFencerData.map((item) => (
+                        <tr
+                          key={item.id}
+                          className="border-b border-gray-300 hover:bg-gray-100"
+                        >
+                          <td className="text-center">{item.id}</td>
+                          <td>{item.name}</td>
+                          <td className="text-center">{item.weapon}</td>
+                          <td className="text-center">{item.country}</td>
+                          <td className="text-center">{item.points}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>) : (
+                  <div className="flex justify-center items-center h-full">
+                    <h2 className="text-lg font-medium">
+                      No Fencer of this category yet
+                    </h2>
+                  </div>
+                )}
                 <div className="flex flex-col mt-2 justify-center items-center">
                   <PaginationButton
                     totalPages={totalFencerPages}
@@ -306,29 +313,36 @@ const AdminDashboard = () => {
               </div>
 
               <div className="ml-4 mr-4 mb-8 overflow-x-auto">
-                <table className="table text-lg border-collapse">
-                  {/* head */}
-                  <thead className="text-lg text-primary">
-                    <tr className="border-b border-gray-300">
-                      <th className="text-center w-20">ID</th>
-                      <th className="w-1/2">Name</th>
-                      <th className="text-center">Weapon</th>
-                      <th className="text-center">Country</th>
-                      <th className="text-center">Points</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {paginatedOrganiserData.map((item) => (
-                      <tr
-                        key={item.id}
-                        className="border-b border-gray-300 hover:bg-gray-100"
-                      >
-                        <td className="text-center">{item.id}</td>
-                        <td>{item.name}</td>
+                {paginatedOrganiserData.length > 0 ? (
+                  <table className="table text-lg border-collapse">
+                    {/* head */}
+                    <thead className="text-lg text-primary">
+                      <tr className="border-b border-gray-300">
+                        <th className="text-center w-20">ID</th>
+                        <th className="w-1/2">Name</th>
+                        <th className="text-center">Weapon</th>
+                        <th className="text-center">Country</th>
+                        <th className="text-center">Points</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {paginatedOrganiserData.map((item) => (
+                        <tr
+                          key={item.id}
+                          className="border-b border-gray-300 hover:bg-gray-100"
+                        >
+                          <td className="text-center">{item.id}</td>
+                          <td>{item.name}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>) : (
+                  <div className="flex justify-center items-center h-full">
+                    <h2 className="mt-24 text-lg font-medium">
+                      No Organiser of this category yet
+                    </h2>
+                  </div>
+                )}
                 <div className="flex flex-col mt-2 justify-center items-center">
                   <PaginationButton
                     totalPages={totalOrganiserPages}
@@ -342,7 +356,7 @@ const AdminDashboard = () => {
           </Tab>
         </Tabs>
       </div>
-    </div>
+    </div >
   );
 };
 

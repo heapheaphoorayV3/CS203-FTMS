@@ -184,20 +184,20 @@ const OrganiserDashboard = () => {
         <Tabs>
           <Tab label="Ongoing Tournaments Hosted">
             <div className="py-4">
-              <table className="table text-lg border-collapse">
-                {/* head */}
-                <thead className="text-lg text-primary">
-                  <tr className="border-b border-gray-300">
-                    <th className="w-20"></th>
-                    <th className="w-1/4">Tournament Name</th>
-                    <th className="text-center">Location</th>
-                    <th className="text-center">Dates</th>
-                    <th className="text-center">Total participants</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {ongoingTournaments && ongoingTournaments.length > 0 ? (
-                    ongoingTournaments.map((item, index) => (
+              {ongoingTournaments.length > 0 ? (
+                <table className="table text-lg border-collapse">
+                  {/* head */}
+                  <thead className="text-lg text-primary">
+                    <tr className="border-b border-gray-300">
+                      <th className="w-20"></th>
+                      <th className="w-1/4">Tournament Name</th>
+                      <th className="text-center">Location</th>
+                      <th className="text-center">Dates</th>
+                      <th className="text-center">Total participants</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {ongoingTournaments.map((item, index) => (
                       <tr
                         key={item.id}
                         className="border-b border-gray-300 hover:bg-gray-100"
@@ -219,37 +219,33 @@ const OrganiserDashboard = () => {
                           {item.totalParticipants}
                         </td>
                       </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td
-                        colSpan="5"
-                        className="text-center border-b border-gray-300"
-                      >
-                        No ongoing tournaments available.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+                    ))}
+                  </tbody>
+                </table>) : (
+                <div className="flex justify-center items-center h-full">
+                  <h2 className="text-lg font-medium">
+                    No ongoing tournaments available yet
+                  </h2>
+                </div>
+              )}
             </div>
           </Tab>
           <Tab label="Upcoming Tournaments Hosted">
             <div className="py-4">
-              <table className="table text-lg border-collapse">
-                {/* head */}
-                <thead className="text-lg text-primary">
-                  <tr className="border-b border-gray-300">
-                    <th className="w-20"></th>
-                    <th className="w-1/4">Tournament Name</th>
-                    <th className="text-center">Location</th>
-                    <th className="text-center">Dates</th>
-                    <th className="text-center"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {upcomingTournaments && upcomingTournaments.length > 0 ? (
-                    upcomingTournaments.map((item, index) => (
+              {upcomingTournaments.length > 0 ? (
+                <table className="table text-lg border-collapse">
+                  {/* head */}
+                  <thead className="text-lg text-primary">
+                    <tr className="border-b border-gray-300">
+                      <th className="w-20"></th>
+                      <th className="w-1/4">Tournament Name</th>
+                      <th className="text-center">Location</th>
+                      <th className="text-center">Dates</th>
+                      <th className="text-center"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {upcomingTournaments.map((item, index) => (
                       <tr
                         key={item.id}
                         className="border-b border-gray-300 hover:bg-gray-100"
@@ -275,19 +271,15 @@ const OrganiserDashboard = () => {
                           />
                         </td>
                       </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td
-                        colSpan="4"
-                        className="text-center border-b border-gray-300"
-                      >
-                        No upcoming tournaments available.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+                    ))}
+                  </tbody>
+                </table>) : (
+                <div className="flex justify-center items-center h-full">
+                  <h2 className="text-lg font-medium">
+                    No upcoming tournaments available yet
+                  </h2>
+                </div>
+              )}
             </div>
             {isUpdateTournamentPopupVisible && (
               <UpdateTournament
@@ -304,19 +296,19 @@ const OrganiserDashboard = () => {
           </Tab>
           <Tab label="Past Tournaments Hosted">
             <div className="py-4">
-              <table className="table text-lg border-collapse">
-                {/* head */}
-                <thead className="text-lg text-primary">
-                  <tr className="border-b border-gray-300">
-                    <th className="w-20"></th>
-                    <th className="w-1/4">Tournament Name</th>
-                    <th className="text-center">Location</th>
-                    <th className="text-center">Dates</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pastTournaments && pastTournaments.length > 0 ? (
-                    pastTournaments.map((item, index) => (
+              {pastTournaments.length > 0 ? (
+                <table className="table text-lg border-collapse">
+                  {/* head */}
+                  <thead className="text-lg text-primary">
+                    <tr className="border-b border-gray-300">
+                      <th className="w-20"></th>
+                      <th className="w-1/4">Tournament Name</th>
+                      <th className="text-center">Location</th>
+                      <th className="text-center">Dates</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pastTournaments.map((item, index) => (
                       <tr
                         key={item.id}
                         className="border-b border-gray-300 hover:bg-gray-100"
@@ -335,19 +327,15 @@ const OrganiserDashboard = () => {
                           {formatDateRange(item.startDate, item.endDate)}
                         </td>
                       </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td
-                        colSpan="4"
-                        className="text-center border-b border-gray-300"
-                      >
-                        No past tournaments available.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+                    ))}
+                  </tbody>
+                </table>) : (
+                <div className="flex justify-center items-center h-full">
+                  <h2 className="text-lg font-medium">
+                    No past tournaments available yet
+                  </h2>
+                </div>
+              )}
             </div>
           </Tab>
         </Tabs>
