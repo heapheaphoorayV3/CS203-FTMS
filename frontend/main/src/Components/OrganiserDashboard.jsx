@@ -4,6 +4,7 @@ import UpdateTournament from "./Tournament/UpdateTournament";
 import DeleteTournament from "./Tournament/DeleteTournament";
 import DropdownMenu from "./Others/DropdownMenu";
 import { Tabs, Tab } from "./Others/Tabs";
+import { Link } from "react-router-dom";
 import editIcon from "../Assets/edit.png";
 
 const OrganiserDashboard = () => {
@@ -202,8 +203,13 @@ const OrganiserDashboard = () => {
                         className="border-b border-gray-300 hover:bg-gray-100"
                       >
                         <td className="text-center">{index + 1}</td>
-                        <td className="underline hover:text-primary">
-                          {item.name}
+                        <td>
+                          <Link
+                            to={`/tournaments/${item.id}`}
+                            className="underline hover:text-primary"
+                          >
+                            {item.name}
+                          </Link>
                         </td>
                         <td className="text-center">{item.location}</td>
                         <td className="text-center">
@@ -249,8 +255,13 @@ const OrganiserDashboard = () => {
                         className="border-b border-gray-300 hover:bg-gray-100"
                       >
                         <td className="text-center">{index + 1}</td>
-                        <td className="underline hover:text-primary">
-                          {item.name}
+                        <td>
+                          <Link
+                            to={`/tournaments/${item.id}`}
+                            className="underline hover:text-primary"
+                          >
+                            {item.name}
+                          </Link>
                         </td>
                         <td className="text-center">{item.location}</td>
                         <td className="text-center">
@@ -311,8 +322,13 @@ const OrganiserDashboard = () => {
                         className="border-b border-gray-300 hover:bg-gray-100"
                       >
                         <td className="text-center">{index + 1}</td>
-                        <td className="underline hover:text-primary">
-                          {item.name}
+                        <td>
+                          <Link
+                            to={`/tournaments/${item.id}`}
+                            className="underline hover:text-primary"
+                          >
+                            {item.name}
+                          </Link>
                         </td>
                         <td className="text-center">{item.location}</td>
                         <td className="text-center">
