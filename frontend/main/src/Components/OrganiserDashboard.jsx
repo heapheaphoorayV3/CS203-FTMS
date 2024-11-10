@@ -12,7 +12,7 @@ const OrganiserDashboard = () => {
   const [error, setError] = useState(null);
   const [upcomingTournaments, setUpcomingTournaments] = useState([]);
   const [pastTournaments, setPastTournaments] = useState([]);
-  const [tournamentData, setTournamentData] = useState(null);
+  const [ongoingTournaments, setOngoingTournaments] = useState([]);
   // Selected torunament to update/delete
   const [selectedTournament, setSelectedTournament] = useState(null);
   const [isUpdateTournamentPopupVisible, setIsUpdateTournamentPopupVisible] =
@@ -36,12 +36,27 @@ const OrganiserDashboard = () => {
 
     const fetchTournamentData = async () => {
       try {
-        console.log("Fetching table data...");
+        console.log("Fetching data...");
         const response = await OrganiserService.getAllHostedTournaments();
-        setTournamentData(response.data);
+        const tournaments = response.data;
+
+        const currentDate = new Date();
+        const ongoingTournamentsData = tournaments
+          .filter((tournament) => {
+            const startDate = new Date(tournament.startDate);
+            const endDate = new Date(tournament.endDate);
+            return startDate <= currentDate && currentDate <= endDate;
+          })
+          .map((tournament) => {
+            const totalParticipants = tournament.events.reduce((sum, event) => {
+              return sum + (event.fencers ? event.fencers.length : 0);
+            }, 0);
+            return { ...tournament, totalParticipants };
+          });
+        setOngoingTournaments(ongoingTournamentsData);
       } catch (error) {
-        console.error("Error fetching table data:", error);
-        setError("Failed to load table data.");
+        console.error("Error fetching data:", error);
+        setError("Failed to load data.");
       } finally {
         setLoading(false);
       }
@@ -65,6 +80,12 @@ const OrganiserDashboard = () => {
       setLoading(true);
       try {
         const response = await OrganiserService.getOrganiserPastTournaments();
+        const tournaments = response.data;
+        for (const tournament of tournaments) {
+          for (const event of tournament.events) {
+            console.log(event);
+          }
+        }
         setPastTournaments(response.data);
       } catch (error) {
         console.error("Error fetching past tournaments: ", error);
@@ -133,7 +154,7 @@ const OrganiserDashboard = () => {
     return formattedDate;
   };
 
-  console.log(tournamentData);
+  console.log(upcomingTournaments);
 
   return (
     <div className="bg-white w-full h-full flex flex-col gap-2 p-8 overflow-auto">
@@ -180,8 +201,8 @@ const OrganiserDashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {tournamentData && tournamentData.length > 0 ? (
-                    tournamentData.map((item, index) => (
+                  {ongoingTournaments && ongoingTournaments.length > 0 ? (
+                    ongoingTournaments.map((item, index) => (
                       <tr
                         key={item.id}
                         className="border-b border-gray-300 hover:bg-gray-100"
@@ -191,8 +212,12 @@ const OrganiserDashboard = () => {
                           {item.name}
                         </td>
                         <td className="text-center">{item.location}</td>
-                        <td className="text-center">{formatDateRange(item.startDate, item.endDate)}</td>
-                        {/* <td className="text-center">{item.events.fencers.length}</td> */}
+                        <td className="text-center">
+                          {formatDateRange(item.startDate, item.endDate)}
+                        </td>
+                        <td className="text-center">
+                          {item.totalParticipants}
+                        </td>
                       </tr>
                     ))
                   ) : (
@@ -207,64 +232,57 @@ const OrganiserDashboard = () => {
                   )}
                 </tbody>
               </table>
-              {/* {tournamentData && tournamentData.length > 0 ? (
-                <Table
-                  tableHead={tableHead}
-                  tableRows={tournamentData
-                    .filter((tournament) => {
-                      const currentDate = new Date();
-                      const startDate = new Date(tournament.startDate);
-                      const endDate = new Date(tournament.endDate);
-                      return currentDate >= startDate && currentDate <= endDate;
-                    })
-                    .map((tournament) => [
-                      <a
-                        href={`tournaments/${tournament.id}`}
-                        className="underline hover:text-accent"
-                      >
-                        {tournament.name}
-                      </a>,
-                      tournament.location,
-                      formatDateRange(tournament.startDate, tournament.endDate),
-                      10,
-                    ])}
-                />
-              ) : (
-                console.log("No ongoing tournaments")
-              )} */}
             </div>
           </Tab>
           <Tab label="Upcoming Tournaments Hosted">
-            <div className="h-full px-4 pt-4">
-              {/* {tournamentData && tournamentData.length > 0 ? (
-                <Table
-                  tableHead={upcomingTableHead}
-                  tableRows={tournamentData
-                    .filter((tournament) => {
-                      const currentDate = new Date();
-                      const startDate = new Date(tournament.startDate);
-                      return currentDate <= startDate;
-                    })
-                    .map((tournament) => [
-                      <a
-                        href={`tournaments/${tournament.id}`}
-                        className="underline hover:text-accent"
+            <div className="py-4">
+              <table className="table text-lg border-collapse">
+                {/* head */}
+                <thead className="text-lg text-primary">
+                  <tr className="border-b border-gray-300">
+                    <th className="w-20"></th>
+                    <th className="w-1/4">Tournament Name</th>
+                    <th className="text-center">Location</th>
+                    <th className="text-center">Dates</th>
+                    <th className="text-center"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {upcomingTournaments && upcomingTournaments.length > 0 ? (
+                    upcomingTournaments.map((item, index) => (
+                      <tr
+                        key={item.id}
+                        className="border-b border-gray-300 hover:bg-gray-100"
                       >
-                        {tournament.name}
-                      </a>,
-                      tournament.location,
-                      formatDateRange(tournament.startDate, tournament.endDate),
-                      10,
-                      <DropdownMenu
-                        entity="Tournament"
-                        updateEntity={() => updateTournament(tournament)}
-                        deleteEntity={() => deleteTournament(tournament)}
-                      />,
-                    ])}
-                />
-              ) : (
-                console.log("No upcoming tournaments")
-              )} */}
+                        <td className="text-center">{index + 1}</td>
+                        <td className="underline hover:text-primary">
+                          {item.name}
+                        </td>
+                        <td className="text-center">{item.location}</td>
+                        <td className="text-center">
+                          {formatDateRange(item.startDate, item.endDate)}
+                        </td>
+                        <td>
+                          <DropdownMenu
+                            entity="Tournament"
+                            updateEntity={() => updateTournament(item)}
+                            deleteEntity={() => deleteTournament(item)}
+                          />
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan="4"
+                        className="text-center border-b border-gray-300"
+                      >
+                        No upcoming tournaments available.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
             {isUpdateTournamentPopupVisible && (
               <UpdateTournament
@@ -274,38 +292,52 @@ const OrganiserDashboard = () => {
             )}
             {isDeleteTournamentPopupVisible && (
               <DeleteTournament
-                  closeDeletePopUp={closeDeleteTournamentPopup}
-
+                closeDeletePopUp={closeDeleteTournamentPopup}
                 id={selectedTournament.id}
               />
             )}
           </Tab>
           <Tab label="Past Tournaments Hosted">
-            <div className="h-full px-4 pt-4">
-              {/* {tournamentData && tournamentData.length > 0 ? (
-                <Table
-                  tableHead={tableHead}
-                  tableRows={tournamentData
-                    .filter((tournament) => {
-                      const currentDate = new Date();
-                      const endDate = new Date(tournament.endDate);
-                      return currentDate >= endDate;
-                    })
-                    .map((tournament) => [
-                      <a
-                        href={`tournaments/${tournament.id}`}
-                        className="underline hover:text-accent"
+            <div className="py-4">
+              <table className="table text-lg border-collapse">
+                {/* head */}
+                <thead className="text-lg text-primary">
+                  <tr className="border-b border-gray-300">
+                    <th className="w-20"></th>
+                    <th className="w-1/4">Tournament Name</th>
+                    <th className="text-center">Location</th>
+                    <th className="text-center">Dates</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pastTournaments && pastTournaments.length > 0 ? (
+                    pastTournaments.map((item, index) => (
+                      <tr
+                        key={item.id}
+                        className="border-b border-gray-300 hover:bg-gray-100"
                       >
-                        {tournament.name}
-                      </a>,
-                      tournament.location,
-                      formatDateRange(tournament.startDate, tournament.endDate),
-                      10,
-                    ])}
-                />
-              ) : (
-                console.log("No past tournaments")
-              )} */}
+                        <td className="text-center">{index + 1}</td>
+                        <td className="underline hover:text-primary">
+                          {item.name}
+                        </td>
+                        <td className="text-center">{item.location}</td>
+                        <td className="text-center">
+                          {formatDateRange(item.startDate, item.endDate)}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan="4"
+                        className="text-center border-b border-gray-300"
+                      >
+                        No past tournaments available.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </Tab>
         </Tabs>
