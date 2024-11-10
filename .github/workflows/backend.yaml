@@ -84,6 +84,9 @@ jobs:
         TF_VAR_gmail_addr: ${{ secrets.GMAIL_ADDR }}
         TF_VAR_gmail_app_pw: ${{ secrets.GMAIL_APP_PW }}
         TF_VAR_custom_header_value: ${{ secrets.CLOUDFRONT_CUSTOM_HEADER }}
+        TF_VAR_tfstate_bucket_name: ${{ secrets.TFSTATE_BUCKET_NAME }}
+        TF_VAR_tfstate_bucket_key: ${{ secrets.TFSTATE_BUCKET_KEY }}
+        TF_VAR_tfstate_dynamodb_table: ${{ secrets.TFSTATE_DYNAMODB_TABLE }}
       run: |
         terraform init
         terraform workspace new prod || terraform workspace select prod
@@ -104,6 +107,9 @@ jobs:
         TF_VAR_gmail_addr: ${{ secrets.GMAIL_ADDR }}
         TF_VAR_gmail_app_pw: ${{ secrets.GMAIL_APP_PW }}
         TF_VAR_custom_header_value: ${{ secrets.CLOUDFRONT_CUSTOM_HEADER }}
+        TF_VAR_tfstate_bucket_name: ${{ secrets.TFSTATE_BUCKET_NAME }}
+        TF_VAR_tfstate_bucket_key: ${{ secrets.TFSTATE_BUCKET_KEY }}
+        TF_VAR_tfstate_dynamodb_table: ${{ secrets.TFSTATE_DYNAMODB_TABLE }}
       run: terraform plan -destroy -out=destroy.tfplan
 
     - name: Terraform Destroy
@@ -122,6 +128,9 @@ jobs:
         TF_VAR_gmail_addr: ${{ secrets.GMAIL_ADDR }}
         TF_VAR_gmail_app_pw: ${{ secrets.GMAIL_APP_PW }}
         TF_VAR_custom_header_value: ${{ secrets.CLOUDFRONT_CUSTOM_HEADER }}
+        TF_VAR_tfstate_bucket_name: ${{ secrets.TFSTATE_BUCKET_NAME }}
+        TF_VAR_tfstate_bucket_key: ${{ secrets.TFSTATE_BUCKET_KEY }}
+        TF_VAR_tfstate_dynamodb_table: ${{ secrets.TFSTATE_DYNAMODB_TABLE }}
       run: |
         terraform apply -auto-approve "destroy.tfplan"
         sleep 30  # Wait for resources to be fully destroyed
@@ -142,6 +151,9 @@ jobs:
         TF_VAR_gmail_addr: ${{ secrets.GMAIL_ADDR }}
         TF_VAR_gmail_app_pw: ${{ secrets.GMAIL_APP_PW }}
         TF_VAR_custom_header_value: ${{ secrets.CLOUDFRONT_CUSTOM_HEADER }}
+        TF_VAR_tfstate_bucket_name: ${{ secrets.TFSTATE_BUCKET_NAME }}
+        TF_VAR_tfstate_bucket_key: ${{ secrets.TFSTATE_BUCKET_KEY }}
+        TF_VAR_tfstate_dynamodb_table: ${{ secrets.TFSTATE_DYNAMODB_TABLE }}
       run: terraform plan -out=apply.tfplan
 
     - name: Terraform Apply
@@ -160,6 +172,9 @@ jobs:
         TF_VAR_gmail_addr: ${{ secrets.GMAIL_ADDR }}
         TF_VAR_gmail_app_pw: ${{ secrets.GMAIL_APP_PW }}
         TF_VAR_custom_header_value: ${{ secrets.CLOUDFRONT_CUSTOM_HEADER }}
+        TF_VAR_tfstate_bucket_name: ${{ secrets.TFSTATE_BUCKET_NAME }}
+        TF_VAR_tfstate_bucket_key: ${{ secrets.TFSTATE_BUCKET_KEY }}
+        TF_VAR_tfstate_dynamodb_table: ${{ secrets.TFSTATE_DYNAMODB_TABLE }}
       run: terraform apply -auto-approve "apply.tfplan"
 
     - name: Save CloudFront Domain
