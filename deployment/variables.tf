@@ -72,20 +72,20 @@ variable "custom_header_value" {
   sensitive   = true  # This ensures the value isn't shown in logs
 }
 
-variable "tfstate_bucket_name" {
-  description = "The name of the S3 bucket for storing Terraform state"
-  type        = string
+# variable "tfstate_bucket_name" {
+#   description = "The name of the S3 bucket for storing Terraform state"
+#   type        = string
   
-}
+# }
 
-variable "tfstate_bucket_key" {
-  description = "The key for storing Terraform state in the S3 bucket"
-  type        = string
+# variable "tfstate_bucket_key" {
+#   description = "The key for storing Terraform state in the S3 bucket"
+#   type        = string
   
-}
+# }
 
-variable "tfstate_dynamodb_table" {
-  description = "The name of the DynamoDB table for state locking"
-  type        = string
+# variable "tfstate_dynamodb_table" {
+#   description = "The name of the DynamoDB table for state locking"
+#   type        = string
   
-}
+# }

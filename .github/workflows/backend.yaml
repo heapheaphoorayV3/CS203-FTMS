@@ -84,11 +84,16 @@ jobs:
         TF_VAR_gmail_addr: ${{ secrets.GMAIL_ADDR }}
         TF_VAR_gmail_app_pw: ${{ secrets.GMAIL_APP_PW }}
         TF_VAR_custom_header_value: ${{ secrets.CLOUDFRONT_CUSTOM_HEADER }}
-        TF_VAR_tfstate_bucket_name: ${{ secrets.TFSTATE_BUCKET_NAME }}
-        TF_VAR_tfstate_bucket_key: ${{ secrets.TFSTATE_BUCKET_KEY }}
-        TF_VAR_tfstate_dynamodb_table: ${{ secrets.TFSTATE_DYNAMODB_TABLE }}
+        TFSTATE_BUCKET_NAME: ${{ secrets.TFSTATE_BUCKET_NAME }}
+        TFSTATE_BUCKET_KEY: ${{ secrets.TFSTATE_BUCKET_KEY }}
+        TFSTATE_DYNAMODB_TABLE: ${{ secrets.TFSTATE_DYNAMODB_TABLE }}
       run: |
-        terraform init
+        terraform init \
+      -backend-config="bucket=${TFSTATE_BUCKET_NAME}" \
+      -backend-config="key=${TFSTATE_BUCKET_KEY}" \
+      -backend-config="region=${TF_VAR_aws_region}" \
+      -backend-config="dynamodb_table=${TFSTATE_DYNAMODB_TABLE}" \
+      -backend-config="encrypt=true"
         terraform workspace new prod || terraform workspace select prod
 
     - name: Terraform Plan Destroy
@@ -107,9 +112,9 @@ jobs:
         TF_VAR_gmail_addr: ${{ secrets.GMAIL_ADDR }}
         TF_VAR_gmail_app_pw: ${{ secrets.GMAIL_APP_PW }}
         TF_VAR_custom_header_value: ${{ secrets.CLOUDFRONT_CUSTOM_HEADER }}
-        TF_VAR_tfstate_bucket_name: ${{ secrets.TFSTATE_BUCKET_NAME }}
-        TF_VAR_tfstate_bucket_key: ${{ secrets.TFSTATE_BUCKET_KEY }}
-        TF_VAR_tfstate_dynamodb_table: ${{ secrets.TFSTATE_DYNAMODB_TABLE }}
+        # TF_VAR_tfstate_bucket_name: ${{ secrets.TFSTATE_BUCKET_NAME }}
+        # TF_VAR_tfstate_bucket_key: ${{ secrets.TFSTATE_BUCKET_KEY }}
+        # TF_VAR_tfstate_dynamodb_table: ${{ secrets.TFSTATE_DYNAMODB_TABLE }}
       run: terraform plan -destroy -out=destroy.tfplan
 
     - name: Terraform Destroy
@@ -128,9 +133,9 @@ jobs:
         TF_VAR_gmail_addr: ${{ secrets.GMAIL_ADDR }}
         TF_VAR_gmail_app_pw: ${{ secrets.GMAIL_APP_PW }}
         TF_VAR_custom_header_value: ${{ secrets.CLOUDFRONT_CUSTOM_HEADER }}
-        TF_VAR_tfstate_bucket_name: ${{ secrets.TFSTATE_BUCKET_NAME }}
-        TF_VAR_tfstate_bucket_key: ${{ secrets.TFSTATE_BUCKET_KEY }}
-        TF_VAR_tfstate_dynamodb_table: ${{ secrets.TFSTATE_DYNAMODB_TABLE }}
+        # TF_VAR_tfstate_bucket_name: ${{ secrets.TFSTATE_BUCKET_NAME }}
+        # TF_VAR_tfstate_bucket_key: ${{ secrets.TFSTATE_BUCKET_KEY }}
+        # TF_VAR_tfstate_dynamodb_table: ${{ secrets.TFSTATE_DYNAMODB_TABLE }}
       run: |
         terraform apply -auto-approve "destroy.tfplan"
         sleep 30  # Wait for resources to be fully destroyed
@@ -151,9 +156,9 @@ jobs:
         TF_VAR_gmail_addr: ${{ secrets.GMAIL_ADDR }}
         TF_VAR_gmail_app_pw: ${{ secrets.GMAIL_APP_PW }}
         TF_VAR_custom_header_value: ${{ secrets.CLOUDFRONT_CUSTOM_HEADER }}
-        TF_VAR_tfstate_bucket_name: ${{ secrets.TFSTATE_BUCKET_NAME }}
-        TF_VAR_tfstate_bucket_key: ${{ secrets.TFSTATE_BUCKET_KEY }}
-        TF_VAR_tfstate_dynamodb_table: ${{ secrets.TFSTATE_DYNAMODB_TABLE }}
+        # TF_VAR_tfstate_bucket_name: ${{ secrets.TFSTATE_BUCKET_NAME }}
+        # TF_VAR_tfstate_bucket_key: ${{ secrets.TFSTATE_BUCKET_KEY }}
+        # TF_VAR_tfstate_dynamodb_table: ${{ secrets.TFSTATE_DYNAMODB_TABLE }}
       run: terraform plan -out=apply.tfplan
 
     - name: Terraform Apply
@@ -172,9 +177,9 @@ jobs:
         TF_VAR_gmail_addr: ${{ secrets.GMAIL_ADDR }}
         TF_VAR_gmail_app_pw: ${{ secrets.GMAIL_APP_PW }}
         TF_VAR_custom_header_value: ${{ secrets.CLOUDFRONT_CUSTOM_HEADER }}
-        TF_VAR_tfstate_bucket_name: ${{ secrets.TFSTATE_BUCKET_NAME }}
-        TF_VAR_tfstate_bucket_key: ${{ secrets.TFSTATE_BUCKET_KEY }}
-        TF_VAR_tfstate_dynamodb_table: ${{ secrets.TFSTATE_DYNAMODB_TABLE }}
+        # TF_VAR_tfstate_bucket_name: ${{ secrets.TFSTATE_BUCKET_NAME }}
+        # TF_VAR_tfstate_bucket_key: ${{ secrets.TFSTATE_BUCKET_KEY }}
+        # TF_VAR_tfstate_dynamodb_table: ${{ secrets.TFSTATE_DYNAMODB_TABLE }}
       run: terraform apply -auto-approve "apply.tfplan"
 
     - name: Save CloudFront Domain
