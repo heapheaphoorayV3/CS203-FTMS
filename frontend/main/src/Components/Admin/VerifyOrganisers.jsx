@@ -87,7 +87,7 @@ export default function VerifyOrganisers() {
     function categoriseStatus(checkboxState) {
         let approve = [];
         let deny = [];
-    
+
         for (let key in checkboxState) {
             if (checkboxState.hasOwnProperty(key)) {  // Check if the key is part of the object and not from its prototype
                 if (checkboxState[key] === "A") {
@@ -97,7 +97,7 @@ export default function VerifyOrganisers() {
                 }
             }
         }
-    
+
         return { approve, deny };
     }
 
@@ -127,31 +127,38 @@ export default function VerifyOrganisers() {
                     </tr>
                 </thead>
                 <tbody>
-                    {/* {organisers.length === 0 && (<tr><td colSpan="3">No organisers to verify</td></tr>)} */}
-                    {organisers.map((organiser) => (
-                        <tr key={organiser.id} className="border-b border-gray-300">
-                            <td>{organiser.name}</td>
-                            <td>{organiser.email}</td>
-                            <td className="flex gap-4">
-                                <label className="flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        checked={checkboxState[organiser.id] === 'A'}
-                                        onChange={() => handleCheckboxChange(organiser.id, 'A')}
-                                    />
-                                    <span className="ml-2">Approve</span>
-                                </label>
-                                <label className="flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        checked={checkboxState[organiser.id] === 'D'}
-                                        onChange={() => handleCheckboxChange(organiser.id, 'D')}
-                                    />
-                                    <span className="ml-2">Deny</span>
-                                </label>
+                    {organisers.length === 0 ? (
+                        <tr>
+                            <td colSpan="3" className="text-center py-4">
+                                No unverified organisers
                             </td>
                         </tr>
-                    ))}
+                    ) : (
+                        organisers.map((organiser) => (
+                            <tr key={organiser.id} className="border-b border-gray-300">
+                                <td>{organiser.name}</td>
+                                <td>{organiser.email}</td>
+                                <td className="flex gap-4">
+                                    <label className="flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            checked={checkboxState[organiser.id] === 'A'}
+                                            onChange={() => handleCheckboxChange(organiser.id, 'A')}
+                                        />
+                                        <span className="ml-2">Approve</span>
+                                    </label>
+                                    <label className="flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            checked={checkboxState[organiser.id] === 'D'}
+                                            onChange={() => handleCheckboxChange(organiser.id, 'D')}
+                                        />
+                                        <span className="ml-2">Deny</span>
+                                    </label>
+                                </td>
+                            </tr>
+                        ))
+                    )}
 
                     {/* Add empty rows if there are less than 8 rows */}
                     {Array.from({ length: limit - organisers.length }).map((_, index) => (

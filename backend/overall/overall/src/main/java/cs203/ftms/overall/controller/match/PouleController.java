@@ -59,7 +59,6 @@ public class PouleController {
     }
 
     @GetMapping("/get-poule-table/{eid}")
-    @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
     public ResponseEntity<PouleTableDTO> getPouleTable(@PathVariable int eid) {
         PouleTableDTO res = pouleService.getPouleTable(eid, false);
         if (res != null) {

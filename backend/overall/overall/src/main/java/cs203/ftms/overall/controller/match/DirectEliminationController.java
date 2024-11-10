@@ -55,7 +55,6 @@ public class DirectEliminationController {
     }
 
     @GetMapping("/get-direct-elimination-matches/{eid}")
-    @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
     public ResponseEntity<List<DirectEliminationBracketDTO>> getDirectEliminationMatches(@PathVariable int eid) {
         List<DirectEliminationBracketDTO> res = directEliminationService.generateDirectEliminationBracketDTOs(eid);
         if (res != null) {

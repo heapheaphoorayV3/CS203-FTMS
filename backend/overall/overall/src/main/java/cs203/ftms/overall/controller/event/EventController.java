@@ -132,7 +132,6 @@ public class EventController {
     }
 
     @GetMapping("/get-event-ranking/{eid}")
-    @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
     public ResponseEntity<List<CleanTournamentFencerDTO>> getEventRanking(@PathVariable int eid) {
         List<TournamentFencer> rankings = eventService.getTournamentRanks(eid);
         List<CleanTournamentFencerDTO> res = new ArrayList<>(); 
