@@ -146,7 +146,6 @@ public class FencerController {
     }
 
     @GetMapping("/men-sabre-ranking")
-    @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
     public ResponseEntity<List<CleanFencerDTO>> getMenSabreRanking() {
         List<Fencer> fencers = fencerService.getFilterdInternationalRank('S', 'M'); 
         List<CleanFencerDTO> res = new ArrayList<>();
@@ -157,7 +156,6 @@ public class FencerController {
     }
 
     @GetMapping("/women-sabre-ranking")
-    @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
     public ResponseEntity<List<CleanFencerDTO>> getWomenSabreRanking() {
         List<Fencer> fencers = fencerService.getFilterdInternationalRank('S', 'W'); 
         List<CleanFencerDTO> res = new ArrayList<>();
@@ -168,7 +166,6 @@ public class FencerController {
     }
 
     @GetMapping("/men-epee-ranking")
-    @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
     public ResponseEntity<List<CleanFencerDTO>> getMenEpeeRanking() {
         List<Fencer> fencers = fencerService.getFilterdInternationalRank('E', 'M'); 
         List<CleanFencerDTO> res = new ArrayList<>();
@@ -179,7 +176,6 @@ public class FencerController {
     }
 
     @GetMapping("/women-epee-ranking")
-    @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
     public ResponseEntity<List<CleanFencerDTO>> getWomenEpeeRanking() {
         List<Fencer> fencers = fencerService.getFilterdInternationalRank('E', 'W'); 
         List<CleanFencerDTO> res = new ArrayList<>();
@@ -190,7 +186,6 @@ public class FencerController {
     }
 
     @GetMapping("/men-foil-ranking")
-    @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
     public ResponseEntity<List<CleanFencerDTO>> getMenFoilRanking() {
         List<Fencer> fencers = fencerService.getFilterdInternationalRank('F', 'M'); 
         List<CleanFencerDTO> res = new ArrayList<>();
@@ -201,7 +196,6 @@ public class FencerController {
     }
 
     @GetMapping("/women-foil-ranking")
-    @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
     public ResponseEntity<List<CleanFencerDTO>> getWomenFoilRanking() {
         List<Fencer> fencers = fencerService.getFilterdInternationalRank('F', 'W'); 
         List<CleanFencerDTO> res = new ArrayList<>();

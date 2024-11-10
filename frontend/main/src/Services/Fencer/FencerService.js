@@ -50,6 +50,10 @@ class FencerService {
   async getWomenFoilRanking() {
     return await ProtectedAPI.get(`${baseURL}/women-foil-ranking`);
   }
+
+  async changePassword(data) {
+    return await ProtectedAPI.put(`${baseURL}/change-password`, data);
+  }
 }
 
 export default new FencerService();
