@@ -288,18 +288,10 @@ export default function ViewTournament() {
     }
     // Set isCreating to false
     setIsCreating(false);
+    // Set NewEventArray to empty
+    setNewEventsArray([]);
     // Refetch Event Data
     fetchData();
-  };
-  // Get New Events Array (events without key "fencers")
-  const extractNewEvents = () => {
-    let newEvents = [];
-    eventsArray.forEach((event) => {
-      if (!event.hasOwnProperty("fencers")) {
-        newEvents.push(event);
-      }
-    });
-    return newEvents;
   };
 
   // Check if today is past the start date of the tournament (for the register button)
@@ -356,6 +348,7 @@ export default function ViewTournament() {
 
   const closeUpdateEventPopup = () => {
     setIsUpdateEventPopupVisible(false);
+    fetchData();
   };
   const updateEvent = (selectedEvent) => {
     setIsUpdateEventPopupVisible(true);
@@ -364,6 +357,7 @@ export default function ViewTournament() {
 
   const closeDeleteEventPopUp = () => {
     setIsDeleteEventPopUpVisible(false);
+    fetchData();
   };
   const deleteEvent = (selectedEvent) => {
     setIsDeleteEventPopUpVisible(true);
