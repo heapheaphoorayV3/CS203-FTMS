@@ -1,6 +1,7 @@
 import axios from 'axios';
+import config from "../Config";
 
-const API_BASE_URL = "http://localhost:8080/api/v1";
+const API_BASE_URL = config.backendURL;
 
 let API = axios.create({
   baseURL: API_BASE_URL,
