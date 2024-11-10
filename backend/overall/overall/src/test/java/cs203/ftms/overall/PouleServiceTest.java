@@ -120,8 +120,8 @@ public class PouleServiceTest {
         event.setGender('M');
         event.setWeapon('S');
 
-        CleanTournamentFencerDTO cleanFencer1 = new CleanTournamentFencerDTO(fencer1Id, fencer1Id, fencer1Name, fencer1Name, fencer1Name, 'L', fencer1Id, fencer1Id, fencer1Id, fencer1Id);
-        CleanTournamentFencerDTO cleanFencer2 = new CleanTournamentFencerDTO(fencer2Id, fencer2Id, fencer2Name, fencer2Name, fencer2Name, 'R', fencer2Id, fencer2Id, fencer2Id, fencer2Id);
+        CleanTournamentFencerDTO cleanFencer1 = new CleanTournamentFencerDTO(fencer1Id, fencer1Id, fencer1Name, fencer1Name, fencer1Name, 'L', fencer1Id, fencer1Id, fencer1Id, fencer1Id, fencer1Id);
+        CleanTournamentFencerDTO cleanFencer2 = new CleanTournamentFencerDTO(fencer2Id, fencer2Id, fencer2Name, fencer2Name, fencer2Name, 'R', fencer2Id, fencer2Id, fencer2Id, fencer2Id, fencer2Id);
 
         when(pouleRepository.findById(pouleId)).thenReturn(Optional.of(poule));
         when(tournamentFencerRepository.findById(fencer1Id)).thenReturn(Optional.of(tFencer1));
@@ -186,8 +186,8 @@ public class PouleServiceTest {
         event.setGender('W');
         event.setWeapon('F');
 
-        CleanTournamentFencerDTO cleanFencer1 = new CleanTournamentFencerDTO(fencer1Id, fencer1Id, fencer1Name, fencer1Name, fencer1Name, 'L', fencer1Id, fencer1Id, fencer1Id, fencer1Id);
-        CleanTournamentFencerDTO cleanFencer2 = new CleanTournamentFencerDTO(fencer2Id, fencer2Id, fencer2Name, fencer2Name, fencer2Name, 'R', fencer2Id, fencer2Id, fencer2Id, fencer2Id);
+        CleanTournamentFencerDTO cleanFencer1 = new CleanTournamentFencerDTO(fencer1Id, fencer1Id, fencer1Name, fencer1Name, fencer1Name, 'L', fencer1Id, fencer1Id, fencer1Id, fencer1Id, fencer1Id);
+        CleanTournamentFencerDTO cleanFencer2 = new CleanTournamentFencerDTO(fencer2Id, fencer2Id, fencer2Name, fencer2Name, fencer2Name, 'R', fencer2Id, fencer2Id, fencer2Id, fencer2Id, fencer2Id);
 
         when(pouleRepository.findById(pouleId)).thenReturn(Optional.of(poule));
         when(tournamentFencerRepository.findById(fencer1Id)).thenReturn(Optional.of(tFencer1));
@@ -252,8 +252,8 @@ public class PouleServiceTest {
         event.setGender('M');
         event.setWeapon('E');
 
-        CleanTournamentFencerDTO cleanFencer1 = new CleanTournamentFencerDTO(fencer1Id, fencer1Id, fencer1Name, fencer1Name, fencer1Name, 'L', fencer1Id, fencer1Id, fencer1Id, fencer1Id);
-        CleanTournamentFencerDTO cleanFencer2 = new CleanTournamentFencerDTO(fencer2Id, fencer2Id, fencer2Name, fencer2Name, fencer2Name, 'R', fencer2Id, fencer2Id, fencer2Id, fencer2Id);
+        CleanTournamentFencerDTO cleanFencer1 = new CleanTournamentFencerDTO(fencer1Id, fencer1Id, fencer1Name, fencer1Name, fencer1Name, 'L', fencer1Id, fencer1Id, fencer1Id, fencer1Id, fencer1Id);
+        CleanTournamentFencerDTO cleanFencer2 = new CleanTournamentFencerDTO(fencer2Id, fencer2Id, fencer2Name, fencer2Name, fencer2Name, 'R', fencer2Id, fencer2Id, fencer2Id, fencer2Id, fencer2Id);
 
         when(pouleRepository.findById(pouleId)).thenReturn(Optional.of(poule));
         when(tournamentFencerRepository.findById(fencer1Id)).thenReturn(Optional.of(tFencer1));
@@ -316,8 +316,8 @@ public class PouleServiceTest {
 
         event.setPoules(new HashSet<>(Arrays.asList(poule)));
 
-        CleanTournamentFencerDTO cleanFencer1 = new CleanTournamentFencerDTO(fencer1Id, fencer1Id, fencer1Name, fencer1Name, fencer1Name, 'L', fencer1Id, fencer1Id, fencer1Id, fencer1Id);
-        CleanTournamentFencerDTO cleanFencer2 = new CleanTournamentFencerDTO(fencer2Id, fencer2Id, fencer2Name, fencer2Name, fencer2Name, 'R', fencer2Id, fencer2Id, fencer2Id, fencer2Id);
+        CleanTournamentFencerDTO cleanFencer1 = new CleanTournamentFencerDTO(fencer1Id, fencer1Id, fencer1Name, fencer1Name, fencer1Name, 'L', fencer1Id, fencer1Id, fencer1Id, fencer1Id, fencer1Id);
+        CleanTournamentFencerDTO cleanFencer2 = new CleanTournamentFencerDTO(fencer2Id, fencer2Id, fencer2Name, fencer2Name, fencer2Name, 'R', fencer2Id, fencer2Id, fencer2Id, fencer2Id, fencer2Id);
 
         when(pouleRepository.findById(pouleId)).thenReturn(Optional.of(poule));
         when(tournamentFencerRepository.findById(fencer1Id)).thenReturn(Optional.of(tFencer1));
