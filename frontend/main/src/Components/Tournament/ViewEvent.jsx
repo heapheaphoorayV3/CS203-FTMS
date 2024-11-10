@@ -48,7 +48,6 @@ export default function ViewEvent() {
         const response = await EventService.getEvent(eventID);
         setEventData(response.data);
         console.log("event data =>");
-        console.log(response.data);
       } catch (error) {
         console.error("Error fetching event data:", error);
         setError("Failed to load event data.");
@@ -59,7 +58,6 @@ export default function ViewEvent() {
       try {
         const response = await EventService.getPouleTable(eventID);
         setPouleTableData(response.data);
-        console.log("Poule Table Data:", response.data);
 
         const processedData = response.data.pouleTable.map((poule) =>
           Object.entries(poule).map(([fencer, results]) => {
@@ -359,7 +357,7 @@ export default function ViewEvent() {
         <div className="font-semibold text-lg">Date</div>
         <div className="font-semibold text-lg">Start Time</div>
         <div className="font-semibold text-lg">End Time</div>
-        <div className="text-lg">{formatDate(eventData.date)}</div>
+        <div className="text-lg">{formatDate(eventData.eventDate)}</div>
         <div className="text-lg">{formatTimeTo24Hour(eventData.startTime)}</div>
         <div className="text-lg">{formatTimeTo24Hour(eventData.endTime)}</div>
       </div>
