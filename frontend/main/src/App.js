@@ -9,6 +9,8 @@ import CreateEvent from "./Components/Tournament/CreateEvent";
 import SignUpEvent from "./Components/Tournament/SignUpEvent";
 import SignupOptions from "./Components/Authentication/SignupOptions";
 import SignIn from "./Components/Authentication/SignIn";
+import ForgotPassword from "./Components/Authentication/ForgotPassword";
+import ResetPassword from "./Components/Authentication/ResetPassword";
 import SignUpFencer from "./Components/Authentication/SignUpFencer";
 import SignUpOrganiser from "./Components/Authentication/SignUpOrganiser";
 import DefaultLayout from "./Layouts/DefaultLayout";
@@ -31,6 +33,8 @@ function App() {
         <Route element={<DefaultLayout />}>
           <Route path="/" element={<LandingPage />} />
           <Route path="/signin" element={<SignIn />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/signup-options" element={<SignupOptions />} />
           <Route path="/signup-fencer" element={<SignUpFencer />} />
           <Route path="/signup-organiser" element={<SignUpOrganiser />} />

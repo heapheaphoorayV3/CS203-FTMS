@@ -1,7 +1,7 @@
 import { useState } from "react";
 import InputField from "../Others/InputField";
-import logo from "../../Assets/logo white bg.png";
 import SubmitButton from "../Others/SubmitButton";
+import AuthService from "../../Services/Authentication/AuthService";
 
 export default function ForgotPassword() {
   // Save form data
@@ -25,26 +25,17 @@ export default function ForgotPassword() {
   //Send form data to server
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("form data: " + formData);
-    // try {
-    //     const response = await fetch('http://', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json'
-    //         },
-    //         body: JSON.stringify(formData)
-    //     });
-
-    //     const data = await response.json();
-    //     console.log(data);
-    // } catch (error) {
-    //     console.log(error);
-    // }
+    console.log("form data: " + formData.email);
+    try {
+        const response = await AuthService.forgetPassword(formData.email);
+        console.log("Response: " + response);
+    } catch (error) {
+        console.log("Error: " + error);
+    }
   };
 
   return (
     <div className="flex flex-col justify-center items-center bg-white h-screen">
-      <img src={logo} alt="OnlyFence" className="h-50 mx-auto mb-10" />
 
       <div className="flex flex-col items-center bg-white p-8 rounded-lg shadow-lg w-[600px]">
         <h1 className="text-3xl font-semibold mb-6 text-center">
