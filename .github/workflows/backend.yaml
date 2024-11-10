@@ -89,11 +89,11 @@ jobs:
         TFSTATE_DYNAMODB_TABLE: ${{ secrets.TFSTATE_DYNAMODB_TABLE }}
       run: |
         terraform init \
-      -backend-config="bucket=${TFSTATE_BUCKET_NAME}" \
-      -backend-config="key=${TFSTATE_BUCKET_KEY}" \
-      -backend-config="region=${TF_VAR_aws_region}" \
-      -backend-config="dynamodb_table=${TFSTATE_DYNAMODB_TABLE}" \
-      -backend-config="encrypt=true"
+          -backend-config="bucket=${TFSTATE_BUCKET_NAME}" \
+          -backend-config="key=${TFSTATE_BUCKET_KEY}" \
+          -backend-config="region=${TF_VAR_aws_region}" \
+          -backend-config="dynamodb_table=${TFSTATE_DYNAMODB_TABLE}" \
+          -backend-config="encrypt=true"
         terraform workspace new prod || terraform workspace select prod
 
     - name: Terraform Plan Destroy
