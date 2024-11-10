@@ -11,10 +11,11 @@ public class CleanTournamentFencerDTO {
     private int eventId;
     private int pouleWins;
     private int poulePoints;
+    private int pointsAfterEvent;
 
     
     public CleanTournamentFencerDTO(int tournamentFencerId, int fencerId, String fencerName, String fencerClub, String country,
-            char dominantArm, int tournamentPoints, int eventId, int pouleWins, int poulePoints) {
+            char dominantArm, int tournamentPoints, int eventId, int pouleWins, int poulePoints, int pointsAfterEvent) {
         this.tournamentFencerId = tournamentFencerId;
         this.fencerId = fencerId;
         this.fencerName = fencerName;
@@ -25,6 +26,7 @@ public class CleanTournamentFencerDTO {
         this.eventId = eventId;
         this.pouleWins = pouleWins;
         this.poulePoints = poulePoints;
+        this.pointsAfterEvent = pointsAfterEvent;
     }
 
     public int getTournamentFencerId() {
@@ -118,6 +120,14 @@ public class CleanTournamentFencerDTO {
 
     public void setPoulePoints(int poulePoints) {
         this.poulePoints = poulePoints;
+    }
+
+    public int getPointsAfterEvent() {
+        return pointsAfterEvent;
+    }
+
+    public void setPointsAfterEvent(int pointsAfterEvent) {
+        this.pointsAfterEvent = pointsAfterEvent;
     }
 
 }

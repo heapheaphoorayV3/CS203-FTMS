@@ -22,7 +22,9 @@ import cs203.ftms.overall.dto.CompleteFencerProfileDTO;
 import cs203.ftms.overall.dto.UpdateFencerProfileDTO;
 import cs203.ftms.overall.dto.clean.CleanEventDTO;
 import cs203.ftms.overall.dto.clean.CleanFencerDTO;
+import cs203.ftms.overall.dto.clean.CleanTournamentFencerDTO;
 import cs203.ftms.overall.model.tournamentrelated.Event;
+import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
 import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.User;
 import cs203.ftms.overall.service.event.EventService;
@@ -143,6 +145,15 @@ public class FencerController {
             res.add(eventService.getCleanEventDTO(e));
         }
         return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    @GetMapping("/past-events-points")
+    @PreAuthorize("hasRole('FENCER')")
+    public ResponseEntity<List<CleanTournamentFencerDTO>> getFencerPastEventsPoints() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        List<CleanTournamentFencerDTO> tfs = fencerService.getFencerPastEventsPoints((Fencer) user);
+        return new ResponseEntity<>(tfs, HttpStatus.OK);
     }
 
     @GetMapping("/men-sabre-ranking")

@@ -75,7 +75,7 @@ public class EventService {
     } 
 
     public CleanTournamentFencerDTO getCleanTournamentFencerDTO(TournamentFencer tf) {
-        return new CleanTournamentFencerDTO(tf.getId(), tf.getFencer().getId(), tf.getFencer().getName(), tf.getFencer().getClub(), tf.getFencer().getCountry(), tf.getFencer().getDominantArm(), tf.getTournamentRank(), tf.getEvent().getId(), tf.getPouleWins(), tf.getPoulePoints());
+        return new CleanTournamentFencerDTO(tf.getId(), tf.getFencer().getId(), tf.getFencer().getName(), tf.getFencer().getClub(), tf.getFencer().getCountry(), tf.getFencer().getDominantArm(), tf.getTournamentRank(), tf.getEvent().getId(), tf.getPouleWins(), tf.getPoulePoints(), tf.getPointsAfterEvent());
     }
 
     @Transactional
@@ -255,8 +255,10 @@ public class EventService {
         int totalPoints = getPointsForDistribution(event.getFencers());
         for(int i = 0; i < (int) numOfFencersThatGetPoints; i++){
             int points = calculatePoints(i, totalPoints, (int) numOfFencersThatGetPoints);
-            Fencer fencer = tfs.get(i).getFencer();
-            fencer.setPoints(points + tfs.get(i).getFencer().getPoints());
+            TournamentFencer tf = tfs.get(i);
+            Fencer fencer = tf.getFencer();
+            fencer.setPoints(points + fencer.getPoints());
+            tf.setPointsAfterEvent(points + fencer.getPoints());
             userRepository.save(fencer);
         }
     }

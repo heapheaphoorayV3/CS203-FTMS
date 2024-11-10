@@ -44,14 +44,19 @@ public class TournamentFencer {
     @Column(name = "poule_points")
     private int poulePoints;
 
+    @Column(name = "points_after_event")
+    private int pointsAfterEvent;
+
     public TournamentFencer(Fencer fencer, Event event) {
         this.fencer = fencer;
         this.event = event;
         this.matches = new LinkedHashSet<>();
+        this.pointsAfterEvent = -1;
     }
 
     public TournamentFencer() {
         this.matches = new LinkedHashSet<>();
+        this.pointsAfterEvent = -1;
     }
 
     public Fencer getFencer() {
@@ -94,19 +99,6 @@ public class TournamentFencer {
         this.tournamentRank = tournamentPoints;
     } 
 
-    // public int compareTo(TournamentFencer tf) {
-    //     if(tf.getFencer() == null || this.fencer == null){
-    //         return 0;
-    //     }
-    //     System.out.println("tf's fencer = " + tf.getFencer());
-    //     System.out.println("this.fencer = "+ this.fencer);
-    //     if ((this.points - tf.points) != 0) { // at start, all 0, so no diff
-    //         return -(this.points - tf.points);
-    //     }
-        
-    //     return -(this.fencer.getPoints() - tf.getFencer().getPoints());
-    // }
-
     public int getId() {
         return id;
     }
@@ -137,5 +129,13 @@ public class TournamentFencer {
 
     public void removeMatch(Match match){
         matches.remove(match);
+    }
+
+    public int getPointsAfterEvent() {
+        return pointsAfterEvent;
+    }
+
+    public void setPointsAfterEvent(int pointsAfterEvent) {
+        this.pointsAfterEvent = pointsAfterEvent;
     }
 }
