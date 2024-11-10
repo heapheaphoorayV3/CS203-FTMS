@@ -15,7 +15,7 @@ jobs:
       GMAIL_ADDR: ${{ secrets.GMAIL_ADDR }}
       GMAIL_APP_PW: ${{ secrets.GMAIL_APP_PW }}
       JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
-      FRONTEND_SOURCE: ${{ secrets.FRONTEND_SOURCE }}
+      FRONTEND_SOURCE: ${{ secrets.FRONTEND_SOURCE }} # frontend cloudfront domain name
 
 
     steps:
