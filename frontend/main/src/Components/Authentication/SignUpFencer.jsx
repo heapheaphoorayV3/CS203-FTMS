@@ -149,12 +149,12 @@ export default function SignUpFencer() {
             rules={{
               required: "Please fill this in!",
               validate: (value) =>
-                validator.isMobilePhone(value) ||
-                "Please enter a valid phone number!",
+                validator.isMobilePhone(value, 'any', { strictMode: true }) ||
+                "Please enter a valid phone number with country code!",
             }}
             render={({ field: { onChange, value } }) => (
               <InputField
-                placeholder="Contact Number"
+                placeholder="Contact Number (e.g. +65********)"
                 type="text"
                 value={value}
                 onChange={onChange}
