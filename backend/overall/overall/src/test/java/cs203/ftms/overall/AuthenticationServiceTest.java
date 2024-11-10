@@ -15,7 +15,6 @@ import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
@@ -163,7 +162,6 @@ class AuthenticationServiceTest {
 
         when(passwordEncoder.encode(any(String.class))).thenReturn("hashedPassword");
         when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArguments()[0]);
-        doNothing().when(mailService).sendMail(any(String.class), any(String.class), any(String.class));
 
         // Act
         User createdOrganiser = authenticationService.createOrganiser(registerOrganiserDTO);
@@ -274,7 +272,6 @@ class AuthenticationServiceTest {
         User user = new Fencer();
         user.setEmail(email);
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
-        doNothing().when(mailService).sendMail(any(String.class), any(String.class), any(String.class));
 
         // Act
         String result = authenticationService.forgetPassword(email);

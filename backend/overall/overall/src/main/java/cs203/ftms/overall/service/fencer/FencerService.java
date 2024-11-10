@@ -46,16 +46,12 @@ public class FencerService {
     public CleanTournamentFencerDTO getCleanTournamentFencerDTO(TournamentFencer tf) {
         if (tf == null) return null;
         return new CleanTournamentFencerDTO(tf.getId(), tf.getFencer().getId(), tf.getFencer().getName(), tf.getFencer().getClub(), tf.getFencer().getCountry(),
-        tf.getFencer().getDominantArm(), tf.getTournamentRank(), tf.getEvent().getId(), tf.getPouleWins(), tf.getPoulePoints());
+        tf.getFencer().getDominantArm(), tf.getTournamentRank(), tf.getEvent().getId(), tf.getPouleWins(), tf.getPoulePoints(), tf.getPointsAfterEvent());
     }
 
     public CleanFencerDTO getCleanFencerDTO(Fencer f) {
         if (f == null) return null;
         return new CleanFencerDTO(f.getId(), f.getName(), f.getEmail(), f.getContactNo(), f.getCountry(), f.getDateOfBirth(), f.getDominantArm(),f.getWeapon(), f.getClub(),f.getPoints(), f.getDebutYear(), f.getGender());
-    }
-
-    public CleanTournamentFencerDTO getCleanTournamentFencerDTO(TournamentFencer tf) {
-        return new CleanTournamentFencerDTO(tf.getId(), tf.getFencer().getId(), tf.getFencer().getName(), tf.getFencer().getClub(), tf.getFencer().getCountry(), tf.getFencer().getDominantArm(), tf.getTournamentRank(), tf.getEvent().getId(), tf.getPouleWins(), tf.getPoulePoints(), tf.getPointsAfterEvent());
     }
 
     public List<Fencer> getAllFencers() {

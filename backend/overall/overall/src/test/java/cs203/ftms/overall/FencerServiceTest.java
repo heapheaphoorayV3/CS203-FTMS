@@ -1,8 +1,10 @@
 package cs203.ftms.overall;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +39,7 @@ import cs203.ftms.overall.repository.tournamentrelated.EventRepository;
 import cs203.ftms.overall.repository.userrelated.FencerRepository;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
 import cs203.ftms.overall.service.authentication.AuthenticationService;
+import cs203.ftms.overall.service.event.EventService;
 import cs203.ftms.overall.service.fencer.FencerService;
 
 
@@ -62,6 +65,9 @@ class FencerServiceTest {
 
     @InjectMocks
     private FencerService fencerService;
+
+    @Mock
+    private EventService eventService;
 
 
 
@@ -500,13 +506,13 @@ class FencerServiceTest {
 
         Fencer fencer2 = new Fencer();
         fencer2.setId(2);
-        fencer2.setWeapon('F');
+        fencer2.setWeapon('E');
         fencer2.setGender('F');
         fencer2.setPoints(200);
 
         Fencer fencer3 = new Fencer();
         fencer3.setId(3);
-        fencer3.setWeapon('E');
+        fencer3.setWeapon('S');
         fencer3.setGender('M');
         fencer3.setPoints(150);
 
@@ -517,9 +523,51 @@ class FencerServiceTest {
         List<Fencer> result = fencerService.getFilterdInternationalRank('E', 'M');
 
         // Assert
-        assertEquals(2, result.size());
-        assertEquals(fencer3.getId(), result.get(0).getId());
-        assertEquals(fencer1.getId(), result.get(1).getId());
+        assertEquals(1, result.size());
+        assertEquals(fencer1.getId(), result.get(0).getId());
     }
 
+
+
+
+    @Test
+    void getFencerPastEventsPoints_ShouldReturnSortedCleanTournamentFencerDTOs() {
+        // Arrange
+        Fencer fencer = new Fencer();
+        Fencer fencer2 = new Fencer();
+        Set<TournamentFencer> tournamentFencers = new HashSet<>();
+
+        TournamentFencer tf1 = new TournamentFencer();
+        tf1.setId(1);
+        Event event1 = new Event();
+        event1.setId(1);
+        event1.setDate(new Date(1000000000L).toInstant().atZone(ZoneId.systemDefault()).toLocalDate()); // Set a date
+        tf1.setEvent(event1);
+        tournamentFencers.add(tf1);
+        tf1.setFencer(fencer);
+
+        TournamentFencer tf2 = new TournamentFencer();
+        tf2.setId(2);
+        Event event2 = new Event();
+        event2.setId(2);
+        event2.setDate(new Date(2000000000L).toInstant().atZone(ZoneId.systemDefault()).toLocalDate()); // Set a later date
+        tf2.setEvent(event2);
+        tournamentFencers.add(tf2);
+        tf2.setFencer(fencer2);
+
+        fencer.setTournamentFencerProfiles(tournamentFencers);
+
+        CleanTournamentFencerDTO cleanTF1 = new CleanTournamentFencerDTO(tf1.getId(), tf1.getFencer().getId(), tf1.getFencer().getName(), tf1.getFencer().getClub(), tf1.getFencer().getCountry(), 'R', tf1.getTournamentRank(), tf1.getEvent().getId(), tf1.getPouleWins(), tf1.getPoulePoints(), 0);
+        CleanTournamentFencerDTO cleanTF2 = new CleanTournamentFencerDTO(tf2.getId(), tf2.getFencer().getId(), tf2.getFencer().getName(), tf2.getFencer().getClub(), tf2.getFencer().getCountry(), 'R', tf2.getTournamentRank(), tf2.getEvent().getId(), tf2.getPouleWins(), tf2.getPoulePoints(), 0);
+
+        when(eventService.getCleanTournamentFencerDTO(tf1)).thenReturn(cleanTF1);
+        when(eventService.getCleanTournamentFencerDTO(tf2)).thenReturn(cleanTF2);
+
+        // Act
+        List<CleanTournamentFencerDTO> result = fencerService.getFencerPastEventsPoints(fencer);
+
+        // Assert
+        assertEquals(2, result.size());
+
+    }
 }

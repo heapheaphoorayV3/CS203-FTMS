@@ -1,11 +1,9 @@
 package cs203.ftms.overall;
 
 import java.time.LocalDate;
-import java.time.Year;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -107,7 +105,7 @@ class OrganiserServiceTest {
         List<Tournament> result = organiserService.getOrganiserTournaments(organiser);
 
         // Assert
-        assertNull(result);
+        assertEquals(0, result.size());
         verify(tournamentRepository, times(1)).findByOrganiserId(organiser.getId());
     }
 
@@ -153,7 +151,7 @@ class OrganiserServiceTest {
         futureTournament.setStartDate(LocalDate.now().plusDays(10));
 
         List<Tournament> tournaments = Arrays.asList(pastTournament, futureTournament);
-        when(tournamentRepository.findByOrganiserId(organiser.getId())).thenReturn(Optional.of(tournaments));
+        when(tournamentRepository.findByOrganiserId(organiser.getId())).thenReturn(tournaments);
 
         // Act
         List<Tournament> result = organiserService.getOrganiserUpcomingTournaments(organiser);
@@ -178,7 +176,7 @@ class OrganiserServiceTest {
         futureTournament.setStartDate(LocalDate.now().plusDays(10));
 
         List<Tournament> tournaments = Arrays.asList(pastTournament, futureTournament);
-        when(tournamentRepository.findByOrganiserId(organiser.getId())).thenReturn(Optional.of(tournaments));
+        when(tournamentRepository.findByOrganiserId(organiser.getId())).thenReturn(tournaments);
 
         // Act
         List<Tournament> result = organiserService.getOrganiserPastTournaments(organiser);

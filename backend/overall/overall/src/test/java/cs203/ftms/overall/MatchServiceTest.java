@@ -159,8 +159,8 @@ class MatchServiceTest {
         f2.setName("Fencer 2");
         fencer2.setFencer(f2);
 
-        CleanTournamentFencerDTO cleanFencer1 = new CleanTournamentFencerDTO(fencer1.getId(), f1.getId(), f1.getName(), f1.getClub(), f1.getCountry(), 'R' , fencer1.getTournamentRank(), 1, fencer1.getPouleWins(), fencer1.getPoulePoints());
-        CleanTournamentFencerDTO cleanFencer2 = new CleanTournamentFencerDTO(fencer2.getId(), f2.getId(), f2.getName(), f2.getClub(), f2.getCountry(), 'R' , fencer2.getTournamentRank(), 1, fencer2.getPouleWins(), fencer2.getPoulePoints());
+        CleanTournamentFencerDTO cleanFencer1 = new CleanTournamentFencerDTO(fencer1.getId(), f1.getId(), f1.getName(), f1.getClub(), f1.getCountry(), 'R' , fencer1.getTournamentRank(), 1, fencer1.getPouleWins(), fencer1.getPoulePoints(), 0);
+        CleanTournamentFencerDTO cleanFencer2 = new CleanTournamentFencerDTO(fencer2.getId(), f2.getId(), f2.getName(), f2.getClub(), f2.getCountry(), 'R' , fencer2.getTournamentRank(), 1, fencer2.getPouleWins(), fencer2.getPoulePoints(), 0);
         when(tournamentFencerRepository.findById(1)).thenReturn(Optional.of(fencer1));
         when(tournamentFencerRepository.findById(2)).thenReturn(Optional.of(fencer2));
         when(eventService.getCleanTournamentFencerDTO(fencer1)).thenReturn(cleanFencer1);
