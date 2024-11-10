@@ -3,9 +3,7 @@ package cs203.ftms.overall.service.match;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -49,6 +47,9 @@ public class DirectEliminationService {
     public int noOfDEMatches(Event event) {
         int fencersAdvanced = calculateFencersAdvanced(event);
         int nearestPO2 = nearestLowerPowerOf2(fencersAdvanced);
+        if(nearestPO2 == fencersAdvanced) {
+            return calculateTotalMatchCount(nearestPO2/2);
+        }
         return calculateTotalMatchCount(nearestPO2);
     }
     
@@ -86,7 +87,7 @@ public class DirectEliminationService {
         int bypassSize = mappings.get("Bypass").size();
 
         populateInitialDEMatches(fencers, heap, bypassSize);
-        printHeapDetails(heap);
+        // printHeapDetails(heap);
     }
 
     // helper for createAllDEMatches
@@ -110,17 +111,17 @@ public class DirectEliminationService {
     }
 
     // helper for createAllDEMatches
-    private void printHeapDetails(CustomMatchHeap heap) {
-        System.out.println();
-        heap.printHeap();
-        int lastLevel = (int) (Math.log(heap.size() + 1) / Math.log(2)) - 1;
-        System.out.println(lastLevel);
-        List<Match> matches = heap.getLevel(lastLevel);
-        System.out.println();
-        for (Match match : matches) {
-            System.out.println(match.getId());
-        }
-    }
+    // private void printHeapDetails(CustomMatchHeap heap) {
+    //     System.out.println();
+    //     heap.printHeap();
+    //     int lastLevel = (int) (Math.log(heap.size() + 1) / Math.log(2)) - 1;
+    //     System.out.println(lastLevel);
+    //     List<Match> matches = heap.getLevel(lastLevel);
+    //     System.out.println();
+    //     for (Match match : matches) {
+    //         System.out.println(match.getId());
+    //     }
+    // }
 
     @Transactional
     public void populateInitialDEMatches(List<TournamentFencer> tfencers, CustomMatchHeap heap, int bypassSize) {
@@ -144,7 +145,6 @@ public class DirectEliminationService {
             }
             tournamentFencerRepository.save(tf1);
             matchRepository.save(dm);
-            System.out.println("populate fencer size after saving = " + matchService.getFencersInMatch(matchRepository.findById(dm.getId()).orElse(null)).size());
             matchCount++;
         }
     }

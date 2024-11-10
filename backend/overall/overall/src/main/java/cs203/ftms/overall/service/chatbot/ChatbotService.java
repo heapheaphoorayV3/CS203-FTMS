@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,6 @@ public class ChatbotService {
     public ChatbotService(TournamentRepository tournamentRepository, EventRepository eventRepository) {
         this.tournamentRepository = tournamentRepository;
         this.eventRepository = eventRepository;
-
     }    
 
     public int getProjectedPointsEarned(int eid, Fencer f) {
@@ -46,13 +46,11 @@ public class ChatbotService {
         Set<TournamentFencer> t = e.getFencers();
         List<TournamentFencer> fencers = new ArrayList<>(t);
         Collections.sort(fencers, new TournamentFencerComparator());
-
         for(TournamentFencer tf : fencers){
             if(tf.getFencer().getPoints() <= f.getPoints()){
                 return fencers.indexOf(tf) + 1;
             }
         }
-        System.out.println(fencers.size());
         return fencers.size() + 1;
     }
 
@@ -82,66 +80,45 @@ public class ChatbotService {
         char weapon = f.getWeapon();
         char gender = f.getGender();
         int experience = LocalDate.now().getYear() - f.getDebutYear();
-        List<Tournament> tournaments = new ArrayList<>();
-        if(experience > 5){
-            for(Tournament t: tournamentRepository.findAll()){
-                for(Event e : t.getEvents()){
-                    if(e.getGender() == gender && e.getWeapon() == weapon && calculateWinrate(e.getId(), f) < 3){
-                        tournaments.add(t);
-                    }
-                }
-
-            }
-        } else if(experience > 3){
-            for(Tournament t: tournamentRepository.findAll()){
-                if(t.getDifficulty() != 'A'){
-                    for(Event e : t.getEvents()){
-                        if(e.getGender() == gender && e.getWeapon() == weapon && calculateWinrate(e.getId(), f) < 3){
-                            tournaments.add(t);
-                        }
-                    }   
-                }
-            }
-
-        }else{
-            for(Tournament t: tournamentRepository.findAll()){
-                if(t.getDifficulty() == 'B'){
-                    for(Event e : t.getEvents()){
-                        if(e.getGender() == gender && e.getWeapon() == weapon && calculateWinrate(e.getId(), f) < 3){
-                            tournaments.add(t);
-                        }
-                    }   
-                }
-            }
-        }
-        return tournaments;
+        return tournamentRepository.findAll().stream()
+                .filter(t -> isTournamentSuitable(t, experience))
+                .filter(t -> t.getEvents().stream()
+                .anyMatch(e -> isEventSuitable(e, gender, weapon, f)))
+                .collect(Collectors.toList());
     }
 
-    public String getWinrate(int eid, Fencer f){
-        Event e = eventRepository.findById(eid).orElseThrow(() -> new EntityDoesNotExistException("Event does not exist!"));
-        int expectedRank = expectedRank(e, f);
-        int totalFencers = e.getFencers().size();
-        if(expectedRank <= totalFencers / 10){
-            return "High chance of winning!";
-        }else if(expectedRank <= totalFencers / 2) {
-            return "Good chance of winning!";
-        }else{
-            return "It will be a tough fight!";
-        }
+    private boolean isTournamentSuitable(Tournament t, int experience) {
+        if (experience > 5) {
+            return true;
+        } else if (experience > 3) {
+            return t.getDifficulty() != 'A';
+        } 
+        return t.getDifficulty() == 'B';
+    }
 
+    private boolean isEventSuitable(Event e, char gender, char weapon, Fencer f) {
+        return e.getGender() == gender && e.getWeapon() == weapon && calculateWinrate(e.getId(), f) < 3;
+    }
+
+
+    public String getWinrate(int eid, Fencer f){
+        int winrate = calculateWinrate(eid, f);
+        return switch (winrate) {
+            case 1 -> "High chance of winning!";
+            case 2 -> "Good chance of winning!";
+            default -> "It will be a tough fight!";
+        };
     }
 
     public int calculateWinrate(int eid, Fencer f){
         Event e = eventRepository.findById(eid).orElseThrow(() -> new EntityDoesNotExistException("Event does not exist!"));
         int expectedRank = expectedRank(e, f);
         int totalFencers = e.getFencers().size();
-        if(expectedRank <= totalFencers / 10){
+        if(totalFencers == 0 || expectedRank <= totalFencers / 10){
             return 1;
         }else if(expectedRank <= totalFencers / 2) {
             return 2;
-        }else{
-            return 3;
         }
-
+        return 3;
     }
 }

@@ -22,7 +22,9 @@ import cs203.ftms.overall.dto.CompleteFencerProfileDTO;
 import cs203.ftms.overall.dto.UpdateFencerProfileDTO;
 import cs203.ftms.overall.dto.clean.CleanEventDTO;
 import cs203.ftms.overall.dto.clean.CleanFencerDTO;
+import cs203.ftms.overall.dto.clean.CleanTournamentFencerDTO;
 import cs203.ftms.overall.model.tournamentrelated.Event;
+import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
 import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.User;
 import cs203.ftms.overall.service.event.EventService;
@@ -143,6 +145,19 @@ public class FencerController {
             ctList.add(eventService.getCleanEventDTO(e));
         }
         return new ResponseEntity<>(ctList, HttpStatus.OK);
+    }
+
+    @GetMapping("/past-events-profiles")
+    @PreAuthorize("hasRole('FENCER')")
+    public ResponseEntity<List<CleanTournamentFencerDTO>> getFencerPastEventsProfiles() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        List<TournamentFencer> profiles = fencerService.getFencerPastEventsProfiles((Fencer) user);
+        List<CleanTournamentFencerDTO> tfList = new ArrayList<>();
+        for (TournamentFencer tf : profiles) {
+            tfList.add(fencerService.getCleanTournamentFencerDTO(tf));
+        }
+        return new ResponseEntity<>(tfList, HttpStatus.OK);
     }
 
     @GetMapping("/men-sabre-ranking")

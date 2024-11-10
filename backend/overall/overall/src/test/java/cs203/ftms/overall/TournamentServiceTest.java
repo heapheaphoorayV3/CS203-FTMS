@@ -1,16 +1,5 @@
 package cs203.ftms.overall;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
@@ -19,10 +8,19 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
@@ -36,6 +34,7 @@ import cs203.ftms.overall.repository.tournamentrelated.TournamentRepository;
 import cs203.ftms.overall.service.event.EventService;
 import cs203.ftms.overall.service.tournament.TournamentService;
 import cs203.ftms.overall.validation.OtherValidations;
+import jakarta.transaction.Transactional;
 
 public class TournamentServiceTest {
 
@@ -98,53 +97,53 @@ public class TournamentServiceTest {
         assertEquals(tournamentId, result.getId());
     }
 
-@Test
-    public void getTournament_TournamentNotFound_ReturnNull() {
-        // Arrange
-        int tournamentId = 1;
+// @Test
+//     public void getTournament_TournamentNotFound_ReturnNull() {
+//         // Arrange
+//         int tournamentId = 1;
 
-        when(tournamentRepository.findById(tournamentId)).thenReturn(Optional.empty());
+//         when(tournamentRepository.findById(tournamentId)).thenReturn(Optional.empty());
 
-        // Act
-        Tournament result = tournamentService.getTournament(tournamentId);
+//         // Act
+//         Tournament result = tournamentService.getTournament(tournamentId);
 
-        // Assert
-        assertNull(result);
-    }
+//         // Assert
+//         assertNull(result);
+//     }
 
-    @Test
-    public void createTournament_ValidTournament_ReturnTournament() throws MethodArgumentNotValidException {
-        // Arrange
-        Organiser organiser = new Organiser();
-        CreateTournamentDTO createTournamentDTO = new CreateTournamentDTO();
-        createTournamentDTO.setName("National Tournament");
-        createTournamentDTO.setSignupEndDate(LocalDate.of(2024, 9, 30));
-        createTournamentDTO.setStartDate(LocalDate.of(2024, 10, 5));
-        createTournamentDTO.setEndDate(LocalDate.of(2024, 10, 10));
+//     @Test
+//     public void createTournament_ValidTournament_ReturnTournament() throws MethodArgumentNotValidException {
+//         // Arrange
+//         Organiser organiser = new Organiser();
+//         CreateTournamentDTO createTournamentDTO = new CreateTournamentDTO();
+//         createTournamentDTO.setName("National Tournament");
+//         createTournamentDTO.setSignupEndDate(LocalDate.of(2024, 9, 30));
+//         createTournamentDTO.setStartDate(LocalDate.of(2024, 10, 5));
+//         createTournamentDTO.setEndDate(LocalDate.of(2024, 10, 10));
 
-        Tournament tournament = new Tournament(
-            createTournamentDTO.getName(),
-            organiser,
-            createTournamentDTO.getSignupEndDate(),
-            createTournamentDTO.getAdvancementRate(),
-            createTournamentDTO.getStartDate(),
-            createTournamentDTO.getEndDate(),
-            createTournamentDTO.getLocation(),
-            createTournamentDTO.getDescription(),
-            createTournamentDTO.getRules(),
-            createTournamentDTO.getDifficulty()
-        );
+//         Tournament tournament = new Tournament(
+//             createTournamentDTO.getName(),
+//             organiser,
+//             createTournamentDTO.getSignupEndDate(),
+//             createTournamentDTO.getAdvancementRate(),
+//             createTournamentDTO.getStartDate(),
+//             createTournamentDTO.getEndDate(),
+//             createTournamentDTO.getLocation(),
+//             createTournamentDTO.getDescription(),
+//             createTournamentDTO.getRules(),
+//             createTournamentDTO.getDifficulty()
+//         );
 
-        when(tournamentRepository.save(any(Tournament.class))).thenReturn(tournament);
+//         when(tournamentRepository.save(any(Tournament.class))).thenReturn(tournament);
 
-        // Act
-        Tournament result = tournamentService.createTournament(createTournamentDTO, organiser);
+//         // Act
+//         Tournament result = tournamentService.createTournament(createTournamentDTO, organiser);
 
-        // Assert
-        assertNotNull(result);
-        assertEquals("National Tournament", result.getName());
-        verify(tournamentRepository, times(1)).save(any(Tournament.class));
-    }
+//         // Assert
+//         assertNotNull(result);
+//         assertEquals("National Tournament", result.getName());
+//         verify(tournamentRepository, times(1)).save(any(Tournament.class));
+//     }
 
     @Test
     public void createTournament_InValidTournamentSignUpEndDate_ReturnException() {
@@ -217,5 +216,249 @@ public class TournamentServiceTest {
 
         // Assert
         assertNull(result);
+    }
+
+
+    @Test
+    void createTournament() throws Exception {
+        // Arrange
+        Organiser organiser = new Organiser();
+        organiser.setId(1);
+
+        CreateTournamentDTO dto = new CreateTournamentDTO();
+        dto.setName("Tournament Name");
+        dto.setSignupEndDate(LocalDate.now().plusDays(10));
+        dto.setAdvancementRate(70);
+        dto.setStartDate(LocalDate.now().plusDays(20));
+        dto.setEndDate(LocalDate.now().plusDays(30));
+        dto.setLocation("Location");
+        dto.setDescription("Description");
+        dto.setRules("Rules");
+        dto.setDifficulty('A');
+
+        Tournament tournament = new Tournament(dto.getName(), organiser, dto.getSignupEndDate(), dto.getAdvancementRate(), dto.getStartDate(), dto.getEndDate(), dto.getLocation(), dto.getDescription(), dto.getRules(), dto.getDifficulty());
+        when(tournamentRepository.save(tournament)).thenReturn(tournament);
+
+        // Act
+        Tournament result = tournamentService.createTournament(dto, organiser);
+
+        // Assert
+        assertEquals(tournament, result);
+        verify(tournamentRepository).save(tournament);
+    }
+
+    @Test
+    @Transactional
+    void updateTournament() throws Exception {
+        // Arrange
+        Organiser organiser = new Organiser();
+        organiser.setId(1);
+
+        CreateTournamentDTO dto = new CreateTournamentDTO();
+        dto.setName("Updated Tournament Name");
+        dto.setSignupEndDate(LocalDate.now().plusDays(10));
+        dto.setAdvancementRate(70);
+        dto.setStartDate(LocalDate.now().plusDays(20));
+        dto.setEndDate(LocalDate.now().plusDays(30));
+        dto.setLocation("Updated Location");
+        dto.setDescription("Updated Description");
+        dto.setRules("Updated Rules");
+        dto.setDifficulty('B');
+
+        Tournament existingTournament = new Tournament("Old Tournament Name", organiser, LocalDate.now().plusDays(5), 70, LocalDate.now().plusDays(15), LocalDate.now().plusDays(25), "Old Location", "Old Description", "Old Rules", 'A');
+        existingTournament.setId(1);
+
+        when(tournamentRepository.findById(1)).thenReturn(Optional.of(existingTournament));
+        when(tournamentRepository.save(existingTournament)).thenReturn(existingTournament);
+
+        // Act
+        Tournament result = tournamentService.updateTournament(1, dto, organiser);
+
+        // Assert
+        assertEquals(existingTournament, result);
+        verify(tournamentRepository).save(existingTournament);
+    }
+
+    @Test
+    @Transactional
+    void updateTournament_ValidOrganiser() throws Exception {
+        // Arrange
+        Organiser organiser = new Organiser();
+        organiser.setId(1);
+
+        CreateTournamentDTO dto = new CreateTournamentDTO();
+        dto.setName("Updated Tournament Name");
+        dto.setSignupEndDate(LocalDate.now().plusDays(10));
+        dto.setAdvancementRate(70);
+        dto.setStartDate(LocalDate.now().plusDays(20));
+        dto.setEndDate(LocalDate.now().plusDays(30));
+        dto.setLocation("Updated Location");
+        dto.setDescription("Updated Description");
+        dto.setRules("Updated Rules");
+        dto.setDifficulty('B');
+
+        Tournament existingTournament = new Tournament("Old Tournament Name", organiser, LocalDate.now().plusDays(5), 70, LocalDate.now().plusDays(15), LocalDate.now().plusDays(25), "Old Location", "Old Description", "Old Rules", 'A');
+        existingTournament.setId(1);
+
+        when(tournamentRepository.findById(1)).thenReturn(Optional.of(existingTournament));
+        when(tournamentRepository.save(existingTournament)).thenReturn(existingTournament);
+
+        // Act
+        Tournament result = tournamentService.updateTournament(1, dto, organiser);
+
+        // Assert
+        assertEquals(existingTournament, result);
+        verify(tournamentRepository).save(existingTournament);
+    }
+
+    @Test
+    @Transactional
+    void updateTournament_InvalidOrganiser() {
+        // Arrange
+        Organiser organiser = new Organiser();
+        organiser.setId(1);
+
+        Organiser differentOrganiser = new Organiser();
+        differentOrganiser.setId(2);
+
+        CreateTournamentDTO dto = new CreateTournamentDTO();
+        dto.setName("Updated Tournament Name");
+        dto.setSignupEndDate(LocalDate.now().plusDays(10));
+        dto.setAdvancementRate(70);
+        dto.setStartDate(LocalDate.now().plusDays(20));
+        dto.setEndDate(LocalDate.now().plusDays(30));
+        dto.setLocation("Updated Location");
+        dto.setDescription("Updated Description");
+        dto.setRules("Updated Rules");
+        dto.setDifficulty('B');
+
+        Tournament existingTournament = new Tournament("Old Tournament Name", organiser, LocalDate.now().plusDays(5), 70, LocalDate.now().plusDays(15), LocalDate.now().plusDays(25), "Old Location", "Old Description", "Old Rules", 'A');
+        existingTournament.setId(1);
+
+        when(tournamentRepository.findById(1)).thenReturn(Optional.of(existingTournament));
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            tournamentService.updateTournament(1, dto, differentOrganiser);
+        });
+
+        assertEquals("Organiser does not match the tournament organiser.", exception.getMessage());
+    }
+
+    @Test
+    @Transactional
+    void updateTournament_ValidEventDates() throws Exception {
+        // Arrange
+        Organiser organiser = new Organiser();
+        organiser.setId(1);
+
+        CreateTournamentDTO dto = new CreateTournamentDTO();
+        dto.setName("Updated Tournament Name");
+        dto.setSignupEndDate(LocalDate.now().plusDays(10));
+        dto.setAdvancementRate(70);
+        dto.setStartDate(LocalDate.now().plusDays(20));
+        dto.setEndDate(LocalDate.now().plusDays(30));
+        dto.setLocation("Updated Location");
+        dto.setDescription("Updated Description");
+        dto.setRules("Updated Rules");
+        dto.setDifficulty('B');
+
+        Event event = new Event();
+        event.setDate(LocalDate.now().plusDays(21));
+        Set<Event> events = new HashSet<>();
+        events.add(event);
+
+        Tournament existingTournament = new Tournament("Old Tournament Name", organiser, LocalDate.now().plusDays(5), 70, LocalDate.now().plusDays(15), LocalDate.now().plusDays(25), "Old Location", "Old Description", "Old Rules", 'A');
+        existingTournament.setId(1);
+        existingTournament.setEvents(events);
+
+        when(tournamentRepository.findById(1)).thenReturn(Optional.of(existingTournament));
+        when(tournamentRepository.save(existingTournament)).thenReturn(existingTournament);
+
+        // Act
+        Tournament result = tournamentService.updateTournament(1, dto, organiser);
+
+        // Assert
+        assertEquals(existingTournament, result);
+        verify(tournamentRepository).save(existingTournament);
+    }
+
+    @Test
+    @Transactional
+    void updateTournament_InvalidEventDates() {
+        // Arrange
+        Organiser organiser = new Organiser();
+        organiser.setId(1);
+
+        CreateTournamentDTO dto = new CreateTournamentDTO();
+        dto.setName("Updated Tournament Name");
+        dto.setSignupEndDate(LocalDate.now().plusDays(10));
+        dto.setAdvancementRate(80);
+        dto.setStartDate(LocalDate.now().plusDays(20));
+        dto.setEndDate(LocalDate.now().plusDays(30));
+        dto.setLocation("Updated Location");
+        dto.setDescription("Updated Description");
+        dto.setRules("Updated Rules");
+        dto.setDifficulty('B');
+
+        Event event = new Event();
+        event.setDate(LocalDate.now().plusDays(31));
+        Set<Event> events = new HashSet<>();
+        events.add(event);
+
+        Tournament existingTournament = new Tournament("Old Tournament Name", organiser, LocalDate.now().plusDays(5), 80, LocalDate.now().plusDays(15), LocalDate.now().plusDays(25), "Old Location", "Old Description", "Old Rules", 'A');
+        existingTournament.setId(1);
+        existingTournament.setEvents(events);
+
+        when(tournamentRepository.findById(1)).thenReturn(Optional.of(existingTournament));
+
+        // Act & Assert
+        assertThrows(MethodArgumentNotValidException.class, () -> {
+            tournamentService.updateTournament(1, dto, organiser);
+        });
+    }
+
+    @Test
+    void getUpcomingTournaments() {
+        // Arrange
+        Tournament pastTournament = new Tournament();
+        pastTournament.setId(1);
+        pastTournament.setStartDate(LocalDate.now().minusDays(10));
+
+        Tournament futureTournament = new Tournament();
+        futureTournament.setId(2);
+        futureTournament.setStartDate(LocalDate.now().plusDays(10));
+
+        List<Tournament> tournaments = Arrays.asList(pastTournament, futureTournament);
+        when(tournamentRepository.findAll()).thenReturn(tournaments);
+
+        // Act
+        List<Tournament> result = tournamentService.getUpcomingTournaments();
+
+        // Assert
+        assertEquals(1, result.size());
+        assertEquals(futureTournament.getId(), result.get(0).getId());
+    }
+
+    @Test
+    void getPastTournaments() {
+        // Arrange
+        Tournament pastTournament = new Tournament();
+        pastTournament.setId(1);
+        pastTournament.setStartDate(LocalDate.now().minusDays(10));
+
+        Tournament futureTournament = new Tournament();
+        futureTournament.setId(2);
+        futureTournament.setStartDate(LocalDate.now().plusDays(10));
+
+        List<Tournament> tournaments = Arrays.asList(pastTournament, futureTournament);
+        when(tournamentRepository.findAll()).thenReturn(tournaments);
+
+        // Act
+        List<Tournament> result = tournamentService.getPastTournaments();
+
+        // Assert
+        assertEquals(1, result.size());
+        assertEquals(pastTournament.getId(), result.get(0).getId());
     }
 }

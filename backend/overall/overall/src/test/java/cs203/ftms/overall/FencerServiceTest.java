@@ -1,33 +1,44 @@
 package cs203.ftms.overall;
 
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import cs203.ftms.overall.dto.CompleteFencerProfileDTO;
+import cs203.ftms.overall.dto.UpdateFencerProfileDTO;
 import cs203.ftms.overall.dto.clean.CleanFencerDTO;
+import cs203.ftms.overall.dto.clean.CleanTournamentFencerDTO;
+import cs203.ftms.overall.model.tournamentrelated.Event;
+import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
 import cs203.ftms.overall.model.userrelated.Fencer;
+import cs203.ftms.overall.repository.tournamentrelated.EventRepository;
 import cs203.ftms.overall.repository.userrelated.FencerRepository;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
+import cs203.ftms.overall.service.authentication.AuthenticationService;
 import cs203.ftms.overall.service.fencer.FencerService;
+
 
 class FencerServiceTest {
 
@@ -37,12 +48,73 @@ class FencerServiceTest {
     @Mock
     private FencerRepository fencerRepository;
 
+    @Mock
+    private EventRepository eventRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private AuthenticationManager authenticationManager;
+
+    @Mock
+    private AuthenticationService authenticationService;
+
     @InjectMocks
     private FencerService fencerService;
+
+
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        authenticationService = new AuthenticationService(userRepository, authenticationManager, passwordEncoder, null);
+    }
+
+    @Test
+    void getCleanTournamentFencerDTO_TournamentFencerIsNull() {
+        // Act
+        CleanTournamentFencerDTO result = fencerService.getCleanTournamentFencerDTO(null);
+
+        // Assert
+        assertNull(result);
+    }
+
+    @Test
+    void getCleanTournamentFencerDTO_TournamentFencerIsNotNull() {
+        // Arrange
+        Fencer fencer = new Fencer();
+        fencer.setId(1);
+        fencer.setName("John Doe");
+        fencer.setClub("Best Club");
+        fencer.setCountry("USA");
+        fencer.setDominantArm('R');
+
+        Event event = new Event();
+        event.setId(1);
+
+        TournamentFencer tournamentFencer = new TournamentFencer();
+        tournamentFencer.setId(1);
+        tournamentFencer.setFencer(fencer);
+        tournamentFencer.setTournamentRank(1);
+        tournamentFencer.setEvent(event);
+        tournamentFencer.setPouleWins(5);
+        tournamentFencer.setPoulePoints(10);
+
+        // Act
+        CleanTournamentFencerDTO result = fencerService.getCleanTournamentFencerDTO(tournamentFencer);
+
+        // Assert
+        assertEquals(1, result.getTournamentFencerId());
+        assertEquals(1, result.getFencerId());
+        assertEquals("John Doe", result.getFencerName());
+        assertEquals("Best Club", result.getFencerClub());
+        assertEquals("USA", result.getCountry());
+        assertEquals('R', result.getDominantArm());
+        assertEquals(1, result.getTournamentRank());
+        assertEquals(1, result.getEventId());
+        assertEquals(5, result.getPouleWins());
+        assertEquals(10, result.getPoulePoints());
     }
 
     @Test
@@ -80,6 +152,28 @@ class FencerServiceTest {
 
         // Then
         assertNull(cleanFencerDTO);
+    }
+    @Test
+    void getAllFencers() {
+        // Arrange
+        Fencer fencer1 = new Fencer();
+        fencer1.setId(1);
+        fencer1.setName("John Doe");
+
+        Fencer fencer2 = new Fencer();
+        fencer2.setId(2);
+        fencer2.setName("Jane Doe");
+
+        List<Fencer> fencers = Arrays.asList(fencer1, fencer2);
+        when(fencerRepository.findAll()).thenReturn(fencers);
+
+        // Act
+        List<Fencer> result = fencerService.getAllFencers();
+
+        // Assert
+        assertEquals(2, result.size());
+        assertEquals("John Doe", result.get(0).getName());
+        assertEquals("Jane Doe", result.get(1).getName());
     }
 
     @Test
@@ -170,4 +264,262 @@ class FencerServiceTest {
         assertTrue(result.isEmpty());
         verify(fencerRepository, times(1)).findAll();
     }
+
+    // @Test
+    // void changePassword_OldPasswordCorrect() {
+    //     // Arrange
+    //     Fencer fencer = new Fencer();
+    //     fencer.setEmail("fencer@gmail.com");
+    //     fencer.setPassword("oldPassword");
+    //     userRepository.save(fencer);
+
+    //     // when(authenticationManager.authenticate(any())).thenReturn(null);
+    //     // when(userRepository.findByEmail(fencer.getEmail())).thenReturn(Optional.of(fencer));
+
+    //     when(userRepository.save(any(Fencer.class))).thenReturn(fencer);
+    //     when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+    //             .thenReturn(null);        
+    //     when(userRepository.findByEmail(fencer.getEmail())).thenReturn(Optional.of(fencer));
+    //     when(authenticationService.authenticateUser(fencer.getEmail(), "oldPassword")).thenReturn(fencer);
+
+    //     // Act
+    //     String result = fencerService.changePassword(fencer, "oldPassword", "newPassword");
+    //     System.out.println(result);
+
+
+    //     // // Arrange
+    //     // String email = "user@example.com";
+    //     // String password = "Abcd1234!";
+    //     // String newPassword = "Abce!1234";
+
+    //     // when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+    //     //         .thenReturn(null);
+    //     // User user = new Fencer();
+    //     // user.setEmail(email);
+    //     // when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+
+    //     // // Act
+    //     // User authenticatedUser = authenticationService.authenticateUser(email, password);
+
+    //     // // Act
+    //     // String result = fencerService.changePassword(user, password, newPassword);
+
+    //     // // Assert
+    //     // assertEquals("password changed successfully", result);
+    //     // verify(userRepository).save(user);
+    //     // assertEquals("newPassword", user.getPassword());
+    // }
+
+        @Test
+    void updateProfile() {
+        // Arrange
+        Fencer fencer = new Fencer();
+        fencer.setId(1);
+        fencer.setClub("Old Club");
+        fencer.setContactNo("123456789");
+        fencer.setCountry("Old Country");
+        fencer.setEmail("old@example.com");
+        fencer.setName("Old Name");
+        fencer.setDominantArm('R');
+
+        UpdateFencerProfileDTO dto = new UpdateFencerProfileDTO(null, null, null, null, 'R', null);
+        dto.setClub("New Club");
+        dto.setContactNo("987654321");
+        dto.setCountry("New Country");
+        dto.setEmail("new@example.com");
+        dto.setName("New Name");
+        dto.setDominantArm('L');
+
+        // Act
+        fencerService.updateProfile(fencer, dto);
+
+        // Assert
+        assertEquals("New Club", fencer.getClub());
+        assertEquals("987654321", fencer.getContactNo());
+        assertEquals("New Country", fencer.getCountry());
+        assertEquals("new@example.com", fencer.getEmail());
+        assertEquals("New Name", fencer.getName());
+        assertEquals('L', fencer.getDominantArm());
+        verify(userRepository).save(fencer);
+    }
+
+    @Test
+    void getFencerPastEventsProfiles() {
+        // Arrange
+        Fencer fencer = new Fencer();
+        fencer.setId(1);
+
+        Event pastEvent = new Event();
+        pastEvent.setId(1);
+        pastEvent.setDate(LocalDate.now().minusDays(10));
+
+        Event futureEvent = new Event();
+        futureEvent.setId(2);
+        futureEvent.setDate(LocalDate.now().plusDays(10));
+
+        TournamentFencer pastTournamentFencer = new TournamentFencer();
+        pastTournamentFencer.setEvent(pastEvent);
+
+        TournamentFencer futureTournamentFencer = new TournamentFencer();
+        futureTournamentFencer.setEvent(futureEvent);
+
+        Set<TournamentFencer> tournamentFencers = new HashSet<>();
+        tournamentFencers.add(pastTournamentFencer);
+        tournamentFencers.add(futureTournamentFencer);
+
+        fencer.setTournamentFencerProfiles(tournamentFencers);
+
+        // Act
+        List<TournamentFencer> result = fencerService.getFencerPastEventsProfiles(fencer);
+
+        // Assert
+        assertEquals(1, result.size());
+        assertEquals(pastEvent.getId(), result.get(0).getEvent().getId());
+    }
+
+
+    @Test
+    void getFencerEvents() {
+        // Arrange
+        Fencer fencer = new Fencer();
+        fencer.setId(1);
+
+        Event event1 = new Event();
+        event1.setId(1);
+
+        Event event2 = new Event();
+        event2.setId(2);
+
+        TournamentFencer tournamentFencer1 = new TournamentFencer();
+        tournamentFencer1.setEvent(event1);
+
+        TournamentFencer tournamentFencer2 = new TournamentFencer();
+        tournamentFencer2.setEvent(event2);
+
+        Set<TournamentFencer> tournamentFencers = new HashSet<>();
+        tournamentFencers.add(tournamentFencer1);
+        tournamentFencers.add(tournamentFencer2);
+
+        fencer.setTournamentFencerProfiles(tournamentFencers);
+
+        when(eventRepository.findById(1)).thenReturn(Optional.of(event1));
+        when(eventRepository.findById(2)).thenReturn(Optional.of(event2));
+
+        // Act
+        List<Event> result = fencerService.getFencerEvents(fencer);
+
+        // Assert
+        assertEquals(2, result.size());
+        assertEquals(event1.getId(), result.get(1).getId());
+        assertEquals(event2.getId(), result.get(0).getId());
+    }
+
+    @Test
+    void getFencerUpcomingEvents() {
+        // Arrange
+        Fencer fencer = new Fencer();
+        fencer.setId(1);
+
+        Event pastEvent = new Event();
+        pastEvent.setId(1);
+        pastEvent.setDate(LocalDate.now().minusDays(10));
+
+        Event futureEvent = new Event();
+        futureEvent.setId(2);
+        futureEvent.setDate(LocalDate.now().plusDays(10));
+
+        TournamentFencer pastTournamentFencer = new TournamentFencer();
+        pastTournamentFencer.setEvent(pastEvent);
+
+        TournamentFencer futureTournamentFencer = new TournamentFencer();
+        futureTournamentFencer.setEvent(futureEvent);
+
+        Set<TournamentFencer> tournamentFencers = new HashSet<>();
+        tournamentFencers.add(pastTournamentFencer);
+        tournamentFencers.add(futureTournamentFencer);
+
+        fencer.setTournamentFencerProfiles(tournamentFencers);
+
+        when(eventRepository.findById(1)).thenReturn(Optional.of(pastEvent));
+        when(eventRepository.findById(2)).thenReturn(Optional.of(futureEvent));
+
+        // Act
+        List<Event> result = fencerService.getFencerUpcomingEvents(fencer);
+
+        // Assert
+        assertEquals(1, result.size());
+        assertEquals(futureEvent.getId(), result.get(0).getId());
+    }
+
+    @Test
+    void getFencerPastEvents() {
+        // Arrange
+        Fencer fencer = new Fencer();
+        fencer.setId(1);
+
+        Event pastEvent = new Event();
+        pastEvent.setId(1);
+        pastEvent.setDate(LocalDate.now().minusDays(10));
+
+        Event futureEvent = new Event();
+        futureEvent.setId(2);
+        futureEvent.setDate(LocalDate.now().plusDays(10));
+
+        TournamentFencer pastTournamentFencer = new TournamentFencer();
+        pastTournamentFencer.setEvent(pastEvent);
+
+        TournamentFencer futureTournamentFencer = new TournamentFencer();
+        futureTournamentFencer.setEvent(futureEvent);
+
+        Set<TournamentFencer> tournamentFencers = new HashSet<>();
+        tournamentFencers.add(pastTournamentFencer);
+        tournamentFencers.add(futureTournamentFencer);
+
+        fencer.setTournamentFencerProfiles(tournamentFencers);
+
+        when(eventRepository.findById(1)).thenReturn(Optional.of(pastEvent));
+        when(eventRepository.findById(2)).thenReturn(Optional.of(futureEvent));
+
+        // Act
+        List<Event> result = fencerService.getFencerPastEvents(fencer);
+
+        // Assert
+        assertEquals(1, result.size());
+        assertEquals(pastEvent.getId(), result.get(0).getId());
+    }
+
+
+    @Test
+    void getFilterdInternationalRank() {
+        // Arrange
+        Fencer fencer1 = new Fencer();
+        fencer1.setId(1);
+        fencer1.setWeapon('E');
+        fencer1.setGender('M');
+        fencer1.setPoints(100);
+
+        Fencer fencer2 = new Fencer();
+        fencer2.setId(2);
+        fencer2.setWeapon('F');
+        fencer2.setGender('F');
+        fencer2.setPoints(200);
+
+        Fencer fencer3 = new Fencer();
+        fencer3.setId(3);
+        fencer3.setWeapon('E');
+        fencer3.setGender('M');
+        fencer3.setPoints(150);
+
+        List<Fencer> fencers = Arrays.asList(fencer1, fencer2, fencer3);
+        when(fencerRepository.findAll()).thenReturn(fencers);
+
+        // Act
+        List<Fencer> result = fencerService.getFilterdInternationalRank('E', 'M');
+
+        // Assert
+        assertEquals(2, result.size());
+        assertEquals(fencer3.getId(), result.get(0).getId());
+        assertEquals(fencer1.getId(), result.get(1).getId());
+    }
+
 }

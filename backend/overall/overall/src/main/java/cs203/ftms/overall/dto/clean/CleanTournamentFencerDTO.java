@@ -14,14 +14,14 @@ public class CleanTournamentFencerDTO {
 
     
     public CleanTournamentFencerDTO(int tournamentFencerId, int fencerId, String fencerName, String fencerClub, String country,
-            char dominantArm, int tournamentPoints, int eventId, int pouleWins, int poulePoints) {
+            char dominantArm, int tournamentRank, int eventId, int pouleWins, int poulePoints) {
         this.tournamentFencerId = tournamentFencerId;
         this.fencerId = fencerId;
         this.fencerName = fencerName;
         this.fencerClub = fencerClub;
         this.country = country;
         this.dominantArm = dominantArm;
-        this.tournamentRank = tournamentPoints;
+        this.tournamentRank = tournamentRank;
         this.eventId = eventId;
         this.pouleWins = pouleWins;
         this.poulePoints = poulePoints;

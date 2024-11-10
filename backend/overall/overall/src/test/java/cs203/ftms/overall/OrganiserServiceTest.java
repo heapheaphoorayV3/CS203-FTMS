@@ -1,25 +1,29 @@
 package cs203.ftms.overall;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import java.time.LocalDate;
-import java.time.Year;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 
+import cs203.ftms.overall.dto.UpdateOrganiserProfileDTO;
 import cs203.ftms.overall.dto.clean.CleanOrganiserDTO;
 import cs203.ftms.overall.model.tournamentrelated.Tournament;
 import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.repository.tournamentrelated.TournamentRepository;
+import cs203.ftms.overall.repository.userrelated.OrganiserRepository;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
 import cs203.ftms.overall.service.organiser.OrganiserService;
 
@@ -30,6 +34,9 @@ class OrganiserServiceTest {
 
     @Mock
     private TournamentRepository tournamentRepository;
+
+    @Mock
+    private OrganiserRepository organiserRepository;
 
     @InjectMocks
     private OrganiserService organiserService;
@@ -101,5 +108,107 @@ class OrganiserServiceTest {
         // Assert
         assertNull(result);
         verify(tournamentRepository, times(1)).findByOrganiserId(organiser.getId());
+    }
+
+    @Test
+    void updateProfile() {
+        // Arrange
+        Organiser organiser = new Organiser();
+        organiser.setId(1);
+        organiser.setContactNo("123456789");
+        organiser.setCountry("Old Country");
+        organiser.setEmail("old@example.com");
+        organiser.setName("Old Name");
+
+        UpdateOrganiserProfileDTO dto = new UpdateOrganiserProfileDTO(null, null, null, null);
+        dto.setContactNo("987654321");
+        dto.setCountry("New Country");
+        dto.setEmail("new@example.com");
+        dto.setName("New Name");
+
+        // Act
+        organiserService.updateProfile(organiser, dto);
+
+        // Assert
+        assertEquals("987654321", organiser.getContactNo());
+        assertEquals("New Country", organiser.getCountry());
+        assertEquals("new@example.com", organiser.getEmail());
+        assertEquals("New Name", organiser.getName());
+        verify(userRepository).save(organiser);
+    }
+
+        @Test
+    void getOrganiserUpcomingTournaments() {
+        // Arrange
+        Organiser organiser = new Organiser();
+        organiser.setId(1);
+
+        Tournament pastTournament = new Tournament();
+        pastTournament.setId(1);
+        pastTournament.setStartDate(LocalDate.now().minusDays(10));
+
+        Tournament futureTournament = new Tournament();
+        futureTournament.setId(2);
+        futureTournament.setStartDate(LocalDate.now().plusDays(10));
+
+        List<Tournament> tournaments = Arrays.asList(pastTournament, futureTournament);
+        when(tournamentRepository.findByOrganiserId(organiser.getId())).thenReturn(Optional.of(tournaments));
+
+        // Act
+        List<Tournament> result = organiserService.getOrganiserUpcomingTournaments(organiser);
+
+        // Assert
+        assertEquals(1, result.size());
+        assertEquals(futureTournament.getId(), result.get(0).getId());
+    }
+
+    @Test
+    void getOrganiserPastTournaments() {
+        // Arrange
+        Organiser organiser = new Organiser();
+        organiser.setId(1);
+
+        Tournament pastTournament = new Tournament();
+        pastTournament.setId(1);
+        pastTournament.setStartDate(LocalDate.now().minusDays(10));
+
+        Tournament futureTournament = new Tournament();
+        futureTournament.setId(2);
+        futureTournament.setStartDate(LocalDate.now().plusDays(10));
+
+        List<Tournament> tournaments = Arrays.asList(pastTournament, futureTournament);
+        when(tournamentRepository.findByOrganiserId(organiser.getId())).thenReturn(Optional.of(tournaments));
+
+        // Act
+        List<Tournament> result = organiserService.getOrganiserPastTournaments(organiser);
+
+        // Assert
+        assertEquals(1, result.size());
+        assertEquals(pastTournament.getId(), result.get(0).getId());
+    }
+
+    @Test
+    void getAllOrganisers_ShouldReturnAllOrganisers() {
+        // Arrange
+        List<Organiser> organisers = new ArrayList<>();
+        Organiser organiser1 = new Organiser();
+        organiser1.setId(1);
+        organiser1.setName("Organiser 1");
+        organisers.add(organiser1);
+
+        Organiser organiser2 = new Organiser();
+        organiser2.setId(2);
+        organiser2.setName("Organiser 2");
+        organisers.add(organiser2);
+
+        when(organiserRepository.findAll()).thenReturn(organisers);
+
+        // Act
+        List<Organiser> result = organiserService.getAllOrganisers();
+
+        // Assert
+        assertEquals(2, result.size());
+        assertEquals(organiser1, result.get(0));
+        assertEquals(organiser2, result.get(1));
     }
 }
