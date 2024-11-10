@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,6 +17,7 @@ import cs203.ftms.overall.comparator.FencerPointsComparator;
 import cs203.ftms.overall.dto.CompleteFencerProfileDTO;
 import cs203.ftms.overall.dto.UpdateFencerProfileDTO;
 import cs203.ftms.overall.dto.clean.CleanFencerDTO;
+import cs203.ftms.overall.dto.clean.CleanTournamentFencerDTO;
 import cs203.ftms.overall.model.tournamentrelated.Event;
 import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
 import cs203.ftms.overall.model.userrelated.Fencer;
@@ -47,6 +49,10 @@ public class FencerService {
         if (f == null) return null;
         return new CleanFencerDTO(f.getId(), f.getName(), f.getEmail(), f.getContactNo(), f.getCountry(),
         f.getDateOfBirth(), f.getDominantArm(), f.getWeapon(), f.getClub(), f.getPoints(), f.getDebutYear(), f.getGender());
+    }
+
+    public CleanTournamentFencerDTO getCleanTournamentFencerDTO(TournamentFencer tf) {
+        return new CleanTournamentFencerDTO(tf.getId(), tf.getFencer().getId(), tf.getFencer().getName(), tf.getFencer().getClub(), tf.getFencer().getCountry(), tf.getFencer().getDominantArm(), tf.getTournamentRank(), tf.getEvent().getId(), tf.getPouleWins(), tf.getPoulePoints(), tf.getPointsAfterEvent());
     }
 
     public List<Fencer> getAllFencers() {
@@ -129,5 +135,19 @@ public class FencerService {
             }
         }
         return filteredFencers;
+    }
+
+    public List<CleanTournamentFencerDTO> getFencerPastEventsPoints(Fencer f) {
+        Set<TournamentFencer> tfs = f.getTournamentFencerProfiles();
+        List<TournamentFencer> tfList = new ArrayList<>(tfs);
+        Collections.sort(tfList, (a, b) -> a.getEvent().getDate().compareTo(b.getEvent().getDate()));
+        for (TournamentFencer tf : tfList) {
+            System.out.println(tf.getEvent().getId());
+        }
+        List<CleanTournamentFencerDTO> res = new ArrayList<>();
+        for (TournamentFencer tf : tfList) {
+            res.add(getCleanTournamentFencerDTO(tf));
+        }
+        return res;
     }
 }
