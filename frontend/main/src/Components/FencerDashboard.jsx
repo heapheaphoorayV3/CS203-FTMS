@@ -247,12 +247,6 @@ const FencerDashboard = () => {
     return `${startDate} - ${endDate}`;
   };
 
-  const test = {
-    name: "tournament",
-    dates: "dates",
-    rank: 2,
-  };
-
   return (
     <div className="bg-white w-full h-full flex flex-col gap-2 p-8 overflow-auto">
       <div className="bg-white border rounded-2xl shadow-lg p-6 flex flex-col w-full relative overflow-x-hidden">
@@ -459,12 +453,6 @@ const FencerDashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {/* <tr>
-                    <td className="w-20">1</td>
-                    <td className="w-1/4">{test.name}</td>
-                    <td className="text-center">{test.dates}</td>
-                    <td className="text-center">{pastRank}</td>
-                  </tr> */}
                   {pastEvents && pastEvents.length > 0 ? (
                     pastEvents.map((item, index) => (
                       <tr

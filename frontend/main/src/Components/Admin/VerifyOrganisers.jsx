@@ -107,7 +107,7 @@ export default function VerifyOrganisers() {
         const data = categoriseStatus(checkboxState);
         try {
             console.log('Submitting verifications: ', data);
-            await AdminService.verifyOrganisers(data);
+            await AdminService.verifyOrganiser(data);
             window.location.reload();
         } catch (error) {
             setSubmitError(true);
@@ -120,7 +120,7 @@ export default function VerifyOrganisers() {
             <h1 className="text-4xl font-bold mt-4">Verify Organisers</h1>
             <table className="table text-lg">
                 <thead>
-                    <tr className="text-lg">
+                    <tr className="text-lg text-primary border-b border-gray-300">
                         <th>Organisation</th>
                         <th>Email</th>
                         <th>Actions</th>
@@ -129,7 +129,7 @@ export default function VerifyOrganisers() {
                 <tbody>
                     {/* {organisers.length === 0 && (<tr><td colSpan="3">No organisers to verify</td></tr>)} */}
                     {organisers.map((organiser) => (
-                        <tr key={organiser.id}>
+                        <tr key={organiser.id} className="border-b border-gray-300">
                             <td>{organiser.name}</td>
                             <td>{organiser.email}</td>
                             <td className="flex gap-4">
