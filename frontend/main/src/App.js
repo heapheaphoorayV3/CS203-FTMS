@@ -36,7 +36,7 @@ function App() {
           <Route path="/signup-organiser" element={<SignUpOrganiser />} />
           <Route path="/tournaments" element={<Tournaments />} />
           <Route path="/tournaments/:tournamentID" element={<ViewTournament />} />
-          <Route path="/view-event/:eventID" element={<ViewEvent />} />
+          <Route path="/:tournamentID/view-event/:eventID" element={<ViewEvent />} />
           <Route path="/international-ranking" element={<InternationalRanking />} />
         </Route>
 

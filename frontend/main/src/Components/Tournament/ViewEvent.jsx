@@ -14,7 +14,10 @@ function formatTimeTo24Hour(timeString) {
 }
 
 export default function ViewEvent() {
-  const { eventID } = useParams();
+  const { tournamentID, eventID } = useParams();
+
+  console.log(`Tournament ID: ${tournamentID}`);
+  console.log(`Event ID: ${eventID}`);
   const [userType, setUserType] = useState(sessionStorage.getItem("userType"));
 
   const [eventData, setEventData] = useState(null);
@@ -47,7 +50,7 @@ export default function ViewEvent() {
       try {
         const response = await EventService.getEvent(eventID);
         setEventData(response.data);
-        console.log("event data =>");
+        // console.log("event data =>");
       } catch (error) {
         console.error("Error fetching event data:", error);
         setError("Failed to load event data.");
@@ -79,7 +82,7 @@ export default function ViewEvent() {
         const response = await EventService.getRecommendedPoules(eventID);
         setRecommendedPoulesData(response.data);
       } catch (error) {
-        console.log("Error fetching recommended poules", error);
+        console.error("Error fetching recommended poules", error);
         setError("Failed to load recommended poules");
       }
     };
@@ -88,7 +91,7 @@ export default function ViewEvent() {
       try {
         const response = await EventService.getMatches(eventID);
         setMatches(response.data);
-        console.log("matches:", response.data);
+        // console.log("matches:", response.data);
       } catch (error) {
         console.error("Error fetching matches:", error);
         setError("Failed to load matches.");
@@ -115,8 +118,8 @@ export default function ViewEvent() {
         fetchEventRanking(),
       ]).then(() => {
         // Code to run after all functions complete
-        console.log("All functions have completed.");
-        console.log("Matches: ", matches);
+        // console.log("All functions have completed.");
+        // console.log("Matches: ", matches);
         setLoading(false);
       });
     }
@@ -192,6 +195,7 @@ export default function ViewEvent() {
         : eventData
           ? eventData.tournamentName
           : "Not Found",
+      link: `/tournaments/${tournamentID}`
     },
     {
       name: loading
@@ -235,7 +239,7 @@ export default function ViewEvent() {
     try {
       await EventService.createPoules(payload.eid, payload);
     } catch (error) {
-      console.log("error creating poules", error);
+      console.error("error creating poules", error);
     }
     closeCreatePopup();
   };
@@ -274,7 +278,7 @@ export default function ViewEvent() {
 
       for (const key in pouleTable) {
         if (key === fencerName) {
-          pouleTable[key] = updatedData[fencerName]; 
+          pouleTable[key] = updatedData[fencerName];
           break;
         }
       }
@@ -306,7 +310,7 @@ export default function ViewEvent() {
 
       await EventService.updateDEMatch(eventID, combinedData);
 
-      console.log("Bracket matches updated successfully");
+      // console.log("Bracket matches updated successfully");
 
       closeUpdatePopup();
 
@@ -332,7 +336,7 @@ export default function ViewEvent() {
 
       await EventService.updatePouleTable(eventID, combinedData);
 
-      console.log("Poules updated successfully");
+      // console.log("Poules updated successfully");
     } catch (error) {
       console.error("Error updating poules:", error);
     } finally {
@@ -341,9 +345,6 @@ export default function ViewEvent() {
   };
 
   const totalPages = Math.ceil(eventRanking.length / limit);
-
-  console.log("-------------");
-  console.log(eventData);
 
   return (
     <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">
@@ -366,138 +367,134 @@ export default function ViewEvent() {
         <Tabs>
           <Tab label="Poules">
             <div className="py-4">
-              {userType === "O" && (
-                <div>
-                  {!pouleTableData && (
-                    <button
-                      onClick={createPoules}
-                      className="bg-blue-500 text-white px-4 py-2 rounded mt-2 mb-2"
-                    >
-                      Create Poules
-                    </button>
-                  )}
-                  <div className="flex items-end w-full">
-                    <div className="mr-12 h-20">
-                      <label className="block font-medium mb-1 ml-1">
-                        Poule Results
-                      </label>
-                      <select
-                        value={selectedPoule}
-                        onChange={handlePouleChange}
-                        className="block w-full py-2 px-3 border border-gray-300 rounded"
-                      >
-                        {pouleTableData.pouleTable.map((poule, index) => (
-                          <option key={index} value={index + 1}>
-                            {`Poule ${index + 1}`}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="flex mt-4 pb-2 space-x-2">
-                      <button
-                        onClick={updatePoules}
-                        className="bg-blue-500 text-white px-4 py-2 rounded"
-                      >
-                        Update Poules
-                      </button>
-
-                      {isUpdating && (
-                        <>
-                          <button
-                            onClick={submitUpdatePoules}
-                            className="bg-green-400 text-white px-4 py-2 rounded"
-                          >
-                            Confirm Changes
-                          </button>
-                          <button
-                            onClick={cancelUpdatePoules}
-                            className="bg-red-400 text-white px-4 py-2 rounded"
-                          >
-                            Cancel Changes
-                          </button>
-                          {!isInputValid && (
-                            <span className="px-4 py-2 text-red-500 italic">
-                              Invalid input. Input a number between 0 and 5.
-                            </span>
-                          )}
-                        </>
+              {pouleTableData && pouleTableData.pouleTable[pouleIndex] ? (
+                <>
+                  {userType === "O" && (
+                    <div>
+                      {!pouleTableData && (
+                        <button
+                          onClick={createPoules}
+                          className="bg-blue-500 text-white px-4 py-2 rounded mt-2 mb-2"
+                        >
+                          Create Poules
+                        </button>
                       )}
+                      <div className="flex items-end w-full">
+                        <div className="mr-12 h-20">
+                          <label className="block font-medium mb-1 ml-1">
+                            Poule Results
+                          </label>
+                          <select
+                            value={selectedPoule}
+                            onChange={handlePouleChange}
+                            className="block w-full py-2 px-3 border border-gray-300 rounded"
+                          >
+                            {pouleTableData.pouleTable.map((poule, index) => (
+                              <option key={index} value={index}>
+                                {`Poule ${index + 1}`}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="flex mt-4 pb-2 space-x-2">
+                          <button
+                            onClick={updatePoules}
+                            className="bg-blue-500 text-white px-4 py-2 rounded"
+                          >
+                            Update Poules
+                          </button>
+
+                          {isUpdating && (
+                            <>
+                              <button
+                                onClick={submitUpdatePoules}
+                                className="bg-green-400 text-white px-4 py-2 rounded"
+                              >
+                                Confirm Changes
+                              </button>
+                              <button
+                                onClick={cancelUpdatePoules}
+                                className="bg-red-400 text-white px-4 py-2 rounded"
+                              >
+                                Cancel Changes
+                              </button>
+                              {!isInputValid && (
+                                <span className="px-4 py-2 text-red-500 italic">
+                                  Invalid input. Input a number between 0 and 5.
+                                </span>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  )}
+
+                  <table className="table text-lg">
+                    <thead className="text-lg text-neutral">
+                      <tr className="border-b border-gray-300 h-[50px]">
+                        <th className="w-60 text-primary">Fencer</th>
+                        <th className="w-24"></th>
+                        <th className="text-center w-24">1</th>
+                        <th className="text-center w-24">2</th>
+                        <th className="text-center w-24">3</th>
+                        <th className="text-center w-24">4</th>
+                        <th className="text-center w-24">5</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {Object.entries(pouleTableData.pouleTable[pouleIndex]).map(
+                        ([fencer, results], idx) => {
+                          const resultArray = results.split(",");
+                          const cleanedFencerName = fencer.replace(/ -- \d+$/, "");
+
+                          return (
+                            <tr
+                              key={idx}
+                              className="border-b border-gray-300 h-[68px]"
+                            >
+                              <td className="w-60">{cleanedFencerName}</td>
+                              <td className="font-bold text-center border-r border-gray-300 w-24">
+                                {idx + 1}
+                              </td>
+                              {resultArray.map((result, resultIndex) => (
+                                <td
+                                  key={resultIndex}
+                                  className={`border border-gray-300 hover:bg-gray-100 ${result === "-1"
+                                      ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
+                                      : ""
+                                    }`}
+                                >
+                                  {result === "-1" ? (
+                                    result
+                                  ) : isUpdating ? (
+                                    <input
+                                      type="text"
+                                      placeholder={result}
+                                      onChange={(event) =>
+                                        handleInputChange(event, resultIndex, idx)
+                                      }
+                                      className={`w-full text-center ${!isInputValid ? "border-red-500" : "border-gray-300"
+                                        }`}
+                                    />
+                                  ) : (
+                                    result
+                                  )}
+                                </td>
+                              ))}
+                            </tr>
+                          );
+                        }
+                      )}
+                    </tbody>
+                  </table>
+                </>
+              ) : (
+                <div className="flex justify-center items-center h-full">
+                  <h2 className="text-lg font-medium">No poules available yet</h2>
                 </div>
               )}
-
-              <table className="table text-lg">
-                {/* head */}
-                <thead className="text-lg text-neutral">
-                  <tr className="border-b border-gray-300 h-[50px]">
-                    <th className="w-60 text-primary">Fencer</th>
-                    <th className="w-24"></th>
-                    <th className="text-center w-24">1</th>
-                    <th className="text-center w-24">2</th>
-                    <th className="text-center w-24">3</th>
-                    <th className="text-center w-24">4</th>
-                    <th className="text-center w-24">5</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pouleTableData && pouleTableData.pouleTable[pouleIndex] ? (
-                    Object.entries(pouleTableData.pouleTable[pouleIndex]).map(
-                      ([fencer, results], idx) => {
-                        const resultArray = results.split(",");
-                        const cleanedFencerName = fencer.replace(
-                          / -- \d+$/,
-                          ""
-                        );
-
-                        return (
-                          <tr
-                            key={idx}
-                            className="border-b border-gray-300 h-[68px]"
-                          >
-                            <td className="w-60">{cleanedFencerName}</td>
-                            <td className="font-bold text-center border-r border-gray-300 w-24">
-                              {idx + 1}
-                            </td>
-                            {resultArray.map((result, resultIndex) => (
-                              <td
-                                key={resultIndex}
-                                className={`border border-gray-300 hover:bg-gray-100 ${result === "-1"
-                                  ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
-                                  : ""
-                                  }`}
-                              >
-                                {result === "-1" ? (
-                                  result
-                                ) : isUpdating ? (
-                                  <input
-                                    type="text"
-                                    placeholder={result}
-                                    onChange={(event) =>
-                                      handleInputChange(event, resultIndex, idx)
-                                    }
-                                    className={`w-full text-center ${!isInputValid
-                                        ? "border-red-500"
-                                        : "border-gray-300"
-                                      }`}
-                                  />
-                                ) : (
-                                  result
-                                )}
-                              </td>
-                            ))}
-                          </tr>
-                        );
-                      }
-                    )
-                  ) : (
-                    <tr className="text-center border-b border-gray-300">
-                      <td colSpan={7}>No poules available yet</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
             </div>
             {/* Create Event Popup --> need to pass in submit/close */}
             {isCreatePopupVisible && (
@@ -545,7 +542,7 @@ export default function ViewEvent() {
           <Tab label="Ranking">
             <div className="py-4">
               {/* <h2 className="text-lg font-medium mb-2">Ranking</h2> */}
-              <table className="table text-lg border-collapse mb-4">
+              {paginatedData.length > 0 ? (<table className="table text-lg border-collapse mb-4">
                 {/* head */}
                 <thead className="text-lg text-primary">
                   <tr className="border-b border-gray-300">
@@ -568,7 +565,13 @@ export default function ViewEvent() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table>) :
+                <div className="flex justify-center items-center h-full">
+                  <h2 className="text-lg font-medium">
+                    No ranking available yet
+                  </h2>
+                </div>
+              }
               <div className="flex flex-col justify-center items-center">
                 <PaginationButton
                   totalPages={totalPages}
@@ -582,7 +585,7 @@ export default function ViewEvent() {
           <Tab label="Participants">
             <div className="py-4">
               {/* <h2 className="text-lg font-medium mb-2">Participants</h2> */}
-              <table className="table text-lg border-collapse mb-4">
+              {eventData.fencers.length > 0 ? (<table className="table text-lg border-collapse mb-4">
                 {/* head */}
                 <thead className="text-lg text-primary text-center">
                   <tr className="border-b border-gray-300">
@@ -607,7 +610,13 @@ export default function ViewEvent() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table>) :
+                <div className="flex justify-center items-center h-full">
+                  <h2 className="text-lg font-medium">
+                    No participants available yet
+                  </h2>
+                </div>
+              }
               <div className="flex flex-col justify-center items-center">
                 <PaginationButton
                   totalPages={totalPages}
