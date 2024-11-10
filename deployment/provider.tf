@@ -8,14 +8,14 @@ terraform {
   
   # Add backend configuration for state management
   backend "s3" {
-    bucket         = "ftms-tfstate-bucket"
-    key            = "ftms/terraform.tfstate"
-    region         = "ap-southeast-1"
+    bucket         = var.tfstate_bucket_name
+    key            = var.tfstate_bucket_key
+    region         = var.aws_region
     encrypt        = true
-    dynamodb_table = "terraform-state-lock"
+    dynamodb_table = var.tfstate_dynamodb_table
   }
 }
 
 provider "aws" {
-  region = "ap-southeast-1"
+  region = var.aws_region
 }
