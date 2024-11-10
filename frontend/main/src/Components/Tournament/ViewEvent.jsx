@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Tabs, Tab } from "../Others/Tabs.jsx";
 import EventService from "../../Services/Event/EventService.js";
+import OrganiserService from "../../Services/Organiser/OrganiserService.js";
 import PaginationButton from "../Others/PaginationButton.jsx";
 import EventBracket from "./EventBracket.jsx";
 import CreatePoules from "./CreatePoules.jsx";
@@ -16,8 +17,8 @@ function formatTimeTo24Hour(timeString) {
 export default function ViewEvent() {
   const { tournamentID, eventID } = useParams();
 
-  console.log(`Tournament ID: ${tournamentID}`);
-  console.log(`Event ID: ${eventID}`);
+  // Check if organiser is the owner of the event
+  const [isOwner, setIsOwner] = useState(false);
   const [userType, setUserType] = useState(sessionStorage.getItem("userType"));
 
   const [eventData, setEventData] = useState(null);
@@ -46,7 +47,7 @@ export default function ViewEvent() {
   useEffect(() => {
     setLoading(true);
 
-    const fetchData = async () => {
+    const fetchEventData = async () => {
       try {
         const response = await EventService.getEvent(eventID);
         setEventData(response.data);
@@ -54,6 +55,34 @@ export default function ViewEvent() {
       } catch (error) {
         console.error("Error fetching event data:", error);
         setError("Failed to load event data.");
+      }
+    };
+
+    // Fetch Upcoming Tournament if Organiser to check if organiser is the owner of current event
+    const checkIfOwner = async () => {
+      try {
+        const response =
+          await OrganiserService.getOrganiserUpcomingTournaments();
+        const upcomingTournaments = response.data;
+        console.log("upcoming tournaments:", upcomingTournaments);
+        let found = false;
+        for (let tournament of upcomingTournaments) {
+          if (Array.isArray(tournament.events)) {
+            for (let event of tournament.events) {
+              if (Number(event.id) === Number(eventID)) {
+                found = true;
+                break;
+              }
+            }
+          }
+          if (found) {
+            break;
+          }
+        }
+        setIsOwner(found);
+      } catch (error) {
+        console.error("Error fetching event:", error);
+        setError("Failed to load event.");
       }
     };
 
@@ -109,21 +138,29 @@ export default function ViewEvent() {
       }
     };
 
+    if (sessionStorage.getItem("userType") === "O") {
+      checkIfOwner();
+    }
+
     if (eventID) {
       Promise.all([
-        fetchData(),
+        fetchEventData(),
         fetchPouleTable(),
         userType === "O" && fetchRecommendedPoules(),
         fetchMatches(),
         fetchEventRanking(),
-      ]).then(() => {
-        // Code to run after all functions complete
-        // console.log("All functions have completed.");
-        // console.log("Matches: ", matches);
-        setLoading(false);
-      });
+      ])
+        .then(() => {
+          // Code to run after all functions complete
+          // console.log("All functions have completed.");
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error("Error in fetching some data:", error);
+          setLoading(false);
+        });
     }
-  }, [eventID]);
+  }, [eventID, tournamentID, userType]);
 
   useEffect(() => {
     if (Array.isArray(eventRanking) && eventRanking.length) {
@@ -193,16 +230,16 @@ export default function ViewEvent() {
       name: loading
         ? "Loading..."
         : eventData
-          ? eventData.tournamentName
-          : "Not Found",
-      link: `/tournaments/${tournamentID}`
+        ? eventData.tournamentName
+        : "Not Found",
+      link: `/tournaments/${tournamentID}`,
     },
     {
       name: loading
         ? "Loading..."
         : eventData
-          ? constructEventName(eventData.gender, eventData.weapon)
-          : "Not Found",
+        ? constructEventName(eventData.gender, eventData.weapon)
+        : "Not Found",
     },
   ];
 
@@ -322,7 +359,6 @@ export default function ViewEvent() {
 
   const submitUpdatePoules = async () => {
     try {
-
       const updatedPouleData = pouleTableData.pouleTable[selectedPoule - 1];
 
       const singleTableMap = new Map(Object.entries(updatedPouleData));
@@ -397,36 +433,40 @@ export default function ViewEvent() {
                           </select>
                         </div>
 
-                        <div className="flex mt-4 pb-2 space-x-2">
-                          <button
-                            onClick={updatePoules}
-                            className="bg-blue-500 text-white px-4 py-2 rounded"
-                          >
-                            Update Poules
-                          </button>
+                        {sessionStorage.getItem("userType") === "O" &&
+                          isOwner && (
+                            <div className="flex mt-4 pb-2 space-x-2">
+                              <button
+                                onClick={updatePoules}
+                                className="bg-blue-500 text-white px-4 py-2 rounded"
+                              >
+                                Update Poules
+                              </button>
 
-                          {isUpdating && (
-                            <>
-                              <button
-                                onClick={submitUpdatePoules}
-                                className="bg-green-400 text-white px-4 py-2 rounded"
-                              >
-                                Confirm Changes
-                              </button>
-                              <button
-                                onClick={cancelUpdatePoules}
-                                className="bg-red-400 text-white px-4 py-2 rounded"
-                              >
-                                Cancel Changes
-                              </button>
-                              {!isInputValid && (
-                                <span className="px-4 py-2 text-red-500 italic">
-                                  Invalid input. Input a number between 0 and 5.
-                                </span>
+                              {isUpdating && (
+                                <>
+                                  <button
+                                    onClick={submitUpdatePoules}
+                                    className="bg-green-400 text-white px-4 py-2 rounded"
+                                  >
+                                    Confirm Changes
+                                  </button>
+                                  <button
+                                    onClick={cancelUpdatePoules}
+                                    className="bg-red-400 text-white px-4 py-2 rounded"
+                                  >
+                                    Cancel Changes
+                                  </button>
+                                  {!isInputValid && (
+                                    <span className="px-4 py-2 text-red-500 italic">
+                                      Invalid input. Input a number between 0
+                                      and 5.
+                                    </span>
+                                  )}
+                                </>
                               )}
-                            </>
+                            </div>
                           )}
-                        </div>
                       </div>
                     </div>
                   )}
@@ -444,55 +484,64 @@ export default function ViewEvent() {
                       </tr>
                     </thead>
                     <tbody>
-                      {Object.entries(pouleTableData.pouleTable[pouleIndex]).map(
-                        ([fencer, results], idx) => {
-                          const resultArray = results.split(",");
-                          const cleanedFencerName = fencer.replace(/ -- \d+$/, "");
+                      {Object.entries(
+                        pouleTableData.pouleTable[pouleIndex]
+                      ).map(([fencer, results], idx) => {
+                        const resultArray = results.split(",");
+                        const cleanedFencerName = fencer.replace(
+                          / -- \d+$/,
+                          ""
+                        );
 
-                          return (
-                            <tr
-                              key={idx}
-                              className="border-b border-gray-300 h-[68px]"
-                            >
-                              <td className="w-60">{cleanedFencerName}</td>
-                              <td className="font-bold text-center border-r border-gray-300 w-24">
-                                {idx + 1}
-                              </td>
-                              {resultArray.map((result, resultIndex) => (
-                                <td
-                                  key={resultIndex}
-                                  className={`border border-gray-300 hover:bg-gray-100 ${result === "-1"
-                                      ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
-                                      : ""
+                        return (
+                          <tr
+                            key={idx}
+                            className="border-b border-gray-300 h-[68px]"
+                          >
+                            <td className="w-60">{cleanedFencerName}</td>
+                            <td className="font-bold text-center border-r border-gray-300 w-24">
+                              {idx + 1}
+                            </td>
+                            {resultArray.map((result, resultIndex) => (
+                              <td
+                                key={resultIndex}
+                                className={`border border-gray-300 hover:bg-gray-100 ${
+                                  result === "-1"
+                                    ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
+                                    : ""
+                                }`}
+                              >
+                                {result === "-1" ? (
+                                  result
+                                ) : isUpdating ? (
+                                  <input
+                                    type="text"
+                                    placeholder={result}
+                                    onChange={(event) =>
+                                      handleInputChange(event, resultIndex, idx)
+                                    }
+                                    className={`w-full text-center ${
+                                      !isInputValid
+                                        ? "border-red-500"
+                                        : "border-gray-300"
                                     }`}
-                                >
-                                  {result === "-1" ? (
-                                    result
-                                  ) : isUpdating ? (
-                                    <input
-                                      type="text"
-                                      placeholder={result}
-                                      onChange={(event) =>
-                                        handleInputChange(event, resultIndex, idx)
-                                      }
-                                      className={`w-full text-center ${!isInputValid ? "border-red-500" : "border-gray-300"
-                                        }`}
-                                    />
-                                  ) : (
-                                    result
-                                  )}
-                                </td>
-                              ))}
-                            </tr>
-                          );
-                        }
-                      )}
+                                  />
+                                ) : (
+                                  result
+                                )}
+                              </td>
+                            ))}
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </>
               ) : (
                 <div className="flex justify-center items-center h-full">
-                  <h2 className="text-lg font-medium">No poules available yet</h2>
+                  <h2 className="text-lg font-medium">
+                    No poules available yet
+                  </h2>
                 </div>
               )}
             </div>
@@ -515,14 +564,16 @@ export default function ViewEvent() {
                 </div>
               ) : (
                 <>
-                  <div className="flex pb-2 space-x-2">
-                    <button
-                      onClick={updateBracketMatch}
-                      className="bg-blue-500 text-white px-4 py-2 rounded"
-                    >
-                      Update Matches
-                    </button>
-                  </div>
+                  {sessionStorage.getItem("userType") === "O" && isOwner && (
+                    <div className="flex pb-2 space-x-2">
+                      <button
+                        onClick={updateBracketMatch}
+                        className="bg-blue-500 text-white px-4 py-2 rounded"
+                      >
+                        Update Matches
+                      </button>
+                    </div>
+                  )}
                   <EventBracket
                     matches={matches}
                     height="999999999"
@@ -542,36 +593,38 @@ export default function ViewEvent() {
           <Tab label="Ranking">
             <div className="py-4">
               {/* <h2 className="text-lg font-medium mb-2">Ranking</h2> */}
-              {paginatedData.length > 0 ? (<table className="table text-lg border-collapse mb-4">
-                {/* head */}
-                <thead className="text-lg text-primary">
-                  <tr className="border-b border-gray-300">
-                    <th className="text-center w-20">Rank</th>
-                    <th className="w-1/2">Name</th>
-                    <th className="text-center">Country</th>
-                    <th className="text-center">Points</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginatedData.map((item, index) => (
-                    <tr
-                      key={item.fencerId}
-                      className="border-b border-gray-300 hover:bg-gray-100"
-                    >
-                      <td className="text-center">{index + 1}</td>
-                      <td>{item.fencerName}</td>
-                      <td className="text-center">{item.country}</td>
-                      <td className="text-center">{item.poulePoints}</td>
+              {paginatedData.length > 0 ? (
+                <table className="table text-lg border-collapse mb-4">
+                  {/* head */}
+                  <thead className="text-lg text-primary">
+                    <tr className="border-b border-gray-300">
+                      <th className="text-center w-20">Rank</th>
+                      <th className="w-1/2">Name</th>
+                      <th className="text-center">Country</th>
+                      <th className="text-center">Points</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>) :
+                  </thead>
+                  <tbody>
+                    {paginatedData.map((item, index) => (
+                      <tr
+                        key={item.fencerId}
+                        className="border-b border-gray-300 hover:bg-gray-100"
+                      >
+                        <td className="text-center">{index + 1}</td>
+                        <td>{item.fencerName}</td>
+                        <td className="text-center">{item.country}</td>
+                        <td className="text-center">{item.poulePoints}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
                 <div className="flex justify-center items-center h-full">
                   <h2 className="text-lg font-medium">
                     No ranking available yet
                   </h2>
                 </div>
-              }
+              )}
               <div className="flex flex-col justify-center items-center">
                 <PaginationButton
                   totalPages={totalPages}
@@ -585,38 +638,40 @@ export default function ViewEvent() {
           <Tab label="Participants">
             <div className="py-4">
               {/* <h2 className="text-lg font-medium mb-2">Participants</h2> */}
-              {eventData.fencers.length > 0 ? (<table className="table text-lg border-collapse mb-4">
-                {/* head */}
-                <thead className="text-lg text-primary text-center">
-                  <tr className="border-b border-gray-300">
-                    <th className="w-20"></th>
-                    <th className="w-60">Name</th>
-                    <th className="w-60">Club</th>
-                    <th className="w-60">Points</th>
-                  </tr>
-                </thead>
-                <tbody className="text-center">
-                  {eventData.fencers.map((fencer, index) => (
-                    <tr
-                      key={fencer.id}
-                      className="border-b border-gray-300 hover:bg-gray-100"
-                    >
-                      <td>{index + 1}</td>
-                      <td>{fencer.name}</td>
-                      <td>{fencer.club}</td>{" "}
-                      {/* Assuming 'club' is a property in fencer */}
-                      <td>{fencer.points}</td>{" "}
-                      {/* Assuming 'points' is a property in fencer */}
+              {eventData.fencers.length > 0 ? (
+                <table className="table text-lg border-collapse mb-4">
+                  {/* head */}
+                  <thead className="text-lg text-primary text-center">
+                    <tr className="border-b border-gray-300">
+                      <th className="w-20"></th>
+                      <th className="w-60">Name</th>
+                      <th className="w-60">Club</th>
+                      <th className="w-60">Points</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>) :
+                  </thead>
+                  <tbody className="text-center">
+                    {eventData.fencers.map((fencer, index) => (
+                      <tr
+                        key={fencer.id}
+                        className="border-b border-gray-300 hover:bg-gray-100"
+                      >
+                        <td>{index + 1}</td>
+                        <td>{fencer.name}</td>
+                        <td>{fencer.club}</td>{" "}
+                        {/* Assuming 'club' is a property in fencer */}
+                        <td>{fencer.points}</td>{" "}
+                        {/* Assuming 'points' is a property in fencer */}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
                 <div className="flex justify-center items-center h-full">
                   <h2 className="text-lg font-medium">
                     No participants available yet
                   </h2>
                 </div>
-              }
+              )}
               <div className="flex flex-col justify-center items-center">
                 <PaginationButton
                   totalPages={totalPages}
