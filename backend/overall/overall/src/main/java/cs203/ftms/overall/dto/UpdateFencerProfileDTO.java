@@ -2,12 +2,23 @@ package cs203.ftms.overall.dto;
 
 import java.time.LocalDate;
 
+import cs203.ftms.overall.validation.ValidContactNumber;
+import cs203.ftms.overall.validation.ValidDominantArm;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
 public class UpdateFencerProfileDTO{
+    @NotBlank
     private String name; 
+    @Email
     private String email; 
+    @NotBlank
     private String country;
+    @ValidContactNumber
     private String contactNo;
+    @NotBlank
     private String club;
+    @ValidDominantArm
     private char dominantArm; 
 
     public UpdateFencerProfileDTO(String name, String email, String contactNo, String country, 

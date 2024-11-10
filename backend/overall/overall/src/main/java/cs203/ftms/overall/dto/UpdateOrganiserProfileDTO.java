@@ -2,10 +2,18 @@ package cs203.ftms.overall.dto;
 
 import java.time.LocalDate;
 
+import cs203.ftms.overall.validation.ValidContactNumber;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
 public class UpdateOrganiserProfileDTO{
+    @NotBlank
     private String name; 
+    @Email
     private String email; 
+    @NotBlank
     private String country;
+    @ValidContactNumber
     private String contactNo;
 
     public UpdateOrganiserProfileDTO(String name, String email, String contactNo, String country) {

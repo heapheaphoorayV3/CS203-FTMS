@@ -25,6 +25,7 @@ import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.model.userrelated.User;
 import cs203.ftms.overall.service.organiser.OrganiserService;
 import cs203.ftms.overall.service.tournament.TournamentService;
+import jakarta.validation.Valid;
 
 @RestController
 @CrossOrigin
@@ -86,7 +87,7 @@ public class OrganiserController {
 
     @PutMapping("/update-profile")
     @PreAuthorize("hasRole('ORGANISER')")
-    public ResponseEntity<String> updateProfile(@RequestBody UpdateOrganiserProfileDTO dto) {
+    public ResponseEntity<String> updateProfile(@Valid @RequestBody UpdateOrganiserProfileDTO dto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         organiserService.updateProfile((Organiser) user, dto);
