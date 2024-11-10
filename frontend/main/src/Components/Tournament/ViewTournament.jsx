@@ -1,7 +1,7 @@
 import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import EventDropdownMenu from "../Others/EventDropdownMenu.jsx";
+import DropdownMenu from "../Others/DropdownMenu.jsx";
 import EventService from "../../Services/Event/EventService";
 import FencerService from "../../Services/Fencer/FencerService.js";
 import Organiser from "../../Services/Organiser/OrganiserService.js";
@@ -404,25 +404,7 @@ export default function ViewTournament() {
     return `${formattedDate}`;
   };
 
-  const updateTournament = (tournamentToUpdate) => {
-    setIsUpdateTournamentPopupVisible(true);
-    setTournamentToUpdate(tournamentToUpdate);
-  };
-
-  const closeUpdateTournamentPopup = () => {
-    setIsUpdateTournamentPopupVisible(false);
-    setTournamentToUpdate(null);
-  };
-
-  const submitUpdateTournament = async (data) => {
-    try {
-      console.log(data);
-      await TournamentService.updateTournament(tournamentID, data);
-    } catch (error) {
-      console.error("Error updating tournament:", error);
-      // Add error notification here
-    }
-  };
+  
 
   return (
     // Grid for Navbar, Sidebar and Content
@@ -432,14 +414,14 @@ export default function ViewTournament() {
         <h1 className=" ml-12 text-left text-4xl font-semibold">
           {tournamentData.name}
         </h1>
-        {sessionStorage.getItem("userType") === 'O' && isOwner && <div className="cursor-pointer text-gray-600">
+        {/* {sessionStorage.getItem("userType") === 'O' && isOwner && <div className="cursor-pointer text-gray-600">
           <img
             src={editLogo}
             alt="Edit Tournament"
             className="w-6 h-6"
             onClick={updateTournament}
           />
-        </div>}
+        </div>} */}
       </div>
 
       <div className="ml-12 mr-8 mb-10 grid grid-cols-3 auto-rows-fr gap-x-[10px]">
@@ -466,14 +448,6 @@ export default function ViewTournament() {
           )}
         </div>
       </div>
-      {/* Create Event Popup --> need to pass in submit/close */}
-      {isUpdateTournamentPopupVisible && (
-        <UpdateTournament
-          onClose={closeUpdateTournamentPopup}
-          onSubmit={submitUpdateTournament}
-          selectedTournament={tournamentData}
-        />
-      )}
       <div className="ml-12 mr-8 text-lg overflow-x-auto">
         <Tabs>
           <Tab label="Overview">
@@ -543,9 +517,10 @@ export default function ViewTournament() {
                             </SubmitButton>)
                           ))}
                         {sessionStorage.getItem("userType") === "O" && isOwner && (
-                          <EventDropdownMenu
-                            updateEvent={() => updateEvent(event)}
-                            deleteEvent={() => deleteEvent(event.id)}
+                          <DropdownMenu
+                            entity="Event"
+                            updateEntity={() => updateEvent(event)}
+                            deleteEntity={() => deleteEvent(event.id)}
                           />
                         )}
                       </td>

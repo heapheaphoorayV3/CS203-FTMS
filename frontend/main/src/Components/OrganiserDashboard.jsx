@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import OrganiserService from "../Services/Organiser/OrganiserService";
-import TournamentService from "../Services/Tournament/TournamentService";
+import UpdateTournament from "./Tournament/UpdateTournament";
+import DeleteTournament from "./Tournament/DeleteTournament";
+import DropdownMenu from "./Others/DropdownMenu";
 import { Tabs, Tab } from "./Others/Tabs";
 import Table from "./Others/Table";
-import { set } from "react-hook-form";
 import editIcon from "../Assets/edit.png";
 
 const OrganiserDashboard = () => {
@@ -13,7 +14,12 @@ const OrganiserDashboard = () => {
   const [tableLoading, setTableLoading] = useState(true);
   const [tableError, setTableError] = useState(null);
   const [tournamentData, setTournamentData] = useState(null);
+  // Selected torunament to update/delete
+  const [selectedTournament, setSelectedTournament] = useState(null);
+  const [isUpdateTournamentPopupVisible, setIsUpdateTournamentPopupVisible] = useState(false);
+  const [isDeleteTournamentPopupVisible, setIsDeleteTournamentPopupVisible] = useState(false);
   const [tableHead, setTableHead] = useState(["Tournament Name", "Location", "Dates", "Total Participants"]);
+  const [upcomingTableHead, setUpcomingTableHead] = useState(["Tournament Name", "Location", "Dates", "Total Participants", ""]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -71,10 +77,30 @@ const OrganiserDashboard = () => {
 
   console.log("verified=" + userData.verified);
 
+  const updateTournament = (tournamentToUpdate) => {
+    setIsUpdateTournamentPopupVisible(true);
+    setSelectedTournament(tournamentToUpdate);
+  };
+
+  const closeUpdateTournamentPopup = () => {
+    setIsUpdateTournamentPopupVisible(false);
+    setSelectedTournament(null);
+  };
+
+  const deleteTournament = (tournamentToDelete) => {
+    setIsDeleteTournamentPopupVisible(true);
+    setSelectedTournament(tournamentToDelete);
+  }
+
+  const closeDeleteTournamentPopup = () => {
+    setIsDeleteTournamentPopupVisible(false);
+    setSelectedTournament(null);
+  }
+
   return (
     <div className="bg-white w-full h-full flex flex-col gap-2 p-8 overflow-auto">
       <div className="bg-white border rounded-2xl shadow-lg p-6 flex w-full relative overflow-x-hidden">
-        
+
         <div className="w-1/4 flex-shrink-0 flex flex-col items-center my-auto">
           <div className="text-4xl font-semibold mr-4">{userData.name}'s</div>
           <div className="text-4xl font-semibold mr-4">Dashboard</div>
@@ -94,7 +120,7 @@ const OrganiserDashboard = () => {
 
         {/* Edit Icon */}
         <div className="absolute top-4 right-4 cursor-pointer text-gray-600">
-          <img src={editIcon} alt="Edit profile icon" className="w-6 h-6"/>
+          <img src={editIcon} alt="Edit profile icon" className="w-6 h-6" />
         </div>
       </div>
 
@@ -127,10 +153,10 @@ const OrganiserDashboard = () => {
             </div>
           </Tab>
           <Tab label="Upcoming Tournaments Hosted">
-          <div className="h-full px-4 pt-4">
+            <div className="h-full px-4 pt-4">
               {tournamentData && tournamentData.length > 0 ? (
                 <Table
-                  tableHead={tableHead}
+                  tableHead={upcomingTableHead}
                   tableRows={tournamentData
                     .filter(tournament => {
                       const currentDate = new Date();
@@ -144,15 +170,32 @@ const OrganiserDashboard = () => {
                       tournament.location,
                       formatDateRange(tournament.startDate, tournament.endDate),
                       10,
+                      <DropdownMenu
+                        entity="Tournament"
+                        updateEntity={() => updateTournament(tournament)}
+                        deleteEntity={() => deleteTournament(tournament)}
+                      />
                     ])}
                 />
               ) : (
                 console.log("No upcoming tournaments")
               )}
             </div>
+            {isUpdateTournamentPopupVisible && (
+              <UpdateTournament
+                onClose={closeUpdateTournamentPopup}
+                selectedTournament={selectedTournament}
+              />
+            )}
+            {isDeleteTournamentPopupVisible && (
+              <DeleteTournament
+              closeDeletePopUp={closeDeleteTournamentPopup}
+                id={selectedTournament.id}
+              />
+            )}
           </Tab>
           <Tab label="Past Tournaments Hosted">
-          <div className="h-full px-4 pt-4">
+            <div className="h-full px-4 pt-4">
               {tournamentData && tournamentData.length > 0 ? (
                 <Table
                   tableHead={tableHead}

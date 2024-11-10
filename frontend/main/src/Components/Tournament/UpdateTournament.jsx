@@ -6,7 +6,7 @@ import TournamentService from "../../Services/Tournament/TournamentService";
 import { XCircleIcon } from "@heroicons/react/16/solid";
 
 const UpdateTournament = ({ selectedTournament, onClose }) => {
-  const { tournamentID } = useParams();
+
   const {
     register,
     watch,
@@ -47,7 +47,7 @@ const UpdateTournament = ({ selectedTournament, onClose }) => {
     console.log("Updating tournament with data:", formData);
 
     try {
-      await TournamentService.updateTournament(tournamentID, formData); // Call the update method
+      await TournamentService.updateTournament(selectedTournament.id, formData); // Call the update method
       onClose(); // Redirect to a view page after update
     } catch (error) {
       console.error("Error updating tournament:", error);
