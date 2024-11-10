@@ -60,7 +60,7 @@ public class MatchService {
         
         CleanTournamentFencerDTO ctf1 = fencerList.size() > 0 ? eventService.getCleanTournamentFencerDTO(fencerList.get(0)) : null;
         CleanTournamentFencerDTO ctf2 = fencerList.size() > 1 ? eventService.getCleanTournamentFencerDTO(fencerList.get(1)) : null;
-        
+
         return new CleanMatchDTO(
             m.getId(),
             ctf1,
@@ -72,4 +72,5 @@ public class MatchService {
         );
     }  
 
+    
 }

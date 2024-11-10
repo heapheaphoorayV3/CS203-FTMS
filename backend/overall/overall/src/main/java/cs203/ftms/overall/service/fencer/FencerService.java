@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -45,10 +43,15 @@ public class FencerService {
         this.authenticationService = authenticationService;
     }
 
+    public CleanTournamentFencerDTO getCleanTournamentFencerDTO(TournamentFencer tf) {
+        if (tf == null) return null;
+        return new CleanTournamentFencerDTO(tf.getId(), tf.getFencer().getId(), tf.getFencer().getName(), tf.getFencer().getClub(), tf.getFencer().getCountry(),
+        tf.getFencer().getDominantArm(), tf.getTournamentRank(), tf.getEvent().getId(), tf.getPouleWins(), tf.getPoulePoints());
+    }
+
     public CleanFencerDTO getCleanFencerDTO(Fencer f) {
         if (f == null) return null;
-        return new CleanFencerDTO(f.getId(), f.getName(), f.getEmail(), f.getContactNo(), f.getCountry(),
-        f.getDateOfBirth(), f.getDominantArm(), f.getWeapon(), f.getClub(), f.getPoints(), f.getDebutYear(), f.getGender());
+        return new CleanFencerDTO(f.getId(), f.getName(), f.getEmail(), f.getContactNo(), f.getCountry(), f.getDateOfBirth(), f.getDominantArm(),f.getWeapon(), f.getClub(),f.getPoints(), f.getDebutYear(), f.getGender());
     }
 
     public CleanTournamentFencerDTO getCleanTournamentFencerDTO(TournamentFencer tf) {
@@ -93,6 +96,16 @@ public class FencerService {
         f.setName(dto.getName());
         f.setDominantArm(dto.getDominantArm());
         userRepository.save(f);
+    }
+    
+    public List<TournamentFencer> getFencerPastEventsProfiles(Fencer f){
+        List<TournamentFencer> profiles = new ArrayList<>();
+        for(TournamentFencer tf: f.getTournamentFencerProfiles()){
+            if(tf.getEvent().getDate().isBefore(LocalDate.now())){
+                profiles.add(tf);
+            }
+        }
+        return profiles;
     }
 
     public List<Event> getFencerEvents(Fencer f) {

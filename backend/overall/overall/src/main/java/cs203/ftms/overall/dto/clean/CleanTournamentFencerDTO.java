@@ -22,7 +22,7 @@ public class CleanTournamentFencerDTO {
         this.fencerClub = fencerClub;
         this.country = country;
         this.dominantArm = dominantArm;
-        this.tournamentRank = tournamentPoints;
+        this.tournamentRank = tournamentRank;
         this.eventId = eventId;
         this.pouleWins = pouleWins;
         this.poulePoints = poulePoints;

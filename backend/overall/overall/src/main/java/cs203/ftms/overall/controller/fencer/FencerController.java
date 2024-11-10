@@ -156,6 +156,19 @@ public class FencerController {
         return new ResponseEntity<>(tfs, HttpStatus.OK);
     }
 
+    @GetMapping("/past-events-profiles")
+    @PreAuthorize("hasRole('FENCER')")
+    public ResponseEntity<List<CleanTournamentFencerDTO>> getFencerPastEventsProfiles() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        List<TournamentFencer> profiles = fencerService.getFencerPastEventsProfiles((Fencer) user);
+        List<CleanTournamentFencerDTO> tfList = new ArrayList<>();
+        for (TournamentFencer tf : profiles) {
+            tfList.add(fencerService.getCleanTournamentFencerDTO(tf));
+        }
+        return new ResponseEntity<>(tfList, HttpStatus.OK);
+    }
+
     @GetMapping("/men-sabre-ranking")
     public ResponseEntity<List<CleanFencerDTO>> getMenSabreRanking() {
         List<Fencer> fencers = fencerService.getFilterdInternationalRank('S', 'M'); 

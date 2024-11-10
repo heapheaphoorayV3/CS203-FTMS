@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -439,10 +438,11 @@ public class PouleService {
             TournamentFencer ptf2 = matchService.getFencer2(pouleMatch);
 
             if (i < j) {
-                if (ptf1.getId() == tf1.getId() && ptf2.getId() == tf2.getId()) {
-                    savePouleMatchScore(value, pouleMatch, 1);
-                    break;
-                } else if (ptf1.getId() == tf2.getId() && ptf2.getId() == tf1.getId()) {
+                // if (ptf1.getId() == tf1.getId() && ptf2.getId() == tf2.getId()) {
+                //     savePouleMatchScore(value, pouleMatch, 1);
+                //     break;
+                // } else 
+                if (ptf1.getId() == tf2.getId() && ptf2.getId() == tf1.getId()) {
                     savePouleMatchScore(value, pouleMatch, 2);
                     break;
                 }
@@ -450,10 +450,11 @@ public class PouleService {
                 if (ptf1.getId() == tf1.getId() && ptf2.getId() == tf2.getId()) {
                     savePouleMatchScore(value, pouleMatch, 1);
                     break;
-                } else if (ptf1.getId() == tf2.getId() && ptf2.getId() == tf1.getId()) {
-                    savePouleMatchScore(value, pouleMatch, 2);
-                    break;
-                }
+                } 
+                // else if (ptf1.getId() == tf2.getId() && ptf2.getId() == tf1.getId()) {
+                //     savePouleMatchScore(value, pouleMatch, 2);
+                //     break;
+                // }
             }
         }
     }
@@ -505,6 +506,9 @@ public class PouleService {
         int fencersAdvanced = calculateFencersAdvanced(event, advancementRate);
         int nearestPO2 = nearestLowerPowerOf2(fencersAdvanced);
         int bypass = calculateBypass(fencersAdvanced, nearestPO2);
+        if (fencersAdvanced == nearestPO2) {
+            bypass = 0;
+        }
 
         List<TournamentFencer> sortedFencers = getSortedFencersByEvent(event);
 
@@ -541,7 +545,7 @@ public class PouleService {
         while (b < a) {
             b = b << 1;
         }
-        return (b > a ? b >> 1 : b);
+        return b > a ? b >> 1 : b;
     }
 
 
