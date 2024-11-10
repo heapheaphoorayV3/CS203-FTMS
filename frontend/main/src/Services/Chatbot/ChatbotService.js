@@ -9,8 +9,8 @@ class chatbotService {
         return await ProtectedAPI.get(`${baseURL}/projected-points/${eid}`);
     }
 
-    async recommendTournaments() {
-        return await ProtectedAPI.get(`${baseURL}/recommend-tournaments`);
+    async recommendTournaments(fencer) {
+        return await ProtectedAPI.get(`${baseURL}/recommend-tournaments`, fencer);
     }
 
     async getWinRate(eid) {
