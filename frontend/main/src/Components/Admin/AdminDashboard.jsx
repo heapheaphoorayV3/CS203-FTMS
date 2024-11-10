@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 import AdminService from "../../Services/Admin/AdminService";
 import OrganiserService from "../../Services/Organiser/OrganiserService";
 import FencerService from "../../Services/Fencer/FencerService";
@@ -102,10 +102,14 @@ const AdminDashboard = () => {
     const getFilteredFencerData = () => {
       if (!allFencersData) return [];
 
-      return allFencersData?.filter(fencer => {
-        const matchesSearch = fencer.name.toLowerCase().includes(InputFencerSearch.toLowerCase());
-        const matchesWeapon = selectedWeapon === 'A' || fencer.weapon === selectedWeapon;
-        const matchesGender = selectedGender === 'A' || fencer.gender === selectedGender;
+      return allFencersData?.filter((fencer) => {
+        const matchesSearch = fencer.name
+          .toLowerCase()
+          .includes(InputFencerSearch.toLowerCase());
+        const matchesWeapon =
+          selectedWeapon === "A" || fencer.weapon === selectedWeapon;
+        const matchesGender =
+          selectedGender === "A" || fencer.gender === selectedGender;
         return matchesSearch && matchesWeapon && matchesGender;
       });
     };
@@ -114,21 +118,35 @@ const AdminDashboard = () => {
 
     // Calculate fencer pagination details based on the filtered data
     setTotalFencerPages(Math.ceil(filteredFencerData.length / limit));
-    setPaginatedFencerData(filteredFencerData.slice((currentFencerPage - 1) * limit, currentFencerPage * limit));
+    setPaginatedFencerData(
+      filteredFencerData.slice(
+        (currentFencerPage - 1) * limit,
+        currentFencerPage * limit
+      )
+    );
 
     // If any filter changes, reset to page 1
     if (currentFencerPage > totalFencerPages) {
       setCurrentFencerPage(1);
     }
-  }, [allFencersData, currentFencerPage, totalFencerPages, InputFencerSearch, selectedWeapon, selectedGender]);
+  }, [
+    allFencersData,
+    currentFencerPage,
+    totalFencerPages,
+    InputFencerSearch,
+    selectedWeapon,
+    selectedGender,
+  ]);
 
   // Update Organiser page details based on search and pagination
   useEffect(() => {
     const getFilteredOrganiserData = () => {
       if (!allOrganisersData) return [];
 
-      return allOrganisersData?.filter(organiser => {
-        return organiser.name.toLowerCase().includes(InputOrganiserSearch.toLowerCase());
+      return allOrganisersData?.filter((organiser) => {
+        return organiser.name
+          .toLowerCase()
+          .includes(InputOrganiserSearch.toLowerCase());
       });
     };
 
@@ -136,13 +154,23 @@ const AdminDashboard = () => {
 
     // Calculate organiser pagination details based on the filtered data
     setTotalOrganiserPages(Math.ceil(filteredOrganiserData.length / limit));
-    setPaginatedOrganiserData(filteredOrganiserData.slice((currentOrganiserPage - 1) * limit, currentOrganiserPage * limit));
+    setPaginatedOrganiserData(
+      filteredOrganiserData.slice(
+        (currentOrganiserPage - 1) * limit,
+        currentOrganiserPage * limit
+      )
+    );
 
     // If any filter changes, reset to page 1
     if (currentOrganiserPage > totalOrganiserPages) {
       setCurrentOrganiserPage(1);
     }
-  }, [allOrganisersData, currentOrganiserPage, totalOrganiserPages, InputOrganiserSearch]);
+  }, [
+    allOrganisersData,
+    currentOrganiserPage,
+    totalOrganiserPages,
+    InputOrganiserSearch,
+  ]);
 
   if (loading || !userData) {
     return <div className="mt-10">Loading...</div>; // Show loading state
@@ -155,20 +183,20 @@ const AdminDashboard = () => {
   return (
     <div className="bg-white w-full h-full flex flex-col gap-2 p-8 overflow-auto">
       <div className="bg-white border rounded-2xl shadow-lg p-6 flex w-full relative overflow-x-hidden">
+        <div className="w-full flex-shrink-0 flex flex-col my-4 ml-4">
+          <div className="text-4xl font-semibold">
+            Welcome back, {userData.name}
+          </div>
 
-        <div className="w-1/4 flex-shrink-0 flex flex-col items-center my-auto">
-          <div className="text-4xl font-semibold mr-4">{userData.name}'s</div>
-          <div className="text-4xl font-semibold mr-4">Dashboard</div>
-        </div>
-
-        <div className="grid grid-cols-[2fr_8fr] gap-y-2 gap-x-4 ml-4 my-4 text-xl w-full">
-          {/* Email, ContactNo, Country, Verification Status */}
-          <div className="flex font-medium">Email:</div>
-          <div className="flex">{userData.email}</div>
-          <div className="flex font-medium">Contact Number:</div>
-          <div className="flex">{userData.contactNo}</div>
-          <div className="flex font-medium">Country:</div>
-          <div className="flex">{userData.country}</div>
+          <div className="grid grid-cols-[2fr_8fr] gap-y-2 gap-x-4 my-4 text-xl w-full">
+            {/* Email, ContactNo, Country, Verification Status */}
+            <div className="flex font-medium">Email:</div>
+            <div className="flex">{userData.email}</div>
+            <div className="flex font-medium">Contact Number:</div>
+            <div className="flex">{userData.contactNo}</div>
+            <div className="flex font-medium">Country:</div>
+            <div className="flex">{userData.country}</div>
+          </div>
         </div>
 
         {/* Edit Icon */}
@@ -178,18 +206,20 @@ const AdminDashboard = () => {
       </div>
 
       <div className="bg-white border rounded-2xl shadow-lg p-6 flex flex-col flex-grow w-full relative mx-auto mt-4">
-        <Tabs >
+        <Tabs>
           <Tab label="List of Fencers">
             <div className="h-full px-4 pt-4">
               <div className="w-full max-w-sm min-w-[200px] ml-4 pb-8">
-                  <SearchBar
-                    value={InputFencerSearch}
-                    onChange={handleFencerSearch}
-                    placeholder="Search Fencers by Name..."
-                  />
+                <SearchBar
+                  value={InputFencerSearch}
+                  onChange={handleFencerSearch}
+                  placeholder="Search Fencers by Name..."
+                />
                 <div className="grid grid-flow-col gap-4">
                   <div className="mt-4">
-                    <label className="block font-medium mb-1 ml-1">Select Gender</label>
+                    <label className="block font-medium mb-1 ml-1">
+                      Select Gender
+                    </label>
                     <select
                       value={selectedGender}
                       onChange={handleGenderChange}
@@ -201,7 +231,9 @@ const AdminDashboard = () => {
                     </select>
                   </div>
                   <div className="mt-4">
-                    <label className="block font-medium mb-1 ml-1">Select Weapon</label>
+                    <label className="block font-medium mb-1 ml-1">
+                      Select Weapon
+                    </label>
                     <select
                       value={selectedWeapon}
                       onChange={handleWeaponChange}
@@ -219,7 +251,7 @@ const AdminDashboard = () => {
               <div className="ml-4 mr-4 mb-8 overflow-x-auto">
                 <table className="table text-lg border-collapse">
                   {/* head */}
-                  <thead className="text-lg text-neutral">
+                  <thead className="text-lg text-primary">
                     <tr className="border-b border-gray-300">
                       <th className="text-center w-20">ID</th>
                       <th className="w-1/2">Name</th>
@@ -258,12 +290,12 @@ const AdminDashboard = () => {
             <div className="h-full px-4 pt-4">
               <div className="w-full px-4 pb-8">
                 <div className="flex items-center justify-between">
-                <div className="min-w-[400px]">
-                  <SearchBar
-                    value={InputOrganiserSearch}
-                    onChange={handleOrganiserSearch}
-                    placeholder="Search Organisers by Name..."
-                  />
+                  <div className="min-w-[400px]">
+                    <SearchBar
+                      value={InputOrganiserSearch}
+                      onChange={handleOrganiserSearch}
+                      placeholder="Search Organisers by Name..."
+                    />
                   </div>
                   <Link to="/verify-organisers" className="ml-4">
                     <button className="bg-blue-500 text-white px-4 py-2 rounded-md ml-auto">
@@ -276,7 +308,7 @@ const AdminDashboard = () => {
               <div className="ml-4 mr-4 mb-8 overflow-x-auto">
                 <table className="table text-lg border-collapse">
                   {/* head */}
-                  <thead className="text-lg text-neutral">
+                  <thead className="text-lg text-primary">
                     <tr className="border-b border-gray-300">
                       <th className="text-center w-20">ID</th>
                       <th className="w-1/2">Name</th>

@@ -143,7 +143,7 @@ export default function InternationalRanking() {
       <div className="ml-12 mr-8 mb-8 overflow-x-auto">
         <table className="table text-lg border-collapse">
           {/* head */}
-          <thead className="text-lg text-neutral">
+          <thead className="text-lg text-primary">
             <tr className="border-b border-gray-300">
               <th className="text-center w-20">Rank</th>
               <th className="w-1/2">Name</th>
