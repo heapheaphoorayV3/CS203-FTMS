@@ -67,8 +67,6 @@ public class TournamentController {
 
     @GetMapping("/tournament-details/{tid}")
     public ResponseEntity<CleanTournamentDTO> getTournament(@PathVariable int tid) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
         Tournament t = tournamentService.getTournament(tid);
         CleanTournamentDTO res = tournamentService.getCleanTournamentDTO(t);
         if (res == null) {
@@ -79,8 +77,6 @@ public class TournamentController {
     
     @GetMapping("/tournaments")
     public ResponseEntity<List<CleanTournamentDTO>> getAllTournaments() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
         List<Tournament> tList = tournamentService.getAllTournaments();
 
         List<CleanTournamentDTO> res = new ArrayList<>();
