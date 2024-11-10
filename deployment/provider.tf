@@ -8,11 +8,11 @@ terraform {
   
   # Add backend configuration for state management
   backend "s3" {
-    bucket         = var.tfstate_bucket_name
-    key            = var.tfstate_bucket_key
-    region         = var.aws_region
+    bucket         = "${TF_VAR_TFSTATE_BUCKET_NAME}"
+    key            = "${TF_VAR_TFSTATE_BUCKET_KEY}"
+    region         = "${TF_VAR_AWS_REGION}"
     encrypt        = true
-    dynamodb_table = var.tfstate_dynamodb_table
+    dynamodb_table = "${TF_VAR_TFSTATE_DYNAMODB_TABLE}"
   }
 }
 
