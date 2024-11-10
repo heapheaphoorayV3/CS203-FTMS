@@ -7,7 +7,7 @@ import { Tabs, Tab } from "./Others/Tabs";
 import editIcon from "../Assets/edit.png";
 
 const OrganiserDashboard = () => {
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [upcomingTournaments, setUpcomingTournaments] = useState([]);
@@ -21,9 +21,9 @@ const OrganiserDashboard = () => {
     useState(false);
 
   useEffect(() => {
+    setLoading(true);
     const fetchData = async () => {
       try {
-        console.log("Fetching user data...");
         const response = await OrganiserService.getProfile();
         setUserData(response.data);
       } catch (error) {
@@ -35,8 +35,8 @@ const OrganiserDashboard = () => {
     };
 
     const fetchTournamentData = async () => {
+      setLoading(true);
       try {
-        console.log("Fetching data...");
         const response = await OrganiserService.getAllHostedTournaments();
         const tournaments = response.data;
 
@@ -80,12 +80,6 @@ const OrganiserDashboard = () => {
       setLoading(true);
       try {
         const response = await OrganiserService.getOrganiserPastTournaments();
-        const tournaments = response.data;
-        for (const tournament of tournaments) {
-          for (const event of tournament.events) {
-            console.log(event);
-          }
-        }
         setPastTournaments(response.data);
       } catch (error) {
         console.error("Error fetching past tournaments: ", error);
