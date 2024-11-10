@@ -17,6 +17,7 @@ const UpdateEvent = ({
     formState: { errors },
   } = useForm();
 
+  // Prefill event data
   useEffect(() => {
     if (selectedEvent) {
       console.log("Selected Event:", selectedEvent);
@@ -25,9 +26,10 @@ const UpdateEvent = ({
       setValue("endTime", selectedEvent.endTime);
       setValue("gender", selectedEvent.gender);
       setValue("minParticipants", selectedEvent.minParticipants);
-      setValue("date", selectedEvent.date);
+      setValue("date", selectedEvent.eventDate);
       setValue("weapon", selectedEvent.weapon);
     }
+    console.log("Tournament Dates:", selectedEvent.date);
   }, [selectedEvent, setValue]);
 
   function getGender(gender) {

@@ -499,7 +499,7 @@ export default function ViewTournament() {
                       <td>{event.date}</td>
                       <td>{formatTimeTo24Hour(event.startTime)}</td>
                       <td>{formatTimeTo24Hour(event.endTime)}</td>
-                      <td>{event.fencers.length}</td>
+                      <td>{event.fencers ? event.fencers.length : 0}</td>
                       <td>
                         {sessionStorage.getItem("userType") === "F" && (
                           (registeredEvents.includes(event.id) ? (
@@ -520,7 +520,7 @@ export default function ViewTournament() {
                           <DropdownMenu
                             entity="Event"
                             updateEntity={() => updateEvent(event)}
-                            deleteEntity={() => deleteEvent(event.id)}
+                            deleteEntity={() => deleteEvent(event)}
                           />
                         )}
                       </td>

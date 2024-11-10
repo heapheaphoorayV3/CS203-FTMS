@@ -2,7 +2,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { XCircleIcon } from "@heroicons/react/16/solid";
 
-const CreateEvent = ({ eventTypes, tournamentDates, onClose, onSubmit }) => {
+const CreateEvent = ({ style,eventTypes, tournamentDates, onClose, onSubmit }) => {
   const {
     register,
     watch,

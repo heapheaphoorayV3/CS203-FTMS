@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { DateTime } from "luxon";
 import TournamentService from "../../Services/Tournament/TournamentService";
 import { XCircleIcon } from "@heroicons/react/16/solid";
 

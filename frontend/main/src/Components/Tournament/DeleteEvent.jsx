@@ -7,6 +7,7 @@ const DeleteEvent = ({ id, closeDeleteEventPopUp }) => {
 
     const handleDeleteEvent = async () => {
         try {
+            console.log(id);
             await EventService.deleteEvent(id);
             closeDeleteEventPopUp();
         } catch (error) {
@@ -29,7 +30,7 @@ const DeleteEvent = ({ id, closeDeleteEventPopUp }) => {
                     <h1 className="text-xl font-semibold text-center mt-5">Are you sure you want to delete this event?</h1>
                     <button
                         className="w-1/5 bg-red-500 text-white font-semibold py-2 rounded-md hover:bg-red-600"
-                        onSubmit={handleDeleteEvent}
+                        onClick={handleDeleteEvent}
                     >
                         Delete
                     </button>

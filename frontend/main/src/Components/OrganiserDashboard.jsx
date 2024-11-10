@@ -13,6 +13,7 @@ const OrganiserDashboard = () => {
   const [error, setError] = useState(null);
   const [tableLoading, setTableLoading] = useState(true);
   const [tableError, setTableError] = useState(null);
+  // Contains all hosted tournaments
   const [tournamentData, setTournamentData] = useState(null);
   // Selected torunament to update/delete
   const [selectedTournament, setSelectedTournament] = useState(null);
@@ -37,19 +38,21 @@ const OrganiserDashboard = () => {
     fetchData();
   }, []);
 
+  // Fetch Tournament Data 
+  const fetchTournamentData = async () => {
+    try {
+      console.log("Fetching table data...");
+      const response = await OrganiserService.getAllHostedTournaments();
+      setTournamentData(response.data);
+    } catch (tableError) {
+      console.error("Error fetching table data:", tableError);
+      setTableError("Failed to load table data.");
+    } finally {
+      setTableLoading(false);
+    }
+  }
+
   useEffect(() => {
-    const fetchTournamentData = async () => {
-      try {
-        console.log("Fetching table data...");
-        const response = await OrganiserService.getAllHostedTournaments();
-        setTournamentData(response.data);
-      } catch (tableError) {
-        console.error("Error fetching table data:", tableError);
-        setTableError("Failed to load table data.");
-      } finally {
-        setTableLoading(false);
-      }
-    };
     fetchTournamentData();
   }, []);
 
@@ -95,6 +98,7 @@ const OrganiserDashboard = () => {
   const closeDeleteTournamentPopup = () => {
     setIsDeleteTournamentPopupVisible(false);
     setSelectedTournament(null);
+    fetchTournamentData();
   }
 
   return (
@@ -189,7 +193,8 @@ const OrganiserDashboard = () => {
             )}
             {isDeleteTournamentPopupVisible && (
               <DeleteTournament
-              closeDeletePopUp={closeDeleteTournamentPopup}
+                closeDeletePopUp={closeDeleteTournamentPopup}
+
                 id={selectedTournament.id}
               />
             )}

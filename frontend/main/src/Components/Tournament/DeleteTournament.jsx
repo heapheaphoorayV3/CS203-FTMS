@@ -7,6 +7,7 @@ const DeleteTournament = ({ id, closeDeletePopUp }) => {
 
     const handleDeleteTournament = async () => {
         try {
+            console.log("ID: " + id);
             await TournamentService.deleteTournament(id);
             closeDeletePopUp();
         } catch (error) {
@@ -29,7 +30,7 @@ const DeleteTournament = ({ id, closeDeletePopUp }) => {
                     <h1 className="text-xl font-semibold text-center mt-5">Are you sure you want to delete this tournament?</h1>
                     <button
                         className="w-1/5 bg-red-500 text-white font-semibold py-2 rounded-md hover:bg-red-600"
-                        onSubmit={handleDeleteTournament}
+                        onClick={handleDeleteTournament}
                     >
                         Delete
                     </button>
