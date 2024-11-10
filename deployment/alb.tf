@@ -17,20 +17,6 @@ resource "aws_lb_listener" "http" {
   port              = 8080
   protocol          = "HTTP"
 
-  # default_action {
-  #   type             = "forward"
-  #   target_group_arn = aws_lb_target_group.main_tg.arn
-  # }
-
-  # Add these if you want to verify requests are coming from CloudFront
-  # default_action {
-  #   type = "fixed-response"
-  #   fixed_response {
-  #     content_type = "text/plain"
-  #     message_body = "OK"
-  #     status_code  = "200"
-  #   }
-  # }
   default_action {
     type = "fixed-response"
     fixed_response {

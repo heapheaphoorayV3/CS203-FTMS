@@ -128,6 +128,4 @@ resource "aws_ecs_service" "web" {
   tags = {
     Name = "ftms-service"
   }
-
-  
 }

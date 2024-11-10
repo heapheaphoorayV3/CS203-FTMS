@@ -1,4 +1,3 @@
-# First, create the CloudWatch log group
 resource "aws_cloudwatch_log_group" "ftms_logs" {
   name              = "/ecs/ftms-backend"
   retention_in_days = 30  # Adjust retention period as needed
