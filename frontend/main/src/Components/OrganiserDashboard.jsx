@@ -68,7 +68,13 @@ const OrganiserDashboard = () => {
       try {
         const response =
           await OrganiserService.getOrganiserUpcomingTournaments();
-        setUpcomingTournaments(response.data);
+
+        const sortedTournaments = response.data.sort((a, b) => {
+          const dateA = new Date(a.startDate);
+          const dateB = new Date(b.startDate);
+          return dateA - dateB;
+        });
+        setUpcomingTournaments(sortedTournaments);
       } catch (error) {
         console.error("Error fetching upcoming tournaments: ", error);
         setError("Failed to fetch upcoming tournaments");
@@ -81,7 +87,12 @@ const OrganiserDashboard = () => {
       setLoading(true);
       try {
         const response = await OrganiserService.getOrganiserPastTournaments();
-        setPastTournaments(response.data);
+        const sortedTournaments = response.data.sort((a, b) => {
+          const dateA = new Date(a.startDate);
+          const dateB = new Date(b.startDate);
+          return dateA - dateB;
+        });
+        setPastTournaments(sortedTournaments);
       } catch (error) {
         console.error("Error fetching past tournaments: ", error);
         setError("Failed to fetch past tournaments");
@@ -221,7 +232,8 @@ const OrganiserDashboard = () => {
                       </tr>
                     ))}
                   </tbody>
-                </table>) : (
+                </table>
+              ) : (
                 <div className="flex justify-center items-center h-full">
                   <h2 className="text-lg font-medium">
                     No ongoing tournaments available yet
@@ -273,7 +285,8 @@ const OrganiserDashboard = () => {
                       </tr>
                     ))}
                   </tbody>
-                </table>) : (
+                </table>
+              ) : (
                 <div className="flex justify-center items-center h-full">
                   <h2 className="text-lg font-medium">
                     No upcoming tournaments available yet
@@ -329,7 +342,8 @@ const OrganiserDashboard = () => {
                       </tr>
                     ))}
                   </tbody>
-                </table>) : (
+                </table>
+              ) : (
                 <div className="flex justify-center items-center h-full">
                   <h2 className="text-lg font-medium">
                     No past tournaments available yet

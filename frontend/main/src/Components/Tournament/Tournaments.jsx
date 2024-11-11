@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import TournamentService from "../../Services/Tournament/TournamentService";
+import SearchBar from "../Others/SearchBar";
 
 export default function Tournaments() {
   const [tournamentData, setTournamentData] = useState(null);
@@ -10,10 +11,14 @@ export default function Tournaments() {
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log(sessionStorage.getItem("userType"));
       try {
         const response = await TournamentService.getAllTournaments();
-        setTournamentData(response.data);
+        const sortedTournaments = response.data.sort((a, b) => {
+          const dateA = new Date(a.startDate);
+          const dateB = new Date(b.startDate);
+          return dateA - dateB;
+        });
+        setTournamentData(sortedTournaments);
       } catch (error) {
         console.error("Error fetching data:", error);
         setError("Failed to load data.");
@@ -76,27 +81,11 @@ export default function Tournaments() {
         Tournaments
       </h1>
       <div className="w-full max-w-sm min-w-[200px] ml-12 pb-8">
-        <div className="relative">
-          <input
-            className="w-full bg-slate-50 placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md pl-3 pr-28 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-            placeholder="Search Tournaments by Name..."
-            onChange={handleSearch}
-          />
-          <div className="absolute top-1 right-1 flex items-center pt-1.5 px-1">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className="w-4 h-4 mr-2"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </div>
-        </div>
+      <SearchBar
+          value={InputSearch}
+          onChange={handleSearch}
+          placeholder="Search Tournaments by Name..."
+        />
       </div>
       <div className="ml-12 mr-8 overflow-x-auto">
         <table className="table text-lg border-collapse">
@@ -112,7 +101,10 @@ export default function Tournaments() {
           <tbody>
             {tournamentData.length > 0 ? (
               filteredTournamentData.map((tournament) => (
-                <tr key={tournament.id} className="border-b border-gray-300 hover:bg-gray-100">
+                <tr
+                  key={tournament.id}
+                  className="border-b border-gray-300 hover:bg-gray-100"
+                >
                   <td>
                     <a
                       href={`tournaments/${tournament.id}`}
