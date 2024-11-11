@@ -44,99 +44,99 @@ export default function ViewEvent() {
     setCurrentPage(page);
   };
 
-  useEffect(() => {
-    setLoading(true);
+  const fetchEventData = async () => {
+    try {
+      const response = await EventService.getEvent(eventID);
+      setEventData(response.data);
+      // console.log("event data =>");
+    } catch (error) {
+      console.error("Error fetching event data:", error);
+      setError("Failed to load event data.");
+    }
+  };
 
-    const fetchEventData = async () => {
-      try {
-        const response = await EventService.getEvent(eventID);
-        setEventData(response.data);
-        // console.log("event data =>");
-      } catch (error) {
-        console.error("Error fetching event data:", error);
-        setError("Failed to load event data.");
-      }
-    };
-
-    // Fetch Upcoming Tournament if Organiser to check if organiser is the owner of current event
-    const checkIfOwner = async () => {
-      try {
-        const response =
-          await OrganiserService.getOrganiserUpcomingTournaments();
-        const upcomingTournaments = response.data;
-        console.log("upcoming tournaments:", upcomingTournaments);
-        let found = false;
-        for (let tournament of upcomingTournaments) {
-          if (Array.isArray(tournament.events)) {
-            for (let event of tournament.events) {
-              if (Number(event.id) === Number(eventID)) {
-                found = true;
-                break;
-              }
+  // Fetch Upcoming Tournament if Organiser to check if organiser is the owner of current event
+  const checkIfOwner = async () => {
+    try {
+      const response =
+        await OrganiserService.getOrganiserUpcomingTournaments();
+      const upcomingTournaments = response.data;
+      console.log("upcoming tournaments:", upcomingTournaments);
+      let found = false;
+      for (let tournament of upcomingTournaments) {
+        if (Array.isArray(tournament.events)) {
+          for (let event of tournament.events) {
+            if (Number(event.id) === Number(eventID)) {
+              found = true;
+              break;
             }
           }
-          if (found) {
-            break;
-          }
         }
-        setIsOwner(found);
-      } catch (error) {
-        console.error("Error fetching event:", error);
-        setError("Failed to load event.");
+        if (found) {
+          break;
+        }
       }
-    };
+      setIsOwner(found);
+    } catch (error) {
+      console.error("Error fetching event:", error);
+      setError("Failed to load event.");
+    }
+  };
 
-    const fetchPouleTable = async () => {
-      try {
-        const response = await EventService.getPouleTable(eventID);
-        setPouleTableData(response.data);
+  const fetchPouleTable = async () => {
+    try {
+      const response = await EventService.getPouleTable(eventID);
+      setPouleTableData(response.data);
 
-        const processedData = response.data.pouleTable.map((poule) =>
-          Object.entries(poule).map(([fencer, results]) => {
-            const resultArray = results.split(",");
-            const cleanedFencerName = fencer.replace(/ -- \d+$/, "");
-            return { fencer: cleanedFencerName, results: resultArray };
-          })
-        );
+      const processedData = response.data.pouleTable.map((poule) =>
+        Object.entries(poule).map(([fencer, results]) => {
+          const resultArray = results.split(",");
+          const cleanedFencerName = fencer.replace(/ -- \d+$/, "");
+          return { fencer: cleanedFencerName, results: resultArray };
+        })
+      );
 
-        setCleanedPouleData(processedData);
-      } catch (error) {
-        console.error("Error fetching poule table data:", error);
-        setError("Failed to load poule table data.");
-      }
-    };
+      setCleanedPouleData(processedData);
+    } catch (error) {
+      console.error("Error fetching poule table data:", error);
+      setError("Failed to load poule table data.");
+    }
+  };
 
-    const fetchRecommendedPoules = async () => {
-      try {
-        const response = await EventService.getRecommendedPoules(eventID);
-        setRecommendedPoulesData(response.data);
-      } catch (error) {
-        console.error("Error fetching recommended poules", error);
-        setError("Failed to load recommended poules");
-      }
-    };
+  const fetchRecommendedPoules = async () => {
+    try {
+      const response = await EventService.getRecommendedPoules(eventID);
+      setRecommendedPoulesData(response.data);
+    } catch (error) {
+      console.error("Error fetching recommended poules", error);
+      setError("Failed to load recommended poules");
+    }
+  };
 
-    const fetchMatches = async () => {
-      try {
-        const response = await EventService.getMatches(eventID);
-        setMatches(response.data);
-        // console.log("matches:", response.data);
-      } catch (error) {
-        console.error("Error fetching matches:", error);
-        setError("Failed to load matches.");
-      }
-    };
+  const fetchMatches = async () => {
+    try {
+      const response = await EventService.getMatches(eventID);
+      setMatches(response.data);
+      // console.log("matches:", response.data);
+    } catch (error) {
+      console.error("Error fetching matches:", error);
+      setError("Failed to load matches.");
+    }
+  };
 
-    const fetchEventRanking = async () => {
-      try {
-        const response = await EventService.getEventRanking(eventID);
-        // console.log(response.data);
-        setEventRanking(response.data);
-      } catch (error) {
-        console.error("Error fetching event ranking: ", error);
-        setError("Failed to load event ranking");
-      }
-    };
+  const fetchEventRanking = async () => {
+    try {
+      const response = await EventService.getEventRanking(eventID);
+      // console.log(response.data);
+      setEventRanking(response.data);
+    } catch (error) {
+      console.error("Error fetching event ranking: ", error);
+      setError("Failed to load event ranking");
+    }
+  };
+
+  useEffect(() => {
+    setLoading(true);
 
     if (sessionStorage.getItem("userType") === "O") {
       checkIfOwner();
@@ -230,16 +230,16 @@ export default function ViewEvent() {
       name: loading
         ? "Loading..."
         : eventData
-        ? eventData.tournamentName
-        : "Not Found",
+          ? eventData.tournamentName
+          : "Not Found",
       link: `/tournaments/${tournamentID}`,
     },
     {
       name: loading
         ? "Loading..."
         : eventData
-        ? constructEventName(eventData.gender, eventData.weapon)
-        : "Not Found",
+          ? constructEventName(eventData.gender, eventData.weapon)
+          : "Not Found",
     },
   ];
 
@@ -264,6 +264,7 @@ export default function ViewEvent() {
 
   const closeCreatePopup = () => {
     setIsCreatePopupVisible(false);
+    fetchPouleTable();
   };
 
   const submitCreatePopup = async (data) => {
@@ -480,7 +481,7 @@ export default function ViewEvent() {
                         </thead>
                         <tbody>
                           {pouleTableData &&
-                          pouleTableData.pouleTable[pouleIndex] ? (
+                            pouleTableData.pouleTable[pouleIndex] ? (
                             Object.entries(
                               pouleTableData.pouleTable[pouleIndex]
                             ).map(([fencer, results], idx) => {
@@ -502,11 +503,10 @@ export default function ViewEvent() {
                                   {resultArray.map((result, resultIndex) => (
                                     <td
                                       key={resultIndex}
-                                      className={`border border-gray-300 hover:bg-gray-100 ${
-                                        result === "-1"
+                                      className={`border border-gray-300 hover:bg-gray-100 ${result === "-1"
                                           ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
                                           : ""
-                                      }`}
+                                        }`}
                                     >
                                       {result === "-1" ? (
                                         result
@@ -521,11 +521,10 @@ export default function ViewEvent() {
                                               idx
                                             )
                                           }
-                                          className={`w-full text-center ${
-                                            !isInputValid
+                                          className={`w-full text-center ${!isInputValid
                                               ? "border-red-500"
                                               : "border-gray-300"
-                                          }`}
+                                            }`}
                                         />
                                       ) : (
                                         result
