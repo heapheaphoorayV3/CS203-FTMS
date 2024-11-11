@@ -254,6 +254,7 @@ const UpdateBracketMatch = ({ matches, onClose, eventID }) => {
                   Cancel
                 </button>
               </div>
+              {error && <h2 className="text-red-500 text-center mt-4"> {error} </h2>}
             </div>
           </div>
         )}
