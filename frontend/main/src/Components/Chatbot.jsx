@@ -260,50 +260,29 @@ export default function Chatbot() {
           Recommend me tournaments
         </motion.button>
       </div>
-      <div className="flex justify-center max-w-md">
-        <motion.button
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          whileHover={{
-            scale: 1.1,
-            backgroundColor: "#E3170A",
-            transition: { duration: 0.3 },
-          }}
-          className="bg-red-500 p-4 text-white rounded-md w-auto"
-          onClick={clearChat}
-        >
-          Clear Chat
-        </motion.button>
-      </div>
     </div>
   );
 
   const TournamentOptions = () => (
-    <div className="flex justify-center w-full mb-4">
-      <div className="flex flex-col h-auto w-full max-w-xl">
-        {recommendedTournaments.length > 0 ? (
-          recommendedTournaments.map((tournament, index) => (
-            <Link
-              to={`/tournaments/${tournament.id}`}
-              className="text-white"
-              key={index}
+    <div className="flex h-auto w-full max-w-xl">
+      {recommendedTournaments.length > 0 &&
+        recommendedTournaments.map((tournament, index) => (
+          <Link
+            to={`/tournaments/${tournament.id}`}
+            className="text-white"
+            key={index}
+          >
+            <motion.button
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              whileHover={{ scale: 1.1 }}
+              className="bg-gray-200 p-4 text-black rounded-md w-full my-2"
             >
-              <motion.button
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-                whileHover={{ scale: 1.1 }}
-                className="bg-gray-200 p-4 text-black rounded-md w-full my-2"
-              >
-                {tournament.name}
-              </motion.button>
-            </Link>
-          ))
-        ) : (
-          <p>No recommended tournaments available.</p>
-        )}
-      </div>
+              {tournament.name}
+            </motion.button>
+          </Link>
+        ))}
     </div>
   );
   // if (loading) {
@@ -316,7 +295,25 @@ export default function Chatbot() {
 
   return (
     <div className="bg-white h-full overflow-y-auto">
-      <h1 className="my-10 ml-12 text-left text-4xl font-semibold">Chatbot</h1>
+      <div className="flex justify-between items-center mr-12 py-4 px-4">
+        <h1 className="my-10 ml-12 text-left text-4xl font-semibold">
+          Chatbot
+        </h1>
+        <motion.button
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          whileHover={{
+            scale: 1.1,
+            backgroundColor: "#E3170A",
+            transition: { duration: 0.3 },
+          }}
+          className="bg-red-500 p-4 text-white rounded-md h-12 w-sm items-center"
+          onClick={clearChat}
+        >
+          Clear Chat
+        </motion.button>
+      </div>
       <div className="flex flex-col w-[90%] ml-12 mb-12">
         {messages.map((msg, index) => (
           <motion.div

@@ -61,8 +61,13 @@ const FencerDashboard = () => {
       setLoading(true);
       try {
         const response = await FencerService.getFencerUpcomingEvents();
+        const sortedEvents = response.data.sort((a, b) => {
+          const dateA = new Date(a.eventDate);
+          const dateB = new Date(b.eventDate);
+          return dateA - dateB;
+        });
+    
         setUpcomingEvents(response.data);
-        console.log(response.data);
       } catch (error) {
         console.error("Error fetching upcoming events: ", error);
         setError("Failed to load upcoming events");
