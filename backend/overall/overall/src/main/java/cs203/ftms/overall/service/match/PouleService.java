@@ -407,6 +407,7 @@ public class PouleService {
             TournamentFencer tf1 = fencers.get(i);
             String key = createPouleKey(tf1);
             String[] values = newPouleTable.get(key).split(",");
+            System.out.println("values: " + Arrays.toString(values));
             updatePouleMatches(poule, fencers, tf1, values, i);
         }
 
@@ -438,23 +439,25 @@ public class PouleService {
             TournamentFencer ptf2 = matchService.getFencer2(pouleMatch);
 
             if (i < j) {
-                // if (ptf1.getId() == tf1.getId() && ptf2.getId() == tf2.getId()) {
-                //     savePouleMatchScore(value, pouleMatch, 1);
-                //     break;
-                // } else 
-                if (ptf1.getId() == tf2.getId() && ptf2.getId() == tf1.getId()) {
-                    savePouleMatchScore(value, pouleMatch, 2);
-                    break;
-                }
-            } else {
                 if (ptf1.getId() == tf1.getId() && ptf2.getId() == tf2.getId()) {
                     savePouleMatchScore(value, pouleMatch, 1);
                     break;
                 } 
-                // else if (ptf1.getId() == tf2.getId() && ptf2.getId() == tf1.getId()) {
+                // else 
+                // if (ptf1.getId() == tf2.getId() && ptf2.getId() == tf1.getId()) {
                 //     savePouleMatchScore(value, pouleMatch, 2);
                 //     break;
                 // }
+            } else {
+                // if (ptf1.getId() == tf1.getId() && ptf2.getId() == tf2.getId()) {
+                //     savePouleMatchScore(value, pouleMatch, 1);
+                //     break;
+                // } 
+                // else 
+                if (ptf1.getId() == tf2.getId() && ptf2.getId() == tf1.getId()) {
+                    savePouleMatchScore(value, pouleMatch, 2);
+                    break;
+                }
             }
         }
     }
@@ -493,7 +496,8 @@ public class PouleService {
             fencer2.setPouleWins(fencer2.getPouleWins() + 1);
             pouleMatch.setWinner(fencer2.getId());
         }
-
+        System.out.println("poule match score 1: " + pouleMatch.getScore1());
+        System.out.println("poule match score 2: " + pouleMatch.getScore2());
         tournamentFencerRepository.save(fencer1);
         tournamentFencerRepository.save(fencer2);
         return pouleMatch;
