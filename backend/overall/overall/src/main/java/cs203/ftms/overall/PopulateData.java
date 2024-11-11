@@ -2,6 +2,9 @@ package cs203.ftms.overall;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +29,7 @@ import cs203.ftms.overall.dto.RegisterFencerDTO;
 import cs203.ftms.overall.dto.RegisterOrganiserDTO;
 import cs203.ftms.overall.dto.SinglePouleTableDTO;
 import cs203.ftms.overall.dto.clean.CleanTournamentFencerDTO;
+import cs203.ftms.overall.model.tournamentrelated.Event;
 import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
 import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.Organiser;
@@ -147,7 +151,10 @@ public class PopulateData {
 
     public void createEvent() throws MethodArgumentNotValidException {
         for(int i = 0; i < 3; i++){
-            eventService.createEvent(tournamentRepository.findByName("Tournament" + i).get().getId(), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get(), List.of(new CreateEventDTO('M', 'S', 10, LocalDate.of(2024, 12, 28 + i), LocalTime.of(10, 0, 0), LocalTime.of(17, 0, 0))));
+            List<Event> events = eventService.createEvent(tournamentRepository.findByName("Tournament" + i).get().getId(), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get(), List.of(new CreateEventDTO('M', 'S', 10, LocalDate.of(2024, 12, 28 + i), LocalTime.of(10, 0, 0), LocalTime.of(17, 0, 0))));
+            for (Event event : events) {
+                event.setDate(LocalDate.of(2023, 12, 28 + i));
+            }
         }
     }
 
@@ -226,10 +233,15 @@ public class PopulateData {
     public void setTournamentFencerPoints() {
         Fencer f = fencerRepository.findById(3).get();
         Set<TournamentFencer> tfs = f.getTournamentFencerProfiles();
-        tfs.forEach(tf -> {
-            tf.setPointsAfterEvent(100 + random.nextInt(300));
-        });
-
+        List<TournamentFencer> tfList = new ArrayList<>(tfs);
+        Collections.sort(tfList, (a, b) -> a.getEvent().getDate().compareTo(b.getEvent().getDate()));
+        int previousPoints = f.getPoints();
+        for (int i = 0; i < 3; i++) {
+            TournamentFencer tf = tfList.get(i);
+            tf.setPointsAfterEvent(previousPoints + random.nextInt(300));
+            previousPoints = tf.getPointsAfterEvent();
+            System.out.println(tf.getEvent().getId() + " " + tf.getPointsAfterEvent());
+        }
     }
 
     @EventListener(ContextRefreshedEvent.class)
