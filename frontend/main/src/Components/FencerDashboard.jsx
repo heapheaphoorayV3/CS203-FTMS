@@ -1,10 +1,11 @@
 import React, { useEffect, useLayoutEffect, useState } from "react";
-import editLogo from "../Assets/edit.png";
+import editIcon from "../Assets/edit.png";
 import FencerService from "../Services/Fencer/FencerService";
 import { Tabs, Tab } from "./Others/Tabs";
 import LineGraph from "./Others/LineGraph";
 import { Link } from "react-router-dom";
 import EventService from "../Services/Event/EventService";
+import validator from "validator";
 
 function formatTimeTo24Hour(timeString) {
   const [hours, minutes] = timeString.split(":"); // Get hours and minutes
@@ -19,9 +20,20 @@ const FencerDashboard = () => {
   const [pastRank, setPastRank] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showCompleteProfileModal, setShowCompleteProfileModal] = useState(false);
+  const [modalErrors, setModalErrors] = useState({});
   const [isEditing, setIsEditing] = useState(false);
-  const [isInputValid, setIsInputValid] = useState(true);
-  const [editedData, setEditedData] = useState({
+  const [contactNoErrors, setContactNoErrors] = useState({});
+  const initialEditedData = () => ({
+    name: userData.name,
+    email: userData.email,
+    contactNo: userData.contactNo,
+    country: userData.country,
+    dominantArm: userData.dominantArm,
+    club: userData.club,
+  });
+  const [editedData, setEditedData] = useState(initialEditedData);
+  const [incompleteData, setIncompleteData] = useState({
     gender: "",
     weapon: "",
     dominantArm: "",
@@ -66,7 +78,7 @@ const FencerDashboard = () => {
           const dateB = new Date(b.eventDate);
           return dateA - dateB;
         });
-    
+
         setUpcomingEvents(sortedEvents);
       } catch (error) {
         console.error("Error fetching upcoming events: ", error);
@@ -136,6 +148,26 @@ const FencerDashboard = () => {
     fetchPastEventPointsForGraph();
   }, []);
 
+  useEffect(() => { // Check if user has completed their profile
+    if (
+      !loading &&
+      (!userData.gender ||
+        !userData.weapon ||
+        !userData.dominantArm ||
+        !userData.debutYear ||
+        !userData.club)
+    ) {
+      setShowCompleteProfileModal(true);
+    }
+  }, [userData]);
+
+  const handleEditClick = () => {
+    setIsEditing(!isEditing); // Toggle between view and edit mode
+    if (!isEditing) {
+      setEditedData(initialEditedData); // Reset edited data
+    }
+  };
+
   const formatDate = (date) => {
     const formattedDate = new Date(date).toLocaleDateString("en-GB", {
       day: "numeric",
@@ -145,50 +177,78 @@ const FencerDashboard = () => {
     return formattedDate;
   };
 
-  const handleEditClick = () => {
-    setIsEditing(!isEditing); // Toggle between view and edit mode
-  };
-
   const isValidDebutYear = (year, dateOfBirth) => {
     if (!dateOfBirth) return false;
     const birthYear = new Date(dateOfBirth).getFullYear();
-    const minDebutYear = birthYear + 8;
+    const minDebutYear = birthYear + 8; // At least  8yo
     const currentYear = new Date().getFullYear();
     return year >= minDebutYear && year <= currentYear;
   };
 
-  const handleInputChange = (e) => {
+  const handleEditChange = (e) => {
     const { name, value } = e.target;
+    console.log(name, value);
     setEditedData((prevData) => ({ ...prevData, [name]: value }));
+    console.log("Edited data:", editedData);
   };
 
-  const handleSave = async () => {
-    const { debutYear } = editedData;
+  const validateEditInputs = () => {
+    const newErrors = {};
+    if (!validator.isMobilePhone(editedData.contactNo, 'any', { strictMode: true })) {
+      newErrors.contactNo = "Please enter a valid phone number with country code!";
+    }
+    setContactNoErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleEditSubmit = async () => {
+    console.log("Edited data:", editedData);
+    if (validateEditInputs()) {
+      try {
+        await FencerService.updateProfile(editedData);
+        setUserData((prevData) => ({ ...prevData, ...editedData }));
+        setIsEditing(false);
+      } catch (error) {
+        console.error("Error saving profile:", error);
+      }
+    }
+  };
+
+  const handleCompleteProfileChange = (e) => {
+    const { name, value } = e.target;
+    setIncompleteData((prevData) => ({ ...prevData, [name]: value }));
+  }
+
+  const handleCompleteProfileSubmit = async (e) => {
+    e.preventDefault();
+
+    // Reset modal errors
+    setModalErrors({});
+
+    const { debutYear } = incompleteData;
     const dateOfBirth = userData.dateOfBirth;
 
     if (!isValidDebutYear(Number(debutYear), dateOfBirth)) {
-      setIsInputValid(false);
-      console.error(
-        `Invalid input. Minimum debut year is ${new Date(dateOfBirth).getFullYear() + 8
-        }.`
-      );
+
+      setModalErrors({
+        debutYear: `Invalid debut year. You must be at least 8 years old, 
+      and your debut year must be at most ${new Date().getFullYear()}.`,
+      });
       return;
     }
-
     try {
-      await FencerService.completeProfile(editedData);
-      setUserData((prevData) => ({ ...prevData, ...editedData }));
-      setIsEditing(false);
-      setIsInputValid(true);
+      await FencerService.completeProfile(incompleteData);
+      setUserData((prevData) => ({ ...prevData, ...incompleteData }));
+      setShowCompleteProfileModal(false);
     } catch (error) {
-      console.error("Error saving profile:", error);
+      console.error("Error completing profile:", error);
     }
   };
 
-  const cancelCompleteProfile = () => {
+  const cancelEditProfile = () => {
+    setEditedData(initialEditedData); // Reset
     setIsEditing(false);
-    setIsInputValid(true);
-    setEditedData({});
+    setContactNoErrors({});
   };
 
   if (loading) {
@@ -245,7 +305,6 @@ const FencerDashboard = () => {
     },
   };
 
-
   // Data and options for the #Tournament per month graph
   const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const getMostRecentSevenMonths = () => {
@@ -283,7 +342,6 @@ const FencerDashboard = () => {
         }
       }
     }
-
     return eventCounts;
   }
 
@@ -310,7 +368,6 @@ const FencerDashboard = () => {
     },
   };
 
-
   const getUserRank = () => {
     if (!rankingData || !Array.isArray(rankingData)) {
       return "Ranking data not available";
@@ -323,20 +380,6 @@ const FencerDashboard = () => {
     return userIndex !== -1 ? userIndex + 1 : "User rank not found";
   };
 
-  const formatDateRange = (start, end) => {
-    const startDate = new Date(start).toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-    const endDate = new Date(end).toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-    return `${startDate} - ${endDate}`;
-  };
-
   return (
     <div className="bg-white w-full h-full flex flex-col gap-2 p-8 overflow-auto">
       <div className="bg-white border rounded-2xl shadow-lg p-6 flex flex-col w-full relative overflow-x-hidden">
@@ -347,61 +390,51 @@ const FencerDashboard = () => {
         </div>
 
         <div className="grid grid-cols-[2fr_8fr] gap-y-2 gap-x-4 ml-4 my-4 text-xl w-full">
-          {/* Email, Birth Date, Gender, Category, Hand, Year, Org, Country */}
-          {/* <div className="text-4xl font-semibold mr-4">{userData.name}'s</div><div></div> */}
+          {/* Email, Contact No., Birth Date, Gender, Category, Dominant Arm, Debut Year, Club, Country */}
           <div className="flex font-medium">Email:</div>
           <div className="flex">{userData.email}</div>
+          <div className="flex font-medium">Contact Number:</div>
+          <div className="flex">{isEditing ? (
+            <input
+              name="contactNo"
+              type="text"
+              value={editedData.contactNo}
+              onChange={handleEditChange}
+              className={`border p-1 rounded-lg ${contactNoErrors.contactNo ? 'border-red-500' : ''}`}
+              placeholder="Contact Number (e.g. +65********)"
+            />
+          ) : (
+            userData.contactNo
+          )}
+          {contactNoErrors.contactNo && (
+            <div className="text-red-500 text-sm ml-4">
+              {contactNoErrors.contactNo}
+            </div>
+          )}
+          </div>
+          
           <div className="flex font-medium">Birth Date:</div>
           <div className="flex">{formatDate(userData.dateOfBirth)}</div>
           <div className="flex font-medium">Gender:</div>
           <div className="flex">
-            {isEditing ? (
-              <select
-                name="gender"
-                value={editedData.gender}
-                onChange={handleInputChange}
-                className="border p-1 rounded-lg"
-              >
-                <option value="" disabled>
-                  - {/* Default placeholder */}
-                </option>
-                <option value="M">Male</option>
-                <option value="F">Female</option>
-              </select>
-            ) : userData.gender === "M" ? (
+            {userData.gender === "M" ?
               "Male"
-            ) : userData.gender === "F" ? (
-              "Female"
-            ) : (
-              "-"
-            )}
+              : userData.gender === "F" ?
+                "Female"
+                : "-"}
           </div>
           <hr className="col-span-2 my-4 border-gray-300 w-full" />
           <div className="flex font-medium">Category:</div>
           <div className="flex">
-            {isEditing ? (
-              <select
-                name="weapon"
-                value={editedData.weapon}
-                onChange={handleInputChange}
-                className="border p-1 rounded-lg"
-              >
-                <option value="" disabled>
-                  - {/* Default placeholder */}
-                </option>
-                <option value="F">Foil</option>
-                <option value="E">Épée</option>
-                <option value="S">Sabre</option>
-              </select>
-            ) : userData.weapon === "F" ? (
+            {userData.weapon === "F" ?
               "Foil"
-            ) : userData.weapon === "E" ? (
-              "Épée"
-            ) : userData.weapon === "S" ? (
-              "Sabre"
-            ) : (
-              "-"
-            )}
+              : userData.weapon === "E" ?
+                "Épée"
+                : userData.weapon === "S" ?
+                  "Sabre"
+                  :
+                  "-"
+            }
           </div>
           <div className="flex font-medium">Dominant Arm:</div>
           <div className="flex">
@@ -409,7 +442,7 @@ const FencerDashboard = () => {
               <select
                 name="dominantArm"
                 value={editedData.dominantArm}
-                onChange={handleInputChange}
+                onChange={handleEditChange}
                 className="border p-1 rounded-lg"
               >
                 <option value="" disabled>
@@ -427,28 +460,7 @@ const FencerDashboard = () => {
             )}
           </div>
           <div className="flex font-medium">Debut Year:</div>
-          <div className="flex">
-            {isEditing ? (
-              <input
-                type="number"
-                name="debutYear"
-                value={editedData.debutYear}
-                onChange={handleInputChange}
-                className="border p-1 rounded-lg"
-                placeholder="-"
-              />
-            ) : userData.debutYear ? (
-              userData.debutYear
-            ) : (
-              "-"
-            )}
-            {!isInputValid && (
-              <span className="ml-8 text-red-500 italic">
-                {`Invalid input. Minimum debut year is ${new Date(userData.dateOfBirth).getFullYear() + 8
-                  }.`}
-              </span>
-            )}
-          </div>
+          <div className="flex">{userData.debutYear}</div>
           <div className="flex font-medium">Club:</div>
           <div className="flex">
             {isEditing ? (
@@ -456,14 +468,12 @@ const FencerDashboard = () => {
                 name="club"
                 type="text"
                 value={editedData.club}
-                onChange={handleInputChange}
+                onChange={handleEditChange}
                 className="border border-gray px-2 py-1 w-180 rounded-lg"
                 placeholder="-"
               />
-            ) : userData.club ? (
-              userData.club
             ) : (
-              "-"
+              userData.club
             )}
           </div>
           <div className="flex font-medium">Country:</div>
@@ -471,17 +481,124 @@ const FencerDashboard = () => {
           {isEditing && (
             <div>
               <button
-                onClick={handleSave}
+                onClick={handleEditSubmit}
                 className="bg-green-400 text-white mt-2 px-2 py-1 mr-4 rounded"
               >
                 Confirm Changes
               </button>
               <button
-                onClick={cancelCompleteProfile}
+                onClick={cancelEditProfile}
                 className="bg-red-400 text-white mt-2 px-2 py-1 rounded"
               >
                 Cancel Changes
               </button>
+            </div>
+          )}
+          {showCompleteProfileModal && (
+            <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+              <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-auto">
+                <div className="p-6">
+                  <h2 className="text-center text-xl font-semibold mb-4">Complete Your Profile</h2>
+                  <form onSubmit={handleCompleteProfileSubmit} className="space-y-4">
+                    {/* Gender */}
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Gender:</label>
+                      <select
+                        name="gender"
+                        value={incompleteData.gender || ''}
+                        onChange={handleCompleteProfileChange}
+                        className="w-full border rounded-lg p-2"
+                        required
+                      >
+                        <option value="" disabled>
+                          Select Gender
+                        </option>
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                      </select>
+                    </div>
+
+                    {/* Category */}
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Category:</label>
+                      <select
+                        name="weapon"
+                        value={incompleteData.weapon || ''}
+                        onChange={handleCompleteProfileChange}
+                        className="w-full border rounded-lg p-2"
+                        required
+                      >
+                        <option value="" disabled>
+                          Select Category
+                        </option>
+                        <option value="F">Foil</option>
+                        <option value="E">Épée</option>
+                        <option value="S">Sabre</option>
+                      </select>
+                    </div>
+
+                    {/* Dominant Arm */}
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Dominant Arm:</label>
+                      <select
+                        name="dominantArm"
+                        value={incompleteData.dominantArm || ''}
+                        onChange={handleCompleteProfileChange}
+                        className="w-full border rounded-lg p-2"
+                        required
+                      >
+                        <option value="" disabled>
+                          Select Dominant Arm
+                        </option>
+                        <option value="R">Right</option>
+                        <option value="L">Left</option>
+                      </select>
+                    </div>
+
+                    {/* Debut Year */}
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Debut Year:</label>
+                      <input
+                        name="debutYear"
+                        type="number"
+                        value={incompleteData.debutYear || ''}
+                        onChange={handleCompleteProfileChange}
+                        className={`w-full border rounded-lg p-2 ${modalErrors.debutYear ? 'border-red-500' : ''
+                          }`}
+                        required
+                      />
+                      {modalErrors.debutYear && (
+                        <div className="text-red-500 text-sm">
+                          {modalErrors.debutYear}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Club */}
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Club:</label>
+                      <input
+                        name="club"
+                        type="text"
+                        value={incompleteData.club || ''}
+                        onChange={handleCompleteProfileChange}
+                        className="w-full border rounded-lg p-2"
+                        required
+                      />
+                    </div>
+
+                    {/* Submit Button */}
+                    <div className="flex justify-center">
+                      <button
+                        type="submit"
+                        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -491,7 +608,7 @@ const FencerDashboard = () => {
           className="absolute top-4 right-4 cursor-pointer text-gray-600"
           onClick={handleEditClick}
         >
-          <img src={editLogo} alt="Edit profile button" className="w-6 h-6" />
+          <img src={editIcon} alt="Edit profile button" className="w-6 h-6" />
         </div>
       </div>
 

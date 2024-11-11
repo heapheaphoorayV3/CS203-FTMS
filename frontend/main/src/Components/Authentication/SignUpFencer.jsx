@@ -162,13 +162,13 @@ export default function SignUpFencer() {
                 validator.isMobilePhone(value, 'any', { strictMode: true }) ||
                 "Please enter a valid phone number with country code!",
             }}
-            render={({ field: { onChange, value } }) => (
+            render={({ field: { onChange, value }, fieldState: { error } }) => (
               <InputField
                 placeholder="Contact Number (e.g. +65********)"
                 type="text"
                 value={value}
                 onChange={onChange}
-                error={errors.contactNo}
+                error={error}
               />
             )}
           />
