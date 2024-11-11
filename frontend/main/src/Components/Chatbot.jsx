@@ -5,12 +5,14 @@ import { motion } from "framer-motion";
 import ChatbotService from "../Services/Chatbot/ChatbotService";
 import FencerService from "../Services/Fencer/FencerService";
 import SubmitButton from "./Others/SubmitButton";
+import { Link } from "react-router-dom";
 
 export default function Chatbot() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [userData, setUserData] = useState({});
   const [fencerUpcomingEvents, setFencerUpcomingEvents] = useState([]);
+  const [recommendedTournaments, setRecommendedTournaments] = useState([]);
   const [selectedChoice, setSelectedChoice] = useState(null);
   const [showInput, setShowInput] = useState(false);
   const [eventID, setEventID] = useState("");
@@ -31,7 +33,21 @@ export default function Chatbot() {
       }
     };
 
+    const fetchFencerUpcomingEvents = async () => {
+      setLoading(true);
+      try {
+        const response = await FencerService.getFencerUpcomingEvents();
+        setFencerUpcomingEvents(response.data);
+      } catch (error) {
+        console.error("Error fetching fencer's upcoming events: ", error);
+        setError("Failed to fetch fencer upcoming events");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchUserData();
+    fetchFencerUpcomingEvents();
   }, []);
 
   const formatDate = (date) => {
@@ -107,11 +123,24 @@ export default function Chatbot() {
           "There are currently no recommended tournaments available.",
           "bot"
         );
+        setRecommendedTournaments([]);
       } else {
-        let tournamentNames = response.data
-          .map((tournament) => tournament.name)
-          .join(", ");
-        addMessage(`Recommended tournaments: ${tournamentNames}`, "bot");
+        console.log("upcoming:", fencerUpcomingEvents);
+        const filteredTournaments = response.data.filter((tournament) => {
+          return !fencerUpcomingEvents.some(
+            (upcomingEvent) => upcomingEvent.tournamentName === tournament.name
+          );
+        });
+        console.log("filtered:", filteredTournaments);
+        if (filteredTournaments.length === 0) {
+          addMessage(
+            "There are no recommended tournaments available that you haven't already registered for.",
+            "bot"
+          );
+        } else {
+          addMessage(`Recommended tournaments: `, "bot");
+          setRecommendedTournaments(filteredTournaments);
+        }
       }
     } catch (error) {
       console.error("Error fetching recommended tournaments: ", error);
@@ -120,19 +149,6 @@ export default function Chatbot() {
         "I'm sorry, but I was unable to fetch recommended tournaments. Please try again later.",
         "bot"
       );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchFencerUpcomingEvents = async () => {
-    setLoading(true);
-    try {
-      const response = await FencerService.getFencerUpcomingEvents();
-      setFencerUpcomingEvents(response.data);
-    } catch (error) {
-      console.error("Error fetching fencer's upcoming events: ", error);
-      setError("Failed to fetch fencer upcoming events");
     } finally {
       setLoading(false);
     }
@@ -154,7 +170,6 @@ export default function Chatbot() {
 
     if (choice === "projected points" || choice === "win rate") {
       setShowInput(true);
-      fetchFencerUpcomingEvents();
     } else if (choice === "recommended tournaments") {
       fetchRecommendedTournaments();
     } else {
@@ -192,42 +207,89 @@ export default function Chatbot() {
     setEventID("");
   };
 
-  console.log("user data:", userData);
+  const clearChat = () => {
+    setMessages([
+      { text: "Hello! What would you like to know?", sender: "bot" },
+    ]);
+    setShowInput(false);
+  };
+
   const OptionButtons = () => (
-    <div className="flex justify-between gap-4 w-[70%] ml-[200px] mb-4">
-      <motion.button
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        whileHover={{ scale: 1.1, transition: { duration: 0.3 } }}
-        className="bg-blue-500 p-4 text-white rounded-md w-full"
-        onClick={() => handleOptionClick("projected points")}
-      >
-        Get my projected points
-      </motion.button>
-      <motion.button
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        whileHover={{ scale: 1.1, transition: { duration: 0.3 } }}
-        className="bg-blue-500 p-4 text-white rounded-md w-full"
-        onClick={() => handleOptionClick("win rate")}
-      >
-        Get my win rate
-      </motion.button>
-      <motion.button
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        whileHover={{ scale: 1.1, transition: { duration: 0.3 } }}
-        className="bg-blue-500 p-4 text-white rounded-md w-full"
-        onClick={() => handleOptionClick("recommended tournaments")}
-      >
-        Recommend me tournaments
-      </motion.button>
+    <div className="flex flex-col gap-4 w-[70%] ml-[200px] mb-4">
+      <div className="flex gap-4">
+        <motion.button
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          whileHover={{ scale: 1.1, transition: { duration: 0.3 } }}
+          className="bg-blue-500 p-4 text-white rounded-md w-full"
+          onClick={() => handleOptionClick("projected points")}
+        >
+          Get my projected points
+        </motion.button>
+        <motion.button
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          whileHover={{ scale: 1.1, transition: { duration: 0.3 } }}
+          className="bg-blue-500 p-4 text-white rounded-md w-full"
+          onClick={() => handleOptionClick("win rate")}
+        >
+          Get my win rate
+        </motion.button>
+        <motion.button
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          whileHover={{ scale: 1.1, transition: { duration: 0.3 } }}
+          className="bg-blue-500 p-4 text-white rounded-md w-full"
+          onClick={() => handleOptionClick("recommended tournaments")}
+        >
+          Recommend me tournaments
+        </motion.button>
+      </div>
+      <div className="flex justify-center max-w-md">
+        <motion.button
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          whileHover={{ scale: 1.1, transition: { duration: 0.3 } }}
+          className="bg-red-500 p-4 text-white rounded-md w-auto"
+          onClick={clearChat}
+        >
+          Clear Chat
+        </motion.button>
+      </div>
     </div>
   );
 
+  const TournamentOptions = () => (
+    <div className="flex justify-center w-full mb-4">
+      <div className="flex flex-col h-auto w-full max-w-xl">
+        {recommendedTournaments.length > 0 ? (
+          recommendedTournaments.map((tournament, index) => (
+            <Link
+              to={`/tournaments/${tournament.id}`}
+              className="text-white"
+              key={index}
+            >
+              <motion.button
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+                whileHover={{ scale: 1.1 }}
+                className="bg-gray-200 p-4 text-black rounded-md w-full my-2"
+              >
+                {tournament.name}
+              </motion.button>
+            </Link>
+          ))
+        ) : (
+          <p>No recommended tournaments available.</p>
+        )}
+      </div>
+    </div>
+  );
   // if (loading) {
   //   return <div className="mt-10">Loading...</div>; // Show loading state
   // }
@@ -277,7 +339,7 @@ export default function Chatbot() {
         ))}
         {/* Show input field and submit button only if required */}
         {showInput && selectedChoice && (
-          <div className="flex justify-center w-full mb-4">
+          <div className="flex justify-center w-full mb-12">
             <div className="flex flex-col h-auto w-[70%] max-w-xl">
               <div className="rounded-lg bg-gray-100 p-6 text-gray-800 shadow-md">
                 <h2 className="text-2xl font-bold">Select a tournament</h2>
@@ -296,6 +358,7 @@ export default function Chatbot() {
             </div>
           </div>
         )}
+        {selectedChoice === "recommended tournaments" && <TournamentOptions />}
         {/* Show option buttons after each bot response */}
         <OptionButtons />
       </div>

@@ -387,9 +387,6 @@ export default function ViewTournament() {
     return `${formattedDate}`;
   };
 
-  console.log("----------------");
-  console.log(tournamentData);
-  console.log("id:", tournamentID);
   return (
     // Grid for Navbar, Sidebar and Content
     <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">
