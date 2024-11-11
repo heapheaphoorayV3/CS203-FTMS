@@ -169,7 +169,12 @@ export default function Chatbot() {
     addMessage(`I want to get my ${choice}!`, "user");
 
     if (choice === "projected points" || choice === "win rate") {
-      setShowInput(true);
+      if (fencerUpcomingEvents.length === 0) {
+        addMessage("No upcoming tournaments. Please register for a tournament first.", "bot");
+        setShowInput(false);  // Prevent input from showing
+      } else {
+        setShowInput(true);  // Show input if there are upcoming events
+      }
     } else if (choice === "recommended tournaments") {
       fetchRecommendedTournaments();
     } else {
@@ -264,7 +269,7 @@ export default function Chatbot() {
   );
 
   const TournamentOptions = () => (
-    <div className="flex h-auto w-full max-w-xl">
+    <div className="flex flex-col justify-center gap-4 max-w-sm ml-[200px] mb-4">
       {recommendedTournaments.length > 0 &&
         recommendedTournaments.map((tournament, index) => (
           <Link
@@ -285,13 +290,6 @@ export default function Chatbot() {
         ))}
     </div>
   );
-  // if (loading) {
-  //   return <div className="mt-10">Loading...</div>; // Show loading state
-  // }
-
-  // if (error) {
-  //   return <div className="mt-10">{error}</div>; // Show error message if any
-  // }
 
   return (
     <div className="bg-white h-full overflow-y-auto">
@@ -308,7 +306,7 @@ export default function Chatbot() {
             backgroundColor: "#E3170A",
             transition: { duration: 0.3 },
           }}
-          className="bg-red-500 p-4 text-white rounded-md h-12 w-sm items-center"
+          className="bg-red-500 p-4 text-white rounded-md h-12 w-sm flex justify-center items-center"
           onClick={clearChat}
         >
           Clear Chat

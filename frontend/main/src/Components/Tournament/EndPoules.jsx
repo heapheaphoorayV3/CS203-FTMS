@@ -52,7 +52,7 @@ const EndPoules = ({ id, closeEndPoulesPopup }) => {
             End Poules
           </button>
           {error && (
-            <div className="flex justify-between mr-20 my-10">
+            <div className="text-xl font-semibold text-center mt-5">
               <p>{error}</p>
             </div>
           )}

@@ -135,11 +135,15 @@ export default function ViewEvent() {
       } else if (error.request) {
         // The request was made but no response was received
         console.log("Error request: ", error.request);
-        setError("Direct Elimination Data has failed to load, please try again later.");
+        setError(
+          "Direct Elimination Data has failed to load, please try again later."
+        );
       } else {
         // Something happened in setting up the request that triggered an Error
         console.log("Unknown Error: " + error);
-        setError("Direct Elimination Data has failed to load, please try again later.");
+        setError(
+          "Direct Elimination Data has failed to load, please try again later."
+        );
       }
     }
   };
@@ -156,11 +160,15 @@ export default function ViewEvent() {
       } else if (error.request) {
         // The request was made but no response was received
         console.log("Error request: ", error.request);
-        setError("Event Ranking Data has failed to load, please try again later.");
+        setError(
+          "Event Ranking Data has failed to load, please try again later."
+        );
       } else {
         // Something happened in setting up the request that triggered an Error
         console.log("Unknown Error: " + error);
-        setError("Event Ranking Data has failed to load, please try again later.");
+        setError(
+          "Event Ranking Data has failed to load, please try again later."
+        );
       }
     }
   };
@@ -180,7 +188,6 @@ export default function ViewEvent() {
         fetchEventRanking(),
       ])
         .then(() => {
-
           setLoading(false);
         })
         .catch((error) => {
@@ -329,7 +336,7 @@ export default function ViewEvent() {
         [fencerName]: editedScore,
       };
 
-      const pouleTable = pouleTableData.pouleTable[0];
+      const pouleTable = pouleTableData.pouleTable[pouleIndex];
 
       for (const key in pouleTable) {
         if (key === fencerName) {
@@ -361,7 +368,7 @@ export default function ViewEvent() {
         singleTable: Object.fromEntries(singleTableMap),
       };
 
-      console.log(combinedData);
+      console.log("sending to backend:",combinedData);
 
       await EventService.updatePouleTable(eventID, combinedData);
 
@@ -380,7 +387,7 @@ export default function ViewEvent() {
 
   const totalPages = Math.ceil(eventRanking.length / limit);
 
-  console.log("pouletabledata:", pouleTableData);
+  // console.log("pouletabledata:", pouleTableData.pouleTable[0]);
 
   return (
     <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">
@@ -491,11 +498,21 @@ export default function ViewEvent() {
                           <tr className="border-b border-gray-300 h-[50px]">
                             <th className="w-60 text-primary">Fencer</th>
                             <th className="w-24"></th>
-                            <th className="text-center w-24">1</th>
-                            <th className="text-center w-24">2</th>
-                            <th className="text-center w-24">3</th>
-                            <th className="text-center w-24">4</th>
-                            <th className="text-center w-24">5</th>
+                            {pouleTableData &&
+                              pouleTableData.pouleTable[pouleIndex] &&
+                              Object.entries(
+                                pouleTableData.pouleTable[pouleIndex]
+                              )[0] &&
+                              // Access the first fencer's result array length to determine the number of headers needed
+                              Array.from({
+                                length: Object.entries(
+                                  pouleTableData.pouleTable[pouleIndex]
+                                )[0][1].split(",").length,
+                              }).map((_, idx) => (
+                                <th key={idx} className="text-center w-24">
+                                  {idx + 1}
+                                </th>
+                              ))}
                           </tr>
                         </thead>
                         <tbody>
@@ -569,11 +586,7 @@ export default function ViewEvent() {
             </div>
             {/* Create Poule Popup --> need to pass in submit/close */}
             {isCreatePopupVisible && (
-              <CreatePoules
-                onClose={closeCreatePopup}
-                eventID={eventID}
-
-              />
+              <CreatePoules onClose={closeCreatePopup} eventID={eventID} />
             )}
           </Tab>
           <Tab label="Bracket">
