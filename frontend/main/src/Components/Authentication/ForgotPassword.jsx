@@ -8,6 +8,7 @@ export default function ForgotPassword() {
   const [formData, setFormData] = useState({
     email: "",
   });
+  const [error, setError] = useState();
 
   // Handle Input field change
   const handleValueChange = (e) => {
@@ -31,6 +32,7 @@ export default function ForgotPassword() {
         console.log("Response: " + response);
     } catch (error) {
         console.log("Error: " + error);
+        setError(error.response.data);
     }
   };
 
@@ -54,6 +56,7 @@ export default function ForgotPassword() {
             Send Confirmation Email
           </SubmitButton>
         </form>
+        {error && <h2 className="text-red-500 text-center mt-4"> {error} </h2>}
       </div>
     </div>
   );

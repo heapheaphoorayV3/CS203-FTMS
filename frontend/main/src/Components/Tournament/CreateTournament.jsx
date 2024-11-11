@@ -1,4 +1,4 @@
-import React from "react";
+import { React, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import TournamentService from "../../Services/Tournament/TournamentService";
@@ -15,6 +15,7 @@ const CreateTournament = () => {
   // Start Date cannot be before End Date
   const signupEndDate = watch("signupEndDate");
   const startDate = watch("startDate");
+  const [error, setError] = useState(null);
 
   const navigate = useNavigate();
 
@@ -30,6 +31,7 @@ const CreateTournament = () => {
       navigate(`/tournaments/${tournamentId.data.id}`);
     } catch (error) {
       console.log(error);
+      setError(error.response.data);
     }
   };
 
@@ -274,6 +276,7 @@ const CreateTournament = () => {
                 </button>
               </div>
             </form>
+            {error && <h2 className="text-red-500 text-center mt-4"> {error} </h2>}
           </div>
         </div>
       </div>

@@ -1,18 +1,27 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { XCircleIcon } from "@heroicons/react/16/solid";
 
 const CreateEvent = ({ eventTypes, tournamentDates, onClose, onSubmit }) => {
+  const [error, setError] = useState(null);
   const {
     register,
     watch,
-    handleSubmit,
     formState: { errors },
   } = useForm();
 
   const startTime = watch("startTime");
 
-  console.log("Available Events left for creation: " + eventTypes);
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      await onSubmit();
+      // Handle successful submission
+    } catch (error) {
+      console.error('Error during submission:', error);
+      // Handle the error, e.g., display an error message to the user
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
@@ -32,7 +41,7 @@ const CreateEvent = ({ eventTypes, tournamentDates, onClose, onSubmit }) => {
         </h2>
 
         <form
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit()}
           className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4"
         >
 
