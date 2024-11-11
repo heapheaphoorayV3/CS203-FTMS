@@ -197,7 +197,6 @@ const FencerDashboard = () => {
   // Data and options for the Event Points per Event graph
   const getPastSevenEvents = () => {
     let pastSevenEvents = [];
-    let pastSevenEventsIndex = 0;
     // Check only if past events are not null and length is greater than 0
     if (pastEvents && pastEvents.length > 0) {
       const lastSevenEvents = pastEvents.slice(-7);
@@ -212,7 +211,6 @@ const FencerDashboard = () => {
   const getPastSevenEventsPoints = () => {
     // return [65, 59, 80, 81, 56, 55, 40];
     let pastSevenEventPoints = [];
-    let pastSevenEventPointsIndex = 0;
     if (pastEventPoints && pastEventPoints.length > 0) {
       const lastSevenPoints = pastEventPoints.slice(-7);
       lastSevenPoints.forEach((event, index) => {
@@ -226,7 +224,7 @@ const FencerDashboard = () => {
     labels: getPastSevenEvents(),
     datasets: [
       {
-        label: "Points Per Event",
+        label: "Points After Event",
         backgroundColor: "rgba(75,192,192,0.2)",
         borderColor: "rgba(75,192,192,1)",
         data: getPastSevenEventsPoints(),
@@ -238,7 +236,6 @@ const FencerDashboard = () => {
     scales: {
       y: {
         beginAtZero: true,
-        reverse: true,
       },
     },
   };
@@ -247,7 +244,7 @@ const FencerDashboard = () => {
   // Data and options for the #Tournament per month graph
   const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const getMostRecentSevenMonths = () => {
-    
+
     const currentDate = new Date();
     const months = [];
 
@@ -267,16 +264,19 @@ const FencerDashboard = () => {
     const eventCounts = new Array(months.length).fill(0);
 
     // Iterate over the events and count the number of events for each month
-    if (pastEventPoints && pastEventPoints.length > 0) {
-      pastEventPoints.forEach(event => {
-        const eventDate = new Date(event.eventDate);
-        const eventMonth = `${monthNames[eventDate.getMonth()]} ${eventDate.getFullYear()}`;
-  
-        const monthIndex = months.indexOf(eventMonth);
-        if (monthIndex !== -1) {
-          eventCounts[monthIndex]++;
+    if (pastEvents && pastEvents.length > 0) {
+      for (let i = 0; i < pastEvents.length; i++) {
+        // Format pastEvent eventDate to be compared to the values in months[]
+        const pastEventDate = new Date(pastEvents[i].eventDate);
+        const pastEventMonth = `${monthNames[pastEventDate.getMonth() - 1]} ${pastEventDate.getFullYear()}`;
+
+        // Comparing formatted month with values in months[]
+        for (let i = 0; i < months.length; i++) {
+          if (pastEventMonth === months[i]) {
+            eventCounts[i]++;
+          }
         }
-      });
+      }
     }
 
     return eventCounts;
@@ -298,22 +298,13 @@ const FencerDashboard = () => {
     scales: {
       y: {
         beginAtZero: true,
+        ticks: {
+          stepSize: 1
+        }
       },
     },
   };
 
-  // TEMPLATE DATA FOR GRAPH
-  // const pointsGraphData = {
-  //   labels: ["January", "February", "March", "April", "May", "June", "July"],
-  //   datasets: [
-  //     {
-  //       label: "Total Points",
-  //       backgroundColor: "rgba(75,192,192,0.2)",
-  //       borderColor: "rgba(75,192,192,1)",
-  //       data: [65, 59, 80, 81, 56, 55, 40],
-  //     },
-  //   ],
-  // };
 
   const getUserRank = () => {
     if (!rankingData || !Array.isArray(rankingData)) {
