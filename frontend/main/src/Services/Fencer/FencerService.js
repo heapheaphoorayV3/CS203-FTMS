@@ -54,6 +54,10 @@ class FencerService {
   async changePassword(data) {
     return await ProtectedAPI.put(`${baseURL}/change-password`, data);
   }
+  
+  async getPastEventPointsForGraph() {
+    return await ProtectedAPI.get(`${baseURL}/past-events-points`);
+  }
 }
 
 export default new FencerService();

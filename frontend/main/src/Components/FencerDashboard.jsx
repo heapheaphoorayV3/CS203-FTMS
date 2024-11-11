@@ -28,6 +28,8 @@ const FencerDashboard = () => {
     debutYear: "",
     club: "",
   });
+  // Hooks for Graph data (pastEvents will store the pat event names while the following will store the points)
+  const [pastEventPoints, setPastEventPoints] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -108,11 +110,25 @@ const FencerDashboard = () => {
       }
     };
 
+    const fetchPastEventPointsForGraph = async () => {
+      setLoading(true);
+      try {
+        const response = await FencerService.getPastEventPointsForGraph();
+        setPastEventPoints(response.data);
+      } catch (error) {
+        console.error("Error fetching past events points for graph: ", error);
+        setError("Failed to load past events points for graph");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchData();
     fetchInternationalRanking();
     fetchUpcomingEvents();
     fetchPastEvents();
     fetchPastRank();
+    fetchPastEventPointsForGraph();
   }, []);
 
   const formatDate = (date) => {
@@ -178,15 +194,42 @@ const FencerDashboard = () => {
     return <div className="mt-10">{error}</div>; // Show error message if any
   }
 
-  // Data and options for the Rank Graph
+  // Data and options for the Event Points per Event graph
+  const getPastSevenEvents = () => {
+    let pastSevenEvents = [];
+    let pastSevenEventsIndex = 0;
+    // Check only if past events are not null and length is greater than 0
+    if (pastEvents && pastEvents.length > 0) {
+      const lastSevenEvents = pastEvents.slice(-7);
+      lastSevenEvents.forEach((event, index) => {
+        let name = `${event.tournamentName} (${event.gender} ${event.weapon})`;
+        pastSevenEvents[index] = name;
+      });
+    }
+    return pastSevenEvents;
+  };
+
+  const getPastSevenEventsPoints = () => {
+    // return [65, 59, 80, 81, 56, 55, 40];
+    let pastSevenEventPoints = [];
+    let pastSevenEventPointsIndex = 0;
+    if (pastEventPoints && pastEventPoints.length > 0) {
+      const lastSevenPoints = pastEventPoints.slice(-7);
+      lastSevenPoints.forEach((event, index) => {
+        pastSevenEventPoints[index] = event.pointsAfterEvent;
+      });
+    }
+    return pastSevenEventPoints;
+  };
+
   const rankGraphData = {
-    labels: ["January", "February", "March", "April", "May", "June", "July"],
+    labels: getPastSevenEvents(),
     datasets: [
       {
-        label: "International Rank",
+        label: "Points Per Event",
         backgroundColor: "rgba(75,192,192,0.2)",
         borderColor: "rgba(75,192,192,1)",
-        data: [65, 59, 80, 81, 56, 55, 40],
+        data: getPastSevenEventsPoints(),
       },
     ],
   };
@@ -200,14 +243,53 @@ const FencerDashboard = () => {
     },
   };
 
+
+  // Data and options for the #Tournament per month graph
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const getMostRecentSevenMonths = () => {
+    
+    const currentDate = new Date();
+    const months = [];
+
+    for (let i = 6; i >= 0; i--) {
+      const monthIndex = (currentDate.getMonth() - i + 12) % 12;
+      const year = currentDate.getFullYear() - Math.floor((i - currentDate.getMonth() + 11) / 12);
+      months.push(`${monthNames[monthIndex]} ${year}`);
+    }
+
+    return months;
+  };
+
+  const getParticaptedTournamentsPerMonth = () => {
+
+    let months = getMostRecentSevenMonths();
+    // Initialise an array of all 0s
+    const eventCounts = new Array(months.length).fill(0);
+
+    // Iterate over the events and count the number of events for each month
+    if (pastEventPoints && pastEventPoints.length > 0) {
+      pastEventPoints.forEach(event => {
+        const eventDate = new Date(event.eventDate);
+        const eventMonth = `${monthNames[eventDate.getMonth()]} ${eventDate.getFullYear()}`;
+  
+        const monthIndex = months.indexOf(eventMonth);
+        if (monthIndex !== -1) {
+          eventCounts[monthIndex]++;
+        }
+      });
+    }
+
+    return eventCounts;
+  }
+
   const pointsGraphData = {
-    labels: ["January", "February", "March", "April", "May", "June", "July"],
+    labels: getMostRecentSevenMonths(),
     datasets: [
       {
-        label: "Total Points",
+        label: "Tournament Participations",
         backgroundColor: "rgba(75,192,192,0.2)",
         borderColor: "rgba(75,192,192,1)",
-        data: [65, 59, 80, 81, 56, 55, 40],
+        data: getParticaptedTournamentsPerMonth(),
       },
     ],
   };
@@ -219,6 +301,19 @@ const FencerDashboard = () => {
       },
     },
   };
+
+  // TEMPLATE DATA FOR GRAPH
+  // const pointsGraphData = {
+  //   labels: ["January", "February", "March", "April", "May", "June", "July"],
+  //   datasets: [
+  //     {
+  //       label: "Total Points",
+  //       backgroundColor: "rgba(75,192,192,0.2)",
+  //       borderColor: "rgba(75,192,192,1)",
+  //       data: [65, 59, 80, 81, 56, 55, 40],
+  //     },
+  //   ],
+  // };
 
   const getUserRank = () => {
     if (!rankingData || !Array.isArray(rankingData)) {

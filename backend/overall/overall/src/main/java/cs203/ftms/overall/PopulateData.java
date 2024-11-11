@@ -259,6 +259,6 @@ public class PopulateData {
             printPouleResult();
         }
 
-        // createDirectEliminationMatches();
+        createDirectEliminationMatches();
     }
 }
