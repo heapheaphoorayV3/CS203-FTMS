@@ -275,8 +275,6 @@ export default function ViewTournament() {
   };
   // "Confirm Changes" --> Submit Events Array
   const submitEventsArray = async () => {
-    // Only submit new events --> old events have key "fencers"
-    console.log("New Events Array: " + JSON.stringify(newEventsArray));
     try {
       const response = await EventService.createEvents(
         tournamentID,

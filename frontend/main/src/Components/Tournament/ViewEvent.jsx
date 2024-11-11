@@ -51,7 +51,7 @@ export default function ViewEvent() {
       // console.log("event data =>");
     } catch (error) {
       console.error("Error fetching event data:", error);
-      setError("Failed to load event data.");
+      setError(error.response.data);
     }
   };
 
@@ -78,8 +78,8 @@ export default function ViewEvent() {
       }
       setIsOwner(found);
     } catch (error) {
-      console.error("Error fetching event:", error);
-      setError("Failed to load event.");
+      console.error("Failed getting upcoming tournaments:", error);
+      setError(error.response.data);
     }
   };
 
@@ -99,7 +99,7 @@ export default function ViewEvent() {
       setCleanedPouleData(processedData);
     } catch (error) {
       console.error("Error fetching poule table data:", error);
-      setError("Failed to load poule table data.");
+      setError(error.response.data);
     }
   };
 
@@ -109,7 +109,7 @@ export default function ViewEvent() {
       setRecommendedPoulesData(response.data);
     } catch (error) {
       console.error("Error fetching recommended poules", error);
-      setError("Failed to load recommended poules");
+      setError(error.response.data);
     }
   };
 
@@ -120,7 +120,7 @@ export default function ViewEvent() {
       // console.log("matches:", response.data);
     } catch (error) {
       console.error("Error fetching matches:", error);
-      setError("Failed to load matches.");
+      setError(error.response.data);
     }
   };
 
@@ -131,7 +131,7 @@ export default function ViewEvent() {
       setEventRanking(response.data);
     } catch (error) {
       console.error("Error fetching event ranking: ", error);
-      setError("Failed to load event ranking");
+      setError(error.response.data);
     }
   };
 
@@ -504,8 +504,8 @@ export default function ViewEvent() {
                                     <td
                                       key={resultIndex}
                                       className={`border border-gray-300 hover:bg-gray-100 ${result === "-1"
-                                          ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
-                                          : ""
+                                        ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
+                                        : ""
                                         }`}
                                     >
                                       {result === "-1" ? (
@@ -522,8 +522,8 @@ export default function ViewEvent() {
                                             )
                                           }
                                           className={`w-full text-center ${!isInputValid
-                                              ? "border-red-500"
-                                              : "border-gray-300"
+                                            ? "border-red-500"
+                                            : "border-gray-300"
                                             }`}
                                         />
                                       ) : (
