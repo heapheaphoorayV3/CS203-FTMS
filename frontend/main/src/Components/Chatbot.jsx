@@ -68,20 +68,22 @@ export default function Chatbot() {
     try {
       console.log("event ID:", eventID);
       const response = await ChatbotService.getProjectedPoints(eventID);
-      console.log("response:", response.data);
-      if (response.status === 400 || response.data === null) {
-        addMessage("No projected points available for this event.", "bot");
-      } else {
-        addMessage(`Your projected points: ${response.data}`, "bot");
-      }
+      console.log("Response status:", response.status); // Log the status
+      console.log("Response data:", response.data); // Log the data
+      addMessage(`Your projected points: ${response.data}`, "bot");
+
       setShowInput(false);
     } catch (error) {
+      console.log("Error status:", error.response?.status);
       console.error("Error fetching projected points: ", error);
       setError("Failed to load projected points");
-      addMessage(
-        "I'm sorry, but I was unable to fetch your projected points. Please try again later.",
-        "bot"
-      );
+      if (error.response?.status === 400) {
+        addMessage("No projected points available for this event.", "bot");
+      }
+      // addMessage(
+      //   "I'm sorry, but I was unable to fetch your projected points. Please try again later.",
+      //   "bot"
+      // );
       setShowInput(false);
     } finally {
       setLoading(false);
@@ -98,10 +100,13 @@ export default function Chatbot() {
     } catch (error) {
       console.error("Error fetching win rate: ", error);
       setError("Failed to load win rate");
-      addMessage(
-        "I'm sorry, but I was unable to fetch your win rate. Please try again later.",
-        "bot"
-      );
+      // addMessage(
+      //   "I'm sorry, but I was unable to fetch your win rate. Please try again later.",
+      //   "bot"
+      // );
+      if (error.response?.status === 400) {
+        addMessage("No win rate available for this event.", "bot");
+      }
       setShowInput(false);
     } finally {
       setLoading(false);
@@ -170,10 +175,13 @@ export default function Chatbot() {
 
     if (choice === "projected points" || choice === "win rate") {
       if (fencerUpcomingEvents.length === 0) {
-        addMessage("No upcoming tournaments. Please register for a tournament first.", "bot");
-        setShowInput(false);  // Prevent input from showing
+        addMessage(
+          "No upcoming tournaments. Please register for a tournament first.",
+          "bot"
+        );
+        setShowInput(false); // Prevent input from showing
       } else {
-        setShowInput(true);  // Show input if there are upcoming events
+        setShowInput(true); // Show input if there are upcoming events
       }
     } else if (choice === "recommended tournaments") {
       fetchRecommendedTournaments();
@@ -221,7 +229,7 @@ export default function Chatbot() {
 
   const OptionButtons = () => (
     <div className="flex flex-col gap-4 w-[70%] ml-[200px] mb-4">
-      <div className="flex gap-4">
+      <div className="flex gap-4 text-lg">
         <motion.button
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -274,7 +282,7 @@ export default function Chatbot() {
         recommendedTournaments.map((tournament, index) => (
           <Link
             to={`/tournaments/${tournament.id}`}
-            className="text-white"
+            className="text-white text-lg"
             key={index}
           >
             <motion.button
@@ -312,7 +320,7 @@ export default function Chatbot() {
           Clear Chat
         </motion.button>
       </div>
-      <div className="flex flex-col w-[90%] ml-12 mb-12">
+      <div className="flex flex-col w-[90%] ml-12 mb-12 text-lg">
         {messages.map((msg, index) => (
           <motion.div
             key={index}
@@ -352,7 +360,7 @@ export default function Chatbot() {
         {showInput && selectedChoice && (
           <div className="flex justify-center w-full mb-12">
             <div className="flex flex-col h-auto w-[70%] max-w-xl">
-              <div className="rounded-lg bg-gray-100 p-6 text-gray-800 shadow-md">
+              <div className="rounded-lg bg-gray-100 p-6 text-gray-800 shadow-md text-lg">
                 <h2 className="text-2xl font-bold">Select a tournament</h2>
                 <div className="mt-2 space-y-2">
                   {fencerUpcomingEvents.map((event) => (
