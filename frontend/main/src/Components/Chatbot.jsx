@@ -221,7 +221,11 @@ export default function Chatbot() {
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          whileHover={{ scale: 1.1, transition: { duration: 0.3 } }}
+          whileHover={{
+            scale: 1.1,
+            backgroundColor: "#4059AD",
+            transition: { duration: 0.3 },
+          }}
           className="bg-blue-500 p-4 text-white rounded-md w-full"
           onClick={() => handleOptionClick("projected points")}
         >
@@ -231,7 +235,11 @@ export default function Chatbot() {
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          whileHover={{ scale: 1.1, transition: { duration: 0.3 } }}
+          whileHover={{
+            scale: 1.1,
+            backgroundColor: "#4059AD",
+            transition: { duration: 0.3 },
+          }}
           className="bg-blue-500 p-4 text-white rounded-md w-full"
           onClick={() => handleOptionClick("win rate")}
         >
@@ -241,7 +249,11 @@ export default function Chatbot() {
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          whileHover={{ scale: 1.1, transition: { duration: 0.3 } }}
+          whileHover={{
+            scale: 1.1,
+            backgroundColor: "#4059AD",
+            transition: { duration: 0.3 },
+          }}
           className="bg-blue-500 p-4 text-white rounded-md w-full"
           onClick={() => handleOptionClick("recommended tournaments")}
         >
@@ -253,7 +265,11 @@ export default function Chatbot() {
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          whileHover={{ scale: 1.1, transition: { duration: 0.3 } }}
+          whileHover={{
+            scale: 1.1,
+            backgroundColor: "#E3170A",
+            transition: { duration: 0.3 },
+          }}
           className="bg-red-500 p-4 text-white rounded-md w-auto"
           onClick={clearChat}
         >
