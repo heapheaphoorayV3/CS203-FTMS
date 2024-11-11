@@ -34,6 +34,7 @@ export default function ViewTournament() {
   const [isUpdateEventPopupVisible, setIsUpdateEventPopupVisible] =
     useState(false);
   const [registeredEvents, setRegisteredEvents] = useState([]);
+  const [registerEventError, setRegisterEventError] = useState(null);
   const [isDeleteEventPopUpVisible, setIsDeleteEventPopUpVisible] =
     useState(false);
   // Selected Event for deletion / update (organiser)
@@ -357,10 +358,17 @@ export default function ViewTournament() {
         navigate("/fencer-dashboard");
       });
     } catch (error) {
-      if (error.response && error.response.status === 403) {
-        console.error("You do not have permission to register for this event.");
+      if (error.response) {
+        console.log("Error response data: ", error.response.data);
+        setRegisterEventError(error.response.data);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.log("Error request: ", error.request);
+        setRegisterEventError("Event registration has failed, please try again later.");
       } else {
-        console.log(error);
+        // Something happened in setting up the request that triggered an Error
+        console.log("Unknown Error: " + error);
+        setRegisterEventError("Event registration has failed, please try again later.");
       }
     }
   };
@@ -591,6 +599,7 @@ export default function ViewTournament() {
                 )}
               </tbody>
             </table>
+            {registerEventError && <h2 className="text-red-500 text-center mt-4"> {registerEventError} </h2>}
           </Tab>
         </Tabs>
         <div style={{ position: "fixed", zIndex: 10 }}>

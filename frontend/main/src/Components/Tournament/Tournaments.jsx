@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
 import TournamentService from "../../Services/Tournament/TournamentService";
 import SearchBar from "../Others/SearchBar";
 
@@ -20,8 +19,18 @@ export default function Tournaments() {
         });
         setTournamentData(sortedTournaments);
       } catch (error) {
-        console.error("Error fetching data:", error);
-        setError("Failed to load data.");
+        if (error.response) {
+          console.log("Error response data: ", error.response.data);
+          setError(error.response.data);
+        } else if (error.request) {
+          // The request was made but no response was received
+          console.log("Error request: ", error.request);
+          setError("Tournament Data has failed to load, please try again later.");
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          console.log("Unknown Error: " + error);
+          setError("Tournament Data has failed to load, please try again later.");
+        }
       } finally {
         setLoading(false);
       }
