@@ -151,7 +151,11 @@ export default function ViewTournament() {
     return <div className="mt-10">Loading...</div>; // Show loading state
   }
   if (error) {
-    return <div className="mt-10">{error}</div>; // Show error message if any
+    return (
+      <div className="flex justify-between mr-20 my-10">
+        <h1 className=" ml-12 text-left text-4xl font-semibold">{error}</h1>
+      </div>
+    ); // Show error message if any
   }
 
   const handleSubmit = async (data) => {
@@ -499,9 +503,14 @@ export default function ViewTournament() {
                             </SubmitButton>
                           ))}
                         {sessionStorage.getItem("userType") === "O" &&
-                          isOwner && 
-                          !newEventsArray.some(newEvent => newEvent.id === event.id) && 
-                          getTournamentStatus(tournamentData.startDate, tournamentData.endDate) === "Upcoming" && (
+                          isOwner &&
+                          !newEventsArray.some(
+                            (newEvent) => newEvent.id === event.id
+                          ) &&
+                          getTournamentStatus(
+                            tournamentData.startDate,
+                            tournamentData.endDate
+                          ) === "Upcoming" && (
                             <DropdownMenu
                               entity="Event"
                               updateEntity={() => updateEvent(event)}
@@ -533,14 +542,18 @@ export default function ViewTournament() {
                           Cancel Changes
                         </button>
                       )}
-                      {isOwner && 
-                       getTournamentStatus(tournamentData.startDate, tournamentData.endDate) === "Upcoming" && (
-                        <button
-                        onClick={openCreatePopup}
-                        className="bg-blue-500 text-white px-4 py-2 rounded mx-36 mt-10"
-                      >
-                        Add Event
-                      </button>)}
+                      {isOwner &&
+                        getTournamentStatus(
+                          tournamentData.startDate,
+                          tournamentData.endDate
+                        ) === "Upcoming" && (
+                          <button
+                            onClick={openCreatePopup}
+                            className="bg-blue-500 text-white px-4 py-2 rounded mx-36 mt-10"
+                          >
+                            Add Event
+                          </button>
+                        )}
                       {isCreating && (
                         <button
                           onClick={submitEventsArray}
