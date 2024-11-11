@@ -350,31 +350,6 @@ export default function ViewEvent() {
     setIsUpdatePopupVisible(false);
   };
 
-  const submitUpdateBracketMatches = async (data) => {
-    try {
-      const matchId = data.trackSelectedMatch.id;
-
-      // Structure the combined data to match the backend's expected DTO format
-      const combinedData = {
-        matchId: matchId,
-        score1: data.firstScore,
-        score2: data.secondScore,
-      };
-
-      console.log(combinedData);
-
-      await EventService.updateDEMatch(eventID, combinedData);
-
-      // console.log("Bracket matches updated successfully");
-
-      closeUpdatePopup();
-
-      window.location.reload();
-    } catch (error) {
-      console.error("Error updating bracket matches:", error);
-    }
-  };
-
   const submitUpdatePoules = async () => {
     try {
       const updatedPouleData = pouleTableData.pouleTable[selectedPoule - 1];
@@ -632,7 +607,7 @@ export default function ViewEvent() {
             {isUpdatePopupVisible && (
               <UpdateBracketMatch
                 onClose={closeUpdatePopup}
-                onSubmit={submitUpdateBracketMatches}
+                eventID={eventID}
                 matches={matches}
               />
             )}
