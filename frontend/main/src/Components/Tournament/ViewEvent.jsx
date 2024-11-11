@@ -8,6 +8,7 @@ import EventBracket from "./EventBracket.jsx";
 import CreatePoules from "./CreatePoules.jsx";
 import Breadcrumbs from "../Others/Breadcrumbs.jsx";
 import UpdateBracketMatch from "./UpdateBracketMatch.jsx";
+import EndPoules from "./EndPoules.jsx";
 
 function formatTimeTo24Hour(timeString) {
   const [hours, minutes] = timeString.split(":"); // Get hours and minutes
@@ -28,6 +29,7 @@ export default function ViewEvent() {
   const [selectedPoule, setSelectedPoule] = useState(1);
   const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
   const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
+  const [isEndPoulesPopupVisible, setIsEndPoulesPopupVisible] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [eventRanking, setEventRanking] = useState(null);
   const [updatePoulesScores, setUpdatePoulesScores] = useState({});
@@ -58,8 +60,7 @@ export default function ViewEvent() {
   // Fetch Upcoming Tournament if Organiser to check if organiser is the owner of current event
   const checkIfOwner = async () => {
     try {
-      const response =
-        await OrganiserService.getOrganiserUpcomingTournaments();
+      const response = await OrganiserService.getOrganiserUpcomingTournaments();
       const upcomingTournaments = response.data;
       console.log("upcoming tournaments:", upcomingTournaments);
       let found = false;
@@ -151,8 +152,7 @@ export default function ViewEvent() {
         fetchEventRanking(),
       ])
         .then(() => {
-          // Code to run after all functions complete
-          // console.log("All functions have completed.");
+
           setLoading(false);
         })
         .catch((error) => {
@@ -182,7 +182,11 @@ export default function ViewEvent() {
   }
 
   if (error) {
-    return <div className="mt-10">{error}</div>; // Show error message if any
+    return (
+      <div className="flex justify-between mr-20 my-10">
+        <h1 className=" ml-12 text-left text-4xl font-semibold">{error}</h1>
+      </div>
+    ); // Show error message if any
   }
 
   const constructEventName = (gender, weapon) => {
@@ -230,16 +234,16 @@ export default function ViewEvent() {
       name: loading
         ? "Loading..."
         : eventData
-          ? eventData.tournamentName
-          : "Not Found",
+        ? eventData.tournamentName
+        : "Not Found",
       link: `/tournaments/${tournamentID}`,
     },
     {
       name: loading
         ? "Loading..."
         : eventData
-          ? constructEventName(eventData.gender, eventData.weapon)
-          : "Not Found",
+        ? constructEventName(eventData.gender, eventData.weapon)
+        : "Not Found",
     },
   ];
 
@@ -381,6 +385,11 @@ export default function ViewEvent() {
     }
   };
 
+  const endPoules = async () => {
+    setIsEndPoulesPopupVisible(true);
+    fetchMatches();
+  };
+
   const totalPages = Math.ceil(eventRanking.length / limit);
 
   console.log("pouletabledata:", pouleTableData);
@@ -436,12 +445,23 @@ export default function ViewEvent() {
                         </div>
 
                         <div className="flex mt-4 pb-2 space-x-2">
-                          <button
-                            onClick={updatePoules}
-                            className="bg-blue-500 text-white px-4 py-2 rounded"
-                          >
-                            Update Poules
-                          </button>
+                          {matches.length === 0 && (
+                            <>
+                              <button
+                                onClick={() => endPoules()}
+                                className="bg-blue-500 text-white px-4 py-2 rounded"
+                              >
+                                End Poules
+                              </button>
+
+                              <button
+                                onClick={updatePoules}
+                                className="bg-blue-500 text-white px-4 py-2 rounded"
+                              >
+                                Update Poules
+                              </button>
+                            </>
+                          )}
 
                           {isUpdating && (
                             <>
@@ -464,6 +484,17 @@ export default function ViewEvent() {
                               )}
                             </>
                           )}
+
+                          {isEndPoulesPopupVisible && (
+                            <>
+                              <EndPoules
+                                id={eventID}
+                                closeEndPoulesPopup={() =>
+                                  setIsEndPoulesPopupVisible(false)
+                                }
+                              />
+                            </>
+                          )}
                         </div>
                       </div>
                       <table className="table text-lg">
@@ -481,7 +512,7 @@ export default function ViewEvent() {
                         </thead>
                         <tbody>
                           {pouleTableData &&
-                            pouleTableData.pouleTable[pouleIndex] ? (
+                          pouleTableData.pouleTable[pouleIndex] ? (
                             Object.entries(
                               pouleTableData.pouleTable[pouleIndex]
                             ).map(([fencer, results], idx) => {
@@ -503,10 +534,11 @@ export default function ViewEvent() {
                                   {resultArray.map((result, resultIndex) => (
                                     <td
                                       key={resultIndex}
-                                      className={`border border-gray-300 hover:bg-gray-100 ${result === "-1"
-                                        ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
-                                        : ""
-                                        }`}
+                                      className={`border border-gray-300 hover:bg-gray-100 ${
+                                        result === "-1"
+                                          ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
+                                          : ""
+                                      }`}
                                     >
                                       {result === "-1" ? (
                                         result
@@ -521,10 +553,11 @@ export default function ViewEvent() {
                                               idx
                                             )
                                           }
-                                          className={`w-full text-center ${!isInputValid
-                                            ? "border-red-500"
-                                            : "border-gray-300"
-                                            }`}
+                                          className={`w-full text-center ${
+                                            !isInputValid
+                                              ? "border-red-500"
+                                              : "border-gray-300"
+                                          }`}
                                         />
                                       ) : (
                                         result
