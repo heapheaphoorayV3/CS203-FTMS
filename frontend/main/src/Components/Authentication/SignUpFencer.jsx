@@ -16,7 +16,7 @@ export default function SignUpFencer() {
     watch,
     formState: { errors },
   } = useForm();
-  const [isError, setError] = useState(false);
+  const [error, setError] = useState(null);
 
   // Watch the password field (to see if confirm password and password matches)
   const password = watch("password");
@@ -41,8 +41,18 @@ export default function SignUpFencer() {
 
       });
     } catch (error) {
-      setError(true);
-      console.log(error);
+      if (error.response) {
+        console.log("Error response data: ", error.response.data);
+        setError(error.response.data);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.log("Error request: ", error.request);
+        setError("An error has occured, please try again later.");
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log("Unknown Error: " + error);
+        setError("An error has occured, please try again later.");
+      }
     }
   };
 
@@ -205,9 +215,9 @@ export default function SignUpFencer() {
           <SubmitButton onSubmit={handleSubmit}>Sign up</SubmitButton>
         </form>
 
-        {isError && (
-          <h1 className="text-xl font-semibold text-center text-red-500">
-            An error has occurred. Email may have already been used!
+        {error && (
+          <h1 className="text-lg text-center text-red-500">
+            {error}
           </h1>
         )}
       </div>

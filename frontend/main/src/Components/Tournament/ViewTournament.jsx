@@ -12,7 +12,6 @@ import CreateEvent from "./CreateEvent.jsx";
 import UpdateEvent from "./UpdateEvent.jsx";
 import DeleteEvent from "./DeleteEvent.jsx";
 import SubmitButton from "../Others/SubmitButton.jsx";
-import { set } from "react-hook-form";
 
 function formatTimeTo24Hour(timeString) {
   const [hours, minutes] = timeString.split(":"); // Get hours and minutes
@@ -28,6 +27,7 @@ export default function ViewTournament() {
   const [isOwner, setIsOwner] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [addEventError, setAddEventError] = useState(null);
   const [eventsArray, setEventsArray] = useState([]);
   // One Popup for create-event the other for update-event
   const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
@@ -65,8 +65,18 @@ export default function ViewTournament() {
       const eventsArray = response.data.events; // Accessing events directly
       setEventsArray(eventsArray);
     } catch (error) {
-      console.error("Error fetching tournament data:", error);
-      setError("Failed to load tournament data.");
+      if (error.response) {
+        console.log("Error response data: ", error.response.data);
+        setError(error.response.data);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.log("Error request: ", error.request);
+        setError("Tournament Data has failed to load, please try again later.");
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log("Unknown Error: " + error);
+        setError("Tournament Data has failed to load, please try again later.");
+      }
     } finally {
       setLoading(false);
     }
@@ -80,8 +90,18 @@ export default function ViewTournament() {
       const eventIds = response.data.map((event) => event.id);
       setRegisteredEvents(eventIds);
     } catch (error) {
-      console.log("Error fetching registered events", error);
-      setError("Failed to load registered events");
+      if (error.response) {
+        console.log("Error response data: ", error.response.data);
+        setError(error.response.data);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.log("Error request: ", error.request);
+        setError("Registered Event Data has failed to load, please try again later.");
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log("Unknown Error: " + error);
+        setError("Registered Event Data has failed to load, please try again later.");
+      }
     }
   };
 
@@ -99,8 +119,8 @@ export default function ViewTournament() {
       }
       setIsOwner(found);
     } catch (error) {
-      console.error("Error fetching upcoming tournaments:", error);
-      setError("Failed to load upcoming tournaments.");
+      console.error("Error fetching upcoming tournaments for organiser:", error);
+      setError("Failed to load Tournament Data.");
     }
   };
 
@@ -141,8 +161,8 @@ export default function ViewTournament() {
       name: loading
         ? "Loading..."
         : tournamentData
-        ? tournamentData.name
-        : "Not Found",
+          ? tournamentData.name
+          : "Not Found",
     },
   ];
 
@@ -153,16 +173,6 @@ export default function ViewTournament() {
   if (error) {
     return <div className="mt-10">{error}</div>; // Show error message if any
   }
-
-  const handleSubmit = async (data) => {
-    try {
-      await FencerService.registerEvent(data).then(() => {
-        navigate("/fencer-dashboard");
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   const formatDateRange = (start, end) => {
     const startDate = new Date(start).toLocaleDateString("en-GB", {
@@ -276,19 +286,28 @@ export default function ViewTournament() {
   // "Confirm Changes" --> Submit Events Array
   const submitEventsArray = async () => {
     try {
-      const response = await EventService.createEvents(
-        tournamentID,
-        newEventsArray
-      );
+      const response = await EventService.createEvents(tournamentID, newEventsArray);
+      // Set isCreating to false
+      setIsCreating(false);
+      // Set NewEventArray to empty
+      setNewEventsArray([]);
+      // Only re-fetch data if successful
+      fetchData();
     } catch (error) {
-      console.log(error);
+      if (error.response) {
+        console.log("Error response data: ", error.response.data);
+        setAddEventError(error.response.data);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.log("Error request: ", error.request);
+        setAddEventError("An error has occured, please try again later.");
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log("Unknown Error: " + error);
+        setAddEventError("An error has occured, please try again later.");
+      }
     }
-    // Set isCreating to false
-    setIsCreating(false);
-    // Set NewEventArray to empty
-    setNewEventsArray([]);
-    // Refetch Event Data
-    fetchData();
+
   };
 
   // Check if today is past the start date of the tournament (for the register button)
@@ -481,11 +500,10 @@ export default function ViewTournament() {
                           (registeredEvents.includes(event.id) ? (
                             <SubmitButton
                               disabled
-                              styling={`h-12 w-full justify-center rounded-md my-5 text-lg font-semibold leading-6 text-white shadow-sm ${
-                                isPastStartDate()
-                                  ? "bg-grey-400"
-                                  : "bg-green-400"
-                              }`}
+                              styling={`h-12 w-full justify-center rounded-md my-5 text-lg font-semibold leading-6 text-white shadow-sm ${isPastStartDate()
+                                ? "bg-grey-400"
+                                : "bg-green-400"
+                                }`}
                             >
                               {isPastStartDate()
                                 ? "Signups Closed"
@@ -499,8 +517,8 @@ export default function ViewTournament() {
                             </SubmitButton>
                           ))}
                         {sessionStorage.getItem("userType") === "O" &&
-                          isOwner && 
-                          !newEventsArray.some(newEvent => newEvent.id === event.id) && 
+                          isOwner &&
+                          !newEventsArray.some(newEvent => newEvent.id === event.id) &&
                           getTournamentStatus(tournamentData.startDate, tournamentData.endDate) === "Upcoming" && (
                             <DropdownMenu
                               entity="Event"
@@ -523,34 +541,44 @@ export default function ViewTournament() {
                 )}
                 {/* Add Event button row only if organiser and isOwner */}
                 {sessionStorage.getItem("userType") === "O" && isOwner && (
-                  <tr>
-                    <td colSpan="6" className="text-center">
-                      {isCreating && (
-                        <button
-                          onClick={cancelCreatingChanges}
-                          className="bg-red-400 text-white px-4 py-2 rounded"
-                        >
-                          Cancel Changes
-                        </button>
-                      )}
-                      {isOwner && 
-                       getTournamentStatus(tournamentData.startDate, tournamentData.endDate) === "Upcoming" && (
-                        <button
-                        onClick={openCreatePopup}
-                        className="bg-blue-500 text-white px-4 py-2 rounded mx-36 mt-10"
-                      >
-                        Add Event
-                      </button>)}
-                      {isCreating && (
-                        <button
-                          onClick={submitEventsArray}
-                          className="bg-green-400 text-white px-4 py-2 rounded"
-                        >
-                          Confirm Changes
-                        </button>
-                      )}
-                    </td>
-                  </tr>
+                  <>
+                    {addEventError && (
+                      <tr className="border-transparent">
+                        <td colSpan="6" className="text-center text-red-500">
+                          {addEventError}
+                        </td>
+                      </tr>
+                    )}
+                    <tr>
+                      <td colSpan="6" className="text-center">
+                        {isCreating && (
+                          <button
+                            onClick={cancelCreatingChanges}
+                            className="bg-red-400 text-white px-4 py-2 rounded"
+                          >
+                            Cancel Changes
+                          </button>
+                        )}
+                        {isOwner &&
+                          getTournamentStatus(tournamentData.startDate, tournamentData.endDate) === "Upcoming" && (
+                            <button
+                              onClick={openCreatePopup}
+                              className="bg-blue-500 text-white px-4 py-2 rounded mx-36 mt-10"
+                            >
+                              Add Event
+                            </button>
+                          )}
+                        {isCreating && (
+                          <button
+                            onClick={submitEventsArray}
+                            className="bg-green-400 text-white px-4 py-2 rounded"
+                          >
+                            Confirm Changes
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  </>
                 )}
               </tbody>
             </table>
