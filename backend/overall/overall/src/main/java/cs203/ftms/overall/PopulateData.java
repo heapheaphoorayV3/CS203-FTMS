@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,13 +56,13 @@ public class PopulateData {
     private final EventService eventService;
     private final FencerService fencerService;
     private final PouleService pouleService;
+    private final DirectEliminationService directEliminationService;
 
     private final UserRepository userRepository;
     private final TournamentRepository tournamentRepository;
     private final EventRepository eventRepository;
     private final PouleRepository pouleRepository; 
     private final FencerRepository fencerRepository;
-    private final DirectEliminationService directEliminationService;
 
     @Autowired
     public PopulateData(AuthenticationService authenticationService, TournamentService tournamentService, EventService eventService, FencerService fencerService, PouleService poulesService, UserRepository userRepository, TournamentRepository tournamentRepository, EventRepository eventRepository, PouleRepository pouleRepository, FencerRepository fencerRepository, DirectEliminationService directEliminationService) {
@@ -240,7 +239,6 @@ public class PopulateData {
             TournamentFencer tf = tfList.get(i);
             tf.setPointsAfterEvent(previousPoints + random.nextInt(300));
             previousPoints = tf.getPointsAfterEvent();
-            System.out.println(tf.getEvent().getId() + " " + tf.getPointsAfterEvent());
         }
     }
 
@@ -269,8 +267,7 @@ public class PopulateData {
             updatePouleTable();
             printUpdatedPouleTable();
             printPouleResult();
+            createDirectEliminationMatches();
         }
-
-        createDirectEliminationMatches();
     }
 }
