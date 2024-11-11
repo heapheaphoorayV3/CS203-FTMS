@@ -1,18 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { XCircleIcon } from "@heroicons/react/16/solid";
 
 const CreateEvent = ({ eventTypes, tournamentDates, onClose, onSubmit }) => {
   const {
     register,
-    watch,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm();
 
   const startTime = watch("startTime");
-
-  console.log("Available Events left for creation: " + eventTypes);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
@@ -155,7 +153,7 @@ const CreateEvent = ({ eventTypes, tournamentDates, onClose, onSubmit }) => {
           {/* Submit Button */}
           <div className="md:col-span-2">
             <button
-              onSubmit={handleSubmit}
+              onSubmit={handleSubmit()}
               className="w-full bg-blue-500 text-white rounded-md py-2"
             >
               Create Event

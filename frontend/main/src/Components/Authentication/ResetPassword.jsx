@@ -16,6 +16,7 @@ export default function ResetPassword(props) {
     newPassword: "",
     confirmNewPassword: "",
   });
+  const [error, setError] = useState();
 
   const {
     handleSubmit,
@@ -35,6 +36,7 @@ export default function ResetPassword(props) {
       navigate("/signin"); // Navigate to the login page after successful password reset
     } catch (error) {
       console.log("Error resetting password:", error);
+      setError(error.response.data);
     }
   };
 
@@ -98,6 +100,7 @@ export default function ResetPassword(props) {
           />
           <SubmitButton type="submit">Submit</SubmitButton>
         </form>
+        {error && <h2 className="text-red-500 text-center mt-4"> {error} </h2>}
       </div>
     </div>
   );
