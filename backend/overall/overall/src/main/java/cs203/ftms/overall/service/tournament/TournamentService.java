@@ -2,7 +2,6 @@ package cs203.ftms.overall.service.tournament;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -181,64 +180,4 @@ public class TournamentService {
         tournamentRepository.deleteTournamentById(tournament.getId());
     }
 
-    // @Transactional
-    // public void deleteTournament(Organiser o, int tid) {
-    // Tournament t = getTournament(tid);
-    // if (t.getOrganiser().getId() != o.getId()) {
-    // throw new EntityDoesNotExistException("Tournament does not exist!");
-    // }
-
-    // for (Event e : t.getEvents()) {
-    // if (e.getPoules() != null && !e.getPoules().isEmpty()) {
-    // throw new TournamentAlreadyStartedException("Cannot delete tournament that
-    // has already started!");
-    // }
-    // for (TournamentFencer tf : e.getFencers()) {
-    // Fencer f = tf.getFencer();
-    // eventService.unregisterEvent(tid, f);
-    // }
-    // e.setTournament(null);
-    // eventRepository.delete(e);
-    // }
-
-    // Set<Tournament> tourHost = o.getTourHost();
-    // tourHost.removeIf(tournament -> tournament.getId() == tid);
-    // o.setTourHost(tourHost);
-    // t.setOrganiser(null);
-    // t.setEvents(null);
-    // tournamentRepository.deleteTournamentById(tid);
-    // }
-
-    // @Transactional
-    // public void deleteTournament(Organiser o, int tid) {
-    // Tournament t = getTournament(tid);
-    // if (t.getOrganiser().getId() != o.getId()) {
-    // throw new EntityDoesNotExistException("Tournament does not exist!");
-    // }
-    // for (Event e : t.getEvents()) {
-    // deleteEvent(e);
-    // }
-    // tournamentRepository.delete(t);
-    // }
-
-    // @Transactional
-    // private void deleteEvent(Event event) {
-    // // Event event = eventRepository.findById(eid).orElseThrow(() -> new
-    // EntityDoesNotExistException("Event does not exist!"));
-    // Tournament t = event.getTournament();
-    // if (event.isOver()) {
-    // throw new EntityDoesNotExistException("Cannot delete completed event!");
-    // }
-    // Set<TournamentFencer> tournamentFencers = event.getFencers();
-    // event.setFencers(null);
-    // for (TournamentFencer tf : tournamentFencers) {
-    // tf.setEvent(null);
-    // tournamentFencerRepository.delete(tf);
-    // }
-    // Set<Event> events = t.getEvents();
-    // events.remove(event);
-    // t.setEvents(events);
-    // tournamentRepository.save(t);
-    // eventRepository.delete(event);
-    // }
 }

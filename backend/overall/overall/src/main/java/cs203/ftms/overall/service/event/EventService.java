@@ -3,6 +3,7 @@ package cs203.ftms.overall.service.event;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -105,7 +106,8 @@ public class EventService {
         Event event = getEvent(eid);
         Tournament tournament = event.getTournament();
         validateOrganiser(event, organiser);
-        for (TournamentFencer tf : event.getFencers()) {
+        Set<TournamentFencer> fencersCopy = new HashSet<>(event.getFencers());
+        for (TournamentFencer tf : fencersCopy) {
             Fencer fencer = tf.getFencer();
             unregisterEvent(eid, fencer);
         }
@@ -115,6 +117,7 @@ public class EventService {
         tournamentRepository.save(tournament);
         eventRepository.delete(event);
     }
+
 
     private Tournament validateTournament(int tid, Organiser organiser) {
         Tournament tournament = tournamentRepository.findById(tid).orElse(null);
