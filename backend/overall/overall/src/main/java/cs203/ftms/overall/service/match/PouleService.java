@@ -499,7 +499,9 @@ public class PouleService {
         } else if(pouleMatch.getScore1() < pouleMatch.getScore2()) {
             fencer2.setPouleWins(fencer2.getPouleWins() + 1);
             pouleMatch.setWinner(fencer2.getId());
-        } 
+        } else{
+            pouleMatch.setWinner(0);
+        }
         tournamentFencerRepository.save(fencer1);
         tournamentFencerRepository.save(fencer2);
         return pouleMatch;
