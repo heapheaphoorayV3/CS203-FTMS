@@ -60,11 +60,15 @@ export default function Chatbot() {
         } else if (error.request) {
           // The request was made but no response was received
           console.log("Error request: ", error.request);
-          setError("Fencer Upcoming Events Data has failed to load, please try again later.");
+          setError(
+            "Fencer Upcoming Events Data has failed to load, please try again later."
+          );
         } else {
           // Something happened in setting up the request that triggered an Error
           console.log("Unknown Error: " + error);
-          setError("Fencer Upcoming Events Data has failed to load, please try again later.");
+          setError(
+            "Fencer Upcoming Events Data has failed to load, please try again later."
+          );
         }
       } finally {
         setLoading(false);
@@ -100,7 +104,7 @@ export default function Chatbot() {
       console.error("Error fetching projected points: ", error);
       setError("Failed to load projected points");
       if (error.response?.status === 400) {
-        addMessage("No projected points available for this event.", "bot");
+        addMessage("No projected points available for this event.", "botError");
       }
       setShowInput(false);
     } finally {
@@ -119,7 +123,7 @@ export default function Chatbot() {
       console.error("Error fetching win rate: ", error);
       setError("Failed to load win rate");
       if (error.response?.status === 400) {
-        addMessage("No win rate available for this event.", "bot");
+        addMessage("No win rate available for this event.", "botError");
       }
       setShowInput(false);
     } finally {
@@ -167,7 +171,7 @@ export default function Chatbot() {
       if (error.response?.status === 400) {
         addMessage(
           "No recommended tournaments available for this event.",
-          "bot"
+          "botError"
         );
       }
     } finally {
@@ -355,8 +359,8 @@ export default function Chatbot() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className={`flex ${
-              msg.sender === "bot" ? "justify-start" : "justify-end"
+            className={`flex 
+              ${msg.sender === "bot" || msg.sender === "botError" ? "justify-start" : "justify-end"
             } mb-4`}
           >
             {msg.sender === "bot" ? (
@@ -368,6 +372,19 @@ export default function Chatbot() {
                 />
                 <div className="bg-blue-500 rounded-md p-4 text-white max-w-lg">
                   <p>{msg.text}</p>
+                </div>
+              </div>
+            ) : msg.sender === "botError" ? (
+              <div className="flex items-center">
+                <img
+                  src={sender1}
+                  alt="Sender image"
+                  className="w-[200px] h-auto"
+                />
+                <div className="flex items-center">
+                  <div className="bg-red-500 rounded-md p-4 text-white max-w-lg">
+                    <p>{msg.text}</p>
+                  </div>
                 </div>
               </div>
             ) : (
