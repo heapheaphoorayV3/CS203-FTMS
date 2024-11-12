@@ -4,7 +4,6 @@ import AdminService from "../../Services/Admin/AdminService";
 import OrganiserService from "../../Services/Organiser/OrganiserService";
 import FencerService from "../../Services/Fencer/FencerService";
 import { Tabs, Tab } from "../Others/Tabs";
-import editIcon from "../../Assets/edit.png";
 import PaginationButton from "../Others/PaginationButton";
 import SearchBar from "../Others/SearchBar";
 
@@ -144,10 +143,13 @@ const AdminDashboard = () => {
       if (!allOrganisersData) return [];
 
       return allOrganisersData?.filter((organiser) => {
-        return organiser.name
-          .toLowerCase()
-          .includes(InputOrganiserSearch.toLowerCase());
-      });
+        return organiser.name.toLowerCase().includes(InputOrganiserSearch.toLowerCase());
+      }).map((organiser) => ({
+        id: organiser.id,
+        name: organiser.name,
+        country: organiser.country,
+        email: organiser.email,
+      }));
     };
 
     const filteredOrganiserData = getFilteredOrganiserData();
@@ -197,11 +199,6 @@ const AdminDashboard = () => {
             <div className="flex font-medium">Country:</div>
             <div className="flex">{userData.country}</div>
           </div>
-        </div>
-
-        {/* Edit Icon */}
-        <div className="absolute top-4 right-4 cursor-pointer text-gray-600">
-          <img src={editIcon} alt="Edit profile icon" className="w-6 h-6" />
         </div>
       </div>
 
@@ -278,7 +275,7 @@ const AdminDashboard = () => {
                   </table>) : (
                   <div className="flex justify-center items-center h-full">
                     <h2 className="text-lg font-medium">
-                      No Fencer of this category yet
+                      No Fencer found
                     </h2>
                   </div>
                 )}
@@ -320,9 +317,8 @@ const AdminDashboard = () => {
                       <tr className="border-b border-gray-300">
                         <th className="text-center w-20">ID</th>
                         <th className="w-1/2">Name</th>
-                        <th className="text-center">Weapon</th>
-                        <th className="text-center">Country</th>
-                        <th className="text-center">Points</th>
+                        <th>Country</th>
+                        <th>Email</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -333,13 +329,15 @@ const AdminDashboard = () => {
                         >
                           <td className="text-center">{item.id}</td>
                           <td>{item.name}</td>
+                          <td>{item.country}</td>
+                          <td>{item.email}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>) : (
                   <div className="flex justify-center items-center h-full">
                     <h2 className="mt-24 text-lg font-medium">
-                      No Organiser of this category yet
+                      No Organiser found
                     </h2>
                   </div>
                 )}

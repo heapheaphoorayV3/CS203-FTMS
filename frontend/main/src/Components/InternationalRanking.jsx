@@ -141,6 +141,7 @@ export default function InternationalRanking() {
       </div>
 
       <div className="ml-12 mr-8 mb-8 overflow-x-auto">
+      {filteredFencerData.length > 0 ? (
         <table className="table text-lg border-collapse">
           {/* head */}
           <thead className="text-lg text-primary">
@@ -164,7 +165,13 @@ export default function InternationalRanking() {
               </tr>
             ))}
           </tbody>
-        </table>
+        </table>) : (
+                  <div className="flex justify-center items-center h-full">
+                    <h2 className="text-lg font-medium">
+                      No Fencer found
+                    </h2>
+                  </div>
+                )}
         <div className="flex flex-col mt-2 justify-center items-center">
           <PaginationButton
             totalPages={totalPages}

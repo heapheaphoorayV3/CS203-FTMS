@@ -192,7 +192,7 @@ export default function VerifyOrganisers() {
                         ))}
                     </tbody>
                 </table>) : (
-                <h1 className="mt-16 text-xl font-semibold text-center text-gray-500">
+                <h1 className="mt-16 text-xl font-semibold text-center text-black">
                     No unverified organisers yet
                 </h1>
             )}
