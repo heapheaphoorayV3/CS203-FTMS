@@ -390,6 +390,7 @@ export default function ViewEvent() {
       console.log("sending to backend:", combinedData);
 
       await EventService.updatePouleTable(eventID, combinedData);
+      fetchPoulesResults();
 
       // console.log("Poules updated successfully");
     } catch (error) {
@@ -408,6 +409,7 @@ export default function ViewEvent() {
     fetchPouleTable();
     fetchMatches();
     fetchEventRanking();
+    fetchPoulesResults();
   };
 
   const endEvent = async () => {
