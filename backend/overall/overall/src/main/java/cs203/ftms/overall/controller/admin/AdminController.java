@@ -46,7 +46,6 @@ public class AdminController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         CleanAdminDTO res = adminService.getCleanAdmin((Admin) user);
-        if (res == null) return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 

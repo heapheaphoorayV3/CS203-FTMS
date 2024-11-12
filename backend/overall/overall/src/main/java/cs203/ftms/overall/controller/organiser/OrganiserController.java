@@ -47,7 +47,6 @@ public class OrganiserController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         CleanOrganiserDTO res = organiserService.getCleanOrganiserDTO((Organiser) user);
-        if (res == null) return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 

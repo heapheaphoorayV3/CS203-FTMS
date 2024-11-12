@@ -29,7 +29,7 @@ public class AdminService {
      * @return Admin object without sensitive information
      */
     public CleanAdminDTO getCleanAdmin(Admin admin) {
-        if (admin == null) return null; 
+        if (admin == null) throw new EntityNotFoundException("Admin not found"); 
         return new CleanAdminDTO(admin.getId(), admin.getName(), admin.getEmail(), admin.getContactNo(), admin.getCountry());
     }
 

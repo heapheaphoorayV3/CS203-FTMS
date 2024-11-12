@@ -58,20 +58,14 @@ public class TournamentController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         Tournament updatedTournament = tournamentService.updateTournament(tid, t, (Organiser) user);
-        if (updatedTournament != null) {
-            CleanTournamentDTO res = tournamentService.getCleanTournamentDTO(updatedTournament);
-            return new ResponseEntity<>(res, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        CleanTournamentDTO res = tournamentService.getCleanTournamentDTO(updatedTournament);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
     @GetMapping("/tournament-details/{tid}")
     public ResponseEntity<CleanTournamentDTO> getTournament(@PathVariable int tid) {
         Tournament t = tournamentService.getTournament(tid);
         CleanTournamentDTO res = tournamentService.getCleanTournamentDTO(t);
-        if (res == null) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
     

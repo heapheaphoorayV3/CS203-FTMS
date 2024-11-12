@@ -64,7 +64,7 @@ public class EventService {
     }
 
     public CleanEventDTO getCleanEventDTO(Event e) {
-        if (e == null) return null;
+        if (e == null) throw new EntityDoesNotExistException("Event does not exist!");
         
         List<CleanFencerDTO> cleanFencers = new ArrayList<>(); 
         for (TournamentFencer f : e.getFencers()) {
@@ -104,6 +104,9 @@ public class EventService {
     @Transactional
     public void deleteEvent(int eid, Organiser organiser) {
         Event event = getEvent(eid);
+        if (event.getDirectEliminationMatches().size() != 0 || event.getPoules().size() != 0) {
+            throw new EventCannotEndException("Event cannot be deleted as it has matches or poules!");
+        }
         Tournament tournament = event.getTournament();
         validateOrganiser(event, organiser);
         Set<TournamentFencer> fencersCopy = new HashSet<>(event.getFencers());
@@ -249,7 +252,13 @@ public class EventService {
         if (event.isOver()) {
             throw new EventCannotEndException("Event has already been ended!");
         }
+        if (event.getPoules().size() == 0) {
+            throw new EventCannotEndException("Poules have not been completed!");
+        }
         List<DirectEliminationMatch> matches = directEliminationMatchRepository.findByEventAndRoundOf(event, 2);
+        if (matches.size() == 0) {
+            throw new EventCannotEndException("Direct Elimination matches have not been completed!");
+        }
         if (matches.get(0).getWinner() == -1) {
             throw new EventCannotEndException("Final match has not been completed!");
         } 

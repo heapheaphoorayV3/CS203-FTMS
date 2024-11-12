@@ -92,7 +92,7 @@ public class DirectEliminationService {
         for (Poule poule : event.getPoules()) {
             for (PouleMatch pouleMatch : poule.getPouleMatches()) {
                 if (pouleMatch.getWinner() == -1) {
-                    throw new PouleMatchesNotDoneException("All poule matches are not done!");
+                    throw new PouleMatchesNotDoneException("Poule matches can't end in a draw!");
                 }
             }
         }
