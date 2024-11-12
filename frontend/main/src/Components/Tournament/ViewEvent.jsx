@@ -33,7 +33,8 @@ export default function ViewEvent() {
   const [isEndPoulesPopupVisible, setIsEndPoulesPopupVisible] = useState(false);
   const [isEndEventPopupVisible, setIsEndEventPopupVisible] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [eventRanking, setEventRanking] = useState(null);
+  const [eventRanking, setEventRanking] = useState([]);
+  const [poulesResults, setPoulesResults] = useState(null);
   const [updatePoulesScores, setUpdatePoulesScores] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -41,7 +42,9 @@ export default function ViewEvent() {
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 10;
 
-  const [paginatedData, setPaginatedData] = useState([]);
+  const [paginatedEventRankingData, setPaginatedEventRankingData] = useState(
+    []
+  );
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -153,8 +156,9 @@ export default function ViewEvent() {
   const fetchEventRanking = async () => {
     try {
       const response = await EventService.getEventRanking(eventID);
-      // console.log(response.data);
-      setEventRanking(response.data);
+      const startIndex = Math.max(0, (currentPage - 1) * limit);
+      const endIndex = Math.min(response.data.length, startIndex + limit);
+      setEventRanking(response.data.slice(startIndex, endIndex));
     } catch (error) {
       if (error.response) {
         console.log("Error response data: ", error.response.data);
@@ -175,6 +179,31 @@ export default function ViewEvent() {
     }
   };
 
+  const fetchPoulesResults = async () => {
+    try {
+      const response = await EventService.getPoulesResult(eventID);
+      // console.log(response.data);
+      setPoulesResults(response.data);
+    } catch (error) {
+      if (error.response) {
+        console.log("Error response data: ", error.response.data);
+        setError(error.response.data);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.log("Error request: ", error.request);
+        setError(
+          "Poules Results Data has failed to load, please try again later."
+        );
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log("Unknown Error: " + error);
+        setError(
+          "Poules Results Data has failed to load, please try again later."
+        );
+      }
+    }
+  };
+
   useEffect(() => {
     setLoading(true);
 
@@ -188,6 +217,7 @@ export default function ViewEvent() {
         fetchPouleTable(),
         fetchMatches(),
         fetchEventRanking(),
+        fetchPoulesResults(),
       ])
         .then(() => {
           setLoading(false);
@@ -198,28 +228,6 @@ export default function ViewEvent() {
         });
     }
   }, [eventID, tournamentID, userType]);
-
-  useEffect(() => {
-    if (Array.isArray(eventRanking) && eventRanking.length) {
-      // Sort eventRanking based on poulePoints in descending order
-      const sortedRankingByPoints = [...eventRanking].sort(
-        (a, b) => b.poulePoints - a.poulePoints
-      );
-      const sortedRankingByRank = [...eventRanking].sort(
-        (a, b) => a.tournamentRank - b.tournamentRank
-      );
-      const startIndex = Math.max(0, (currentPage - 1) * limit);
-      const endIndex = Math.min(eventRanking.length, startIndex + limit);
-      if (!loading && eventData.isOver) {
-        setPaginatedData(sortedRankingByRank.slice(startIndex, endIndex));
-      } else {
-        setPaginatedData(sortedRankingByPoints.slice(startIndex, endIndex));
-      }
-
-    } else {
-      setPaginatedData([]);
-    }
-  }, [eventRanking, currentPage, limit]);
 
   if (loading) {
     return <div className="mt-10">Loading...</div>; // Show loading state
@@ -278,16 +286,16 @@ export default function ViewEvent() {
       name: loading
         ? "Loading..."
         : eventData
-          ? eventData.tournamentName
-          : "Not Found",
+        ? eventData.tournamentName
+        : "Not Found",
       link: `/tournaments/${tournamentID}`,
     },
     {
       name: loading
         ? "Loading..."
         : eventData
-          ? constructEventName(eventData.gender, eventData.weapon)
-          : "Not Found",
+        ? constructEventName(eventData.gender, eventData.weapon)
+        : "Not Found",
     },
   ];
 
@@ -411,8 +419,24 @@ export default function ViewEvent() {
     fetchEventData();
     fetchEventRanking();
   };
-  console.log("eventdata:", eventData);
+  // console.log("eventdata:", eventData);
+  console.log("poules results:", poulesResults);
+  console.log("poules results bypass:", poulesResults.bypassFencers);
+
   const totalPages = Math.ceil(eventRanking.length / limit);
+
+  function getRowColour(fencer) {
+    let rowBgColor;
+    if (poulesResults.bypassFencers.includes(fencer)) {
+      rowBgColor = "bg-blue-100";
+    } else if (poulesResults.fenceOffFencers.includes(fencer)) {
+      rowBgColor = "bg-red-100 !important";
+    } else if (poulesResults.eliminatedFencers.includes(fencer)) {
+      rowBgColor = "bg-blue-500";
+    }
+    console.log("bgcolor:", rowBgColor);
+    return rowBgColor;
+  }
 
   return (
     <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">
@@ -489,26 +513,25 @@ export default function ViewEvent() {
                   <label className="block font-medium mb-1 ml-1">
                     Poule Results
                   </label>
-                  {isUpdating ?
-                    `Poule ${selectedPoule}` :
-                    (
-                      <select
-                        value={selectedPoule}
-                        onChange={handlePouleChange}
-                        className="block w-full py-2 px-3 border border-gray-300 rounded"
-                      >
-                        {pouleTableData.pouleTable.length === 0 ? (
-                          <option disabled>No poules available</option>
-                        ) : (
-                          pouleTableData.pouleTable.map((poule, index) => (
-                            <option key={index} value={index + 1}>
-                              {`Poule ${index + 1}`}
-                            </option>
-                          ))
-                        )}
-                      </select>
-                    )
-                  }
+                  {isUpdating ? (
+                    `Poule ${selectedPoule}`
+                  ) : (
+                    <select
+                      value={selectedPoule}
+                      onChange={handlePouleChange}
+                      className="block w-full py-2 px-3 border border-gray-300 rounded"
+                    >
+                      {pouleTableData.pouleTable.length === 0 ? (
+                        <option disabled>No poules available</option>
+                      ) : (
+                        pouleTableData.pouleTable.map((poule, index) => (
+                          <option key={index} value={index + 1}>
+                            {`Poule ${index + 1}`}
+                          </option>
+                        ))
+                      )}
+                    </select>
+                  )}
                 </div>
 
                 <div className="flex gap-2">
@@ -608,10 +631,11 @@ export default function ViewEvent() {
                               {resultArray.map((result, resultIndex) => (
                                 <td
                                   key={resultIndex}
-                                  className={`border border-gray-300 hover:bg-gray-100 ${result === "-1"
+                                  className={`border border-gray-300 hover:bg-gray-100 ${
+                                    result === "-1"
                                       ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
                                       : ""
-                                    }`}
+                                  }`}
                                 >
                                   {result === "-1" ? (
                                     result
@@ -626,10 +650,11 @@ export default function ViewEvent() {
                                           idx
                                         )
                                       }
-                                      className={`w-full text-center ${!isInputValid
+                                      className={`w-full text-center ${
+                                        !isInputValid
                                           ? "border-red-500"
                                           : "border-gray-300"
-                                        }`}
+                                      }`}
                                     />
                                   ) : (
                                     result
@@ -653,6 +678,72 @@ export default function ViewEvent() {
               {isCreatePopupVisible && (
                 <CreatePoules onClose={closeCreatePopup} eventID={eventID} />
               )}
+            </div>
+          </Tab>
+          <Tab label="Poules Results">
+            <div className="py-4">
+              {/* <h2 className="text-lg font-medium mb-2">Ranking</h2> */}
+              {eventRanking.length > 0 ? (
+                <table className="table text-lg border-collapse mb-4">
+                  {/* head */}
+                  <thead className="text-lg text-primary">
+                    <tr className="border-b border-gray-300">
+                      <th className="text-center w-20">Rank</th>
+                      <th className="w-1/4">Name</th>
+                      <th className="text-center">Country</th>
+                      <th className="text-center">Result</th>
+                      <th className="text-center">Poule Wins</th>
+                      <th className="text-center">Poule Points</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {poulesResults.bypassFencers
+                      .concat(
+                        poulesResults.fenceOffFencers,
+                        poulesResults.eliminatedFencers
+                      )
+                      .map((fencer, idx) => {
+                        return (
+                          <tr
+                            key={idx}
+                            className={`border-b border-gray-300 ${getRowColour(
+                              fencer
+                            )} hover:bg-gray-100`}
+                          >
+                            <td className="text-center">{idx + 1}</td>
+                            <td className="w-1/4">{fencer.fencerName}</td>
+                            <td className="text-center">{fencer.country}</td>
+                            <td className="text-center">
+                              {poulesResults.bypassFencers.includes(fencer)
+                                ? "Bypass"
+                                : poulesResults.fenceOffFencers.includes(fencer)
+                                ? "Fence Off"
+                                : "Eliminated"}
+                            </td>
+                            <td className="text-center">{fencer.pouleWins}</td>
+                            <td className="text-center">
+                              {fencer.poulePoints}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                  </tbody>
+                </table>
+              ) : (
+                <div className="flex justify-center items-center h-full">
+                  <h2 className="text-lg font-medium">
+                    No ranking available yet
+                  </h2>
+                </div>
+              )}
+              <div className="flex flex-col justify-center items-center">
+                <PaginationButton
+                  totalPages={totalPages}
+                  buttonSize="w-10 h-10"
+                  currentPage={currentPage}
+                  onPageChange={handlePageChange}
+                />
+              </div>
             </div>
           </Tab>
           <Tab label="Bracket">
@@ -691,27 +782,27 @@ export default function ViewEvent() {
               />
             )}
           </Tab>
-          <Tab label="Placements">
+          <Tab label="Event Ranking">
             <div className="py-4">
               {/* <h2 className="text-lg font-medium mb-2">Ranking</h2> */}
-              {paginatedData.length > 0 ? (
+              {matches.length !== 0 ? (
                 <table className="table text-lg border-collapse mb-4">
                   {/* head */}
                   <thead className="text-lg text-primary">
                     <tr className="border-b border-gray-300">
                       <th className="text-center w-20">Rank</th>
-                      <th className="w-1/2">Name</th>
+                      <th className="text-center">Name</th>
                       <th className="text-center">Country</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {paginatedData.map((item, index) => (
+                    {eventRanking.map((item, index) => (
                       <tr
                         key={item.fencerId}
                         className="border-b border-gray-300 hover:bg-gray-100"
                       >
                         <td className="text-center">{index + 1}</td>
-                        <td>{item.fencerName}</td>
+                        <td className="text-center">{item.fencerName}</td>
                         <td className="text-center">{item.country}</td>
                       </tr>
                     ))}
@@ -720,7 +811,7 @@ export default function ViewEvent() {
               ) : (
                 <div className="flex justify-center items-center h-full">
                   <h2 className="text-lg font-medium">
-                    No ranking available yet
+                    Event ranking not available yet
                   </h2>
                 </div>
               )}
