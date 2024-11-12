@@ -495,10 +495,10 @@ public class PouleService {
         if (pouleMatch.getScore1() > pouleMatch.getScore2()) {
             fencer1.setPouleWins(fencer1.getPouleWins() + 1);
             pouleMatch.setWinner(fencer1.getId());
-        } else {
+        } else if(pouleMatch.getScore1() < pouleMatch.getScore2()) {
             fencer2.setPouleWins(fencer2.getPouleWins() + 1);
             pouleMatch.setWinner(fencer2.getId());
-        }
+        } 
 
         tournamentFencerRepository.save(fencer1);
         tournamentFencerRepository.save(fencer2);
