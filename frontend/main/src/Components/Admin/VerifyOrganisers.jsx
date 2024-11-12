@@ -115,6 +115,7 @@ export default function VerifyOrganisers() {
         try {
             console.log('Submitting verifications: ', data);
             await AdminService.verifyOrganiser(data);
+            setCheckboxState({});
             fetchOrganisers();
         } catch (error) {
             if (error.response) {

@@ -464,7 +464,7 @@ export default function ViewEvent() {
         <Tabs>
           <Tab label="Poules">
             <div className="py-4">
-              {userType === "O" && (
+              {userType === "O" && isOwner && (
                 <div>
                   {pouleTableData.pouleTable.length === 0 ? (
                     <button
@@ -494,7 +494,7 @@ export default function ViewEvent() {
                         </div>
 
                         <div className="flex mt-4 pb-2 space-x-2">
-                          {matches.length === 0 && (
+                          {matches.length === 0 && isOwner && (
                             <>
                               <button
                                 onClick={() => endPoules()}
