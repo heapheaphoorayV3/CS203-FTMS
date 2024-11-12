@@ -87,8 +87,10 @@ export default function ViewTournament() {
   const fetchRegisteredEvents = async () => {
     try {
       const response = await FencerService.getFencerUpcomingEvents();
+      console.log("Response Data: ", response.data);
       // Assuming response.data is an array of Event Objects
       const eventIds = response.data.map((event) => event.id);
+      console.log("Registered Events: ", eventIds);
       setRegisteredEvents(eventIds);
     } catch (error) {
       if (error.response) {
@@ -354,8 +356,7 @@ export default function ViewTournament() {
     console.log("Registering event with ID:", eventID);
     try {
       await EventService.registerEvent(eventID).then(() => {
-        setRegisteredEvents((prevEvents) => [...prevEvents, eventID]);
-        navigate("/fencer-dashboard");
+        fetchRegisteredEvents();
       });
     } catch (error) {
       if (error.response) {
@@ -369,6 +370,28 @@ export default function ViewTournament() {
         // Something happened in setting up the request that triggered an Error
         console.log("Unknown Error: " + error);
         setRegisterEventError("Event registration has failed, please try again later.");
+      }
+    }
+  };
+
+  const unregisterEvent = async (eventID) => {
+    console.log("Unregistering event with ID:", eventID);
+    try {
+      await EventService.unregisterEvent(eventID).then(() => {
+        fetchRegisteredEvents();
+      });
+    } catch (error) {
+      if (error.response) {
+        console.log("Error response data: ", error.response.data);
+        setRegisterEventError(error.response.data);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.log("Error request: ", error.request);
+        setRegisterEventError("Event registration/deregistration has failed, please try again later.");
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log("Unknown Error: " + error);
+        setRegisterEventError("Event registration/deregistration has failed, please try again later.");
       }
     }
   };
@@ -464,7 +487,7 @@ export default function ViewTournament() {
           </Tab>
           <Tab label="Events">
             <table
-              className="table text-lg text-center border-collapse "
+              className="table text-lg text-center border-collapse"
               style={{ position: "relative", zIndex: 1 }}
             >
               {/* head */}
@@ -509,25 +532,34 @@ export default function ViewTournament() {
                       <td>{event.fencers ? event.fencers.length : 0}</td>
                       <td>
                         {sessionStorage.getItem("userType") === "F" &&
-                          (registeredEvents.includes(event.id) ? (
-                            <SubmitButton
-                              disabled
-                              styling={`h-12 w-full justify-center rounded-md my-5 text-lg font-semibold leading-6 text-white shadow-sm ${isPastStartDate()
-                                ? "bg-grey-400"
-                                : "bg-green-400"
-                                }`}
-                            >
-                              {isPastStartDate()
-                                ? "Signups Closed"
-                                : "Registered"}
-                            </SubmitButton>
-                          ) : (
-                            <SubmitButton
-                              onSubmit={() => registerEvent(event.id)}
-                            >
-                              Register
-                            </SubmitButton>
-                          ))}
+                          isPastStartDate() &&
+                          <SubmitButton
+                            disabled={true}
+                            styling={`h-12 w-36 justify-center rounded-md my-5 text-lg font-semibold leading-6 text-white shadow-sm bg-gray-500`}
+                          >
+                            Signups Ended
+                          </SubmitButton>
+                        }
+                        {sessionStorage.getItem("userType") === "F" &&
+                         !isPastStartDate() &&
+                         registeredEvents.includes(event.id) && (
+                          <SubmitButton
+                            styling={`h-12 w-36 justify-center rounded-md my-5 text-lg font-semibold leading-6 text-white shadow-sm bg-green-400`}
+                            onSubmit={() => unregisterEvent(event.id)}
+                          >
+                            Unregister
+                          </SubmitButton>
+                        )} 
+                        {sessionStorage.getItem("userType") === "F" &&
+                         !isPastStartDate() &&
+                         !registeredEvents.includes(event.id) && (
+                          <SubmitButton
+                            styling={`h-12 w-36 justify-center rounded-md my-5 text-lg font-semibold leading-6 text-white shadow-sm bg-blue-400`}
+                            onSubmit={() => {registerEvent(event.id)}}
+                          >
+                            Register
+                          </SubmitButton>
+                        )}
                         {sessionStorage.getItem("userType") === "O" &&
                           isOwner &&
                           !newEventsArray.some(
