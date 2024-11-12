@@ -24,17 +24,16 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.transaction.annotation.Propagation;
 
 import cs203.ftms.overall.dto.AuthenticationDTO;
 import cs203.ftms.overall.dto.CompleteFencerProfileDTO;
 import cs203.ftms.overall.dto.CreateEventDTO;
+import cs203.ftms.overall.dto.CreatePoulesDTO;
 import cs203.ftms.overall.dto.CreateTournamentDTO;
 import cs203.ftms.overall.dto.JwtDTO;
+import cs203.ftms.overall.dto.PouleTableDTO;
 import cs203.ftms.overall.dto.RegisterFencerDTO;
 import cs203.ftms.overall.dto.RegisterOrganiserDTO;
-import cs203.ftms.overall.model.tournamentrelated.Event;
-import cs203.ftms.overall.model.tournamentrelated.Tournament;
 import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.model.userrelated.User;
@@ -45,48 +44,36 @@ import cs203.ftms.overall.repository.tournamentrelated.TournamentRepository;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
 import cs203.ftms.overall.security.repository.RefreshTokenRepository;
 import cs203.ftms.overall.security.service.JwtService;
-import cs203.ftms.overall.service.authentication.AuthenticationService;
-import cs203.ftms.overall.service.event.EventService;
 import cs203.ftms.overall.service.fencer.FencerService;
-import cs203.ftms.overall.service.tournament.TournamentService;
-
-// import jakarta.persistence.PersistenceContext;
-// import jakarta.transaction.Transactional;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.annotation.Propagation;
-
-
-
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 // @Transactional
 class SpringBootIntegrationTest {
 
-	@LocalServerPort
-	private int port;
-
+    @LocalServerPort
+    private int port;
 
     private final String baseUrl = "http://localhost:";
 
-	@Autowired
-	private TestRestTemplate restTemplate;
+    @Autowired
+    private TestRestTemplate restTemplate;
 
     // repositories
-	@Autowired
-	private TournamentRepository tournaments;
+    @Autowired
+    private TournamentRepository tournaments;
 
     @Autowired
     private TournamentFencerRepository tournamentFencers;
 
-	@Autowired
-	private UserRepository users;
+    @Autowired
+    private UserRepository users;
 
-    @Autowired 
+    @Autowired
     private RefreshTokenRepository refresh;
 
     // @Autowired
     // private OrganiserRepository organisers;
-    
+
     // @Autowired
     // private FencerRepository fencers;
 
@@ -96,23 +83,11 @@ class SpringBootIntegrationTest {
     @Autowired
     private MatchRepository matches;
 
-    
-
-    // services
-    @Autowired
-    private AuthenticationService authenticationService;
-
     @Autowired
     private FencerService fencerService;
 
     @Autowired
     private JwtService jwtService;
-
-    @Autowired
-    private TournamentService tournamentService;
-
-    @Autowired
-    private EventService eventService;
 
     // @PersistenceContext
     // private EntityManager entityManager;
@@ -122,116 +97,188 @@ class SpringBootIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");
-        tournamentFencers.deleteAll();
-        matches.deleteAll();
-        events.deleteAll();
-        tournaments.deleteAll();
-        refresh.deleteAll();
-        users.deleteAll();
-        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
+        // jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");
+        // events.deleteAll();
+        // matches.deleteAll();
+        // tournamentFencers.deleteAll();
+        // tournaments.deleteAll();
+        // refresh.deleteAll();
+        // users.deleteAll();
+        // jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
+
+         try {
+            jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");
+            
+            // Clear tables in correct order (child to parent)
+            jdbcTemplate.execute("DELETE FROM fencing_match");
+            jdbcTemplate.execute("DELETE FROM tournament_fencer");
+            jdbcTemplate.execute("DELETE FROM poule");
+            jdbcTemplate.execute("DELETE FROM event");
+            jdbcTemplate.execute("DELETE FROM user");
+            jdbcTemplate.execute("DELETE FROM tournament_fencer_matches");
+            jdbcTemplate.execute("DELETE FROM refresh_token");
+            jdbcTemplate.execute("DELETE FROM tournament");
+            // Add other tables as needed
+            
+            jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @AfterEach
     void tearDown() {
-        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");
-        tournamentFencers.deleteAll();
-        matches.deleteAll();
-        events.deleteAll();
-        tournaments.deleteAll();
-        refresh.deleteAll();
-        users.deleteAll();
-        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
+        // jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");
+        // events.deleteAll();
+        // matches.deleteAll();
+        // tournamentFencers.deleteAll();
+        // tournaments.deleteAll();
+        // refresh.deleteAll();
+        // users.deleteAll();
+        // jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
+
+         try {
+            jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");
+            
+            // Clear tables in correct order (child to parent)
+            jdbcTemplate.execute("DELETE FROM fencing_match");
+            jdbcTemplate.execute("DELETE FROM tournament_fencer");
+            jdbcTemplate.execute("DELETE FROM poule");
+            jdbcTemplate.execute("DELETE FROM event");
+            jdbcTemplate.execute("DELETE FROM user");
+            jdbcTemplate.execute("DELETE FROM tournament_fencer_matches");
+            jdbcTemplate.execute("DELETE FROM refresh_token");
+            jdbcTemplate.execute("DELETE FROM tournament");
+            // Add other tables as needed
+            
+            jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    @Transactional
-    public String createAndAuthOrganiser() throws Exception{
+    public void createAndAuthOrganiser() throws Exception {
         RegisterOrganiserDTO registerOrganiserDTO = new RegisterOrganiserDTO(
-            "Organizer One", 
-            "organizer.one@example.com", 
-            "+6591969123", 
-            "Abcd1234!", 
-            "Singapore");
+                "Organizer One",
+                "organizer.one@example.com",
+                "+6591969123",
+                "Abcd1234!",
+                "Singapore");
 
-        authenticationService.createOrganiser(registerOrganiserDTO);
+        HttpEntity<RegisterOrganiserDTO> regOrgDTOEntity = new HttpEntity<>(registerOrganiserDTO);
+        restTemplate.postForEntity(new URI(baseUrl + port + "/api/v1/auth/register-organiser"), regOrgDTOEntity,
+                String.class);
 
         User u = users.findByEmail("organizer.one@example.com").orElse(null);
         ((Organiser) u).setVerified(true);
         users.save(u);
-
-        return u.getEmail();
     }
 
-    @Transactional
-    public String createAndAuthFencer() throws Exception{
-        RegisterFencerDTO registerFencerDTO= new RegisterFencerDTO(
-            "Fencer One", 
-            "Last Name",
-            "fencer.one@example.com", 
-            "Abcd1234!", 
-            "+6591569123", 
-            "Singapore",
-            LocalDate.of(1990, 1, 1)
-        );
+    public void createAndAuthFencer(int count) throws Exception {
+        for (int i = 1; i <= count; i++) {
+            RegisterFencerDTO registerFencerDTO = new RegisterFencerDTO(
+                    "Fencer" + i,
+                    "Last Name",
+                    "fencer" + i + "@example.com",
+                    "Abcd1234!",
+                    "+6591569123",
+                    "Singapore",
+                    LocalDate.of(1990, 1, 1));
 
-        HttpEntity<RegisterFencerDTO> regFencerDTOEntity = new HttpEntity<>(registerFencerDTO);
-        ResponseEntity<String> result = restTemplate.postForEntity(new URI(baseUrl + port + "/api/v1/auth/register-fencer"), regFencerDTOEntity, String.class);
+            HttpEntity<RegisterFencerDTO> regFencerDTOEntity = new HttpEntity<>(registerFencerDTO);
+            restTemplate.postForEntity(new URI(baseUrl + port + "/api/v1/auth/register-fencer"), regFencerDTOEntity,
+                    String.class);
 
-        Fencer f = (Fencer) users.findByEmail("fencer.one@example.com").orElse(null);
+            Fencer f = (Fencer) users.findByEmail("fencer" + i + "@example.com").orElse(null);
 
-        CompleteFencerProfileDTO dto = new CompleteFencerProfileDTO('R', 'S', 'M', "Best Club", 2010);
-        User u = fencerService.completeProfile((Fencer) f, dto);
-       
-        return u.getEmail();        
+            CompleteFencerProfileDTO dto = new CompleteFencerProfileDTO('R', 'S', 'M', "Best Club", 2010);
+            fencerService.completeProfile((Fencer) f, dto);
+        }
     }
 
-    @Transactional
-    private Tournament createTournament(Organiser o) throws Exception{       
-        CreateTournamentDTO createTournamentDTO = new CreateTournamentDTO(
-                "National Tournament", 
-                LocalDate.of(2024, 12, 18), 
-                80, 
-                LocalDate.of(2024, 12, 20), 
-                LocalDate.of(2024, 12, 30), 
-                "location", 
-                "description", 
+    private void createTournament() throws Exception {
+        URI uri = new URI(baseUrl + port + "/api/v1/tournament/create-tournament");
+
+        createAndAuthOrganiser();
+        Organiser o = (Organiser) users.findByEmail("organizer.one@example.com").orElse(null);
+        String jwtToken = jwtService.generateToken(o);
+
+        CreateTournamentDTO request = new CreateTournamentDTO(
+                "National Tournament",
+                LocalDate.of(2024, 12, 18),
+                80,
+                LocalDate.of(2024, 12, 20),
+                LocalDate.of(2024, 12, 30),
+                "location",
+                "description",
                 "rules",
-                'B'
-        );
+                'B');
 
-        return tournamentService.createTournament(createTournamentDTO, o);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + jwtToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<CreateTournamentDTO> entity = new HttpEntity<>(request, headers);
+
+        restTemplate.postForEntity(uri, entity, String.class);
     }
-    
-    @Transactional
-    private List<Event> createEvent(Tournament t) throws Exception {
+
+    private void createEvent() throws Exception {
+        createTournament();
+        Organiser o = (Organiser) users.findByEmail("organizer.one@example.com").orElse(null);
+        String jwtToken = jwtService.generateToken(o);
+
+        URI uri = new URI(baseUrl + port + "/api/v1/event/create-event/" + tournaments.findAll().get(0).getId());
+
         List<CreateEventDTO> request = new ArrayList<>();
 
         request.add(new CreateEventDTO(
-            'M',
-            'S',
-            64,
-            LocalDate.of(2024, 12, 21),
-            LocalTime.of(10, 0),
-            LocalTime.of(18, 0)
-        ));
+                'M',
+                'S',
+                8,
+                LocalDate.of(2024, 12, 21),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0)));
         request.add(new CreateEventDTO(
-            'M',
-            'F',
-            64,
-            LocalDate.of(2024, 12, 21),
-            LocalTime.of(10, 0),
-            LocalTime.of(18, 0)
-        ));
+                'M',
+                'F',
+                8,
+                LocalDate.of(2024, 12, 21),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0)));
         request.add(new CreateEventDTO(
-            'F',
-            'E',
-            64,
-            LocalDate.of(2024, 12, 21),
-            LocalTime.of(10, 0),
-            LocalTime.of(18, 0)
-        ));
+                'W',
+                'E',
+                8,
+                LocalDate.of(2024, 12, 21),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0)));
 
-        return eventService.createEvent(t.getId(), t.getOrganiser(), request);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + jwtToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<List<CreateEventDTO>> entity = new HttpEntity<>(request, headers);
+
+        restTemplate.postForEntity(uri, entity, String.class);
+    }
+
+//     @Transactional
+    public void registerEvent() throws Exception {
+        createEvent();
+        createAndAuthFencer(10);
+        for (int i = 1; i <= 10; i++) {
+            Fencer f = (Fencer) users.findByEmail("fencer" + i + "@example.com").orElse(null);
+            String jwtToken = jwtService.generateToken(f);
+
+            URI uri = new URI(baseUrl + port + "/api/v1/event/register/" + events.findAll().get(0).getId());
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + jwtToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            restTemplate.exchange(uri, HttpMethod.PUT, new HttpEntity<>(headers), String.class);
+        }
     }
 
     @Test
@@ -239,12 +286,12 @@ class SpringBootIntegrationTest {
 
         URI uri = new URI(baseUrl + port + "/api/v1/auth/register-organiser");
         RegisterOrganiserDTO registerOrganiserDTO = new RegisterOrganiserDTO(
-            "Organizer One", 
-            "organizer.one@example.com", 
-            "+6591969123", 
-            "Abcd1234!", 
-            "Singapore");
-        
+                "Organizer One",
+                "organizer.one@example.com",
+                "+6591969123",
+                "Abcd1234!",
+                "Singapore");
+
         HttpEntity<RegisterOrganiserDTO> regOrgDTOEntity = new HttpEntity<>(registerOrganiserDTO);
         ResponseEntity<String> regOrgresult = restTemplate.postForEntity(uri, regOrgDTOEntity, String.class);
 
@@ -256,12 +303,12 @@ class SpringBootIntegrationTest {
 
         URI uri = new URI(baseUrl + port + "/api/v1/auth/register-organiser");
         RegisterOrganiserDTO registerOrganiserDTO = new RegisterOrganiserDTO(
-            "",
-            "organizer.one@e@xample.", 
-            "+6599999999", 
-            "Abcd1234", 
-            ""); 
-        
+                "",
+                "organizer.one@e@xample.",
+                "+6599999999",
+                "Abcd1234",
+                "");
+
         HttpEntity<RegisterOrganiserDTO> regOrgDTOEntity = new HttpEntity<>(registerOrganiserDTO);
         ResponseEntity<String> regOrgresult = restTemplate.postForEntity(uri, regOrgDTOEntity, String.class);
 
@@ -269,18 +316,17 @@ class SpringBootIntegrationTest {
     }
 
     @Test
-    public void createFencer_Invalid_Failure() throws Exception{
+    public void createFencer_Invalid_Failure() throws Exception {
 
         URI uri = new URI(baseUrl + port + "/api/v1/auth/register-fencer");
-        RegisterFencerDTO registerFencerDTO= new RegisterFencerDTO(
-            "", 
-            "", 
-            "fencer.onexaom", 
-            "Abcd1234", 
-            "+6599999999", 
-            "", 
-            LocalDate.of(2099, 1, 1) 
-        );
+        RegisterFencerDTO registerFencerDTO = new RegisterFencerDTO(
+                "",
+                "",
+                "fencer.onexaom",
+                "Abcd1234",
+                "+6599999999",
+                "",
+                LocalDate.of(2099, 1, 1));
 
         HttpEntity<RegisterFencerDTO> regOrgDTOEntity = new HttpEntity<>(registerFencerDTO);
         ResponseEntity<String> regOrgresult = restTemplate.postForEntity(uri, regOrgDTOEntity, String.class);
@@ -291,14 +337,15 @@ class SpringBootIntegrationTest {
     @Test
     public void authenticateOrganiser_CorrectCredentials_Success() throws Exception {
         RegisterOrganiserDTO registerOrganiserDTO = new RegisterOrganiserDTO(
-            "Organizer One", 
-            "organizer.one@example.com", 
-            "+6591969123", 
-            "Abcd1234!", 
-            "Singapore");
-        
+                "Organizer One",
+                "organizer.one@example.com",
+                "+6591969123",
+                "Abcd1234!",
+                "Singapore");
+
         HttpEntity<RegisterOrganiserDTO> regOrgDTOEntity = new HttpEntity<>(registerOrganiserDTO);
-        restTemplate.postForEntity(new URI(baseUrl + port + "/api/v1/auth/register-organiser"), regOrgDTOEntity, String.class);
+        restTemplate.postForEntity(new URI(baseUrl + port + "/api/v1/auth/register-organiser"), regOrgDTOEntity,
+                String.class);
 
         User u = users.findByEmail("organizer.one@example.com").orElse(null);
         ((Organiser) u).setVerified(true);
@@ -309,215 +356,222 @@ class SpringBootIntegrationTest {
         HttpEntity<AuthenticationDTO> authDTOEntity = new HttpEntity<>(authenticationDTO);
         ResponseEntity<JwtDTO> result = restTemplate.postForEntity(uri, authDTOEntity, JwtDTO.class);
         String token = result.getBody().getToken();
-        
+
         assertEquals(200, result.getStatusCode().value());
         assertNotEquals(null, token);
     }
-    
+
     @Test
     public void authenticateOrganiser_IncorrectCredentials_Failure() throws Exception {
         RegisterOrganiserDTO registerOrganiserDTO = new RegisterOrganiserDTO(
-            "Organizer One", 
-            "organizer.one@example.com", 
-            "+6591969123", 
-            "Abcd1234!", 
-            "Singapore");
-        
+                "Organizer One",
+                "organizer.one@example.com",
+                "+6591969123",
+                "Abcd1234!",
+                "Singapore");
+
         HttpEntity<RegisterOrganiserDTO> regOrgDTOEntity = new HttpEntity<>(registerOrganiserDTO);
-        restTemplate.postForEntity(new URI(baseUrl + port + "/api/v1/auth/register-organiser"), regOrgDTOEntity, String.class);
+        restTemplate.postForEntity(new URI(baseUrl + port + "/api/v1/auth/register-organiser"), regOrgDTOEntity,
+                String.class);
 
         URI uri = new URI(baseUrl + port + "/api/v1/auth/login");
         AuthenticationDTO authenticationDTO = new AuthenticationDTO("", "");
         HttpEntity<AuthenticationDTO> authDTOEntity = new HttpEntity<>(authenticationDTO);
         ResponseEntity<JwtDTO> result = restTemplate.postForEntity(uri, authDTOEntity, JwtDTO.class);
         String token = result.getBody().getToken();
-        
+
         assertEquals(400, result.getStatusCode().value());
         assertNull(token);
     }
-    
+
     @Test
     public void createTournament_ValidTournament_Success() throws Exception {
         URI uri = new URI(baseUrl + port + "/api/v1/tournament/create-tournament");
 
-        String oemail = createAndAuthOrganiser();
-        Organiser o = (Organiser) users.findByEmail(oemail).orElse(null);
+        createAndAuthOrganiser();
+        Organiser o = (Organiser) users.findByEmail("organizer.one@example.com").orElse(null);
         String jwtToken = jwtService.generateToken(o);
-        
+
         CreateTournamentDTO request = new CreateTournamentDTO(
-                "National Tournament", 
-                LocalDate.of(2024, 12, 18), 
-                80, 
-                LocalDate.of(2024, 12, 20), 
-                LocalDate.of(2024, 12, 30), 
-                "location", 
-                "description", 
+                "National Tournament",
+                LocalDate.of(2024, 12, 18),
+                80,
+                LocalDate.of(2024, 12, 20),
+                LocalDate.of(2024, 12, 30),
+                "location",
+                "description",
                 "rules",
-                'B'
-                );
-                
+                'B');
+
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + jwtToken);
         headers.setContentType(MediaType.APPLICATION_JSON);
-        
+
         HttpEntity<CreateTournamentDTO> entity = new HttpEntity<>(request, headers);
-        
+
         ResponseEntity<String> result = restTemplate.postForEntity(uri, entity, String.class);
-        
-        assertEquals(201, result.getStatusCode().value());
-    }
-
-    @Test
-    public void createEvent_ValidEvent_Success() throws Exception {
-        String oemail = createAndAuthOrganiser();
-        Organiser o = (Organiser) users.findByEmail(oemail).orElse(null);
-        String jwtToken = jwtService.generateToken(o);
-        Tournament t = createTournament(o);
-        
-        URI uri = new URI(baseUrl + port + "/api/v1/event/create-event/" + t.getId());
-
-        List<CreateEventDTO> request = new ArrayList<>();
-
-        request.add(new CreateEventDTO(
-            'M',
-            'S',
-            64,
-            LocalDate.of(2024, 12, 21),
-            LocalTime.of(10, 0),
-            LocalTime.of(18, 0)
-        ));
-        request.add(new CreateEventDTO(
-            'M',
-            'F',
-            64,
-            LocalDate.of(2024, 12, 21),
-            LocalTime.of(10, 0),
-            LocalTime.of(18, 0)
-        ));
-        request.add(new CreateEventDTO(
-            'W',
-            'E',
-            64,
-            LocalDate.of(2024, 12, 21),
-            LocalTime.of(10, 0),
-            LocalTime.of(18, 0)
-        ));
-                
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + jwtToken);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        
-        HttpEntity<List<CreateEventDTO>> entity = new HttpEntity<>(request, headers);
-        
-        ResponseEntity<String> result = restTemplate.postForEntity(uri, entity, String.class);
-        System.out.println(result.getBody());
 
         assertEquals(201, result.getStatusCode().value());
-    }
-    
-    @Test
-    public void registerEvent_ValidEvent_Success() throws Exception{
-        String oemail = createAndAuthOrganiser();
-        Organiser o = (Organiser) users.findByEmail(oemail).orElse(null);
-
-        Tournament t = createTournament(o);
-        List<Event> events = createEvent(t);
-
-        String femail = createAndAuthFencer();
-        Fencer f = (Fencer) users.findByEmail(femail).orElse(null);
-        String jwtToken = jwtService.generateToken(f);
-
-        URI uri = new URI(baseUrl + port + "/api/v1/event/register/" + events.get(0).getId());
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + jwtToken);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        
-        ResponseEntity<String> result = restTemplate.exchange(uri, HttpMethod.PUT, new HttpEntity<>(headers), String.class);
-        System.out.println(result.getBody());
-        assertEquals(200, result.getStatusCode().value());
-    }
-
-    @Test
-    public void createEvent_InvalidEvent_Failure() throws Exception {
-        String oemail = createAndAuthOrganiser();
-        Organiser o = (Organiser) users.findByEmail(oemail).orElse(null);
-        String jwtToken = jwtService.generateToken(o);
-        Tournament t = createTournament(o);
-        System.out.println("tournament id " + t.getId());
-        
-        URI uri = new URI(baseUrl + port + "/api/v1/event/create-event/" + t.getId());
-
-        List<CreateEventDTO> request = new ArrayList<>();
-
-        request.add(new CreateEventDTO(
-            'M',
-            'S',
-            64,
-            LocalDate.of(2025, 12, 21),
-            LocalTime.of(10, 0),
-            LocalTime.of(18, 0)
-        ));
-        request.add(new CreateEventDTO(
-            'M',
-            'F',
-            64,
-            LocalDate.of(2023, 12, 21),
-            LocalTime.of(10, 0),
-            LocalTime.of(18, 0)
-        ));
-        request.add(new CreateEventDTO(
-            'F',
-            'E',
-            64,
-            LocalDate.of(2023, 12, 21),
-            LocalTime.of(10, 0),
-            LocalTime.of(18, 0)
-        ));
-                
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + jwtToken);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        
-        HttpEntity<List<CreateEventDTO>> entity = new HttpEntity<>(request, headers);
-        
-        ResponseEntity<String> result = restTemplate.postForEntity(uri, entity, String.class);
-        System.out.println(result.getBody());
-
-        
-        assertEquals(400, result.getStatusCode().value());
     }
 
     @Test
     public void createTournament_Invalid_Failure() throws Exception {
         URI uri = new URI(baseUrl + port + "/api/v1/tournament/create-tournament");
 
-        String oemail = createAndAuthOrganiser();
-        Organiser o = (Organiser) users.findByEmail(oemail).orElse(null);
+        createAndAuthOrganiser();
+        Organiser o = (Organiser) users.findByEmail("organizer.one@example.com").orElse(null);
         String jwtToken = jwtService.generateToken(o);
-        
+
         CreateTournamentDTO request = new CreateTournamentDTO(
-                "", 
-                LocalDate.of(2024, 12, 21), 
-                59, 
-                LocalDate.of(2023, 12, 20), 
-                LocalDate.of(2023, 11, 30), 
-                "", 
-                "", 
-                "" ,
-                'S'
-                );
-                
+                "",
+                LocalDate.of(2024, 12, 21),
+                59,
+                LocalDate.of(2023, 12, 20),
+                LocalDate.of(2023, 11, 30),
+                "",
+                "",
+                "",
+                'S');
+
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + jwtToken);
         headers.setContentType(MediaType.APPLICATION_JSON);
-        
+
         HttpEntity<CreateTournamentDTO> entity = new HttpEntity<>(request, headers);
-        
+
         ResponseEntity<String> result = restTemplate.postForEntity(uri, entity, String.class);
-        
+
         assertEquals(400, result.getStatusCode().value());
     }
 
-}
+    @Test
+    public void createEvent_ValidEvent_Success() throws Exception {
+        createTournament();
+        Organiser o = (Organiser) users.findByEmail("organizer.one@example.com").orElse(null);
+        System.out.println(o);
+        String jwtToken = jwtService.generateToken(o);
 
+        URI uri = new URI(baseUrl + port + "/api/v1/event/create-event/" + tournaments.findAll().get(0).getId());
+
+        List<CreateEventDTO> request = new ArrayList<>();
+
+        request.add(new CreateEventDTO(
+                'M',
+                'S',
+                64,
+                LocalDate.of(2024, 12, 21),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0)));
+        request.add(new CreateEventDTO(
+                'M',
+                'F',
+                64,
+                LocalDate.of(2024, 12, 21),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0)));
+        request.add(new CreateEventDTO(
+                'W',
+                'E',
+                64,
+                LocalDate.of(2024, 12, 21),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0)));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + jwtToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<List<CreateEventDTO>> entity = new HttpEntity<>(request, headers);
+
+        ResponseEntity<String> result = restTemplate.postForEntity(uri, entity, String.class);
+
+        assertEquals(201, result.getStatusCode().value());
+    }
+
+    @Test
+    public void createEvent_InvalidEvent_Failure() throws Exception {
+        createTournament();
+        Organiser o = (Organiser) users.findByEmail("organizer.one@example.com").orElse(null);
+        String jwtToken = jwtService.generateToken(o);
+
+        URI uri = new URI(baseUrl + port + "/api/v1/event/create-event/" + tournaments.findAll().get(0).getId());
+
+        List<CreateEventDTO> request = new ArrayList<>();
+
+        request.add(new CreateEventDTO(
+                'M',
+                'S',
+                64,
+                LocalDate.of(2025, 12, 21),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0)));
+        request.add(new CreateEventDTO(
+                'M',
+                'F',
+                64,
+                LocalDate.of(2023, 12, 21),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0)));
+        request.add(new CreateEventDTO(
+                'F',
+                'E',
+                64,
+                LocalDate.of(2023, 12, 21),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0)));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + jwtToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<List<CreateEventDTO>> entity = new HttpEntity<>(request, headers);
+
+        ResponseEntity<String> result = restTemplate.postForEntity(uri, entity, String.class);
+
+        assertEquals(400, result.getStatusCode().value());
+    }
+
+    @Test
+    public void registerEvent_ValidEvent_Success() throws Exception {
+        createEvent();
+        createAndAuthFencer(1);
+        Fencer f = (Fencer) users.findByEmail("fencer1@example.com").orElse(null);
+        String jwtToken = jwtService.generateToken(f);
+
+        URI uri = new URI(baseUrl + port + "/api/v1/event/register/" + events.findAll().get(0).getId());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + jwtToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        ResponseEntity<String> result = restTemplate.exchange(uri, HttpMethod.PUT, new HttpEntity<>(headers),
+                String.class);
+        assertEquals(200, result.getStatusCode().value());
+    }
+
+    // @Test
+    // public void registerEvent_InvalidEvent_Failure() throws Exception
+
+    @Test
+    public void createPoule_ValidPoule_Success() throws Exception {
+        registerEvent();
+        Organiser o = (Organiser) users.findByEmail("organizer.one@example.com").orElse(null);
+        String jwtToken = jwtService.generateToken(o);
+        
+        URI uri = new URI(baseUrl + port + "/api/v1/poule/create-poules/" + events.findAll().get(0).getId());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + jwtToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        CreatePoulesDTO request = new CreatePoulesDTO();
+        request.setPouleCount(2);
+
+        HttpEntity<CreatePoulesDTO> entity = new HttpEntity<>(request, headers);
+
+        ResponseEntity<PouleTableDTO> result = restTemplate.postForEntity(uri, entity, PouleTableDTO.class);
+
+        assertEquals(201, result.getStatusCode().value());
+    }
+
+}
