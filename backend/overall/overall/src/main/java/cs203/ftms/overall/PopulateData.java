@@ -145,6 +145,9 @@ public class PopulateData {
         tournamentService.createTournament(new CreateTournamentDTO("Tournament0", LocalDate.of(2024, 12, 10), 100, LocalDate.of(2024, 12, 20), LocalDate.of(2024, 12, 30), "location", "description", "rules", 'B'), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
         tournamentService.createTournament(new CreateTournamentDTO("Tournament1", LocalDate.of(2024, 12, 10), 100, LocalDate.of(2024, 12, 20), LocalDate.of(2024, 12, 30), "location", "description", "rules", 'I'), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
         tournamentService.createTournament(new CreateTournamentDTO("Tournament2", LocalDate.of(2024, 12, 10), 100, LocalDate.of(2024, 12, 20), LocalDate.of(2024, 12, 30), "location", "description", "rules", 'A'), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
+        tournamentService.createTournament(new CreateTournamentDTO("Tournament3", LocalDate.of(2024, 12, 10), 100, LocalDate.of(2024, 12, 20), LocalDate.of(2024, 12, 30), "location", "description", "rules", 'B'), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
+        tournamentService.createTournament(new CreateTournamentDTO("Tournament4", LocalDate.of(2024, 12, 10), 100, LocalDate.of(2024, 12, 20), LocalDate.of(2024, 12, 30), "location", "description", "rules", 'I'), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
+        tournamentService.createTournament(new CreateTournamentDTO("Tournament5", LocalDate.of(2024, 12, 10), 100, LocalDate.of(2024, 12, 20), LocalDate.of(2024, 12, 30), "location", "description", "rules", 'A'), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
 
     }
 
@@ -155,10 +158,13 @@ public class PopulateData {
                 event.setDate(LocalDate.of(2023, 12, 28 + i));
             }
         }
+        for (int i = 3; i < 6; i++) {
+            eventService.createEvent(tournamentRepository.findByName("Tournament" + i).get().getId(), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get(), List.of(new CreateEventDTO('M', 'S', 10, LocalDate.of(2024, 12, 30), LocalTime.of(10, 0, 0), LocalTime.of(17, 0, 0))));
+        }
     }
 
     public void registerFencerForEvent() {
-        for(int i = 0; i < 3; i++){
+        for(int i = 0; i < 6; i++){
             for (int j = 1; j <= FENCER_COUNT; j++) {
                 eventService.registerEvent(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament" + i).get(), 'M', 'S').get().getId(), (Fencer) userRepository.findByEmail("MSfencer" + j + "@gmail.com").get());
             }
@@ -235,7 +241,7 @@ public class PopulateData {
         List<TournamentFencer> tfList = new ArrayList<>(tfs);
         Collections.sort(tfList, (a, b) -> a.getEvent().getDate().compareTo(b.getEvent().getDate()));
         int previousPoints = f.getPoints();
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 6; i++) {
             TournamentFencer tf = tfList.get(i);
             tf.setPointsAfterEvent(previousPoints + random.nextInt(300));
             previousPoints = tf.getPointsAfterEvent();
