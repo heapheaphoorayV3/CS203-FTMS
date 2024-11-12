@@ -106,8 +106,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(FencerWeaponMismatchException.class)
-    public ResponseEntity<String> handleFencerWeaponMismatch(FencerWeaponMismatchException ex) {
+    @ExceptionHandler(FencerProfileMismatchException.class)
+    public ResponseEntity<String> handleFencerWeaponMismatch(FencerProfileMismatchException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }

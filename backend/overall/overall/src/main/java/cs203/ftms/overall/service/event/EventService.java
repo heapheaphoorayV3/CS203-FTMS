@@ -20,7 +20,7 @@ import cs203.ftms.overall.exception.EntityDoesNotExistException;
 import cs203.ftms.overall.exception.EventAlreadyExistsException;
 import cs203.ftms.overall.exception.EventCannotEndException;
 import cs203.ftms.overall.exception.FencerAlreadyRegisteredForEventException;
-import cs203.ftms.overall.exception.FencerWeaponMismatchException;
+import cs203.ftms.overall.exception.FencerProfileMismatchException;
 import cs203.ftms.overall.exception.SignUpDateOverExcpetion;
 import cs203.ftms.overall.model.tournamentrelated.DirectEliminationMatch;
 import cs203.ftms.overall.model.tournamentrelated.Event;
@@ -177,7 +177,11 @@ public class EventService {
         }
 
         if (event.getWeapon() != f.getWeapon()) {
-            throw new FencerWeaponMismatchException("Fencer's weapon does not match the event's weapon!");
+            throw new FencerProfileMismatchException("Fencer's weapon does not match the event's weapon!");
+        }
+
+        if (event.getGender() != f.getGender()) {
+            throw new FencerProfileMismatchException("Fencer's gender does not match the event's gender!");
         }
 
         // handle relevant relationships
