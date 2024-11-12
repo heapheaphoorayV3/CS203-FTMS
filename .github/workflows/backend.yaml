@@ -4,10 +4,14 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'backend/**'  # Only trigger for backend changes
 
 jobs:
   build_and_provision:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    needs: [unit_test, integration_test]  # Requires test job from backend_tests.yaml to complete
     env:
       DB_URL: ${{ secrets.DB_URL }}
       DB_USERNAME: ${{ secrets.DB_USERNAME }}
