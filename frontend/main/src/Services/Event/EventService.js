@@ -21,6 +21,10 @@ class EventService {
     return await ProtectedAPI.put(`${baseURL}/register/${eid}`);
   }
 
+  async unregisterEvent(eid) {
+    return await ProtectedAPI.put(`${baseURL}/unregister/${eid}`);
+  }
+
   async getPouleTable(eid) {
     return await ProtectedAPI.get(`${pouleBaseURL}/get-poule-table/${eid}`);
   }
@@ -49,6 +53,10 @@ class EventService {
     return await ProtectedAPI.get(`${baseURL}/get-event-ranking/${eid}`);
   }
 
+  async createDEMatches(eid) {
+    return await ProtectedAPI.post(`${DEBaseURL}/create-direct-elimination-matches/${eid}`);
+  }
+
   async updateDEMatch(eid, data) {
     return await ProtectedAPI.put(`${DEBaseURL}/update-direct-elimination-match/${eid}`, data);
   }
@@ -56,6 +64,10 @@ class EventService {
   // TODO: Check Endpoint with Backend
   async deleteEvent(eid) {
     return await ProtectedAPI.delete(`${baseURL}/delete-event/${eid}`);
+  }
+
+  async endEvent(eid) {
+    return await ProtectedAPI.put(`${baseURL}/end-event/${eid}`);
   }
 }
 

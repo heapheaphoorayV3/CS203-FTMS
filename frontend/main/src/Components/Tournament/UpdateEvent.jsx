@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { DateTime } from "luxon";
 import EventService from "../../Services/Event/EventService";
@@ -10,12 +10,15 @@ const UpdateEvent = ({
   onClose,
   fetchTournamentData,
 }) => {
+
   const {
     register,
     handleSubmit,
     setValue,
     formState: { errors },
   } = useForm();
+
+  const [error, setError] = useState(null);
 
   // Prefill event data
   useEffect(() => {
@@ -78,7 +81,18 @@ const UpdateEvent = ({
       onClose();
       fetchTournamentData();
     } catch (error) {
-      console.error("Error updating event:", error);
+      if (error.response) {
+        console.log("Error response data: ", error.response.data);
+        setError(error.response.data);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.log("Error request: ", error.request);
+        setError("Failed to update event, please try again later.");
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log("Unknown Error: " + error);
+        setError("Failed to update event, please try again later.");
+      }
     }
   };
 
@@ -105,13 +119,13 @@ const UpdateEvent = ({
           {/* Gender Dropdown */}
           <div>
             <label className="block font-medium mb-1">Gender</label>
-            <h1 className="font-medium">{getGender(selectedEvent.gender)}</h1>
+            <h1>{getGender(selectedEvent.gender)}</h1>
           </div>
 
           {/* Weapon Dropdown */}
           <div>
             <label className="block font-medium mb-1">Weapon</label>
-            <h1 className="font-medium">{getWeapon(selectedEvent.weapon)}</h1>
+            <h1>{getWeapon(selectedEvent.weapon)}</h1>
           </div>
 
           {/* Date */}
@@ -132,9 +146,8 @@ const UpdateEvent = ({
                   );
                 },
               })}
-              className={`w-full border rounded-md p-2 ${
-                errors.date ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`w-full border rounded-md p-2 ${errors.date ? "border-red-500" : "border-gray-300"
+                }`}
             />
             {errors.date && (
               <p className="text-red-500 text-sm italic">
@@ -151,9 +164,8 @@ const UpdateEvent = ({
               {...register("startTime", {
                 required: "Please fill this in!",
               })}
-              className={`w-full border rounded-md p-2 ${
-                errors.startTime ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`w-full border rounded-md p-2 ${errors.startTime ? "border-red-500" : "border-gray-300"
+                }`}
             />
             {errors.startTime && (
               <p className="text-red-500 text-sm italic">
@@ -181,9 +193,8 @@ const UpdateEvent = ({
                   );
                 },
               })}
-              className={`w-full border rounded-md p-2 ${
-                errors.endTime ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`w-full border rounded-md p-2 ${errors.endTime ? "border-red-500" : "border-gray-300"
+                }`}
             />
             {errors.endTime && (
               <p className="text-red-500 text-sm italic">
@@ -205,9 +216,8 @@ const UpdateEvent = ({
                   value >= 8 ||
                   "Please enter a number greater than or equal to 8!",
               })}
-              className={`w-full border rounded-md p-2 ${
-                errors.minParticipants ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`w-full border rounded-md p-2 ${errors.minParticipants ? "border-red-500" : "border-gray-300"
+                }`}
             />
             {errors.minParticipants && (
               <p className="text-red-500 text-sm italic">
@@ -226,6 +236,9 @@ const UpdateEvent = ({
             </button>
           </div>
         </form>
+        {error && (
+          <h2 className="text-red-500 text-center mt-4"> {error} </h2>
+        )}
       </div>
     </div>
   );

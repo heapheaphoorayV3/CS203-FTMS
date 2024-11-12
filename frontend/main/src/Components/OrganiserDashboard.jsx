@@ -6,6 +6,7 @@ import DropdownMenu from "./Others/DropdownMenu";
 import { Tabs, Tab } from "./Others/Tabs";
 import { Link } from "react-router-dom";
 import editIcon from "../Assets/edit.png";
+import validator from "validator";
 
 const OrganiserDashboard = () => {
   const [userData, setUserData] = useState([]);
@@ -16,80 +17,97 @@ const OrganiserDashboard = () => {
   const [ongoingTournaments, setOngoingTournaments] = useState([]);
   // Selected torunament to update/delete
   const [selectedTournament, setSelectedTournament] = useState(null);
-  const [isUpdateTournamentPopupVisible, setIsUpdateTournamentPopupVisible] =
-    useState(false);
-  const [isDeleteTournamentPopupVisible, setIsDeleteTournamentPopupVisible] =
-    useState(false);
+  const [isUpdateTournamentPopupVisible, setIsUpdateTournamentPopupVisible] = useState(false);
+  const [isDeleteTournamentPopupVisible, setIsDeleteTournamentPopupVisible] = useState(false);
+  const [contactNoErrors, setContactNoErrors] = useState({});
+  const [isEditing, setIsEditing] = useState(false);
+  const initialEditedData = () => ({
+    name: userData.name,
+    email: userData.email,
+    contactNo: userData.contactNo,
+    country: userData.country,
+  });
+  const [editedData, setEditedData] = useState(initialEditedData);
+
+  const fetchData = async () => {
+    try {
+      const response = await OrganiserService.getProfile();
+      setUserData(response.data);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      setError("Failed to load user data.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchTournamentData = async () => {
+    setLoading(true);
+    try {
+      const response = await OrganiserService.getAllHostedTournaments();
+      const tournaments = response.data;
+      const currentDate = new Date();
+      const ongoingTournamentsData = tournaments
+        .filter((tournament) => {
+          const startDate = new Date(tournament.startDate);
+          const endDate = new Date(tournament.endDate);
+          return startDate <= currentDate && currentDate <= endDate;
+        })
+        .map((tournament) => {
+          const totalParticipants = tournament.events.reduce((sum, event) => {
+            return sum + (event.fencers ? event.fencers.length : 0);
+          }, 0);
+          return { ...tournament, totalParticipants };
+        });
+      setOngoingTournaments(ongoingTournamentsData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setError("Failed to load data.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchUpcomingTournaments = async () => {
+    setLoading(true);
+    try {
+      const response =
+        await OrganiserService.getOrganiserUpcomingTournaments();
+
+      const sortedTournaments = response.data.sort((a, b) => {
+        const dateA = new Date(a.startDate);
+        const dateB = new Date(b.startDate);
+        return dateA - dateB;
+      });
+      setUpcomingTournaments(sortedTournaments);
+    } catch (error) {
+      console.error("Error fetching upcoming tournaments: ", error);
+      setError("Failed to fetch upcoming tournaments");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchPastTournaments = async () => {
+    setLoading(true);
+    try {
+      const response = await OrganiserService.getOrganiserPastTournaments();
+      const sortedTournaments = response.data.sort((a, b) => {
+        const dateA = new Date(a.startDate);
+        const dateB = new Date(b.startDate);
+        return dateA - dateB;
+      });
+      setPastTournaments(sortedTournaments);
+    } catch (error) {
+      console.error("Error fetching past tournaments: ", error);
+      setError("Failed to fetch past tournaments");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     setLoading(true);
-    const fetchData = async () => {
-      try {
-        const response = await OrganiserService.getProfile();
-        setUserData(response.data);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        setError("Failed to load user data.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchTournamentData = async () => {
-      setLoading(true);
-      try {
-        const response = await OrganiserService.getAllHostedTournaments();
-        const tournaments = response.data;
-
-        const currentDate = new Date();
-        const ongoingTournamentsData = tournaments
-          .filter((tournament) => {
-            const startDate = new Date(tournament.startDate);
-            const endDate = new Date(tournament.endDate);
-            return startDate <= currentDate && currentDate <= endDate;
-          })
-          .map((tournament) => {
-            const totalParticipants = tournament.events.reduce((sum, event) => {
-              return sum + (event.fencers ? event.fencers.length : 0);
-            }, 0);
-            return { ...tournament, totalParticipants };
-          });
-        setOngoingTournaments(ongoingTournamentsData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setError("Failed to load data.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchUpcomingTournaments = async () => {
-      setLoading(true);
-      try {
-        const response =
-          await OrganiserService.getOrganiserUpcomingTournaments();
-        setUpcomingTournaments(response.data);
-      } catch (error) {
-        console.error("Error fetching upcoming tournaments: ", error);
-        setError("Failed to fetch upcoming tournaments");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchPastTournaments = async () => {
-      setLoading(true);
-      try {
-        const response = await OrganiserService.getOrganiserPastTournaments();
-        setPastTournaments(response.data);
-      } catch (error) {
-        console.error("Error fetching past tournaments: ", error);
-        setError("Failed to fetch past tournaments");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchTournamentData();
     fetchData();
     fetchUpcomingTournaments();
@@ -110,6 +128,49 @@ const OrganiserDashboard = () => {
     return `${startDate} - ${endDate}`;
   };
 
+  const handleEditClick = () => {
+    setIsEditing(!isEditing); // Toggle between view and edit mode
+    if (!isEditing) {
+      setEditedData(initialEditedData); // Reset edited data
+    }
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    console.log(name, value);
+    setEditedData((prevData) => ({ ...prevData, [name]: value }));
+    console.log("Edited data:", editedData);
+  };
+
+  const validateEditInputs = () => {
+    const newErrors = {};
+    if (!validator.isMobilePhone(editedData.contactNo, 'any', { strictMode: true })) {
+      newErrors.contactNo = "Please enter a valid phone number with country code!";
+    }
+    setContactNoErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleEditSubmit = async () => {
+    console.log("Edited data:", editedData);
+    if (validateEditInputs()) {
+      try {
+        await OrganiserService.updateProfile(editedData);
+        setUserData((prevData) => ({ ...prevData, ...editedData }));
+        setIsEditing(false);
+      } catch (error) {
+        setContactNoErrors({ contactNo: "Please enter a valid phone number with country code!" });
+        console.error("Error saving profile:", error);
+      }
+    }
+  };
+
+  const cancelEditProfile = () => {
+    setEditedData(initialEditedData); // Reset
+    setIsEditing(false);
+    setContactNoErrors({});
+  };
+
   if (loading) {
     return <div className="mt-10">Loading...</div>; // Show loading state
   }
@@ -128,6 +189,7 @@ const OrganiserDashboard = () => {
   const closeUpdateTournamentPopup = () => {
     setIsUpdateTournamentPopupVisible(false);
     setSelectedTournament(null);
+    fetchUpcomingTournaments();
   };
 
   const deleteTournament = (tournamentToDelete) => {
@@ -164,19 +226,55 @@ const OrganiserDashboard = () => {
             <div className="flex font-medium">Email:</div>
             <div className="flex">{userData.email}</div>
             <div className="flex font-medium">Contact Number:</div>
-            <div className="flex">{userData.contactNo}</div>
+            <div className="flex">{isEditing ? (
+            <input
+              name="contactNo"
+              type="text"
+              value={editedData.contactNo}
+              onChange={handleEditChange}
+              className={`border p-1 rounded-lg ${contactNoErrors.contactNo ? 'border-red-500' : ''}`}
+              placeholder="Contact Number (e.g. +65********)"
+            />
+          ) : (
+            userData.contactNo
+          )}
+          {contactNoErrors.contactNo && (
+            <div className="text-red-500 text-sm ml-4">
+              {contactNoErrors.contactNo}
+            </div>
+          )}
+          </div>
             <div className="flex font-medium">Country:</div>
             <div className="flex">{userData.country}</div>
             <div className="flex font-medium">Verification Status:</div>
             <div className="flex">
               {userData.verified ? "Verified" : "Pending Verification"}
             </div>
+            {isEditing && (
+            <div>
+              <button
+                onClick={handleEditSubmit}
+                className="bg-green-400 text-white mt-2 px-2 py-1 mr-4 rounded"
+              >
+                Confirm Changes
+              </button>
+              <button
+                onClick={cancelEditProfile}
+                className="bg-red-400 text-white mt-2 px-2 py-1 rounded"
+              >
+                Cancel Changes
+              </button>
+            </div>
+          )}
           </div>
         </div>
 
         {/* Edit Icon */}
-        <div className="absolute top-4 right-4 cursor-pointer text-gray-600">
-          <img src={editIcon} alt="Edit profile icon" className="w-6 h-6" />
+        <div
+          className="absolute top-4 right-4 cursor-pointer text-gray-600"
+          onClick={handleEditClick}
+        >
+          <img src={editIcon} alt="Edit profile button" className="w-6 h-6" />
         </div>
       </div>
 
@@ -221,7 +319,8 @@ const OrganiserDashboard = () => {
                       </tr>
                     ))}
                   </tbody>
-                </table>) : (
+                </table>
+              ) : (
                 <div className="flex justify-center items-center h-full">
                   <h2 className="text-lg font-medium">
                     No ongoing tournaments available yet
@@ -273,7 +372,8 @@ const OrganiserDashboard = () => {
                       </tr>
                     ))}
                   </tbody>
-                </table>) : (
+                </table>
+              ) : (
                 <div className="flex justify-center items-center h-full">
                   <h2 className="text-lg font-medium">
                     No upcoming tournaments available yet
@@ -329,7 +429,8 @@ const OrganiserDashboard = () => {
                       </tr>
                     ))}
                   </tbody>
-                </table>) : (
+                </table>
+              ) : (
                 <div className="flex justify-center items-center h-full">
                   <h2 className="text-lg font-medium">
                     No past tournaments available yet

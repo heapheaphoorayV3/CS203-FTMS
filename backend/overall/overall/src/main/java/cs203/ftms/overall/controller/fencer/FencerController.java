@@ -100,7 +100,7 @@ public class FencerController {
     }
 
     @PutMapping("/update-profile")
-    @PreAuthorize("hasRole('ORGANISER')")
+    @PreAuthorize("hasRole('FENCER')")
     public ResponseEntity<String> updateProfile(@Valid @RequestBody UpdateFencerProfileDTO dto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();

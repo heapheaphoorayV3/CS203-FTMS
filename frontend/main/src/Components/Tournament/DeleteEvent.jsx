@@ -3,7 +3,7 @@ import { useState } from "react";
 import EventService from "../../Services/Event/EventService";
 
 const DeleteEvent = ({ id, closeDeleteEventPopUp }) => {
-    const [error, setError] = useState(false);
+    const [error, setError] = useState(null);
 
     const handleDeleteEvent = async () => {
         try {
@@ -11,8 +11,18 @@ const DeleteEvent = ({ id, closeDeleteEventPopUp }) => {
             await EventService.deleteEvent(id);
             closeDeleteEventPopUp();
         } catch (error) {
-            console.error(error);
-            setError(error);
+            if (error.response) {
+                console.log("Error response data: ", error.response.data);
+                setError(error.response.data);
+            } else if (error.request) {
+                // The request was made but no response was received
+                console.log("Error request: ", error.request);
+                setError("Failed to delete event, please try again later.");
+            } else {
+                // Something happened in setting up the request that triggered an Error
+                console.log("Unknown Error: " + error);
+                setError("Failed to delete event, please try again later.");
+            }
         }
     }
 
@@ -34,7 +44,7 @@ const DeleteEvent = ({ id, closeDeleteEventPopUp }) => {
                     >
                         Delete
                     </button>
-                    {error && <p className="text-red-500 text-sm text-center">An unexpected error has occured. Please try again later!</p>}
+                    {error && <p className="text-red-500 text-center mt-2">{error}</p>}
                 </div>
             </div>
         </div>

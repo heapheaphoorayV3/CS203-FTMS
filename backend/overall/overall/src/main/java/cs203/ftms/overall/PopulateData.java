@@ -2,6 +2,8 @@ package cs203.ftms.overall;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +28,7 @@ import cs203.ftms.overall.dto.RegisterFencerDTO;
 import cs203.ftms.overall.dto.RegisterOrganiserDTO;
 import cs203.ftms.overall.dto.SinglePouleTableDTO;
 import cs203.ftms.overall.dto.clean.CleanTournamentFencerDTO;
+import cs203.ftms.overall.model.tournamentrelated.Event;
 import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
 import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.Organiser;
@@ -53,13 +56,13 @@ public class PopulateData {
     private final EventService eventService;
     private final FencerService fencerService;
     private final PouleService pouleService;
+    private final DirectEliminationService directEliminationService;
 
     private final UserRepository userRepository;
     private final TournamentRepository tournamentRepository;
     private final EventRepository eventRepository;
     private final PouleRepository pouleRepository; 
     private final FencerRepository fencerRepository;
-    private final DirectEliminationService directEliminationService;
 
     @Autowired
     public PopulateData(AuthenticationService authenticationService, TournamentService tournamentService, EventService eventService, FencerService fencerService, PouleService poulesService, UserRepository userRepository, TournamentRepository tournamentRepository, EventRepository eventRepository, PouleRepository pouleRepository, FencerRepository fencerRepository, DirectEliminationService directEliminationService) {
@@ -142,17 +145,26 @@ public class PopulateData {
         tournamentService.createTournament(new CreateTournamentDTO("Tournament0", LocalDate.of(2024, 12, 10), 100, LocalDate.of(2024, 12, 20), LocalDate.of(2024, 12, 30), "location", "description", "rules", 'B'), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
         tournamentService.createTournament(new CreateTournamentDTO("Tournament1", LocalDate.of(2024, 12, 10), 100, LocalDate.of(2024, 12, 20), LocalDate.of(2024, 12, 30), "location", "description", "rules", 'I'), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
         tournamentService.createTournament(new CreateTournamentDTO("Tournament2", LocalDate.of(2024, 12, 10), 100, LocalDate.of(2024, 12, 20), LocalDate.of(2024, 12, 30), "location", "description", "rules", 'A'), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
+        tournamentService.createTournament(new CreateTournamentDTO("Tournament3", LocalDate.of(2024, 12, 10), 100, LocalDate.of(2024, 12, 20), LocalDate.of(2024, 12, 30), "location", "description", "rules", 'B'), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
+        tournamentService.createTournament(new CreateTournamentDTO("Tournament4", LocalDate.of(2024, 12, 10), 100, LocalDate.of(2024, 12, 20), LocalDate.of(2024, 12, 30), "location", "description", "rules", 'I'), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
+        tournamentService.createTournament(new CreateTournamentDTO("Tournament5", LocalDate.of(2024, 12, 10), 100, LocalDate.of(2024, 12, 20), LocalDate.of(2024, 12, 30), "location", "description", "rules", 'A'), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
 
     }
 
     public void createEvent() throws MethodArgumentNotValidException {
         for(int i = 0; i < 3; i++){
-            eventService.createEvent(tournamentRepository.findByName("Tournament" + i).get().getId(), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get(), List.of(new CreateEventDTO('M', 'S', 10, LocalDate.of(2024, 12, 28 + i), LocalTime.of(10, 0, 0), LocalTime.of(17, 0, 0))));
+            List<Event> events = eventService.createEvent(tournamentRepository.findByName("Tournament" + i).get().getId(), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get(), List.of(new CreateEventDTO('M', 'S', 10, LocalDate.of(2024, 12, 28 + i), LocalTime.of(10, 0, 0), LocalTime.of(17, 0, 0))));
+            for (Event event : events) {
+                event.setDate(LocalDate.of(2023, 12, 28 + i));
+            }
+        }
+        for (int i = 3; i < 6; i++) {
+            eventService.createEvent(tournamentRepository.findByName("Tournament" + i).get().getId(), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get(), List.of(new CreateEventDTO('M', 'S', 10, LocalDate.of(2024, 12, 30), LocalTime.of(10, 0, 0), LocalTime.of(17, 0, 0))));
         }
     }
 
     public void registerFencerForEvent() {
-        for(int i = 0; i < 3; i++){
+        for(int i = 0; i < 6; i++){
             for (int j = 1; j <= FENCER_COUNT; j++) {
                 eventService.registerEvent(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament" + i).get(), 'M', 'S').get().getId(), (Fencer) userRepository.findByEmail("MSfencer" + j + "@gmail.com").get());
             }
@@ -226,10 +238,14 @@ public class PopulateData {
     public void setTournamentFencerPoints() {
         Fencer f = fencerRepository.findById(3).get();
         Set<TournamentFencer> tfs = f.getTournamentFencerProfiles();
-        tfs.forEach(tf -> {
-            tf.setPointsAfterEvent(100 + random.nextInt(300));
-        });
-
+        List<TournamentFencer> tfList = new ArrayList<>(tfs);
+        Collections.sort(tfList, (a, b) -> a.getEvent().getDate().compareTo(b.getEvent().getDate()));
+        int previousPoints = f.getPoints();
+        for (int i = 0; i < 6; i++) {
+            TournamentFencer tf = tfList.get(i);
+            tf.setPointsAfterEvent(previousPoints + random.nextInt(300));
+            previousPoints = tf.getPointsAfterEvent();
+        }
     }
 
     @EventListener(ContextRefreshedEvent.class)
@@ -257,8 +273,7 @@ public class PopulateData {
             updatePouleTable();
             printUpdatedPouleTable();
             printPouleResult();
+            createDirectEliminationMatches();
         }
-
-        // createDirectEliminationMatches();
     }
 }

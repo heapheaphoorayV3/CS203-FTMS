@@ -2,9 +2,6 @@ import { ProtectedAPI } from "../ProtectedAPI";
 
 const baseURL = "/admin";
 
-/* TODO
-- Update getUnverifiedOrganisers() URL to GET from correct endpoint
-*/
 class AdminService {
   async getProfile() {
     return await ProtectedAPI.get(`${baseURL}/profile`);

@@ -412,6 +412,7 @@ public class PouleService {
             TournamentFencer tf1 = fencers.get(i);
             String key = createPouleKey(tf1);
             String[] values = newPouleTable.get(key).split(",");
+            System.out.println("values: " + Arrays.toString(values));
             updatePouleMatches(poule, fencers, tf1, values, i);
         }
 
@@ -443,15 +444,6 @@ public class PouleService {
             TournamentFencer ptf2 = matchService.getFencer2(pouleMatch);
 
             if (i < j) {
-                // if (ptf1.getId() == tf1.getId() && ptf2.getId() == tf2.getId()) {
-                //     savePouleMatchScore(value, pouleMatch, 1);
-                //     break;
-                // } else 
-                if (ptf1.getId() == tf2.getId() && ptf2.getId() == tf1.getId()) {
-                    savePouleMatchScore(value, pouleMatch, 2);
-                    break;
-                }
-            } else {
                 if (ptf1.getId() == tf1.getId() && ptf2.getId() == tf2.getId()) {
                     savePouleMatchScore(value, pouleMatch, 1);
                     break;
@@ -460,6 +452,15 @@ public class PouleService {
                 //     savePouleMatchScore(value, pouleMatch, 2);
                 //     break;
                 // }
+            } else {
+                // if (ptf1.getId() == tf1.getId() && ptf2.getId() == tf2.getId()) {
+                //     savePouleMatchScore(value, pouleMatch, 1);
+                //     break;
+                // } else 
+                if (ptf1.getId() == tf2.getId() && ptf2.getId() == tf1.getId()) {
+                    savePouleMatchScore(value, pouleMatch, 2);
+                    break;
+                }
             }
         }
     }
@@ -499,7 +500,6 @@ public class PouleService {
             fencer2.setPouleWins(fencer2.getPouleWins() + 1);
             pouleMatch.setWinner(fencer2.getId());
         } 
-
         tournamentFencerRepository.save(fencer1);
         tournamentFencerRepository.save(fencer2);
         return pouleMatch;
@@ -517,6 +517,7 @@ public class PouleService {
         }
 
         List<TournamentFencer> sortedFencers = getSortedFencersByEvent(event);
+        updateTournamentFencerRanks(sortedFencers);
 
         mappings.put("Bypass", sortedFencers.subList(0, bypass));
         mappings.put("FenceOff", sortedFencers.subList(bypass, fencersAdvanced));
@@ -572,7 +573,7 @@ public class PouleService {
         Map<String, List<TournamentFencer>> mappings = getFencersAfterPoules(event);
         List<TournamentFencer> sortedFencers = getSortedFencers(mappings);
     
-        updateTournamentFencerRanks(sortedFencers);
+        // updateTournamentFencerRanks(sortedFencers);
         populatePouleResultsDTO(dto, mappings);
     
         return dto;

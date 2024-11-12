@@ -11,6 +11,10 @@ class FencerService {
     return await ProtectedAPI.put(`${baseURL}/complete-profile`, data);
   }
 
+  async updateProfile(data) {
+    return await ProtectedAPI.put(`${baseURL}/update-profile`, data);
+  }
+
   async getAllFencers() {
     return await ProtectedAPI.get(`${baseURL}/all`);
   }
@@ -53,6 +57,10 @@ class FencerService {
 
   async changePassword(data) {
     return await ProtectedAPI.put(`${baseURL}/change-password`, data);
+  }
+  
+  async getPastEventPointsForGraph() {
+    return await ProtectedAPI.get(`${baseURL}/past-events-points`);
   }
 }
 

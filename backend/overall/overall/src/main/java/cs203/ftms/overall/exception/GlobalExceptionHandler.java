@@ -100,6 +100,16 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleTournamentAlreadyStarted(TournamentAlreadyStartedException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(PouleMatchesNotDoneException.class)
+    public ResponseEntity<String> handlePouleMatchesNotDone(PouleMatchesNotDoneException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(FencerProfileMismatchException.class)
+    public ResponseEntity<String> handleFencerWeaponMismatch(FencerProfileMismatchException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 }
 
 

@@ -8,6 +8,9 @@ import EventBracket from "./EventBracket.jsx";
 import CreatePoules from "./CreatePoules.jsx";
 import Breadcrumbs from "../Others/Breadcrumbs.jsx";
 import UpdateBracketMatch from "./UpdateBracketMatch.jsx";
+import EndPoules from "./EndPoules.jsx";
+import EndEvent from "./EndEvent.jsx";
+import { motion } from "framer-motion";
 
 function formatTimeTo24Hour(timeString) {
   const [hours, minutes] = timeString.split(":"); // Get hours and minutes
@@ -28,10 +31,11 @@ export default function ViewEvent() {
   const [selectedPoule, setSelectedPoule] = useState(1);
   const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
   const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
+  const [isEndPoulesPopupVisible, setIsEndPoulesPopupVisible] = useState(false);
+  const [isEndEventPopupVisible, setIsEndEventPopupVisible] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [eventRanking, setEventRanking] = useState(null);
   const [updatePoulesScores, setUpdatePoulesScores] = useState({});
-  const [recommendedPoulesData, setRecommendedPoulesData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isInputValid, setIsInputValid] = useState(true);
@@ -44,99 +48,136 @@ export default function ViewEvent() {
     setCurrentPage(page);
   };
 
-  useEffect(() => {
-    setLoading(true);
-
-    const fetchEventData = async () => {
-      try {
-        const response = await EventService.getEvent(eventID);
-        setEventData(response.data);
-        // console.log("event data =>");
-      } catch (error) {
-        console.error("Error fetching event data:", error);
-        setError("Failed to load event data.");
+  const fetchEventData = async () => {
+    try {
+      const response = await EventService.getEvent(eventID);
+      setEventData(response.data);
+      // console.log("event data =>");
+    } catch (error) {
+      if (error.response) {
+        console.log("Error response data: ", error.response.data);
+        setError(error.response.data);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.log("Error request: ", error.request);
+        setError("Event Data has failed to load, please try again later.");
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log("Unknown Error: " + error);
+        setError("Event Data has failed to load, please try again later.");
       }
-    };
+    }
+  };
 
-    // Fetch Upcoming Tournament if Organiser to check if organiser is the owner of current event
-    const checkIfOwner = async () => {
-      try {
-        const response =
-          await OrganiserService.getOrganiserUpcomingTournaments();
-        const upcomingTournaments = response.data;
-        console.log("upcoming tournaments:", upcomingTournaments);
-        let found = false;
-        for (let tournament of upcomingTournaments) {
-          if (Array.isArray(tournament.events)) {
-            for (let event of tournament.events) {
-              if (Number(event.id) === Number(eventID)) {
-                found = true;
-                break;
-              }
+  // Fetch Upcoming Tournament if Organiser to check if organiser is the owner of current event
+  const checkIfOwner = async () => {
+    try {
+      const response = await OrganiserService.getOrganiserUpcomingTournaments();
+      const upcomingTournaments = response.data;
+      console.log("upcoming tournaments:", upcomingTournaments);
+      let found = false;
+      for (let tournament of upcomingTournaments) {
+        if (Array.isArray(tournament.events)) {
+          for (let event of tournament.events) {
+            if (Number(event.id) === Number(eventID)) {
+              found = true;
+              break;
             }
           }
-          if (found) {
-            break;
-          }
         }
-        setIsOwner(found);
-      } catch (error) {
-        console.error("Error fetching event:", error);
-        setError("Failed to load event.");
+        if (found) {
+          break;
+        }
       }
-    };
+      setIsOwner(found);
+    } catch (error) {
+      console.error("Failed getting upcoming tournaments:", error);
+      setError("Event Data has failed to load, please try again later.");
+    }
+  };
 
-    const fetchPouleTable = async () => {
-      try {
-        const response = await EventService.getPouleTable(eventID);
-        setPouleTableData(response.data);
+  const fetchPouleTable = async () => {
+    try {
+      const response = await EventService.getPouleTable(eventID);
+      setPouleTableData(response.data);
 
-        const processedData = response.data.pouleTable.map((poule) =>
-          Object.entries(poule).map(([fencer, results]) => {
-            const resultArray = results.split(",");
-            const cleanedFencerName = fencer.replace(/ -- \d+$/, "");
-            return { fencer: cleanedFencerName, results: resultArray };
-          })
+      const processedData = response.data.pouleTable.map((poule) =>
+        Object.entries(poule).map(([fencer, results]) => {
+          const resultArray = results.split(",");
+          const cleanedFencerName = fencer.replace(/ -- \d+$/, "");
+          return { fencer: cleanedFencerName, results: resultArray };
+        })
+      );
+
+      setCleanedPouleData(processedData);
+    } catch (error) {
+      if (error.response) {
+        console.log("Error response data: ", error.response.data);
+        setError(error.response.data);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.log("Error request: ", error.request);
+        setError("Poule Data has failed to load, please try again later.");
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log("Unknown Error: " + error);
+        setError("Poule Data has failed to load, please try again later.");
+      }
+    }
+  };
+
+  const fetchMatches = async () => {
+    try {
+      const response = await EventService.getMatches(eventID);
+      setMatches(response.data);
+      // console.log("matches:", response.data);
+    } catch (error) {
+      if (error.response) {
+        console.log("Error response data: ", error.response.data);
+        setError(error.response.data);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.log("Error request: ", error.request);
+        setError(
+          "Direct Elimination Data has failed to load, please try again later."
         );
-
-        setCleanedPouleData(processedData);
-      } catch (error) {
-        console.error("Error fetching poule table data:", error);
-        setError("Failed to load poule table data.");
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log("Unknown Error: " + error);
+        setError(
+          "Direct Elimination Data has failed to load, please try again later."
+        );
       }
-    };
+    }
+  };
 
-    const fetchRecommendedPoules = async () => {
-      try {
-        const response = await EventService.getRecommendedPoules(eventID);
-        setRecommendedPoulesData(response.data);
-      } catch (error) {
-        console.error("Error fetching recommended poules", error);
-        setError("Failed to load recommended poules");
+  const fetchEventRanking = async () => {
+    try {
+      const response = await EventService.getEventRanking(eventID);
+      // console.log(response.data);
+      setEventRanking(response.data);
+    } catch (error) {
+      if (error.response) {
+        console.log("Error response data: ", error.response.data);
+        setError(error.response.data);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.log("Error request: ", error.request);
+        setError(
+          "Event Ranking Data has failed to load, please try again later."
+        );
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log("Unknown Error: " + error);
+        setError(
+          "Event Ranking Data has failed to load, please try again later."
+        );
       }
-    };
+    }
+  };
 
-    const fetchMatches = async () => {
-      try {
-        const response = await EventService.getMatches(eventID);
-        setMatches(response.data);
-        // console.log("matches:", response.data);
-      } catch (error) {
-        console.error("Error fetching matches:", error);
-        setError("Failed to load matches.");
-      }
-    };
-
-    const fetchEventRanking = async () => {
-      try {
-        const response = await EventService.getEventRanking(eventID);
-        // console.log(response.data);
-        setEventRanking(response.data);
-      } catch (error) {
-        console.error("Error fetching event ranking: ", error);
-        setError("Failed to load event ranking");
-      }
-    };
+  useEffect(() => {
+    setLoading(true);
 
     if (sessionStorage.getItem("userType") === "O") {
       checkIfOwner();
@@ -146,13 +187,10 @@ export default function ViewEvent() {
       Promise.all([
         fetchEventData(),
         fetchPouleTable(),
-        userType === "O" && fetchRecommendedPoules(),
         fetchMatches(),
         fetchEventRanking(),
       ])
         .then(() => {
-          // Code to run after all functions complete
-          // console.log("All functions have completed.");
           setLoading(false);
         })
         .catch((error) => {
@@ -165,13 +203,20 @@ export default function ViewEvent() {
   useEffect(() => {
     if (Array.isArray(eventRanking) && eventRanking.length) {
       // Sort eventRanking based on poulePoints in descending order
-      const sortedRanking = [...eventRanking].sort(
+      const sortedRankingByPoints = [...eventRanking].sort(
+        (a, b) => b.poulePoints - a.poulePoints
+      );
+      const sortedRankingByRank = [...eventRanking].sort(
         (a, b) => a.tournamentRank - b.tournamentRank
       );
-
       const startIndex = Math.max(0, (currentPage - 1) * limit);
-      const endIndex = Math.min(sortedRanking.length, startIndex + limit);
-      setPaginatedData(sortedRanking.slice(startIndex, endIndex));
+      const endIndex = Math.min(eventRanking.length, startIndex + limit);
+      if (!loading && eventData.isOver) {
+        setPaginatedData(sortedRankingByRank.slice(startIndex, endIndex));
+      } else {
+        setPaginatedData(sortedRankingByPoints.slice(startIndex, endIndex));
+      }
+
     } else {
       setPaginatedData([]);
     }
@@ -182,7 +227,11 @@ export default function ViewEvent() {
   }
 
   if (error) {
-    return <div className="mt-10">{error}</div>; // Show error message if any
+    return (
+      <div className="flex justify-between mr-20 my-10">
+        <h1 className=" ml-12 text-left text-4xl font-semibold">{error}</h1>
+      </div>
+    ); // Show error message if any
   }
 
   const constructEventName = (gender, weapon) => {
@@ -192,7 +241,7 @@ export default function ViewEvent() {
       case "M":
         eventName += "Men's ";
         break;
-      case "F":
+      case "W":
         eventName += "Women's ";
         break;
     }
@@ -230,16 +279,16 @@ export default function ViewEvent() {
       name: loading
         ? "Loading..."
         : eventData
-        ? eventData.tournamentName
-        : "Not Found",
+          ? eventData.tournamentName
+          : "Not Found",
       link: `/tournaments/${tournamentID}`,
     },
     {
       name: loading
         ? "Loading..."
         : eventData
-        ? constructEventName(eventData.gender, eventData.weapon)
-        : "Not Found",
+          ? constructEventName(eventData.gender, eventData.weapon)
+          : "Not Found",
     },
   ];
 
@@ -264,21 +313,7 @@ export default function ViewEvent() {
 
   const closeCreatePopup = () => {
     setIsCreatePopupVisible(false);
-  };
-
-  const submitCreatePopup = async (data) => {
-    const payload = {
-      eid: String(eventID), // Add the eventID to the payload
-      ...data, // Spread the rest of the data
-    };
-
-    console.log(payload);
-    try {
-      await EventService.createPoules(payload.eid, payload);
-    } catch (error) {
-      console.error("error creating poules", error);
-    }
-    closeCreatePopup();
+    fetchPouleTable();
   };
 
   const updatePoules = () => {
@@ -290,6 +325,7 @@ export default function ViewEvent() {
     setIsUpdating(false);
     setIsInputValid(true);
     setUpdatePoulesScores({});
+    fetchPouleTable();
   };
 
   function handleInputChange(event, index, rowIndex) {
@@ -311,7 +347,7 @@ export default function ViewEvent() {
         [fencerName]: editedScore,
       };
 
-      const pouleTable = pouleTableData.pouleTable[0];
+      const pouleTable = pouleTableData.pouleTable[pouleIndex];
 
       for (const key in pouleTable) {
         if (key === fencerName) {
@@ -330,31 +366,7 @@ export default function ViewEvent() {
 
   const closeUpdatePopup = () => {
     setIsUpdatePopupVisible(false);
-  };
-
-  const submitUpdateBracketMatches = async (data) => {
-    try {
-      const matchId = data.trackSelectedMatch.id;
-
-      // Structure the combined data to match the backend's expected DTO format
-      const combinedData = {
-        matchId: matchId,
-        score1: data.firstScore,
-        score2: data.secondScore,
-      };
-
-      console.log(combinedData);
-
-      await EventService.updateDEMatch(eventID, combinedData);
-
-      // console.log("Bracket matches updated successfully");
-
-      closeUpdatePopup();
-
-      window.location.reload();
-    } catch (error) {
-      console.error("Error updating bracket matches:", error);
-    }
+    fetchMatches();
   };
 
   const submitUpdatePoules = async () => {
@@ -368,7 +380,7 @@ export default function ViewEvent() {
         singleTable: Object.fromEntries(singleTableMap),
       };
 
-      console.log(combinedData);
+      console.log("sending to backend:", combinedData);
 
       await EventService.updatePouleTable(eventID, combinedData);
 
@@ -380,15 +392,74 @@ export default function ViewEvent() {
     }
   };
 
+  const endPoules = async () => {
+    setIsEndPoulesPopupVisible(true);
+  };
+
+  const closeEndPoulesPopup = () => {
+    setIsEndPoulesPopupVisible(false);
+    fetchPouleTable();
+    fetchMatches();
+    fetchEventRanking();
+  };
+
+  const endEvent = async () => {
+    setIsEndEventPopupVisible(true);
+  };
+
+  const closeEndEventPopup = () => {
+    setIsEndEventPopupVisible(false);
+    fetchEventData();
+    fetchEventRanking();
+  };
+  console.log("eventdata:", eventData);
   const totalPages = Math.ceil(eventRanking.length / limit);
 
   return (
     <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">
       <Breadcrumbs items={breadcrumbsItems} />
-      <h1 className="my-10 ml-12 text-left text-4xl font-semibold">
-        {eventData.tournamentName} -{" "}
-        {constructEventName(eventData.gender, eventData.weapon)}
-      </h1>
+      <div className="flex justify-between items-center mr-12 py-4 px-4">
+        <h1 className="my-10 ml-12 text-left text-4xl font-semibold">
+          {eventData.tournamentName} -{" "}
+          {constructEventName(eventData.gender, eventData.weapon)}
+        </h1>
+        {eventData.isOver ? (
+          <motion.div
+            className="shadow-lg rounded-lg bg-indigo-600 mr-12"
+            whileHover={{
+              scale: 0.9,
+              transition: { duration: 0.3 },
+            }}
+          >
+            <p className="font-semibold text-lg text-white p-4">
+              Event has ended
+            </p>
+          </motion.div>
+        ) : (
+          userType === "O" && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              whileHover={{
+                scale: 1.1,
+                backgroundColor: "#E3170A",
+                transition: { duration: 0.3 },
+              }}
+              className="bg-red-500 p-4 text-white rounded-md h-12 w-sm flex justify-center items-center"
+              onClick={endEvent}
+            >
+              End Event
+            </motion.button>
+          )
+        )}
+      </div>
+
+      {isEndEventPopupVisible && (
+        <>
+          <EndEvent id={eventID} closeEndEventPopup={closeEndEventPopup} />
+        </>
+      )}
 
       <div className="ml-12 mr-8 mb-10 grid grid-cols-3 auto-rows-fr gap-x-[10px] gap-y-[10px]">
         <div className="font-semibold text-lg">Date</div>
@@ -403,156 +474,187 @@ export default function ViewEvent() {
         <Tabs>
           <Tab label="Poules">
             <div className="py-4">
-              {pouleTableData && pouleTableData.pouleTable[pouleIndex] ? (
-                <>
-                  {userType === "O" && (
-                    <div>
-                      {!pouleTableData && (
+              {/* Render only once for both 'O' (Organizers) and 'F' (Fencers) */}
+              <div>
+                {userType === "O" && pouleTableData.pouleTable.length === 0 && (
+                  <button
+                    onClick={createPoules}
+                    className="bg-blue-500 text-white px-4 py-2 rounded mt-2 mb-2"
+                  >
+                    Create Poules
+                  </button>
+                )}
+
+                {/* Common Poule Results Dropdown */}
+                <div className="mr-12 h-20 max-w-sm">
+                  <label className="block font-medium mb-1 ml-1">
+                    Poule Results
+                  </label>
+                  {isUpdating ?
+                    `Poule ${selectedPoule}` :
+                    (
+                      <select
+                        value={selectedPoule}
+                        onChange={handlePouleChange}
+                        className="block w-full py-2 px-3 border border-gray-300 rounded"
+                      >
+                        {pouleTableData.pouleTable.length === 0 ? (
+                          <option disabled>No poules available</option>
+                        ) : (
+                          pouleTableData.pouleTable.map((poule, index) => (
+                            <option key={index} value={index + 1}>
+                              {`Poule ${index + 1}`}
+                            </option>
+                          ))
+                        )}
+                      </select>
+                    )
+                  }
+                </div>
+
+                <div className="flex gap-2">
+                  {/* Conditional buttons for organizers */}
+                  {userType === "O" &&
+                    pouleTableData.pouleTable.length > 0 &&
+                    matches.length === 0 && (
+                      <div className="flex mt-4 pb-2 space-x-2">
                         <button
-                          onClick={createPoules}
-                          className="bg-blue-500 text-white px-4 py-2 rounded mt-2 mb-2"
+                          onClick={endPoules}
+                          className="bg-blue-500 text-white px-4 py-2 rounded"
                         >
-                          Create Poules
+                          End Poules
                         </button>
-                      )}
-                      <div className="flex items-end w-full">
-                        <div className="mr-12 h-20">
-                          <label className="block font-medium mb-1 ml-1">
-                            Poule Results
-                          </label>
-                          <select
-                            value={selectedPoule}
-                            onChange={handlePouleChange}
-                            className="block w-full py-2 px-3 border border-gray-300 rounded"
-                          >
-                            {pouleTableData.pouleTable.map((poule, index) => (
-                              <option key={index} value={index}>
-                                {`Poule ${index + 1}`}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
 
-                        {sessionStorage.getItem("userType") === "O" &&
-                          isOwner && (
-                            <div className="flex mt-4 pb-2 space-x-2">
-                              <button
-                                onClick={updatePoules}
-                                className="bg-blue-500 text-white px-4 py-2 rounded"
-                              >
-                                Update Poules
-                              </button>
-
-                              {isUpdating && (
-                                <>
-                                  <button
-                                    onClick={submitUpdatePoules}
-                                    className="bg-green-400 text-white px-4 py-2 rounded"
-                                  >
-                                    Confirm Changes
-                                  </button>
-                                  <button
-                                    onClick={cancelUpdatePoules}
-                                    className="bg-red-400 text-white px-4 py-2 rounded"
-                                  >
-                                    Cancel Changes
-                                  </button>
-                                  {!isInputValid && (
-                                    <span className="px-4 py-2 text-red-500 italic">
-                                      Invalid input. Input a number between 0
-                                      and 5.
-                                    </span>
-                                  )}
-                                </>
-                              )}
-                            </div>
-                          )}
+                        <button
+                          onClick={updatePoules}
+                          className="bg-blue-500 text-white px-4 py-2 rounded"
+                        >
+                          Update Poules
+                        </button>
                       </div>
+                    )}
+
+                  {/* Conditional buttons and popup for updating poules */}
+                  {userType === "O" && isUpdating && (
+                    <div className="flex mt-4 pb-2 space-x-2">
+                      <button
+                        onClick={submitUpdatePoules}
+                        className="bg-green-400 text-white px-4 py-2 rounded"
+                      >
+                        Confirm Changes
+                      </button>
+                      <button
+                        onClick={cancelUpdatePoules}
+                        className="bg-red-400 text-white px-4 py-2 rounded"
+                      >
+                        Cancel Changes
+                      </button>
+                      {!isInputValid && (
+                        <span className="px-4 py-2 text-red-500 italic">
+                          Invalid input. Input a number between 0 and 5.
+                        </span>
+                      )}
                     </div>
                   )}
-
-                  <table className="table text-lg">
-                    <thead className="text-lg text-neutral">
-                      <tr className="border-b border-gray-300 h-[50px]">
-                        <th className="w-60 text-primary">Fencer</th>
-                        <th className="w-24"></th>
-                        <th className="text-center w-24">1</th>
-                        <th className="text-center w-24">2</th>
-                        <th className="text-center w-24">3</th>
-                        <th className="text-center w-24">4</th>
-                        <th className="text-center w-24">5</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {Object.entries(
-                        pouleTableData.pouleTable[pouleIndex]
-                      ).map(([fencer, results], idx) => {
-                        const resultArray = results.split(",");
-                        const cleanedFencerName = fencer.replace(
-                          / -- \d+$/,
-                          ""
-                        );
-
-                        return (
-                          <tr
-                            key={idx}
-                            className="border-b border-gray-300 h-[68px]"
-                          >
-                            <td className="w-60">{cleanedFencerName}</td>
-                            <td className="font-bold text-center border-r border-gray-300 w-24">
-                              {idx + 1}
-                            </td>
-                            {resultArray.map((result, resultIndex) => (
-                              <td
-                                key={resultIndex}
-                                className={`border border-gray-300 hover:bg-gray-100 ${
-                                  result === "-1"
-                                    ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
-                                    : ""
-                                }`}
-                              >
-                                {result === "-1" ? (
-                                  result
-                                ) : isUpdating ? (
-                                  <input
-                                    type="text"
-                                    placeholder={result}
-                                    onChange={(event) =>
-                                      handleInputChange(event, resultIndex, idx)
-                                    }
-                                    className={`w-full text-center ${
-                                      !isInputValid
-                                        ? "border-red-500"
-                                        : "border-gray-300"
-                                    }`}
-                                  />
-                                ) : (
-                                  result
-                                )}
-                              </td>
-                            ))}
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </>
-              ) : (
-                <div className="flex justify-center items-center h-full">
-                  <h2 className="text-lg font-medium">
-                    No poules available yet
-                  </h2>
                 </div>
+
+                {/* Show EndPoules Popup if visible */}
+                {isEndPoulesPopupVisible && (
+                  <EndPoules
+                    id={eventID}
+                    closeEndPoulesPopup={closeEndPoulesPopup}
+                  />
+                )}
+
+                {/* Poule Table */}
+                <table className="table text-lg">
+                  <thead className="text-lg text-neutral">
+                    <tr className="border-b border-gray-300 h-[50px]">
+                      <th className="w-60 text-primary">Fencer</th>
+                      <th className="w-24"></th>
+                      {pouleTableData.pouleTable[pouleIndex] &&
+                        Object.entries(
+                          pouleTableData.pouleTable[pouleIndex]
+                        )[0] &&
+                        Array.from({
+                          length: Object.entries(
+                            pouleTableData.pouleTable[pouleIndex]
+                          )[0][1].split(",").length,
+                        }).map((_, idx) => (
+                          <th key={idx} className="text-center w-24">
+                            {idx + 1}
+                          </th>
+                        ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pouleTableData.pouleTable[pouleIndex] ? (
+                      Object.entries(pouleTableData.pouleTable[pouleIndex]).map(
+                        ([fencer, results], idx) => {
+                          const resultArray = results.split(",");
+                          const cleanedFencerName = fencer.replace(
+                            / -- \d+$/,
+                            ""
+                          );
+
+                          return (
+                            <tr
+                              key={idx}
+                              className="border-b border-gray-300 h-[68px]"
+                            >
+                              <td className="w-60">{cleanedFencerName}</td>
+                              <td className="font-bold text-center border-r border-gray-300 w-24">
+                                {idx + 1}
+                              </td>
+                              {resultArray.map((result, resultIndex) => (
+                                <td
+                                  key={resultIndex}
+                                  className={`border border-gray-300 hover:bg-gray-100 ${result === "-1"
+                                      ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
+                                      : ""
+                                    }`}
+                                >
+                                  {result === "-1" ? (
+                                    result
+                                  ) : isUpdating ? (
+                                    <input
+                                      type="text"
+                                      placeholder={result}
+                                      onChange={(event) =>
+                                        handleInputChange(
+                                          event,
+                                          resultIndex,
+                                          idx
+                                        )
+                                      }
+                                      className={`w-full text-center ${!isInputValid
+                                          ? "border-red-500"
+                                          : "border-gray-300"
+                                        }`}
+                                    />
+                                  ) : (
+                                    result
+                                  )}
+                                </td>
+                              ))}
+                            </tr>
+                          );
+                        }
+                      )
+                    ) : (
+                      <tr className="text-center border-b border-gray-300">
+                        <td colSpan={7}>No poules available yet</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Create Poule Popup --> need to pass in submit/close */}
+              {isCreatePopupVisible && (
+                <CreatePoules onClose={closeCreatePopup} eventID={eventID} />
               )}
             </div>
-            {/* Create Event Popup --> need to pass in submit/close */}
-            {isCreatePopupVisible && (
-              <CreatePoules
-                onClose={closeCreatePopup}
-                onSubmit={submitCreatePopup}
-                recommendedPoulesData={recommendedPoulesData}
-              />
-            )}
           </Tab>
           <Tab label="Bracket">
             <div className="py-4 h-full w-full">
@@ -585,12 +687,12 @@ export default function ViewEvent() {
             {isUpdatePopupVisible && (
               <UpdateBracketMatch
                 onClose={closeUpdatePopup}
-                onSubmit={submitUpdateBracketMatches}
+                eventID={eventID}
                 matches={matches}
               />
             )}
           </Tab>
-          <Tab label="Ranking">
+          <Tab label="Placements">
             <div className="py-4">
               {/* <h2 className="text-lg font-medium mb-2">Ranking</h2> */}
               {paginatedData.length > 0 ? (
@@ -601,7 +703,6 @@ export default function ViewEvent() {
                       <th className="text-center w-20">Rank</th>
                       <th className="w-1/2">Name</th>
                       <th className="text-center">Country</th>
-                      <th className="text-center">Points</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -613,7 +714,6 @@ export default function ViewEvent() {
                         <td className="text-center">{index + 1}</td>
                         <td>{item.fencerName}</td>
                         <td className="text-center">{item.country}</td>
-                        <td className="text-center">{item.poulePoints}</td>
                       </tr>
                     ))}
                   </tbody>

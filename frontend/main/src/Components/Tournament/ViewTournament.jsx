@@ -12,7 +12,6 @@ import CreateEvent from "./CreateEvent.jsx";
 import UpdateEvent from "./UpdateEvent.jsx";
 import DeleteEvent from "./DeleteEvent.jsx";
 import SubmitButton from "../Others/SubmitButton.jsx";
-import { set } from "react-hook-form";
 
 function formatTimeTo24Hour(timeString) {
   const [hours, minutes] = timeString.split(":"); // Get hours and minutes
@@ -28,12 +27,14 @@ export default function ViewTournament() {
   const [isOwner, setIsOwner] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [addEventError, setAddEventError] = useState(null);
   const [eventsArray, setEventsArray] = useState([]);
   // One Popup for create-event the other for update-event
   const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
   const [isUpdateEventPopupVisible, setIsUpdateEventPopupVisible] =
     useState(false);
   const [registeredEvents, setRegisteredEvents] = useState([]);
+  const [registerEventError, setRegisterEventError] = useState(null);
   const [isDeleteEventPopUpVisible, setIsDeleteEventPopUpVisible] =
     useState(false);
   // Selected Event for deletion / update (organiser)
@@ -44,9 +45,9 @@ export default function ViewTournament() {
     { value: "MF", label: "Men's Foil" },
     { value: "ME", label: "Men's Épée" },
     { value: "MS", label: "Men's Sabre" },
-    { value: "FF", label: "Women's Foil" },
-    { value: "FE", label: "Women's Épée" },
-    { value: "FS", label: "Women's Sabre" },
+    { value: "WF", label: "Women's Foil" },
+    { value: "WE", label: "Women's Épée" },
+    { value: "WS", label: "Women's Sabre" },
   ];
   const [eventTypes, setEventTypes] = useState(allEventTypes);
   const [newEventsArray, setNewEventsArray] = useState([]);
@@ -65,8 +66,18 @@ export default function ViewTournament() {
       const eventsArray = response.data.events; // Accessing events directly
       setEventsArray(eventsArray);
     } catch (error) {
-      console.error("Error fetching tournament data:", error);
-      setError("Failed to load tournament data.");
+      if (error.response) {
+        console.log("Error response data: ", error.response.data);
+        setError(error.response.data);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.log("Error request: ", error.request);
+        setError("Tournament Data has failed to load, please try again later.");
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log("Unknown Error: " + error);
+        setError("Tournament Data has failed to load, please try again later.");
+      }
     } finally {
       setLoading(false);
     }
@@ -76,12 +87,28 @@ export default function ViewTournament() {
   const fetchRegisteredEvents = async () => {
     try {
       const response = await FencerService.getFencerUpcomingEvents();
+      console.log("Response Data: ", response.data);
       // Assuming response.data is an array of Event Objects
       const eventIds = response.data.map((event) => event.id);
+      console.log("Registered Events: ", eventIds);
       setRegisteredEvents(eventIds);
     } catch (error) {
-      console.log("Error fetching registered events", error);
-      setError("Failed to load registered events");
+      if (error.response) {
+        console.log("Error response data: ", error.response.data);
+        setError(error.response.data);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.log("Error request: ", error.request);
+        setError(
+          "Registered Event Data has failed to load, please try again later."
+        );
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log("Unknown Error: " + error);
+        setError(
+          "Registered Event Data has failed to load, please try again later."
+        );
+      }
     }
   };
 
@@ -99,8 +126,11 @@ export default function ViewTournament() {
       }
       setIsOwner(found);
     } catch (error) {
-      console.error("Error fetching upcoming tournaments:", error);
-      setError("Failed to load upcoming tournaments.");
+      console.error(
+        "Error fetching upcoming tournaments for organiser:",
+        error
+      );
+      setError("Failed to load Tournament Data.");
     }
   };
 
@@ -151,18 +181,12 @@ export default function ViewTournament() {
     return <div className="mt-10">Loading...</div>; // Show loading state
   }
   if (error) {
-    return <div className="mt-10">{error}</div>; // Show error message if any
+    return (
+      <div className="flex justify-between mr-20 my-10">
+        <h1 className=" ml-12 text-left text-2xl font-semibold">{error}</h1>
+      </div>
+    ); // Show error message if any
   }
-
-  const handleSubmit = async (data) => {
-    try {
-      await FencerService.registerEvent(data).then(() => {
-        navigate("/fencer-dashboard");
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   const formatDateRange = (start, end) => {
     const startDate = new Date(start).toLocaleDateString("en-GB", {
@@ -275,22 +299,31 @@ export default function ViewTournament() {
   };
   // "Confirm Changes" --> Submit Events Array
   const submitEventsArray = async () => {
-    // Only submit new events --> old events have key "fencers"
-    console.log("New Events Array: " + JSON.stringify(newEventsArray));
     try {
       const response = await EventService.createEvents(
         tournamentID,
         newEventsArray
       );
+      // Set isCreating to false
+      setIsCreating(false);
+      // Set NewEventArray to empty
+      setNewEventsArray([]);
+      // Only re-fetch data if successful
+      fetchData();
     } catch (error) {
-      console.log(error);
+      if (error.response) {
+        console.log("Error response data: ", error.response.data);
+        setAddEventError(error.response.data);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.log("Error request: ", error.request);
+        setAddEventError("An error has occured, please try again later.");
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log("Unknown Error: " + error);
+        setAddEventError("An error has occured, please try again later.");
+      }
     }
-    // Set isCreating to false
-    setIsCreating(false);
-    // Set NewEventArray to empty
-    setNewEventsArray([]);
-    // Refetch Event Data
-    fetchData();
   };
 
   // Check if today is past the start date of the tournament (for the register button)
@@ -308,7 +341,7 @@ export default function ViewTournament() {
       case "M":
         eventName += "Men's ";
         break;
-      case "F":
+      case "W":
         eventName += "Women's ";
         break;
     }
@@ -332,15 +365,62 @@ export default function ViewTournament() {
     console.log("Registering event with ID:", eventID);
     try {
       await EventService.registerEvent(eventID).then(() => {
-        setRegisteredEvents((prevEvents) => [...prevEvents, eventID]);
-        navigate("/fencer-dashboard");
+        fetchRegisteredEvents();
+        fetchData();
       });
     } catch (error) {
-      if (error.response && error.response.status === 403) {
-        console.error("You do not have permission to register for this event.");
+      if (error.response) {
+        console.log("Error response data: ", error.response.data);
+        
+        setRegisterEventError(error.response.data);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.log("Error request: ", error.request);
+        setRegisterEventError(
+          "Event registration has failed, please try again later."
+        );
       } else {
-        console.log(error);
+        // Something happened in setting up the request that triggered an Error
+        console.log("Unknown Error: " + error);
+        setRegisterEventError(
+          "Event registration has failed, please try again later."
+        );
       }
+      // Clear the error message after 5 seconds
+      setTimeout(() => {
+        setRegisterEventError(null);
+      }, 5000);
+    }
+  };
+
+  const unregisterEvent = async (eventID) => {
+    console.log("Unregistering event with ID:", eventID);
+    try {
+      await EventService.unregisterEvent(eventID).then(() => {
+        fetchRegisteredEvents();
+        fetchData();
+      });
+    } catch (error) {
+      if (error.response) {
+        console.log("Error response data: ", error.response.data);
+        setRegisterEventError(error.response.data);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.log("Error request: ", error.request);
+        setRegisterEventError(
+          "Event registration/deregistration has failed, please try again later."
+        );
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log("Unknown Error: " + error);
+        setRegisterEventError(
+          "Event registration/deregistration has failed, please try again later."
+        );
+      }
+      // Clear the error message after 5 seconds
+      setTimeout(() => {
+        setRegisterEventError(null);
+      }, 5000);
     }
   };
 
@@ -387,9 +467,6 @@ export default function ViewTournament() {
     return `${formattedDate}`;
   };
 
-  console.log("----------------");
-  console.log(tournamentData);
-  console.log("id:", tournamentID);
   return (
     // Grid for Navbar, Sidebar and Content
     <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">
@@ -438,7 +515,7 @@ export default function ViewTournament() {
           </Tab>
           <Tab label="Events">
             <table
-              className="table text-lg text-center border-collapse "
+              className="table text-lg text-center border-collapse"
               style={{ position: "relative", zIndex: 1 }}
             >
               {/* head */}
@@ -468,14 +545,18 @@ export default function ViewTournament() {
                     >
                       {/* <td>Event details</td> */}
                       <td>
-                        <Link
-                          to={{
-                            pathname: `/${tournamentID}/view-event/${event.id}`,
-                          }}
-                          className="underline hover:text-primary"
-                        >
-                          {constructEventName(event.gender, event.weapon)}
-                        </Link>
+                        {isCreating ? (
+                          constructEventName(event.gender, event.weapon)
+                        ) : (
+                          <Link
+                            to={{
+                              pathname: `/${tournamentID}/view-event/${event.id}`,
+                            }}
+                            className="underline hover:text-primary"
+                          >
+                            {constructEventName(event.gender, event.weapon)}
+                          </Link>
+                        )}
                       </td>
                       <td>{formatDate(event.eventDate || event.date)}</td>
                       <td>{formatTimeTo24Hour(event.startTime)}</td>
@@ -483,30 +564,43 @@ export default function ViewTournament() {
                       <td>{event.fencers ? event.fencers.length : 0}</td>
                       <td>
                         {sessionStorage.getItem("userType") === "F" &&
-                          (registeredEvents.includes(event.id) ? (
+                          isPastStartDate() && (
                             <SubmitButton
-                              disabled
-                              styling={`h-12 w-full justify-center rounded-md my-5 text-lg font-semibold leading-6 text-white shadow-sm ${
-                                isPastStartDate()
-                                  ? "bg-grey-400"
-                                  : "bg-green-400"
-                              }`}
+                              disabled={true}
+                              styling={`h-12 w-40 justify-center rounded-md my-5 text-lg font-semibold leading-6 text-white shadow-sm bg-gray-500`}
                             >
-                              {isPastStartDate()
-                                ? "Signups Closed"
-                                : "Registered"}
+                              Signups Ended
                             </SubmitButton>
-                          ) : (
+                          )}
+                        {sessionStorage.getItem("userType") === "F" &&
+                          !isPastStartDate() &&
+                          registeredEvents.includes(event.id) && (
                             <SubmitButton
-                              onSubmit={() => registerEvent(event.id)}
+                              styling={`h-12 w-40 justify-center rounded-md my-5 text-lg font-semibold leading-6 text-white shadow-sm bg-green-400`}
+                              onSubmit={() => unregisterEvent(event.id)}
+                            >
+                              Unregister
+                            </SubmitButton>
+                          )}
+                        {sessionStorage.getItem("userType") === "F" &&
+                          !isPastStartDate() &&
+                          !registeredEvents.includes(event.id) && (
+                            <SubmitButton
+                              styling={`h-12 w-40 justify-center rounded-md my-5 bg-indigo-600 text-lg font-semibold leading-6 text-white shadow-sm `}
+                              onSubmit={() => {
+                                registerEvent(event.id);
+                              }}
                             >
                               Register
                             </SubmitButton>
-                          ))}
+                          )}
                         {sessionStorage.getItem("userType") === "O" &&
-                          isOwner && 
-                          !newEventsArray.some(newEvent => newEvent.id === event.id) && 
-                          getTournamentStatus(tournamentData.startDate, tournamentData.endDate) === "Upcoming" && (
+                          isOwner &&
+                          !isCreating &&
+                          getTournamentStatus(
+                            tournamentData.startDate,
+                            tournamentData.endDate
+                          ) === "Upcoming" && (
                             <DropdownMenu
                               entity="Event"
                               updateEntity={() => updateEvent(event)}
@@ -528,37 +622,56 @@ export default function ViewTournament() {
                 )}
                 {/* Add Event button row only if organiser and isOwner */}
                 {sessionStorage.getItem("userType") === "O" && isOwner && (
-                  <tr>
-                    <td colSpan="6" className="text-center">
-                      {isCreating && (
-                        <button
-                          onClick={cancelCreatingChanges}
-                          className="bg-red-400 text-white px-4 py-2 rounded"
-                        >
-                          Cancel Changes
-                        </button>
-                      )}
-                      {isOwner && 
-                       getTournamentStatus(tournamentData.startDate, tournamentData.endDate) === "Upcoming" && (
-                        <button
-                        onClick={openCreatePopup}
-                        className="bg-blue-500 text-white px-4 py-2 rounded mx-36 mt-10"
-                      >
-                        Add Event
-                      </button>)}
-                      {isCreating && (
-                        <button
-                          onClick={submitEventsArray}
-                          className="bg-green-400 text-white px-4 py-2 rounded"
-                        >
-                          Confirm Changes
-                        </button>
-                      )}
-                    </td>
-                  </tr>
+                  <>
+                    {addEventError && (
+                      <tr className="border-transparent">
+                        <td colSpan="6" className="text-center text-red-500">
+                          {addEventError}
+                        </td>
+                      </tr>
+                    )}
+                    <tr>
+                      <td colSpan="6" className="text-center">
+                        {isCreating && (
+                          <button
+                            onClick={cancelCreatingChanges}
+                            className="bg-red-400 text-white px-4 py-2 rounded"
+                          >
+                            Cancel Changes
+                          </button>
+                        )}
+                        {isOwner &&
+                          getTournamentStatus(
+                            tournamentData.startDate,
+                            tournamentData.endDate
+                          ) === "Upcoming" && (
+                            <button
+                              onClick={openCreatePopup}
+                              className="bg-blue-500 text-white px-4 py-2 rounded mx-36 mt-10"
+                            >
+                              Add Event
+                            </button>
+                          )}
+                        {isCreating && (
+                          <button
+                            onClick={submitEventsArray}
+                            className="bg-green-400 text-white px-4 py-2 rounded"
+                          >
+                            Confirm Changes
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  </>
                 )}
               </tbody>
             </table>
+            {registerEventError && (
+              <h2 className="text-red-500 text-center mt-4">
+                {" "}
+                {registerEventError}{" "}
+              </h2>
+            )}
           </Tab>
         </Tabs>
         <div style={{ position: "fixed", zIndex: 10 }}>

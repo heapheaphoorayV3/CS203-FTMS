@@ -15,9 +15,12 @@ import cs203.ftms.overall.dto.DirectEliminationBracketDTO;
 import cs203.ftms.overall.dto.DirectEliminationBracketFencerDTO;
 import cs203.ftms.overall.dto.UpdateDirectEliminationMatchDTO;
 import cs203.ftms.overall.exception.EntityDoesNotExistException;
+import cs203.ftms.overall.exception.PouleMatchesNotDoneException;
 import cs203.ftms.overall.model.tournamentrelated.DirectEliminationMatch;
 import cs203.ftms.overall.model.tournamentrelated.Event;
 import cs203.ftms.overall.model.tournamentrelated.Match;
+import cs203.ftms.overall.model.tournamentrelated.Poule;
+import cs203.ftms.overall.model.tournamentrelated.PouleMatch;
 import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
 import cs203.ftms.overall.repository.tournamentrelated.DirectEliminationMatchRepository;
 import cs203.ftms.overall.repository.tournamentrelated.MatchRepository;
@@ -81,6 +84,18 @@ public class DirectEliminationService {
     @Transactional
     public void createAllDEMatches(int eid) {
         Event event = eventService.getEvent(eid);
+        // check whether all poule matches are done
+        if (event.getPoules().isEmpty()) {
+            throw new PouleMatchesNotDoneException("Poules not created yet!");
+        }
+
+        for (Poule poule : event.getPoules()) {
+            for (PouleMatch pouleMatch : poule.getPouleMatches()) {
+                if (pouleMatch.getWinner() == -1) {
+                    throw new PouleMatchesNotDoneException("All poule matches are not done!");
+                }
+            }
+        }
         CustomMatchHeap heap = createAndSaveMatches(event);
         Map<String, List<TournamentFencer>> mappings = pouleService.getFencersAfterPoules(event);
         List<TournamentFencer> fencers = getSortedFencers(mappings);

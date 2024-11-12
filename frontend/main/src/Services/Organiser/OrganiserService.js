@@ -7,6 +7,14 @@ class OrganiserService {
     return await ProtectedAPI.get(`${baseURL}/profile`);
   }
 
+  async updateProfile(data) {
+    return await ProtectedAPI.put(`${baseURL}/update-profile`, data);
+  }
+
+  async changePassword(data) {
+    return await ProtectedAPI.put(`${baseURL}/change-password`, data);
+  }
+
   async getAllHostedTournaments() {
     return await ProtectedAPI.get(`${baseURL}/tournaments`);
   }

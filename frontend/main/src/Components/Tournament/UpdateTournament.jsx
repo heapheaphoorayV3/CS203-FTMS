@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import TournamentService from "../../Services/Tournament/TournamentService";
@@ -13,6 +13,8 @@ const UpdateTournament = ({ selectedTournament, onClose }) => {
     setValue,
     formState: { errors },
   } = useForm();
+
+  const [error, setError] = useState(null);
 
   const signupEndDate = watch("signupEndDate");
   const startDate = watch("startDate");
@@ -49,7 +51,21 @@ const UpdateTournament = ({ selectedTournament, onClose }) => {
       await TournamentService.updateTournament(selectedTournament.id, formData); // Call the update method
       onClose(); // Redirect to a view page after update
     } catch (error) {
-      console.error("Error updating tournament:", error);
+      if (error.response) {
+        console.log("Error response data: ", error.response.data);
+        if (typeof error.response.data === 'object') {
+          setError(Object.keys(error.response.data)[0]);
+        }
+        else setError(error.response.data);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.log("Error request: ", error.request);
+        setError("Failed to update tournament, please try again later.");
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log("Unknown Error: " + error);
+        setError("Failed to update tournament, please try again later.");
+      }
     }
   };
 
@@ -60,7 +76,7 @@ const UpdateTournament = ({ selectedTournament, onClose }) => {
     >
       <div className="mt-20 bg-white rounded-lg w-1/3 max-h-[70vh] overflow-y-hidden flex flex-col justify-center lg:pl-8">
         <div className="flex flex-col overflow-y-auto pr-4 my-4">
-          
+
           {/* Close Button --> ml-auto pushes button to the right of the form */}
           <button
             onClick={onClose}
@@ -277,7 +293,11 @@ const UpdateTournament = ({ selectedTournament, onClose }) => {
                 </p>
               )}
             </div>
-
+            {error && (
+              <div className="md:col-span-2">
+                <h2 className="text-red-500 text-center"> {error} </h2>
+              </div>
+            )}
             {/* Submit Button */}
             <div className="md:col-span-2">
               <button
