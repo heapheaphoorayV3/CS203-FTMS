@@ -14,9 +14,11 @@ public class CleanTournamentDTO {
     private String description;
     private String rules;
     private List<CleanEventDTO> events;
+    private char difficulty;
+    private int advancementRate;
     
     public CleanTournamentDTO(int id, String name, String organiserName, LocalDate signupEndTime, LocalDate startDate, LocalDate endDate,
-            String location, String description, String rules, List<CleanEventDTO> events) {
+            String location, String description, String rules, List<CleanEventDTO> events, char difficulty, int advancementRate) {
         this.id = id;
         this.name = name;
         this.organiserName = organiserName;
@@ -27,6 +29,8 @@ public class CleanTournamentDTO {
         this.description = description;
         this.rules = rules;
         this.events = events;
+        this.difficulty = difficulty;
+        this.advancementRate = advancementRate;
     }
 
     public String getName() {
@@ -109,7 +113,21 @@ public class CleanTournamentDTO {
         this.id = id;
     }
 
-    
+    public char getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(char difficulty) {
+        this.difficulty = difficulty;
+    }
+
+    public int getAdvancementRate() {
+        return advancementRate;
+    }
+
+    public void setAdvancementRate(int advancementRate) {
+        this.advancementRate = advancementRate;
+    }
 
     
 }

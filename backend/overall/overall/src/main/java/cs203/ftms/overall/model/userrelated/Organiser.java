@@ -12,10 +12,12 @@ public class Organiser extends User {
     @Column(name = "verified")
     private boolean verified;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "organiser")
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "organiser", orphanRemoval = true)
     private Set<Tournament> tourHost;
 
-    public Organiser() {}
+    public Organiser() {
+        this.tourHost = new HashSet<>();
+    }
 
     public Organiser(String name, String email, String password, String contactNo, String country) {
         super(name, email, password, contactNo, country, "ROLE_ORGANISER");

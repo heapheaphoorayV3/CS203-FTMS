@@ -2,7 +2,6 @@ package cs203.ftms.overall.dto;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Set;
 
 import cs203.ftms.overall.validation.ValidGender;
 import cs203.ftms.overall.validation.ValidWeapon;
@@ -23,10 +22,8 @@ public class CreateEventDTO{
     @FutureOrPresent(message = "Date must be in the future")
     private LocalDate date;
 
-    // @FutureOrPresent(message = "Start time must be in the future")
     private LocalTime startTime;
 
-    // @FutureOrPresent(message = "End time must be in the future")
     private LocalTime endTime;
 
 

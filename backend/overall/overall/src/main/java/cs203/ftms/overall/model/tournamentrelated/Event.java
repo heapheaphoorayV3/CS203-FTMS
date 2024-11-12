@@ -17,7 +17,7 @@ public class Event {
     private int id;
 
     @ManyToOne
-    @JoinColumn(name = "tournament_id", nullable = false)
+    @JoinColumn(name = "tournament_id")
     private Tournament tournament; 
 
     @OneToMany(mappedBy = "event")

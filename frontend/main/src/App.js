@@ -4,24 +4,25 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import FencerDashboard from "./Components/FencerDashboard";
 import CreateTournament from "./Components/Tournament/CreateTournament";
 import OrganiserDashboard from "./Components/OrganiserDashboard";
+import AdminDashboard from "./Components/Admin/AdminDashboard";
 import CreateEvent from "./Components/Tournament/CreateEvent";
 import SignUpEvent from "./Components/Tournament/SignUpEvent";
 import SignupOptions from "./Components/Authentication/SignupOptions";
 import SignIn from "./Components/Authentication/SignIn";
+import ForgotPassword from "./Components/Authentication/ForgotPassword";
+import ResetPassword from "./Components/Authentication/ResetPassword";
 import SignUpFencer from "./Components/Authentication/SignUpFencer";
 import SignUpOrganiser from "./Components/Authentication/SignUpOrganiser";
 import DefaultLayout from "./Layouts/DefaultLayout";
-import UnauthenticatedLayout from "./Layouts/UnauthenticatedLayout";
-import AuthLayout from "./Layouts/AuthLayout";
-import AdminLayout from "./Layouts/AdminLayout";
 import ViewTournament from "./Components/Tournament/ViewTournament";
-import ProtectedRoute from "./Components/Authentication/ProtectedRoute";
 import ViewEvent from "./Components/Tournament/ViewEvent";
 import Tournaments from "./Components/Tournament/Tournaments";
-import VerifyOrganiser from "./Components/Admin/VerifyOrganiser";
+import VerifyOrganisers from "./Components/Admin/VerifyOrganisers";
 import LandingPage from "./Components/Others/LandingPage";
 import InternationalRanking from "./Components/InternationalRanking";
 import AuthProvider from "./Components/Authentication/AuthProvider";
+import Chatbot from "./Components/Chatbot";
+
 
 function App() {
   return (
@@ -32,12 +33,14 @@ function App() {
         <Route element={<DefaultLayout />}>
           <Route path="/" element={<LandingPage />} />
           <Route path="/signin" element={<SignIn />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/signup-options" element={<SignupOptions />} />
           <Route path="/signup-fencer" element={<SignUpFencer />} />
           <Route path="/signup-organiser" element={<SignUpOrganiser />} />
           <Route path="/tournaments" element={<Tournaments />} />
           <Route path="/tournaments/:tournamentID" element={<ViewTournament />} />
-          <Route path="/view-event/:eventID" element={<ViewEvent />} />
+          <Route path="/:tournamentID/view-event/:eventID" element={<ViewEvent />} />
           <Route path="/international-ranking" element={<InternationalRanking />} />
         </Route>
 
@@ -59,10 +62,15 @@ function App() {
             element={<CreateEvent />}
           />
           <Route path="/signup-event" element={<SignUpEvent />} />
-          <Route path="/verify-organiser" element={<VerifyOrganiser />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/verify-organisers" element={<VerifyOrganisers />} />
           <Route
             path="/international-ranking"
             element={<InternationalRanking />}
+          />
+          <Route
+            path="/chatbot"
+            element={<Chatbot />}
           />
         </Route>
       </Routes>

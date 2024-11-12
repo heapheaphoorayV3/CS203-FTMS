@@ -23,15 +23,29 @@ public class AdminService {
         this.mailService = mailService;
     }
 
-    public CleanAdminDTO getCleanAdmin(Admin a) {
-        if (a == null) return null; 
-        return new CleanAdminDTO(a.getId(), a.getName(), a.getEmail(), a.getContactNo(), a.getCountry());
+    
+    /** 
+     * @param admin Admin object
+     * @return Admin object without sensitive information
+     */
+    public CleanAdminDTO getCleanAdmin(Admin admin) {
+        if (admin == null) throw new EntityNotFoundException("Admin not found"); 
+        return new CleanAdminDTO(admin.getId(), admin.getName(), admin.getEmail(), admin.getContactNo(), admin.getCountry());
     }
 
+    
+    /** 
+     * @return List of unverified organisers
+     */
     public List<Organiser> getUnverifiedOrgs() {
         return organiserRepository.findByVerified(false);
     }
 
+    
+    
+    /** 
+     * @param dto List of organiser ids to approve and deny
+     */
     public void verifyOrg(VerifyOrgDTO dto) {
         for (int oid : dto.getApprove()) {
             Organiser o = organiserRepository.findById(oid).orElseThrow(() -> new EntityNotFoundException("Organiser with id " + oid + " not found"));

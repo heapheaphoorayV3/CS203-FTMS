@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import PaginationButton from "./Others/Pagination";
+import PaginationButton from "./Others/PaginationButton";
 import FencerService from "../Services/Fencer/FencerService";
+import SearchBar from "./Others/SearchBar";
 
 export default function InternationalRanking() {
   const [rankingData, setRankingData] = useState(null);
@@ -13,18 +14,33 @@ export default function InternationalRanking() {
   const [paginatedData, setPaginatedData] = useState([]);
   const limit = 10;
 
-  const testData = Array.from({ length: 20 }, (_, index) => ({
-    id: index + 1,
-    name: "Name",
-    country: "SG",
-    score: 0,
-  }));
-
   useEffect(() => {
     const fetchInternationalRanking = async () => {
       setLoading(true);
+      let response;
       try {
-        const response = await FencerService.getInternationalRanking();
+        switch (`${selectedGender}-${selectedWeapon}`) {
+          case "M-S":
+            response = await FencerService.getMenSabreRanking();
+            break;
+          case "W-S":
+            response = await FencerService.getWomenSabreRanking();
+            break;
+          case "M-E":
+            response = await FencerService.getMenEpeeRanking();
+            break;
+          case "W-E":
+            response = await FencerService.getWomenEpeeRanking();
+            break;
+          case "M-F":
+            response = await FencerService.getMenFoilRanking();
+            break;
+          case "W-F":
+            response = await FencerService.getWomenFoilRanking();
+            break;
+          default:
+            throw new Error("Error");
+        }
         setRankingData(response.data);
       } catch (error) {
         console.error("Error fetching international ranking: ", error);
@@ -35,7 +51,7 @@ export default function InternationalRanking() {
     };
 
     fetchInternationalRanking();
-  }, []);
+  }, [selectedGender, selectedWeapon]);
 
   useEffect(() => {
     if (Array.isArray(rankingData) && rankingData.length) {
@@ -72,14 +88,11 @@ export default function InternationalRanking() {
 
   const filteredFencerData = paginatedData?.filter((fencer) => {
     return (
-      fencer.name.toLowerCase().includes(InputSearch.toLowerCase()) &&
-      (selectedGender ? fencer.gender === selectedGender : true) &&  
-      (selectedWeapon ? fencer.weapon === selectedWeapon : true) 
+      fencer.name.toLowerCase().includes(InputSearch.toLowerCase())
+      // (selectedGender ? fencer.gender === selectedGender : true) &&
+      // (selectedWeapon ? fencer.weapon === selectedWeapon : true)
     );
   });
-
-  console.log("==========");
-  console.log(filteredFencerData);
 
   if (loading) {
     return <div className="mt-10">Loading...</div>; // Show loading state
@@ -95,27 +108,11 @@ export default function InternationalRanking() {
         International Ranking
       </h1>
       <div className="w-full max-w-sm min-w-[200px] ml-12 pb-8">
-        <div className="relative">
-          <input
-            className="w-full bg-slate-50 placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md pl-3 pr-28 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-            placeholder="Search Fencers by Name..."
-            onChange={handleSearch}
-          />
-          <div className="absolute top-1 right-1 flex items-center pt-1.5 px-1">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="w-4 h-4 mr-2"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z"
-                clip-rule="evenodd"
-              />
-            </svg>
-          </div>
-        </div>
+        <SearchBar
+          value={InputSearch}
+          onChange={handleSearch}
+          placeholder="Search Fencers by Name..."
+        />
         <div className="grid grid-flow-col gap-4">
           <div className="mt-4">
             <label className="block font-medium mb-1 ml-1">Select Gender</label>
@@ -144,9 +141,10 @@ export default function InternationalRanking() {
       </div>
 
       <div className="ml-12 mr-8 mb-8 overflow-x-auto">
+      {filteredFencerData.length > 0 ? (
         <table className="table text-lg border-collapse">
           {/* head */}
-          <thead className="text-lg text-neutral">
+          <thead className="text-lg text-primary">
             <tr className="border-b border-gray-300">
               <th className="text-center w-20">Rank</th>
               <th className="w-1/2">Name</th>
@@ -167,7 +165,13 @@ export default function InternationalRanking() {
               </tr>
             ))}
           </tbody>
-        </table>
+        </table>) : (
+                  <div className="flex justify-center items-center h-full">
+                    <h2 className="text-lg font-medium">
+                      No Fencer found
+                    </h2>
+                  </div>
+                )}
         <div className="flex flex-col mt-2 justify-center items-center">
           <PaginationButton
             totalPages={totalPages}

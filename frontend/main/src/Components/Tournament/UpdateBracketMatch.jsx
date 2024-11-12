@@ -1,12 +1,14 @@
 import { React, useEffect, useState } from "react";
-import { get, set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { XCircleIcon } from "@heroicons/react/16/solid";
+import EventService from "../../Services/Event/EventService";
 
-const UpdateBracketMatch = ({ matches, onClose, onSubmit }) => {
+const UpdateBracketMatch = ({ matches, onClose, eventID }) => {
   const [matchData, setMatchData] = useState(["Select Match"]); // Match data for the dropdown
   const [showConfirmation, setShowConfirmation] = useState(false); // Confirmation popup state
   const [trackSelectedMatch, setTrackSelectedMatch] = useState(null); // Track the selected match
   const [pendingData, setPendingData] = useState(null); // State to store form data temporarily
+  const [error, setError] = useState(null); // Error state
   const {
     register,
     handleSubmit,
@@ -16,6 +18,7 @@ const UpdateBracketMatch = ({ matches, onClose, onSubmit }) => {
 
   let roundTypeValue = watch("roundTypeInput");
   let roundTypes = ["Select Round"];
+  let watchedfencer1Score = watch("firstScore");
 
   // The number of match types/rounds (Top 16, Quarters, Semis, Finals, etc)
   let numRoundTypes = Math.log2(matches.length + 1); // Add 1 to account for the final match
@@ -58,7 +61,39 @@ const UpdateBracketMatch = ({ matches, onClose, onSubmit }) => {
   // To pass this particular match data to the ViewEvent component, confirms submission if the user chooses "Yes"
   const confirmSubmit = () => {
     setShowConfirmation(false); // Hide the popup
-    onSubmit({ ...pendingData, trackSelectedMatch }); // Submit the form data
+    submitUpdateBracketMatches({ ...pendingData, trackSelectedMatch }); // Submit the form data
+  };
+
+  // Method to submit the updated match
+  const submitUpdateBracketMatches = async (data) => {
+    try {
+      const matchId = data.trackSelectedMatch.id;
+
+      // Structure the combined data to match the backend's expected DTO format
+      const combinedData = {
+        matchId: matchId,
+        score1: data.firstScore,
+        score2: data.secondScore,
+      };
+
+      console.log(combinedData);
+
+      await EventService.updateDEMatch(eventID, combinedData);
+      onClose();
+    } catch (error) {
+      if (error.response) {
+        console.log("Error response data: ", error.response.data);
+        setError(error.response.data);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.log("Error request: ", error.request);
+        setError("Failed to update match, please try again later.");
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log("Unknown Error: " + error);
+        setError("Failed to update match, please try again later.");
+      }
+    }
   };
 
   return (
@@ -145,7 +180,7 @@ const UpdateBracketMatch = ({ matches, onClose, onSubmit }) => {
                 required: "Please fill this in!",
                 validate: (value) => {
                   return (
-                    (value >= 0) ||
+                    (value >= 0 && value <= 15) ||
                     "Please enter a valid score"
                   );
                 },
@@ -172,10 +207,13 @@ const UpdateBracketMatch = ({ matches, onClose, onSubmit }) => {
               {...register("secondScore", {
                 required: "Please fill this in!",
                 validate: (value) => {
-                  return (
-                    (value >= 0) ||
-                    "Please enter a valid score"
-                  );
+                  if (value < 0 || value > 15) {
+                    return "Please enter a valid score (0 - 15 inclusive)";
+                  }
+                  if (value === watchedfencer1Score) {
+                    return "Please enter a valid score (no ties)";
+                  }
+                  return true;
                 },
               })}
               className={`w-full border rounded-md p-2 ${errors.secondScore
@@ -215,11 +253,12 @@ const UpdateBracketMatch = ({ matches, onClose, onSubmit }) => {
                 </button>
                 <button
                   onClick={() => setShowConfirmation(false)}
-                  className="px-4 py-2 bg-gray-300 rounded-lg"
+                  className="px-4 py-2 bg-red-400 text-white rounded-lg"
                 >
                   Cancel
                 </button>
               </div>
+              {error && <h2 className="text-red-500 text-center mt-4"> {error} </h2>}
             </div>
           </div>
         )}

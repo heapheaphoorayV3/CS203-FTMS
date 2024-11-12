@@ -2,9 +2,11 @@ package cs203.ftms.overall;
 
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.doNothing;
+import org.mockito.Mockito;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
@@ -31,6 +33,7 @@ import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.model.userrelated.User;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
+import cs203.ftms.overall.security.service.JwtService;
 import cs203.ftms.overall.service.admin.MailService;
 import cs203.ftms.overall.service.authentication.AuthenticationService;
 import jakarta.persistence.EntityNotFoundException;
@@ -49,6 +52,8 @@ class AuthenticationServiceTest {
     @Mock
     private MailService mailService;
 
+    @Mock
+    private JwtService jwtService;
 
     @InjectMocks
     private AuthenticationService authenticationService;
@@ -157,7 +162,6 @@ class AuthenticationServiceTest {
 
         when(passwordEncoder.encode(any(String.class))).thenReturn("hashedPassword");
         when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArguments()[0]);
-        doNothing().when(mailService).sendMail(any(String.class), any(String.class), any(String.class));
 
         // Act
         User createdOrganiser = authenticationService.createOrganiser(registerOrganiserDTO);
@@ -260,4 +264,97 @@ class AuthenticationServiceTest {
         // Act & Assert
         assertThrows(EntityNotFoundException.class, () -> authenticationService.getUser(userId));
     }
+
+    @Test
+    void forgetPassword_UserFound_ReturnsToken() {
+        // Arrange
+        String email = "user@example.com";
+        User user = new Fencer();
+        user.setEmail(email);
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+
+        // Act
+        String result = authenticationService.forgetPassword(email);
+
+        // Assert
+        assertNotNull(user.getVerificationToken());
+        assertTrue(result.contains("Email sent"));
+        verify(userRepository).findByEmail(email);
+        verify(userRepository).save(user);
+        verify(mailService).sendMail(any(String.class), any(String.class), any(String.class));
+    }
+
+    @Test
+    void forgetPassword_UserNotFound_ReturnsUserNotFound() {
+        // Arrange
+        String email = "user@example.com";
+        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+        // Act
+        String result = authenticationService.forgetPassword(email);
+
+        // Assert
+        assertEquals("User not found", result);
+        verify(userRepository).findByEmail(email);
+    }
+
+    @Test
+    void resetPassword_ValidToken_Success() {
+        // Arrange
+        String token = UUID.randomUUID().toString();
+        String newPassword = "NewPassword123!";
+        User user = new Fencer();
+        user.setVerificationToken(token);
+        when(userRepository.findByVerificationToken(token)).thenReturn(Optional.of(user));
+        when(passwordEncoder.encode(newPassword)).thenReturn("hashedPassword");
+
+        // Act
+        String result = authenticationService.resetPassword(token, newPassword);
+
+        // Assert
+        assertEquals("Password changed", result);
+        assertEquals("hashedPassword", user.getPassword());
+        assertNull(user.getVerificationToken());
+        verify(userRepository).findByVerificationToken(token);
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    void resetPassword_InvalidToken_ReturnsInvalidToken() {
+        // Arrange
+        String token = UUID.randomUUID().toString();
+        String newPassword = "NewPassword123!";
+        when(userRepository.findByVerificationToken(token)).thenReturn(Optional.empty());
+
+        // Act
+        String result = authenticationService.resetPassword(token, newPassword);
+
+        // Assert
+        assertEquals("User not found", result);
+        verify(userRepository).findByVerificationToken(token);
+    }
+
+    @Test
+    void resetPassword_ExpiredToken_ReturnsExpiredToken() {
+        // Arrange
+        String token = UUID.randomUUID().toString();
+        String newPassword = "NewPassword123!";
+        User user = new User();
+        user.setVerificationToken(token);
+        when(userRepository.findByVerificationToken(token)).thenReturn(Optional.of(user));
+        
+        // Mock the tokenStillValid method to return false
+        User spyUser = Mockito.spy(user);
+        Mockito.doReturn(false).when(spyUser).tokenStillValid();
+        when(userRepository.findByVerificationToken(token)).thenReturn(Optional.of(spyUser));
+
+        // Act
+        String result = authenticationService.resetPassword(token, newPassword);
+
+        // Assert
+        assertEquals("Expired token", result);
+        verify(userRepository).findByVerificationToken(token);
+        Mockito.verify(spyUser).tokenStillValid();
+    }
+    
 }

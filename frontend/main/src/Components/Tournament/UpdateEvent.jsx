@@ -1,12 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { DateTime } from "luxon";
-import TournamentService from "../../Services/Tournament/TournamentService";
 import EventService from "../../Services/Event/EventService";
 import { XCircleIcon } from "@heroicons/react/16/solid";
 
-const UpdateEvent = ({ selectedEvent, onClose }) => {
+const UpdateEvent = ({
+  tournamentDates,
+  selectedEvent,
+  onClose,
+  fetchTournamentData,
+}) => {
+
   const {
     register,
     handleSubmit,
@@ -14,30 +18,49 @@ const UpdateEvent = ({ selectedEvent, onClose }) => {
     formState: { errors },
   } = useForm();
 
-  const navigate = useNavigate();
+  const [error, setError] = useState(null);
 
-  // Get event
-  const { eventID } = useParams();
-  console.log("eventid=" + eventID);
-  const [event, setEvent] = useState(null);
-
+  // Prefill event data
   useEffect(() => {
     if (selectedEvent) {
+      console.log("Selected Event:", selectedEvent);
       // Prefill form with the event details
       setValue("startTime", selectedEvent.startTime);
       setValue("endTime", selectedEvent.endTime);
       setValue("gender", selectedEvent.gender);
       setValue("minParticipants", selectedEvent.minParticipants);
-      setValue("date", selectedEvent.date);
+      setValue("date", selectedEvent.eventDate);
+      setValue("weapon", selectedEvent.weapon);
     }
+    console.log("Tournament Dates:", selectedEvent.eventDate);
   }, [selectedEvent, setValue]);
 
-  console.log(selectedEvent);
+  function getGender(gender) {
+    if (gender === "M") {
+      return "Male";
+    }
+    return "Female";
+  }
+
+  function getWeapon(weapon) {
+    if (weapon === "F") {
+      return "Foil";
+    } else if (weapon === "E") {
+      return "Epee";
+    }
+    return "Sabre";
+  }
 
   const onSubmit = async (data) => {
     // Create DateTime objects and format time to include seconds
-    const startTimeString = data.startTime + ":00";
-    const endTimeString = data.endTime + ":00";
+    let startTimeString = data.startTime;
+    let endTimeString = data.endTime;
+    if (data.startTime.length === 5) {
+      startTimeString += ":00";
+    }
+    if (data.endTime.length === 5) {
+      endTimeString += ":00";
+    }
 
     const startTime = DateTime.fromFormat(startTimeString, "HH:mm:ss");
     const endTime = DateTime.fromFormat(endTimeString, "HH:mm:ss");
@@ -53,16 +76,31 @@ const UpdateEvent = ({ selectedEvent, onClose }) => {
     };
 
     try {
-      await EventService.updateEvent(eventID, formData); // Call the update method
-      navigate(`/view-tournament/${eventID}`); // Redirect to a view page after update
+      console.log("Updating event with data:", formData);
+      await EventService.updateEvent(selectedEvent.id, formData); // Call the update method
+      onClose();
+      fetchTournamentData();
     } catch (error) {
-      console.error("Error updating event:", error);
+      if (error.response) {
+        console.log("Error response data: ", error.response.data);
+        setError(error.response.data);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.log("Error request: ", error.request);
+        setError("Failed to update event, please try again later.");
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log("Unknown Error: " + error);
+        setError("Failed to update event, please try again later.");
+      }
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white rounded-lg w-1/3 min-w-[500px] flex flex-col justify-center pt-6 py-12 lg:px-8">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" style={{ zIndex: 3 }}>
+      <div
+        className="bg-white rounded-lg w-1/3 min-w-[300px] flex flex-col justify-center pt-6 py-12 lg:px-8"
+      >
         {/* Close Button --> ml-auto pushes button to the right of the form */}
         <button
           onClick={onClose}
@@ -72,7 +110,7 @@ const UpdateEvent = ({ selectedEvent, onClose }) => {
           <XCircleIcon /> {/* This is the close icon (×) */}
         </button>
 
-        <h2 className="text-2xl font-bold mb-6 text-center">Update</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center">Update Event</h2>
 
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -81,46 +119,17 @@ const UpdateEvent = ({ selectedEvent, onClose }) => {
           {/* Gender Dropdown */}
           <div>
             <label className="block font-medium mb-1">Gender</label>
-            <select
-              {...register("gender", { required: "Please fill this in!" })}
-              className={`w-full border rounded-md p-2 ${
-                errors.gender ? "border-red-500" : "border-gray-300"
-              }`}
-            >
-              <option value="">Select Gender</option>
-              <option value="M">Male</option>
-              <option value="F">Female</option>
-            </select>
-            {errors.gender && (
-              <p className="text-red-500 text-sm italic">
-                {errors.gender.message}
-              </p>
-            )}
+            <h1>{getGender(selectedEvent.gender)}</h1>
           </div>
 
           {/* Weapon Dropdown */}
           <div>
             <label className="block font-medium mb-1">Weapon</label>
-            <select
-              {...register("weapon", { required: "Please fill this in!" })}
-              className={`w-full border rounded-md p-2 ${
-                errors.weapon ? "border-red-500" : "border-gray-300"
-              }`}
-            >
-              <option value="">Select Weapon</option>
-              <option value="F">Foil</option>
-              <option value="E">Épée</option>
-              <option value="S">Sabre</option>
-            </select>
-            {errors.weapon && (
-              <p className="text-red-500 text-sm italic">
-                {errors.weapon.message}
-              </p>
-            )}
+            <h1>{getWeapon(selectedEvent.weapon)}</h1>
           </div>
 
           {/* Date */}
-          {/* <div>
+          <div>
             <label className="block font-medium mb-1">Date</label>
             <input
               type="date"
@@ -128,26 +137,24 @@ const UpdateEvent = ({ selectedEvent, onClose }) => {
                 required: "Please fill this in!",
                 validate: (value) => {
                   const selectedDate = new Date(value);
-                  const eventStart = new Date(selectedEvent.startDate);
-                  const eventEnd = new Date(selectedEvent.endDate);
+                  const tournamentStart = new Date(tournamentDates[0]);
+                  const tournamentEnd = new Date(tournamentDates[1]);
                   return (
-                    (selectedDate >= eventStart && selectedDate <= eventEnd) ||
-                    "Event Date must within Tournament Time Frame!" +
-                      eventStart +
-                      eventEnd
+                    (selectedDate >= tournamentStart &&
+                      selectedDate <= tournamentEnd) ||
+                    "Event Date must be within Tournament Time Frame!"
                   );
                 },
               })}
-              className={`w-full border rounded-md p-2 ${
-                errors.date ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`w-full border rounded-md p-2 ${errors.date ? "border-red-500" : "border-gray-300"
+                }`}
             />
             {errors.date && (
               <p className="text-red-500 text-sm italic">
                 {errors.date.message}
               </p>
             )}
-          </div> */}
+          </div>
 
           {/* Start Time */}
           <div>
@@ -157,9 +164,8 @@ const UpdateEvent = ({ selectedEvent, onClose }) => {
               {...register("startTime", {
                 required: "Please fill this in!",
               })}
-              className={`w-full border rounded-md p-2 ${
-                errors.startTime ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`w-full border rounded-md p-2 ${errors.startTime ? "border-red-500" : "border-gray-300"
+                }`}
             />
             {errors.startTime && (
               <p className="text-red-500 text-sm italic">
@@ -187,9 +193,8 @@ const UpdateEvent = ({ selectedEvent, onClose }) => {
                   );
                 },
               })}
-              className={`w-full border rounded-md p-2 ${
-                errors.endTime ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`w-full border rounded-md p-2 ${errors.endTime ? "border-red-500" : "border-gray-300"
+                }`}
             />
             {errors.endTime && (
               <p className="text-red-500 text-sm italic">
@@ -208,11 +213,11 @@ const UpdateEvent = ({ selectedEvent, onClose }) => {
               {...register("minParticipants", {
                 required: "Please fill this in!",
                 validate: (value) =>
-                  value > 1 || "Please enter a number more than 1!",
+                  value >= 8 ||
+                  "Please enter a number greater than or equal to 8!",
               })}
-              className={`w-full border rounded-md p-2 ${
-                errors.minParticipants ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`w-full border rounded-md p-2 ${errors.minParticipants ? "border-red-500" : "border-gray-300"
+                }`}
             />
             {errors.minParticipants && (
               <p className="text-red-500 text-sm italic">
@@ -231,6 +236,9 @@ const UpdateEvent = ({ selectedEvent, onClose }) => {
             </button>
           </div>
         </form>
+        {error && (
+          <h2 className="text-red-500 text-center mt-4"> {error} </h2>
+        )}
       </div>
     </div>
   );

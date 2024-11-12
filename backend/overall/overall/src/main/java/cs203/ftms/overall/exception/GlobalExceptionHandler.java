@@ -1,19 +1,18 @@
 package cs203.ftms.overall.exception;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
-import jakarta.persistence.EntityNotFoundException;
-
-import java.util.*;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -90,6 +89,32 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handlesEventCannotEnd(EventCannotEndException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(FencerAlreadyRegisteredForEventException.class)
+    public ResponseEntity<String> handleFencerAlreadyRegisteredForEvent(FencerAlreadyRegisteredForEventException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(TournamentAlreadyStartedException.class)
+    public ResponseEntity<String> handleTournamentAlreadyStarted(TournamentAlreadyStartedException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(PouleMatchesNotDoneException.class)
+    public ResponseEntity<String> handlePouleMatchesNotDone(PouleMatchesNotDoneException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(FencerProfileMismatchException.class)
+    public ResponseEntity<String> handleFencerWeaponMismatch(FencerProfileMismatchException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    
 }
 
 

@@ -16,7 +16,7 @@ export default function SignUpFencer() {
     watch,
     formState: { errors },
   } = useForm();
-  const [isError, setError] = useState(false);
+  const [error, setError] = useState(null);
 
   // Watch the password field (to see if confirm password and password matches)
   const password = watch("password");
@@ -24,7 +24,6 @@ export default function SignUpFencer() {
   const navigate = useNavigate();
 
   const onSubmit = async (data) => {
-    console.log(data);
 
     // Separate comfirmPassword from data before sending to backend
     const { confirmPassword, ...formData } = data;
@@ -33,17 +32,34 @@ export default function SignUpFencer() {
     const country = data.country.label;
     formData.country = country;
 
-    console.log(formData);
-
     try {
-      await AuthService.createFencer(formData).then(() => {
-        navigate("/signin");
-
-      });
+      await AuthService.createFencer(formData)
+      navigate("/signin");
     } catch (error) {
-      setError(true);
-      console.log(error);
+      if (error.response) {
+        // Check if error.response.data is an object and has contactNo
+        if (typeof error.response.data === 'object' && error.response.data.contactNo) {
+          setError(error.response.data.contactNo);
+        } else {
+          setError(error.response.data);
+        }
+      } else if (error.request) {
+        // The request was made but no response was received
+        setError("An error has occured, please try again later.");
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        setError("An error has occured, please try again later.");
+      }
     }
+  };
+
+  // Custom validation function for contactNo
+  const validateContactNo = (value) => {
+    if (/^\+6599/.test(value) ||
+      !validator.isMobilePhone(value, 'any', { strictMode: true })) {
+      return "Please enter a valid phone number with country code!";
+    }
+    return true;
   };
 
   return (
@@ -148,13 +164,11 @@ export default function SignUpFencer() {
             defaultValue=""
             rules={{
               required: "Please fill this in!",
-              validate: (value) =>
-                validator.isMobilePhone(value) ||
-                "Please enter a valid phone number!",
+              validate: validateContactNo
             }}
             render={({ field: { onChange, value } }) => (
               <InputField
-                placeholder="Contact Number"
+                placeholder="Contact Number (e.g. +65********)"
                 type="text"
                 value={value}
                 onChange={onChange}
@@ -205,9 +219,9 @@ export default function SignUpFencer() {
           <SubmitButton onSubmit={handleSubmit}>Sign up</SubmitButton>
         </form>
 
-        {isError && (
-          <h1 className="text-xl font-semibold text-center text-red-500">
-            An error has occurred. Email may have already been used!
+        {error && (
+          <h1 className="text-lg text-center text-red-500">
+            {error}
           </h1>
         )}
       </div>

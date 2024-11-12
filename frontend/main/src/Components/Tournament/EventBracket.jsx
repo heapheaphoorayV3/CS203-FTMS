@@ -9,7 +9,7 @@ import CustomMatch from "../Others/CustomMatch";
 import React from "react";
 
 export default function EventBracket({ matches, height, width }) {
-  console.log("Height: ", height + " Width: ", width);
+  // console.log("Height: ", height + " Width: ", width);
   return (
     <SingleEliminationBracket
       theme={WhiteTheme}
@@ -43,6 +43,6 @@ export const WhiteTheme = createTheme({
   },
   roundHeader: { backgroundColor: "#4472ca", fontColor: "#FFFFFF" },
   connectorColor: '#CED1F2',
-  connectorColorHighlight: '#da96c6',
+  connectorColorHighlight: '#f37748',
   svgBackground: "#FFFFFF",
 });

@@ -1,6 +1,6 @@
 package cs203.ftms.overall.comparator;
 
-import java.util.*;
+import java.util.Comparator;
 
 import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
 
@@ -9,6 +9,8 @@ public class TournamentFencerPouleComparator implements Comparator<TournamentFen
         int windiff = t1.getPouleWins() - t2.getPouleWins(); 
         if (windiff != 0) return -windiff; 
         int poulespointdiff = t1.getPoulePoints() - t2.getPoulePoints(); 
-        return -poulespointdiff; 
+        if (poulespointdiff != 0) return -poulespointdiff;
+        int internationalpointdiff = t1.getFencer().getPoints() - t2.getFencer().getPoints();
+        return -internationalpointdiff; 
     }
 }

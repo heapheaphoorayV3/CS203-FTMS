@@ -8,4 +8,5 @@ import cs203.ftms.overall.model.userrelated.User;
 public interface UserRepository extends JpaRepository<User, Integer>{
 
     Optional<User> findByEmail(String email);
+    Optional<User> findByVerificationToken(String token);
 }

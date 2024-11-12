@@ -11,9 +11,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,35 +46,67 @@ public class TournamentController {
         User user = (User) authentication.getPrincipal();
         Tournament newTournament = tournamentService.createTournament(t, (Organiser) user);
         if (newTournament != null) {
-            CleanTournamentDTO dto = tournamentService.getCleanTournamentDTO(newTournament);
-            return new ResponseEntity<>(dto, HttpStatus.CREATED);
+            CleanTournamentDTO res = tournamentService.getCleanTournamentDTO(newTournament);
+            return new ResponseEntity<>(res, HttpStatus.CREATED);
         }
         return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
 
-    @GetMapping("/tournament-details/{tid}")
-    public ResponseEntity<CleanTournamentDTO> getTournament(@PathVariable int tid) {
+    @PutMapping("/update-tournament/{tid}")
+    @PreAuthorize("hasRole('ORGANISER')")
+    public ResponseEntity<CleanTournamentDTO> updateTournament(@PathVariable int tid, @Valid @RequestBody CreateTournamentDTO t) throws MethodArgumentNotValidException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
+        Tournament updatedTournament = tournamentService.updateTournament(tid, t, (Organiser) user);
+        CleanTournamentDTO res = tournamentService.getCleanTournamentDTO(updatedTournament);
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    @GetMapping("/tournament-details/{tid}")
+    public ResponseEntity<CleanTournamentDTO> getTournament(@PathVariable int tid) {
         Tournament t = tournamentService.getTournament(tid);
-        CleanTournamentDTO ct = tournamentService.getCleanTournamentDTO(t);
-        if (ct == null) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
-        return new ResponseEntity<>(ct, HttpStatus.OK);
+        CleanTournamentDTO res = tournamentService.getCleanTournamentDTO(t);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
     
     @GetMapping("/tournaments")
     public ResponseEntity<List<CleanTournamentDTO>> getAllTournaments() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
         List<Tournament> tList = tournamentService.getAllTournaments();
 
-        List<CleanTournamentDTO> ctList = new ArrayList<>();
+        List<CleanTournamentDTO> res = new ArrayList<>();
         for (Tournament t : tList) {
-            ctList.add(tournamentService.getCleanTournamentDTO(t));
+            res.add(tournamentService.getCleanTournamentDTO(t));
         }
-        return new ResponseEntity<>(ctList, HttpStatus.OK);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
+    @DeleteMapping("/delete-tournament/{tid}")
+    @PreAuthorize("hasRole('ORGANISER')")
+    public ResponseEntity<String> deleteTournament(@PathVariable int tid) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        tournamentService.deleteTournament((Organiser) user, tid);
+        return new ResponseEntity<>("Deleted tournament successfully", HttpStatus.OK);
+    }
+
+    @GetMapping("/upcoming-tournaments")
+    public ResponseEntity<List<CleanTournamentDTO>> getUpcomingTournaments() {
+
+        List<Tournament> tList = tournamentService.getUpcomingTournaments();
+        List<CleanTournamentDTO> res = new ArrayList<>();
+        for (Tournament t : tList) {
+            res.add(tournamentService.getCleanTournamentDTO(t));
+        }
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    @GetMapping("/past-tournaments")
+    public ResponseEntity<List<CleanTournamentDTO>> getPastTournaments() {
+        List<Tournament> tList = tournamentService.getPastTournaments();
+        List<CleanTournamentDTO> res = new ArrayList<>();
+        for (Tournament t : tList) {
+            res.add(tournamentService.getCleanTournamentDTO(t));
+        }
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
 }

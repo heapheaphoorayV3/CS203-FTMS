@@ -1,12 +1,21 @@
 package cs203.ftms.overall.model.tournamentrelated;
 
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 import cs203.ftms.overall.model.userrelated.Fencer;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 
 @Entity
@@ -44,14 +53,19 @@ public class TournamentFencer {
     @Column(name = "poule_points")
     private int poulePoints;
 
+    @Column(name = "points_after_event")
+    private int pointsAfterEvent;
+
     public TournamentFencer(Fencer fencer, Event event) {
         this.fencer = fencer;
         this.event = event;
         this.matches = new LinkedHashSet<>();
+        this.pointsAfterEvent = -1;
     }
 
     public TournamentFencer() {
         this.matches = new LinkedHashSet<>();
+        this.pointsAfterEvent = -1;
     }
 
     public Fencer getFencer() {
@@ -94,19 +108,6 @@ public class TournamentFencer {
         this.tournamentRank = tournamentPoints;
     } 
 
-    // public int compareTo(TournamentFencer tf) {
-    //     if(tf.getFencer() == null || this.fencer == null){
-    //         return 0;
-    //     }
-    //     System.out.println("tf's fencer = " + tf.getFencer());
-    //     System.out.println("this.fencer = "+ this.fencer);
-    //     if ((this.points - tf.points) != 0) { // at start, all 0, so no diff
-    //         return -(this.points - tf.points);
-    //     }
-        
-    //     return -(this.fencer.getPoints() - tf.getFencer().getPoints());
-    // }
-
     public int getId() {
         return id;
     }
@@ -137,5 +138,13 @@ public class TournamentFencer {
 
     public void removeMatch(Match match){
         matches.remove(match);
+    }
+
+    public int getPointsAfterEvent() {
+        return pointsAfterEvent;
+    }
+
+    public void setPointsAfterEvent(int pointsAfterEvent) {
+        this.pointsAfterEvent = pointsAfterEvent;
     }
 }

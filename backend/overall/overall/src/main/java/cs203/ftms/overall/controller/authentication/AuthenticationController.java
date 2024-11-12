@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,6 +17,7 @@ import cs203.ftms.overall.dto.JwtDTO;
 import cs203.ftms.overall.dto.RegisterAdminDTO;
 import cs203.ftms.overall.dto.RegisterFencerDTO;
 import cs203.ftms.overall.dto.RegisterOrganiserDTO;
+import cs203.ftms.overall.dto.ResetPasswordDTO;
 import cs203.ftms.overall.exception.EntityDoesNotExistException;
 import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.Organiser;
@@ -102,5 +104,15 @@ public class AuthenticationController {
                     }
                     return new ResponseEntity<>(new JwtDTO("refreshed token", accessToken, jwtService.getExpirationTime(), userType, token), HttpStatus.OK);
                 }).orElseThrow(() ->new EntityDoesNotExistException("Refresh Token is not in DB..!!"));
+    }
+
+    @PutMapping("/forget-password/{email}")
+    public ResponseEntity<String> forgetPassword(@PathVariable String email) {
+        return new ResponseEntity<>(authenticationService.forgetPassword(email), HttpStatus.OK);
+    }
+
+    @PutMapping("/reset-password/{token}")
+    public ResponseEntity<String> resetPassword(@PathVariable String token, @RequestBody ResetPasswordDTO resetPasswordDTO) {
+        return new ResponseEntity<>(authenticationService.resetPassword(token, resetPasswordDTO.getNewPassword()), HttpStatus.OK);
     }
 }

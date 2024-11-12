@@ -1,18 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { XCircleIcon } from "@heroicons/react/16/solid";
 
 const CreateEvent = ({ eventTypes, tournamentDates, onClose, onSubmit }) => {
   const {
     register,
-    watch,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm();
 
   const startTime = watch("startTime");
-
-  console.log("Available Events left for creation: " + eventTypes);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
@@ -62,7 +60,7 @@ const CreateEvent = ({ eventTypes, tournamentDates, onClose, onSubmit }) => {
             <label className="block font-medium mb-1">Date</label>
             <input
               type="date"
-              {...register("date", {
+              {...register("eventDate", {
                 required: "Please fill this in!",
                 validate: (value) => {
                   const selectedDate = new Date(value);
@@ -75,12 +73,12 @@ const CreateEvent = ({ eventTypes, tournamentDates, onClose, onSubmit }) => {
                   );
                 },
               })}
-              className={`w-full border rounded-md p-2 ${errors.date ? "border-red-500" : "border-gray-300"
+              className={`w-full border rounded-md p-2 ${errors.eventDate ? "border-red-500" : "border-gray-300"
                 }`}
             />
-            {errors.date && (
+            {errors.eventDate && (
               <p className="text-red-500 text-sm italic">
-                {errors.date.message}
+                {errors.eventDate.message}
               </p>
             )}
           </div>
@@ -155,7 +153,7 @@ const CreateEvent = ({ eventTypes, tournamentDates, onClose, onSubmit }) => {
           {/* Submit Button */}
           <div className="md:col-span-2">
             <button
-              onSubmit={handleSubmit}
+              onSubmit={handleSubmit()}
               className="w-full bg-blue-500 text-white rounded-md py-2"
             >
               Create Event
