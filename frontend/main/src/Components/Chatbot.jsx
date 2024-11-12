@@ -16,6 +16,7 @@ export default function Chatbot() {
   const [selectedChoice, setSelectedChoice] = useState(null);
   const [showInput, setShowInput] = useState(false);
   const [eventID, setEventID] = useState("");
+  const [accessDenied, setAccessDenied] = useState(false);
   const [messages, setMessages] = useState([
     { text: "Hello! What would you like to know?", sender: "bot" },
   ]);
@@ -26,8 +27,20 @@ export default function Chatbot() {
         const response = await FencerService.getProfile();
         setUserData(response.data);
       } catch (error) {
-        console.error("Error fetching user data:", error);
-        setError("Failed to load user data.");
+        if (error.response.status === 403) {
+          console.log("Unauthorized access to upcoming events.");
+          setError(
+            "Unauthorized: You don't have permission to use the chatbot."
+          );
+        } else if (error.request) {
+          // The request was made but no response was received
+          console.log("Error request: ", error.request);
+          setError("Fencer Data has failed to load, please try again later.");
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          console.log("Unknown Error: " + error);
+          setError("Fencer Data has failed to load, please try again later.");
+        }
       } finally {
         setLoading(false);
       }
@@ -39,8 +52,20 @@ export default function Chatbot() {
         const response = await FencerService.getFencerUpcomingEvents();
         setFencerUpcomingEvents(response.data);
       } catch (error) {
-        console.error("Error fetching fencer's upcoming events: ", error);
-        setError("Failed to fetch fencer upcoming events");
+        if (error.response.status === 403) {
+          console.log("Unauthorized access to upcoming events.");
+          setError(
+            "Unauthorized: You don't have permission to use the chatbot."
+          );
+        } else if (error.request) {
+          // The request was made but no response was received
+          console.log("Error request: ", error.request);
+          setError("Fencer Upcoming Events Data has failed to load, please try again later.");
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          console.log("Unknown Error: " + error);
+          setError("Fencer Upcoming Events Data has failed to load, please try again later.");
+        }
       } finally {
         setLoading(false);
       }
@@ -68,10 +93,7 @@ export default function Chatbot() {
     try {
       console.log("event ID:", eventID);
       const response = await ChatbotService.getProjectedPoints(eventID);
-      console.log("Response status:", response.status); // Log the status
-      console.log("Response data:", response.data); // Log the data
       addMessage(`Your projected points: ${response.data}`, "bot");
-
       setShowInput(false);
     } catch (error) {
       console.log("Error status:", error.response?.status);
@@ -80,10 +102,6 @@ export default function Chatbot() {
       if (error.response?.status === 400) {
         addMessage("No projected points available for this event.", "bot");
       }
-      // addMessage(
-      //   "I'm sorry, but I was unable to fetch your projected points. Please try again later.",
-      //   "bot"
-      // );
       setShowInput(false);
     } finally {
       setLoading(false);
@@ -100,10 +118,6 @@ export default function Chatbot() {
     } catch (error) {
       console.error("Error fetching win rate: ", error);
       setError("Failed to load win rate");
-      // addMessage(
-      //   "I'm sorry, but I was unable to fetch your win rate. Please try again later.",
-      //   "bot"
-      // );
       if (error.response?.status === 400) {
         addMessage("No win rate available for this event.", "bot");
       }
@@ -150,10 +164,12 @@ export default function Chatbot() {
     } catch (error) {
       console.error("Error fetching recommended tournaments: ", error);
       setError("Failed to load recommended tournaments");
-      addMessage(
-        "I'm sorry, but I was unable to fetch recommended tournaments. Please try again later.",
-        "bot"
-      );
+      if (error.response?.status === 400) {
+        addMessage(
+          "No recommended tournaments available for this event.",
+          "bot"
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -298,6 +314,18 @@ export default function Chatbot() {
         ))}
     </div>
   );
+
+  // Loading / Error states
+  if (loading) {
+    return <div className="mt-10">Loading...</div>; // Show loading state
+  }
+  if (error) {
+    return (
+      <div className="flex justify-between mr-20 my-10">
+        <h1 className=" ml-12 text-left text-2xl font-semibold">{error}</h1>
+      </div>
+    ); // Show error message if any
+  }
 
   return (
     <div className="bg-white h-full overflow-y-auto">
