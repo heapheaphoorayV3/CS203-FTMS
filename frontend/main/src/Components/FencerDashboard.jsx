@@ -702,7 +702,7 @@ const FencerDashboard = () => {
                       <th className="w-20"></th>
                       <th className="w-1/4">Tournament Name</th>
                       <th className="text-center">Date</th>
-                      <th className="text-center">Rank</th>
+                      <th className="text-center">Points</th>
                     </tr>
                   </thead>
                   <tbody>
