@@ -33,10 +33,8 @@ export default function SignUpFencer() {
     formData.country = country;
 
     try {
-      await AuthService.createFencer(formData).then(() => {
-        navigate("/signin");
-
-      });
+      await AuthService.createFencer(formData)
+      navigate("/signin");
     } catch (error) {
       if (error.response) {
         // Check if error.response.data is an object and has contactNo
