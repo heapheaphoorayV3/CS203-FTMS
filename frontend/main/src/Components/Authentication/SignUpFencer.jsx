@@ -24,7 +24,6 @@ export default function SignUpFencer() {
   const navigate = useNavigate();
 
   const onSubmit = async (data) => {
-    console.log(data);
 
     // Separate comfirmPassword from data before sending to backend
     const { confirmPassword, ...formData } = data;
@@ -33,8 +32,6 @@ export default function SignUpFencer() {
     const country = data.country.label;
     formData.country = country;
 
-    console.log(formData);
-
     try {
       await AuthService.createFencer(formData).then(() => {
         navigate("/signin");
@@ -42,18 +39,29 @@ export default function SignUpFencer() {
       });
     } catch (error) {
       if (error.response) {
-        console.log("Error response data: ", error.response.data);
-        setError(error.response.data);
+        // Check if error.response.data is an object and has contactNo
+        if (typeof error.response.data === 'object' && error.response.data.contactNo) {
+          setError(error.response.data.contactNo);
+        } else {
+          setError(error.response.data);
+        }
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request: ", error.request);
         setError("An error has occured, please try again later.");
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Unknown Error: " + error);
         setError("An error has occured, please try again later.");
       }
     }
+  };
+
+  // Custom validation function for contactNo
+  const validateContactNo = (value) => {
+    if (/^\+6599/.test(value) ||
+      !validator.isMobilePhone(value, 'any', { strictMode: true })) {
+      return "Please enter a valid phone number with country code!";
+    }
+    return true;
   };
 
   return (
@@ -158,17 +166,15 @@ export default function SignUpFencer() {
             defaultValue=""
             rules={{
               required: "Please fill this in!",
-              validate: (value) =>
-                validator.isMobilePhone(value, 'any', { strictMode: true }) ||
-                "Please enter a valid phone number with country code!",
+              validate: validateContactNo
             }}
-            render={({ field: { onChange, value }, fieldState: { error } }) => (
+            render={({ field: { onChange, value } }) => (
               <InputField
                 placeholder="Contact Number (e.g. +65********)"
                 type="text"
                 value={value}
                 onChange={onChange}
-                error={error}
+                error={errors.contactNo}
               />
             )}
           />
