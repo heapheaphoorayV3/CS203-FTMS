@@ -81,6 +81,8 @@ class OrganiserServiceTest {
         Organiser organiser = new Organiser("Organiser1", "organiser1@xyz.com", "Abcd1234!", "+6591234567", "Singapore");
         Tournament tournament1 = new Tournament();
         Tournament tournament2 = new Tournament();
+        tournament1.setStartDate(LocalDate.now().plusDays(10));
+        tournament2.setStartDate(LocalDate.now().plusDays(20));
         List<Tournament> tournaments = Arrays.asList(tournament1, tournament2);
 
         when(tournamentRepository.findByOrganiserId(organiser.getId())).thenReturn(tournaments);
@@ -136,7 +138,7 @@ class OrganiserServiceTest {
         verify(userRepository).save(organiser);
     }
 
-        @Test
+    @Test
     void getOrganiserUpcomingTournaments() {
         // Arrange
         Organiser organiser = new Organiser();

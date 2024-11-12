@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -48,7 +46,9 @@ public class OrganiserService {
     }
 
     public List<Tournament> getOrganiserTournaments(Organiser o) {
-        return tournamentRepository.findByOrganiserId(o.getId());
+        List<Tournament> tournaments = tournamentRepository.findByOrganiserId(o.getId());
+        tournaments.sort((t1, t2) -> t1.getStartDate().compareTo(t2.getStartDate()));
+        return tournaments;
     }
 
     public String changePassword(User u, String oldPassword, String newPassword) {
@@ -77,6 +77,7 @@ public class OrganiserService {
                 upcomingTournaments.add(t);
             }
         }
+        upcomingTournaments.sort((t1, t2) -> t1.getStartDate().compareTo(t2.getStartDate()));
         return upcomingTournaments;
     }
 
@@ -88,6 +89,7 @@ public class OrganiserService {
                 pastTournaments.add(t);
             }
         }
+        pastTournaments.sort((t1, t2) -> t1.getStartDate().compareTo(t2.getStartDate()));
         return pastTournaments;
     }
 }

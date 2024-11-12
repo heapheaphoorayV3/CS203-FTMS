@@ -122,6 +122,7 @@ public class FencerService {
                 events.add(e);
             }
         }
+        events.sort(Comparator.comparing(Event::getDate));
         return events;
     }
 
@@ -133,6 +134,7 @@ public class FencerService {
                 events.add(e);
             }
         }
+        events.sort(Comparator.comparing(Event::getDate));
         return events;
     }
 
