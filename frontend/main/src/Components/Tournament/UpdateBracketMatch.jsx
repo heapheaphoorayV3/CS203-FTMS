@@ -249,7 +249,7 @@ const UpdateBracketMatch = ({ matches, onClose, eventID }) => {
                 </button>
                 <button
                   onClick={() => setShowConfirmation(false)}
-                  className="px-4 py-2 bg-gray-300 rounded-lg"
+                  className="px-4 py-2 bg-red-400 text-white rounded-lg"
                 >
                   Cancel
                 </button>
