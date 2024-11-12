@@ -443,8 +443,7 @@ public class PouleService {
                     savePouleMatchScore(value, pouleMatch, 1);
                     break;
                 } 
-                // else 
-                // if (ptf1.getId() == tf2.getId() && ptf2.getId() == tf1.getId()) {
+                // else if (ptf1.getId() == tf2.getId() && ptf2.getId() == tf1.getId()) {
                 //     savePouleMatchScore(value, pouleMatch, 2);
                 //     break;
                 // }
@@ -452,8 +451,7 @@ public class PouleService {
                 // if (ptf1.getId() == tf1.getId() && ptf2.getId() == tf2.getId()) {
                 //     savePouleMatchScore(value, pouleMatch, 1);
                 //     break;
-                // } 
-                // else 
+                // } else 
                 if (ptf1.getId() == tf2.getId() && ptf2.getId() == tf1.getId()) {
                     savePouleMatchScore(value, pouleMatch, 2);
                     break;
