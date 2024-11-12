@@ -119,13 +119,13 @@ const UpdateEvent = ({
           {/* Gender Dropdown */}
           <div>
             <label className="block font-medium mb-1">Gender</label>
-            <h1 className="font-medium">{getGender(selectedEvent.gender)}</h1>
+            <h1>{getGender(selectedEvent.gender)}</h1>
           </div>
 
           {/* Weapon Dropdown */}
           <div>
             <label className="block font-medium mb-1">Weapon</label>
-            <h1 className="font-medium">{getWeapon(selectedEvent.weapon)}</h1>
+            <h1>{getWeapon(selectedEvent.weapon)}</h1>
           </div>
 
           {/* Date */}

@@ -371,6 +371,7 @@ export default function ViewTournament() {
     } catch (error) {
       if (error.response) {
         console.log("Error response data: ", error.response.data);
+        
         setRegisterEventError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
@@ -385,6 +386,10 @@ export default function ViewTournament() {
           "Event registration has failed, please try again later."
         );
       }
+      // Clear the error message after 5 seconds
+      setTimeout(() => {
+        setRegisterEventError(null);
+      }, 5000);
     }
   };
 
@@ -412,6 +417,10 @@ export default function ViewTournament() {
           "Event registration/deregistration has failed, please try again later."
         );
       }
+      // Clear the error message after 5 seconds
+      setTimeout(() => {
+        setRegisterEventError(null);
+      }, 5000);
     }
   };
 

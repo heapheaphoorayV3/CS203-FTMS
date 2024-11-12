@@ -100,11 +100,13 @@ export default function Chatbot() {
       addMessage(`Your projected points: ${response.data}`, "bot");
       setShowInput(false);
     } catch (error) {
-      console.log("Error status:", error.response?.status);
-      console.error("Error fetching projected points: ", error);
-      setError("Failed to load projected points");
+      // console.log("Error status:", error.response?.status);
+      // console.error("Error fetching projected points: ", error);
+      // setError("Failed to load projected points");
       if (error.response?.status === 400) {
         addMessage("No projected points available for this event.", "botError");
+      } else {
+        addMessage("Failed to load projected points", "botError");
       }
       setShowInput(false);
     } finally {
@@ -121,9 +123,11 @@ export default function Chatbot() {
       setShowInput(false);
     } catch (error) {
       console.error("Error fetching win rate: ", error);
-      setError("Failed to load win rate");
+      // setError("Failed to load win rate");
       if (error.response?.status === 400) {
         addMessage("No win rate available for this event.", "botError");
+      } else {
+        addMessage("Failed to load win rate.", "botError");
       }
       setShowInput(false);
     } finally {
@@ -167,12 +171,14 @@ export default function Chatbot() {
       }
     } catch (error) {
       console.error("Error fetching recommended tournaments: ", error);
-      setError("Failed to load recommended tournaments");
+      // setError("Failed to load recommended tournaments");
       if (error.response?.status === 400) {
         addMessage(
           "No recommended tournaments available for this event.",
           "botError"
         );
+      } else {
+        addMessage("Failed to load recommended tournaments", "botError");
       }
     } finally {
       setLoading(false);
@@ -360,8 +366,11 @@ export default function Chatbot() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
             className={`flex 
-              ${msg.sender === "bot" || msg.sender === "botError" ? "justify-start" : "justify-end"
-            } mb-4`}
+              ${
+                msg.sender === "bot" || msg.sender === "botError"
+                  ? "justify-start"
+                  : "justify-end"
+              } mb-4`}
           >
             {msg.sender === "bot" ? (
               <div className="flex items-center">
