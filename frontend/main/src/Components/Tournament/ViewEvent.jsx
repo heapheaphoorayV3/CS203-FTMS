@@ -672,7 +672,7 @@ export default function ViewEvent() {
           <Tab label="Poules Results">
             <div className="py-4">
               {/* <h2 className="text-lg font-medium mb-2">Ranking</h2> */}
-              {eventRanking.length > 0 ? (
+              {poulesResults === null ? (
                 <table className="table text-lg border-collapse mb-4">
                   {/* head */}
                   <thead className="text-lg text-primary">
