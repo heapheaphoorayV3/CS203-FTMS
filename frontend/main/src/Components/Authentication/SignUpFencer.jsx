@@ -36,10 +36,8 @@ export default function SignUpFencer() {
     console.log(formData);
 
     try {
-      await AuthService.createFencer(formData).then(() => {
-        navigate("/signin");
-
-      });
+      await AuthService.createFencer(formData)
+      navigate("/signin");
     } catch (error) {
       if (error.response) {
         console.log("Error response data: ", error.response.data);

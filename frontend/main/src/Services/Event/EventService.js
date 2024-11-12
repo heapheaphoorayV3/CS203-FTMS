@@ -21,6 +21,10 @@ class EventService {
     return await ProtectedAPI.put(`${baseURL}/register/${eid}`);
   }
 
+  async unregisterEvent(eid) {
+    return await ProtectedAPI.put(`${baseURL}/unregister/${eid}`);
+  }
+
   async getPouleTable(eid) {
     return await ProtectedAPI.get(`${pouleBaseURL}/get-poule-table/${eid}`);
   }
