@@ -59,6 +59,11 @@ public class EventService {
         this.tournamentFencerRepository = tournamentFencerRepository;
     }
 
+
+    public List<Event> getEventsByGenderAndWeapon(char gender, char weapon) {
+        return eventRepository.findByGenderAndWeapon(gender, weapon);
+    }
+
     public Event getEvent(int eid) {
         return eventRepository.findById(eid).orElseThrow(() -> new EntityDoesNotExistException("Event does not exist!"));
     }
