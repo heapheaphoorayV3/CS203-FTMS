@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import cs203.ftms.overall.dto.DirectEliminationBracketDTO;
 import cs203.ftms.overall.dto.UpdateDirectEliminationMatchDTO;
 import cs203.ftms.overall.service.match.DirectEliminationService;
+import jakarta.validation.Valid;
 
 @RestController
 @CrossOrigin
@@ -45,7 +46,7 @@ public class DirectEliminationController {
 
     @PutMapping("/update-direct-elimination-match/{eid}")
     @PreAuthorize("hasRole('ORGANISER')")
-    public ResponseEntity<List<DirectEliminationBracketDTO>> updateDirectEliminationMatch(@PathVariable int eid, @RequestBody UpdateDirectEliminationMatchDTO dto) {
+    public ResponseEntity<List<DirectEliminationBracketDTO>> updateDirectEliminationMatch(@PathVariable int eid, @Valid @RequestBody UpdateDirectEliminationMatchDTO dto) {
         directEliminationService.updateDEMatch(eid, dto);
         List<DirectEliminationBracketDTO> res = directEliminationService.generateDirectEliminationBracketDTOs(eid);
         if (res != null && res.size() != 0) {

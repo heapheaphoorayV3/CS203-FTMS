@@ -403,6 +403,11 @@ public class PouleService {
         Map<String, String> newPouleTable = dto.getSingleTable();
         List<TournamentFencer> fencers = getSortedFencers(poule);
 
+        for(TournamentFencer tf: poule.getFencers()){
+            tf.setPoulePoints(0);
+            tf.setPouleWins(0);
+        }
+
         for (int i = 0; i < newPouleTable.size(); i++) {
             TournamentFencer tf1 = fencers.get(i);
             String key = createPouleKey(tf1);
@@ -473,6 +478,7 @@ public class PouleService {
 
     // helper for updatePouleTable
     private void updateAllPouleMatches(Poule poule) {
+
         for (PouleMatch pouleMatch : poule.getPouleMatches()) {
             updateTournamentFencerPoulePoints(pouleMatch);
             matchRepository.save(pouleMatch);
