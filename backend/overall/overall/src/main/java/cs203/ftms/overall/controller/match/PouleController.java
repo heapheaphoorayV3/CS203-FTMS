@@ -69,7 +69,6 @@ public class PouleController {
     }
     
     @GetMapping("/get-poules-result/{eid}")
-    @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
     public ResponseEntity<PouleResultsDTO> getPouleResults(@PathVariable int eid) {
         PouleResultsDTO res = pouleService.poulesResult(eid);
         return new ResponseEntity<>(res, HttpStatus.OK);
