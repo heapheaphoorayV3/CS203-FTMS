@@ -48,7 +48,6 @@ const OrganiserDashboard = () => {
       try {
         const response = await OrganiserService.getAllHostedTournaments();
         const tournaments = response.data;
-
         const currentDate = new Date();
         const ongoingTournamentsData = tournaments
           .filter((tournament) => {
@@ -160,6 +159,7 @@ const OrganiserDashboard = () => {
         setUserData((prevData) => ({ ...prevData, ...editedData }));
         setIsEditing(false);
       } catch (error) {
+        setContactNoErrors({ contactNo: "Please enter a valid phone number with country code!" });
         console.error("Error saving profile:", error);
       }
     }

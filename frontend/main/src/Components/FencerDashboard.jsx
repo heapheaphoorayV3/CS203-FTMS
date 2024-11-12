@@ -210,6 +210,7 @@ const FencerDashboard = () => {
         setIsEditing(false);
       } catch (error) {
         console.error("Error saving profile:", error);
+        setContactNoErrors({ contactNo: "Please enter a valid phone number with country code!" });
       }
     }
   };
