@@ -20,6 +20,7 @@ import cs203.ftms.overall.exception.EntityDoesNotExistException;
 import cs203.ftms.overall.exception.EventAlreadyExistsException;
 import cs203.ftms.overall.exception.EventCannotEndException;
 import cs203.ftms.overall.exception.FencerAlreadyRegisteredForEventException;
+import cs203.ftms.overall.exception.FencerProfileMismatchException;
 import cs203.ftms.overall.exception.SignUpDateOverExcpetion;
 import cs203.ftms.overall.model.tournamentrelated.DirectEliminationMatch;
 import cs203.ftms.overall.model.tournamentrelated.Event;
@@ -29,8 +30,6 @@ import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.repository.tournamentrelated.DirectEliminationMatchRepository;
 import cs203.ftms.overall.repository.tournamentrelated.EventRepository;
-import cs203.ftms.overall.repository.tournamentrelated.MatchRepository;
-import cs203.ftms.overall.repository.tournamentrelated.PouleRepository;
 import cs203.ftms.overall.repository.tournamentrelated.TournamentFencerRepository;
 import cs203.ftms.overall.repository.tournamentrelated.TournamentRepository;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
@@ -71,7 +70,7 @@ public class EventService {
             cleanFencers.add(fencerService.getCleanFencerDTO(f.getFencer()));
         }
 
-        return new CleanEventDTO(e.getId(), e.getGender(), e.getWeapon(), e.getTournament().getName(), cleanFencers, e.getMinParticipants(), e.getParticipantCount(), e.getDate(), e.getStartTime(), e.getEndTime(), e.getTournament().getSignupEndDate());
+        return new CleanEventDTO(e.getId(), e.getGender(), e.getWeapon(), e.getTournament().getName(), cleanFencers, e.getMinParticipants(), e.getParticipantCount(), e.getDate(), e.getStartTime(), e.getEndTime(), e.getTournament().getSignupEndDate(), e.isOver());
     } 
 
     public CleanTournamentFencerDTO getCleanTournamentFencerDTO(TournamentFencer tf) {
@@ -175,6 +174,14 @@ public class EventService {
 
         if (tournamentFencerRepository.findByFencerAndEvent(f, event) != null) {
             throw new FencerAlreadyRegisteredForEventException("Fencer already registered for event!");
+        }
+
+        if (event.getWeapon() != f.getWeapon()) {
+            throw new FencerProfileMismatchException("Fencer's weapon does not match the event's weapon!");
+        }
+
+        if (event.getGender() != f.getGender()) {
+            throw new FencerProfileMismatchException("Fencer's gender does not match the event's gender!");
         }
 
         // handle relevant relationships

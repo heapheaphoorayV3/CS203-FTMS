@@ -16,9 +16,10 @@ public class CleanEventDTO{
     private LocalTime startTime;
     private LocalTime endTime;
     private LocalDate signupEndDate;
+    private boolean isOver;
     
     public CleanEventDTO(int id, char gender, char weapon, String tournamentName, List<CleanFencerDTO> fencers, int minParticipants,
-            int participantCount, LocalDate eventDate, LocalTime startTime, LocalTime endTime, LocalDate signupEndDate) {
+            int participantCount, LocalDate eventDate, LocalTime startTime, LocalTime endTime, LocalDate signupEndDate, boolean isOver) {
         this.id = id;
         this.gender = gender; 
         this.weapon = weapon; 
@@ -30,6 +31,7 @@ public class CleanEventDTO{
         this.startTime = startTime;
         this.endTime = endTime;
         this.signupEndDate = signupEndDate;
+        this.isOver = isOver;
     }
 
     public String getTournamentName() {
@@ -119,5 +121,13 @@ public class CleanEventDTO{
 
     public void setSignupEndDate(LocalDate signupEndDate) {
         this.signupEndDate = signupEndDate;
+    }
+
+    public boolean getIsOver() {
+        return isOver;
+    }
+
+    public void setIsOver(boolean isOver) {
+        this.isOver = isOver;
     }
 }

@@ -9,6 +9,8 @@ import CreatePoules from "./CreatePoules.jsx";
 import Breadcrumbs from "../Others/Breadcrumbs.jsx";
 import UpdateBracketMatch from "./UpdateBracketMatch.jsx";
 import EndPoules from "./EndPoules.jsx";
+import EndEvent from "./EndEvent.jsx";
+import { motion } from "framer-motion";
 
 function formatTimeTo24Hour(timeString) {
   const [hours, minutes] = timeString.split(":"); // Get hours and minutes
@@ -30,6 +32,7 @@ export default function ViewEvent() {
   const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
   const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
   const [isEndPoulesPopupVisible, setIsEndPoulesPopupVisible] = useState(false);
+  const [isEndEventPopupVisible, setIsEndEventPopupVisible] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [eventRanking, setEventRanking] = useState(null);
   const [updatePoulesScores, setUpdatePoulesScores] = useState({});
@@ -355,6 +358,7 @@ export default function ViewEvent() {
 
   const closeUpdatePopup = () => {
     setIsUpdatePopupVisible(false);
+    fetchMatches();
   };
 
   const submitUpdatePoules = async () => {
@@ -368,7 +372,7 @@ export default function ViewEvent() {
         singleTable: Object.fromEntries(singleTableMap),
       };
 
-      console.log("sending to backend:",combinedData);
+      console.log("sending to backend:", combinedData);
 
       await EventService.updatePouleTable(eventID, combinedData);
 
@@ -382,20 +386,70 @@ export default function ViewEvent() {
 
   const endPoules = async () => {
     setIsEndPoulesPopupVisible(true);
-    fetchMatches();
   };
 
-  const totalPages = Math.ceil(eventRanking.length / limit);
+  const closeEndPoulesPopup = () => {
+    setIsEndPoulesPopupVisible(false);
+    fetchPouleTable();
+    fetchMatches();
+    fetchEventRanking();
+  };
 
-  // console.log("pouletabledata:", pouleTableData.pouleTable[0]);
+  const endEvent = async () => {
+    setIsEndEventPopupVisible(true);
+  };
+
+  const closeEndEventPopup = () => {
+    setIsEndEventPopupVisible(false);
+    fetchEventData();
+    fetchEventRanking();
+  };
+  console.log("eventdata:", eventData);
+  const totalPages = Math.ceil(eventRanking.length / limit);
 
   return (
     <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">
       <Breadcrumbs items={breadcrumbsItems} />
-      <h1 className="my-10 ml-12 text-left text-4xl font-semibold">
-        {eventData.tournamentName} -{" "}
-        {constructEventName(eventData.gender, eventData.weapon)}
-      </h1>
+      <div className="flex justify-between items-center mr-12 py-4 px-4">
+        <h1 className="my-10 ml-12 text-left text-4xl font-semibold">
+          {eventData.tournamentName} -{" "}
+          {constructEventName(eventData.gender, eventData.weapon)}
+        </h1>
+        {eventData.isOver ? (
+          <motion.div
+            className="shadow-lg rounded-lg bg-indigo-600 mr-12"
+            whileHover={{
+              scale: 0.9,
+              transition: { duration: 0.3 },
+            }}
+          >
+            <p className="font-semibold text-lg text-white p-4">
+              Event has ended
+            </p>
+          </motion.div>
+        ) : (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            whileHover={{
+              scale: 1.1,
+              backgroundColor: "#E3170A",
+              transition: { duration: 0.3 },
+            }}
+            className="bg-red-500 p-4 text-white rounded-md h-12 w-sm flex justify-center items-center"
+            onClick={endEvent}
+          >
+            End Event
+          </motion.button>
+        )}
+      </div>
+
+      {isEndEventPopupVisible && (
+        <>
+          <EndEvent id={eventID} closeEndEventPopup={closeEndEventPopup} />
+        </>
+      )}
 
       <div className="ml-12 mr-8 mb-10 grid grid-cols-3 auto-rows-fr gap-x-[10px] gap-y-[10px]">
         <div className="font-semibold text-lg">Date</div>
@@ -484,9 +538,7 @@ export default function ViewEvent() {
                             <>
                               <EndPoules
                                 id={eventID}
-                                closeEndPoulesPopup={() =>
-                                  setIsEndPoulesPopupVisible(false)
-                                }
+                                closeEndPoulesPopup={closeEndPoulesPopup}
                               />
                             </>
                           )}
