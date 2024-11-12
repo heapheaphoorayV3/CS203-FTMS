@@ -25,7 +25,6 @@ import cs203.ftms.overall.dto.CreateEventDTO;
 import cs203.ftms.overall.dto.UpdateEventDTO;
 import cs203.ftms.overall.dto.clean.CleanEventDTO;
 import cs203.ftms.overall.dto.clean.CleanTournamentFencerDTO;
-import cs203.ftms.overall.exception.EntityDoesNotExistException;
 import cs203.ftms.overall.exception.EventAlreadyExistsException;
 import cs203.ftms.overall.exception.FencerProfileIncompleteException;
 import cs203.ftms.overall.model.tournamentrelated.Event;
@@ -135,6 +134,20 @@ public class EventController {
         eventService.endTournamentEvent(eid);
         return new ResponseEntity<>("event ended", HttpStatus.OK);
     }
+
+    @GetMapping("/get-all-events-by-gender-and-weapon")
+    @PreAuthorize("hasRole('FENCER')")
+    public ResponseEntity<List<CleanEventDTO>> getAllEventsByGenderAndWeapon(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        List<Event> events = eventService.getEventsByGenderAndWeapon(((Fencer) user).getGender(), ((Fencer) user).getWeapon());
+        List<CleanEventDTO> res = new ArrayList<>();
+        for (Event event : events) {
+            res.add(eventService.getCleanEventDTO(event));
+        }
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
 }   
 
 

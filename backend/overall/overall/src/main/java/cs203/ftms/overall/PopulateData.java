@@ -267,13 +267,13 @@ public class PopulateData {
             return;
         }
 
-        if (pouleRepository.count() == 0) {
-            createPoules();
-            createPouleMatches();
-            updatePouleTable();
-            printUpdatedPouleTable();
-            printPouleResult();
-            createDirectEliminationMatches();
-        }
+        // if (pouleRepository.count() == 0) {
+        //     createPoules();
+        //     createPouleMatches();
+        //     updatePouleTable();
+        //     printUpdatedPouleTable();
+        //     printPouleResult();
+        //     createDirectEliminationMatches();
+        // }
     }
 }
