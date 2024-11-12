@@ -54,7 +54,8 @@ const UpdateTournament = ({ selectedTournament, onClose }) => {
       if (error.response) {
         console.log("Error response data: ", error.response.data);
         if (typeof error.response.data === 'object') {
-          setError(Object.keys(error.response.data)[0]);
+          const [firstKey, firstValue] = Object.entries(error.response.data)[0];
+          setError(firstValue);
         }
         else setError(error.response.data);
       } else if (error.request) {
