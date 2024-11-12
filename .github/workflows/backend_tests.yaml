@@ -30,6 +30,7 @@ jobs:
 
     - name: Set up JDK 17
       uses: actions/setup-java@v3
+      working-directory: backend/overall/overall
       with:
         java-version: '17'
         distribution: 'temurin'
@@ -37,12 +38,14 @@ jobs:
 
     - name: Cache Maven packages
       uses: actions/cache@v3
+      working-directory: backend/overall/overall
       with:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
 
     - name: Run Unit Tests
+      working-directory: backend/overall/overall
       run: mvn test -Dtest=!**/*ServiceTest.java
       env:
         SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/testdb
@@ -50,6 +53,7 @@ jobs:
         SPRING_DATASOURCE_PASSWORD: root
 
     - name: Run Integration Tests
+      working-directory: backend/overall/overall
       run: mvn test -Dtest=**/*IntegrationTest.java
       env:
         SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/testdb
@@ -57,10 +61,12 @@ jobs:
         SPRING_DATASOURCE_PASSWORD: root
 
     - name: Generate Test Report
+      working-directory: backend/overall/overall
       if: always()
       run: mvn surefire-report:report-only
 
     - name: Upload Test Report
+      working-directory: backend/overall/overall
       if: always()
       uses: actions/upload-artifact@v3
       with:
@@ -68,10 +74,12 @@ jobs:
         path: target/site/surefire-report.html
 
     - name: Build with Maven
+      working-directory: backend/overall/overall
       if: success()
       run: mvn -B package --file pom.xml -DskipTests
 
     - name: Upload Build Artifact
+      working-directory: backend/overall/overall
       if: success()
       uses: actions/upload-artifact@v3
       with:
