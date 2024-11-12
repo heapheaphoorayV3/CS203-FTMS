@@ -359,7 +359,6 @@ export default function ViewEvent() {
   const closeUpdatePopup = () => {
     setIsUpdatePopupVisible(false);
     fetchMatches();
-    fetchEventRanking();
   };
 
   const submitUpdatePoules = async () => {
@@ -404,9 +403,8 @@ export default function ViewEvent() {
     setIsEndEventPopupVisible(false);
     fetchEventData();
     fetchEventRanking();
-    
   };
-  console.log("eventdata:",eventData);
+  console.log("eventdata:", eventData);
   const totalPages = Math.ceil(eventRanking.length / limit);
 
   return (
@@ -417,7 +415,19 @@ export default function ViewEvent() {
           {eventData.tournamentName} -{" "}
           {constructEventName(eventData.gender, eventData.weapon)}
         </h1>
-        {eventData.event_ended && (
+        {eventData.isOver ? (
+          <motion.div
+            className="shadow-lg rounded-lg bg-indigo-600 mr-12"
+            whileHover={{
+              scale: 0.9,
+              transition: { duration: 0.3 },
+            }}
+          >
+            <p className="font-semibold text-lg text-white p-4">
+              Event has ended
+            </p>
+          </motion.div>
+        ) : (
           <motion.button
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
