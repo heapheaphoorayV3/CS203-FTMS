@@ -64,12 +64,11 @@ jobs:
       run: mvn surefire-report:report-only
 
     - name: Upload Test Report
-      working-directory: backend/overall/overall
       if: always()
       uses: actions/upload-artifact@v3
       with:
         name: test-report
-        path: target/site/surefire-report.html
+        path: backend/overall/overall/target/site/surefire-report.html
 
     - name: Build with Maven
       working-directory: backend/overall/overall
@@ -77,9 +76,8 @@ jobs:
       run: mvn -B package --file pom.xml -DskipTests
 
     - name: Upload Build Artifact
-      working-directory: backend/overall/overall
       if: success()
       uses: actions/upload-artifact@v3
       with:
         name: application-jar
-        path: target/*.jar
+        path: backend/overall/overall/target/*.jar
