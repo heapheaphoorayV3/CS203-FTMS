@@ -52,6 +52,7 @@ export default function ViewEvent() {
     try {
       const response = await EventService.getEvent(eventID);
       setEventData(response.data);
+      console.log("poule data =>", pouleTableData);
       // console.log("event data =>");
     } catch (error) {
       if (error.response) {
@@ -272,16 +273,16 @@ export default function ViewEvent() {
       name: loading
         ? "Loading..."
         : eventData
-        ? eventData.tournamentName
-        : "Not Found",
+          ? eventData.tournamentName
+          : "Not Found",
       link: `/tournaments/${tournamentID}`,
     },
     {
       name: loading
         ? "Loading..."
         : eventData
-        ? constructEventName(eventData.gender, eventData.weapon)
-        : "Not Found",
+          ? constructEventName(eventData.gender, eventData.weapon)
+          : "Not Found",
     },
   ];
 
@@ -428,21 +429,24 @@ export default function ViewEvent() {
             </p>
           </motion.div>
         ) : (
-          <motion.button
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            whileHover={{
-              scale: 1.1,
-              backgroundColor: "#E3170A",
-              transition: { duration: 0.3 },
-            }}
-            className="bg-red-500 p-4 text-white rounded-md h-12 w-sm flex justify-center items-center"
-            onClick={endEvent}
-          >
-            End Event
-          </motion.button>
+          userType === 'O' && isOwner && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              whileHover={{
+                scale: 1.1,
+                backgroundColor: "#E3170A",
+                transition: { duration: 0.3 },
+              }}
+              className="bg-red-500 p-4 text-white rounded-md h-12 w-sm flex justify-center items-center"
+              onClick={endEvent}
+            >
+              End Event
+            </motion.button>
+          )
         )}
+
       </div>
 
       {isEndEventPopupVisible && (
@@ -464,7 +468,7 @@ export default function ViewEvent() {
         <Tabs>
           <Tab label="Poules">
             <div className="py-4">
-              {userType === "O" && (
+              {userType === "O" && isOwner && (
                 <div>
                   {pouleTableData.pouleTable.length === 0 ? (
                     <button
@@ -474,167 +478,136 @@ export default function ViewEvent() {
                       Create Poules
                     </button>
                   ) : (
-                    <>
-                      <div className="flex items-end w-full">
-                        <div className="mr-12 h-20">
-                          <label className="block font-medium mb-1 ml-1">
-                            Poule Results
-                          </label>
-                          <select
-                            value={selectedPoule}
-                            onChange={handlePouleChange}
-                            className="block w-full py-2 px-3 border border-gray-300 rounded"
-                          >
-                            {pouleTableData.pouleTable.map((poule, index) => (
-                              <option key={index} value={index + 1}>
-                                {`Poule ${index + 1}`}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-
-                        <div className="flex mt-4 pb-2 space-x-2">
-                          {matches.length === 0 && (
-                            <>
-                              <button
-                                onClick={() => endPoules()}
-                                className="bg-blue-500 text-white px-4 py-2 rounded"
-                              >
-                                End Poules
-                              </button>
-
-                              <button
-                                onClick={updatePoules}
-                                className="bg-blue-500 text-white px-4 py-2 rounded"
-                              >
-                                Update Poules
-                              </button>
-                            </>
-                          )}
-
-                          {isUpdating && (
-                            <>
-                              <button
-                                onClick={submitUpdatePoules}
-                                className="bg-green-400 text-white px-4 py-2 rounded"
-                              >
-                                Confirm Changes
-                              </button>
-                              <button
-                                onClick={cancelUpdatePoules}
-                                className="bg-red-400 text-white px-4 py-2 rounded"
-                              >
-                                Cancel Changes
-                              </button>
-                              {!isInputValid && (
-                                <span className="px-4 py-2 text-red-500 italic">
-                                  Invalid input. Input a number between 0 and 5.
-                                </span>
-                              )}
-                            </>
-                          )}
-
-                          {isEndPoulesPopupVisible && (
-                            <>
-                              <EndPoules
-                                id={eventID}
-                                closeEndPoulesPopup={closeEndPoulesPopup}
-                              />
-                            </>
-                          )}
-                        </div>
-                      </div>
-                      <table className="table text-lg">
-                        {/* head */}
-                        <thead className="text-lg text-neutral">
-                          <tr className="border-b border-gray-300 h-[50px]">
-                            <th className="w-60 text-primary">Fencer</th>
-                            <th className="w-24"></th>
-                            {pouleTableData &&
-                              pouleTableData.pouleTable[pouleIndex] &&
-                              Object.entries(
-                                pouleTableData.pouleTable[pouleIndex]
-                              )[0] &&
-                              // Access the first fencer's result array length to determine the number of headers needed
-                              Array.from({
-                                length: Object.entries(
-                                  pouleTableData.pouleTable[pouleIndex]
-                                )[0][1].split(",").length,
-                              }).map((_, idx) => (
-                                <th key={idx} className="text-center w-24">
-                                  {idx + 1}
-                                </th>
-                              ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {pouleTableData &&
-                          pouleTableData.pouleTable[pouleIndex] ? (
-                            Object.entries(
-                              pouleTableData.pouleTable[pouleIndex]
-                            ).map(([fencer, results], idx) => {
-                              const resultArray = results.split(",");
-                              const cleanedFencerName = fencer.replace(
-                                / -- \d+$/,
-                                ""
-                              );
-
-                              return (
-                                <tr
-                                  key={idx}
-                                  className="border-b border-gray-300 h-[68px]"
-                                >
-                                  <td className="w-60">{cleanedFencerName}</td>
-                                  <td className="font-bold text-center border-r border-gray-300 w-24">
-                                    {idx + 1}
-                                  </td>
-                                  {resultArray.map((result, resultIndex) => (
-                                    <td
-                                      key={resultIndex}
-                                      className={`border border-gray-300 hover:bg-gray-100 ${
-                                        result === "-1"
-                                          ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
-                                          : ""
-                                      }`}
-                                    >
-                                      {result === "-1" ? (
-                                        result
-                                      ) : isUpdating ? (
-                                        <input
-                                          type="text"
-                                          placeholder={result}
-                                          onChange={(event) =>
-                                            handleInputChange(
-                                              event,
-                                              resultIndex,
-                                              idx
-                                            )
-                                          }
-                                          className={`w-full text-center ${
-                                            !isInputValid
-                                              ? "border-red-500"
-                                              : "border-gray-300"
-                                          }`}
-                                        />
-                                      ) : (
-                                        result
-                                      )}
-                                    </td>
-                                  ))}
-                                </tr>
-                              );
-                            })
-                          ) : (
-                            <tr className="text-center border-b border-gray-300">
-                              <td colSpan={7}>No poules available yet</td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </>
+                    <div className="flex mt-4 pb-2 space-x-2">
+                      {matches.length === 0 && (
+                        <button
+                          onClick={() => endPoules()}
+                          className="bg-blue-500 text-white px-4 py-2 rounded"
+                        >
+                          End Poules
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
               )}
+
+              {/* Other content always visible for all users */}
+              <div className="flex items-end w-full">
+                <div className="mr-12 h-20">
+                  <label className="block font-medium mb-1 ml-1">Poule Results</label>
+                  <select
+                    value={selectedPoule}
+                    onChange={handlePouleChange}
+                    className="block w-full py-2 px-3 border border-gray-300 rounded"
+                  >
+                    {pouleTableData.pouleTable.map((poule, index) => (
+                      <option key={index} value={index + 1}>
+                        {`Poule ${index + 1}`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Conditional buttons when isUpdating or isEndPoulesPopupVisible */}
+                <div className="flex mt-4 pb-2 space-x-2">
+                  {isUpdating && (
+                    <>
+                      <button
+                        onClick={submitUpdatePoules}
+                        className="bg-green-400 text-white px-4 py-2 rounded"
+                      >
+                        Confirm Changes
+                      </button>
+                      <button
+                        onClick={cancelUpdatePoules}
+                        className="bg-red-400 text-white px-4 py-2 rounded"
+                      >
+                        Cancel Changes
+                      </button>
+                      {!isInputValid && (
+                        <span className="px-4 py-2 text-red-500 italic">
+                          Invalid input. Input a number between 0 and 5.
+                        </span>
+                      )}
+                    </>
+                  )}
+
+                  {isEndPoulesPopupVisible && (
+                    <EndPoules id={eventID} closeEndPoulesPopup={closeEndPoulesPopup} />
+                  )}
+                </div>
+              </div>
+
+              {/* Poule Table */}
+              <table className="table text-lg">
+                <thead className="text-lg text-neutral">
+                  <tr className="border-b border-gray-300 h-[50px]">
+                    <th className="w-60 text-primary">Fencer</th>
+                    <th className="w-24"></th>
+                    {pouleTableData &&
+                      pouleTableData.pouleTable[pouleIndex] &&
+                      Object.entries(pouleTableData.pouleTable[pouleIndex])[0] &&
+                      Array.from({
+                        length: Object.entries(
+                          pouleTableData.pouleTable[pouleIndex]
+                        )[0][1].split(",").length,
+                      }).map((_, idx) => (
+                        <th key={idx} className="text-center w-24">
+                          {idx + 1}
+                        </th>
+                      ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {pouleTableData && pouleTableData.pouleTable[pouleIndex] ? (
+                    Object.entries(pouleTableData.pouleTable[pouleIndex]).map(
+                      ([fencer, results], idx) => {
+                        const resultArray = results.split(",");
+                        const cleanedFencerName = fencer.replace(/ -- \d+$/, "");
+
+                        return (
+                          <tr key={idx} className="border-b border-gray-300 h-[68px]">
+                            <td className="w-60">{cleanedFencerName}</td>
+                            <td className="font-bold text-center border-r border-gray-300 w-24">
+                              {idx + 1}
+                            </td>
+                            {resultArray.map((result, resultIndex) => (
+                              <td
+                                key={resultIndex}
+                                className={`border border-gray-300 hover:bg-gray-100 ${result === "-1"
+                                    ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
+                                    : ""
+                                  }`}
+                              >
+                                {result === "-1" ? (
+                                  result
+                                ) : isUpdating ? (
+                                  <input
+                                    type="text"
+                                    placeholder={result}
+                                    onChange={(event) =>
+                                      handleInputChange(event, resultIndex, idx)
+                                    }
+                                    className={`w-full text-center ${!isInputValid ? "border-red-500" : "border-gray-300"
+                                      }`}
+                                  />
+                                ) : (
+                                  result
+                                )}
+                              </td>
+                            ))}
+                          </tr>
+                        );
+                      }
+                    )
+                  ) : (
+                    <tr className="text-center border-b border-gray-300">
+                      <td colSpan={7}>No poules available yet</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
             {/* Create Poule Popup --> need to pass in submit/close */}
             {isCreatePopupVisible && (
