@@ -45,9 +45,9 @@ export default function ViewTournament() {
     { value: "MF", label: "Men's Foil" },
     { value: "ME", label: "Men's Épée" },
     { value: "MS", label: "Men's Sabre" },
-    { value: "FF", label: "Women's Foil" },
-    { value: "FE", label: "Women's Épée" },
-    { value: "FS", label: "Women's Sabre" },
+    { value: "WF", label: "Women's Foil" },
+    { value: "WE", label: "Women's Épée" },
+    { value: "WS", label: "Women's Sabre" },
   ];
   const [eventTypes, setEventTypes] = useState(allEventTypes);
   const [newEventsArray, setNewEventsArray] = useState([]);
@@ -332,7 +332,7 @@ export default function ViewTournament() {
       case "M":
         eventName += "Men's ";
         break;
-      case "F":
+      case "W":
         eventName += "Women's ";
         break;
     }
@@ -516,7 +516,9 @@ export default function ViewTournament() {
                       className="border-b border-gray-300 hover:bg-gray-100"
                     >
                       {/* <td>Event details</td> */}
-                      <td>
+                      <td>{isCreating ?
+                        (constructEventName(event.gender, event.weapon)
+                        ) : (
                         <Link
                           to={{
                             pathname: `/${tournamentID}/view-event/${event.id}`,
@@ -525,6 +527,7 @@ export default function ViewTournament() {
                         >
                           {constructEventName(event.gender, event.weapon)}
                         </Link>
+                      )}
                       </td>
                       <td>{formatDate(event.eventDate || event.date)}</td>
                       <td>{formatTimeTo24Hour(event.startTime)}</td>
@@ -541,30 +544,28 @@ export default function ViewTournament() {
                           </SubmitButton>
                         }
                         {sessionStorage.getItem("userType") === "F" &&
-                         !isPastStartDate() &&
-                         registeredEvents.includes(event.id) && (
-                          <SubmitButton
-                            styling={`h-12 w-36 justify-center rounded-md my-5 text-lg font-semibold leading-6 text-white shadow-sm bg-green-400`}
-                            onSubmit={() => unregisterEvent(event.id)}
-                          >
-                            Unregister
-                          </SubmitButton>
-                        )} 
+                          !isPastStartDate() &&
+                          registeredEvents.includes(event.id) && (
+                            <SubmitButton
+                              styling={`h-12 w-36 justify-center rounded-md my-5 text-lg font-semibold leading-6 text-white shadow-sm bg-green-400`}
+                              onSubmit={() => unregisterEvent(event.id)}
+                            >
+                              Unregister
+                            </SubmitButton>
+                          )}
                         {sessionStorage.getItem("userType") === "F" &&
-                         !isPastStartDate() &&
-                         !registeredEvents.includes(event.id) && (
-                          <SubmitButton
-                            styling={`h-12 w-36 justify-center rounded-md my-5 text-lg font-semibold leading-6 text-white shadow-sm bg-blue-400`}
-                            onSubmit={() => {registerEvent(event.id)}}
-                          >
-                            Register
-                          </SubmitButton>
-                        )}
+                          !isPastStartDate() &&
+                          !registeredEvents.includes(event.id) && (
+                            <SubmitButton
+                              styling={`h-12 w-36 justify-center rounded-md my-5 text-lg font-semibold leading-6 text-white shadow-sm bg-blue-400`}
+                              onSubmit={() => { registerEvent(event.id) }}
+                            >
+                              Register
+                            </SubmitButton>
+                          )}
                         {sessionStorage.getItem("userType") === "O" &&
                           isOwner &&
-                          !newEventsArray.some(
-                            (newEvent) => newEvent.id === event.id
-                          ) &&
+                          !isCreating &&
                           getTournamentStatus(
                             tournamentData.startDate,
                             tournamentData.endDate

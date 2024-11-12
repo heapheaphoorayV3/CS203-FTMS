@@ -14,7 +14,7 @@ const EndEvent = ({ id, closeEndEventPopup }) => {
       closeEndEventPopup();
     } catch (error) {
       if (error.response) {
-        console.log("Error response data: ", error.response.data);
+        console.log("Error response data: ", error.response);
         setError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received

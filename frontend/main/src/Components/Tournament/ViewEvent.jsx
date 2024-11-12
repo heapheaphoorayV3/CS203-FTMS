@@ -241,7 +241,7 @@ export default function ViewEvent() {
       case "M":
         eventName += "Men's ";
         break;
-      case "F":
+      case "W":
         eventName += "Women's ";
         break;
     }
