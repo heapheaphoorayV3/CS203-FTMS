@@ -24,11 +24,15 @@ const CreatePoules = ({ onClose, eventID }) => {
       } else if (error.request) {
         // The request was made but no response was received
         console.log("Error request: ", error.request);
-        setRecommendedPoulesError("Recommended Poules have failed to load, please try again later.");
+        setRecommendedPoulesError(
+          "Recommended Poules have failed to load, please try again later."
+        );
       } else {
         // Something happened in setting up the request that triggered an Error
         console.log("Unknown Error: " + error);
-        setRecommendedPoulesError("Recommended Poules have failed to load, please try again later.");
+        setRecommendedPoulesError(
+          "Recommended Poules have failed to load, please try again later."
+        );
       }
     }
   };
@@ -61,7 +65,6 @@ const CreatePoules = ({ onClose, eventID }) => {
         setCreatePouleError("Poule Creation Failed, please try again later.");
       }
     }
-    
   };
 
   return (
@@ -88,7 +91,7 @@ const CreatePoules = ({ onClose, eventID }) => {
               ))}
             </ul>
           ) : (
-            <p>No recommended poules available.</p>
+            <p className="text-red-500">No recommended poules available.</p>
           )}
         </div>
         <form
@@ -111,8 +114,9 @@ const CreatePoules = ({ onClose, eventID }) => {
                   return true; // If valid, return true
                 },
               })}
-              className={`w-full border rounded-md p-2 ${errors.pouleCount ? "border-red-500" : "border-gray-300"
-                }`}
+              className={`w-full border rounded-md p-2 ${
+                errors.pouleCount ? "border-red-500" : "border-gray-300"
+              }`}
             />
             {errors.pouleCount && (
               <p className="text-red-500 text-sm italic">
@@ -124,14 +128,24 @@ const CreatePoules = ({ onClose, eventID }) => {
           {/* Submit Button */}
           <div className="md:col-span-2">
             <button
-              onSubmit={handleSubmit}
-              className="w-full bg-blue-500 text-white rounded-md py-2"
+              onClick={handleSubmit}
+              className={`w-full rounded-md py-2 ${
+                recommendedPoulesData.length === 0
+                  ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                  : "bg-blue-500 text-white"
+              }`}
+              disabled={recommendedPoulesData.length === 0} // Disable button when the length is not 0
             >
               Create Poules
             </button>
           </div>
         </form>
-        {createPouleError && <h2 className="text-red-500 text-center mt-4"> {createPouleError} </h2>}
+        {createPouleError && (
+          <h2 className="text-red-500 text-center mt-4">
+            {" "}
+            {createPouleError}{" "}
+          </h2>
+        )}
       </div>
     </div>
   );

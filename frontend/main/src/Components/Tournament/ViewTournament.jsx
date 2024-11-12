@@ -99,11 +99,15 @@ export default function ViewTournament() {
       } else if (error.request) {
         // The request was made but no response was received
         console.log("Error request: ", error.request);
-        setError("Registered Event Data has failed to load, please try again later.");
+        setError(
+          "Registered Event Data has failed to load, please try again later."
+        );
       } else {
         // Something happened in setting up the request that triggered an Error
         console.log("Unknown Error: " + error);
-        setError("Registered Event Data has failed to load, please try again later.");
+        setError(
+          "Registered Event Data has failed to load, please try again later."
+        );
       }
     }
   };
@@ -122,7 +126,10 @@ export default function ViewTournament() {
       }
       setIsOwner(found);
     } catch (error) {
-      console.error("Error fetching upcoming tournaments for organiser:", error);
+      console.error(
+        "Error fetching upcoming tournaments for organiser:",
+        error
+      );
       setError("Failed to load Tournament Data.");
     }
   };
@@ -164,8 +171,8 @@ export default function ViewTournament() {
       name: loading
         ? "Loading..."
         : tournamentData
-          ? tournamentData.name
-          : "Not Found",
+        ? tournamentData.name
+        : "Not Found",
     },
   ];
 
@@ -176,7 +183,7 @@ export default function ViewTournament() {
   if (error) {
     return (
       <div className="flex justify-between mr-20 my-10">
-        <h1 className=" ml-12 text-left text-4xl font-semibold">{error}</h1>
+        <h1 className=" ml-12 text-left text-2xl font-semibold">{error}</h1>
       </div>
     ); // Show error message if any
   }
@@ -293,7 +300,10 @@ export default function ViewTournament() {
   // "Confirm Changes" --> Submit Events Array
   const submitEventsArray = async () => {
     try {
-      const response = await EventService.createEvents(tournamentID, newEventsArray);
+      const response = await EventService.createEvents(
+        tournamentID,
+        newEventsArray
+      );
       // Set isCreating to false
       setIsCreating(false);
       // Set NewEventArray to empty
@@ -314,7 +324,6 @@ export default function ViewTournament() {
         setAddEventError("An error has occured, please try again later.");
       }
     }
-
   };
 
   // Check if today is past the start date of the tournament (for the register button)
@@ -357,6 +366,7 @@ export default function ViewTournament() {
     try {
       await EventService.registerEvent(eventID).then(() => {
         fetchRegisteredEvents();
+        fetchData();
       });
     } catch (error) {
       if (error.response) {
@@ -365,11 +375,15 @@ export default function ViewTournament() {
       } else if (error.request) {
         // The request was made but no response was received
         console.log("Error request: ", error.request);
-        setRegisterEventError("Event registration has failed, please try again later.");
+        setRegisterEventError(
+          "Event registration has failed, please try again later."
+        );
       } else {
         // Something happened in setting up the request that triggered an Error
         console.log("Unknown Error: " + error);
-        setRegisterEventError("Event registration has failed, please try again later.");
+        setRegisterEventError(
+          "Event registration has failed, please try again later."
+        );
       }
     }
   };
@@ -379,6 +393,7 @@ export default function ViewTournament() {
     try {
       await EventService.unregisterEvent(eventID).then(() => {
         fetchRegisteredEvents();
+        fetchData();
       });
     } catch (error) {
       if (error.response) {
@@ -387,11 +402,15 @@ export default function ViewTournament() {
       } else if (error.request) {
         // The request was made but no response was received
         console.log("Error request: ", error.request);
-        setRegisterEventError("Event registration/deregistration has failed, please try again later.");
+        setRegisterEventError(
+          "Event registration/deregistration has failed, please try again later."
+        );
       } else {
         // Something happened in setting up the request that triggered an Error
         console.log("Unknown Error: " + error);
-        setRegisterEventError("Event registration/deregistration has failed, please try again later.");
+        setRegisterEventError(
+          "Event registration/deregistration has failed, please try again later."
+        );
       }
     }
   };
@@ -516,18 +535,19 @@ export default function ViewTournament() {
                       className="border-b border-gray-300 hover:bg-gray-100"
                     >
                       {/* <td>Event details</td> */}
-                      <td>{isCreating ?
-                        (constructEventName(event.gender, event.weapon)
+                      <td>
+                        {isCreating ? (
+                          constructEventName(event.gender, event.weapon)
                         ) : (
-                        <Link
-                          to={{
-                            pathname: `/${tournamentID}/view-event/${event.id}`,
-                          }}
-                          className="underline hover:text-primary"
-                        >
-                          {constructEventName(event.gender, event.weapon)}
-                        </Link>
-                      )}
+                          <Link
+                            to={{
+                              pathname: `/${tournamentID}/view-event/${event.id}`,
+                            }}
+                            className="underline hover:text-primary"
+                          >
+                            {constructEventName(event.gender, event.weapon)}
+                          </Link>
+                        )}
                       </td>
                       <td>{formatDate(event.eventDate || event.date)}</td>
                       <td>{formatTimeTo24Hour(event.startTime)}</td>
@@ -535,19 +555,19 @@ export default function ViewTournament() {
                       <td>{event.fencers ? event.fencers.length : 0}</td>
                       <td>
                         {sessionStorage.getItem("userType") === "F" &&
-                          isPastStartDate() &&
-                          <SubmitButton
-                            disabled={true}
-                            styling={`h-12 w-36 justify-center rounded-md my-5 text-lg font-semibold leading-6 text-white shadow-sm bg-gray-500`}
-                          >
-                            Signups Ended
-                          </SubmitButton>
-                        }
+                          isPastStartDate() && (
+                            <SubmitButton
+                              disabled={true}
+                              styling={`h-12 w-40 justify-center rounded-md my-5 text-lg font-semibold leading-6 text-white shadow-sm bg-gray-500`}
+                            >
+                              Signups Ended
+                            </SubmitButton>
+                          )}
                         {sessionStorage.getItem("userType") === "F" &&
                           !isPastStartDate() &&
                           registeredEvents.includes(event.id) && (
                             <SubmitButton
-                              styling={`h-12 w-36 justify-center rounded-md my-5 text-lg font-semibold leading-6 text-white shadow-sm bg-green-400`}
+                              styling={`h-12 w-40 justify-center rounded-md my-5 text-lg font-semibold leading-6 text-white shadow-sm bg-green-400`}
                               onSubmit={() => unregisterEvent(event.id)}
                             >
                               Unregister
@@ -557,8 +577,10 @@ export default function ViewTournament() {
                           !isPastStartDate() &&
                           !registeredEvents.includes(event.id) && (
                             <SubmitButton
-                              styling={`h-12 w-36 justify-center rounded-md my-5 text-lg font-semibold leading-6 text-white shadow-sm bg-blue-400`}
-                              onSubmit={() => { registerEvent(event.id) }}
+                              styling={`h-12 w-40 justify-center rounded-md my-5 bg-indigo-600 text-lg font-semibold leading-6 text-white shadow-sm `}
+                              onSubmit={() => {
+                                registerEvent(event.id);
+                              }}
                             >
                               Register
                             </SubmitButton>
@@ -610,7 +632,10 @@ export default function ViewTournament() {
                           </button>
                         )}
                         {isOwner &&
-                          getTournamentStatus(tournamentData.startDate, tournamentData.endDate) === "Upcoming" && (
+                          getTournamentStatus(
+                            tournamentData.startDate,
+                            tournamentData.endDate
+                          ) === "Upcoming" && (
                             <button
                               onClick={openCreatePopup}
                               className="bg-blue-500 text-white px-4 py-2 rounded mx-36 mt-10"
@@ -632,7 +657,12 @@ export default function ViewTournament() {
                 )}
               </tbody>
             </table>
-            {registerEventError && <h2 className="text-red-500 text-center mt-4"> {registerEventError} </h2>}
+            {registerEventError && (
+              <h2 className="text-red-500 text-center mt-4">
+                {" "}
+                {registerEventError}{" "}
+              </h2>
+            )}
           </Tab>
         </Tabs>
         <div style={{ position: "fixed", zIndex: 10 }}>
