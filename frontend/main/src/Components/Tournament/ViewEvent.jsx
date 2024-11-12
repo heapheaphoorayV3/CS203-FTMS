@@ -9,6 +9,8 @@ import CreatePoules from "./CreatePoules.jsx";
 import Breadcrumbs from "../Others/Breadcrumbs.jsx";
 import UpdateBracketMatch from "./UpdateBracketMatch.jsx";
 import EndPoules from "./EndPoules.jsx";
+import EndEvent from "./EndEvent.jsx";
+import { motion } from "framer-motion";
 
 function formatTimeTo24Hour(timeString) {
   const [hours, minutes] = timeString.split(":"); // Get hours and minutes
@@ -30,6 +32,7 @@ export default function ViewEvent() {
   const [isCreatePopupVisible, setIsCreatePopupVisible] = useState(false);
   const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
   const [isEndPoulesPopupVisible, setIsEndPoulesPopupVisible] = useState(false);
+  const [isEndEventPopupVisible, setIsEndEventPopupVisible] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [eventRanking, setEventRanking] = useState(null);
   const [updatePoulesScores, setUpdatePoulesScores] = useState({});
@@ -355,6 +358,8 @@ export default function ViewEvent() {
 
   const closeUpdatePopup = () => {
     setIsUpdatePopupVisible(false);
+    fetchMatches();
+    fetchEventRanking();
   };
 
   const submitUpdatePoules = async () => {
@@ -388,19 +393,53 @@ export default function ViewEvent() {
     setIsEndPoulesPopupVisible(false);
     fetchPouleTable();
     fetchMatches();
+    fetchEventRanking();
   };
 
-  const totalPages = Math.ceil(eventRanking.length / limit);
+  const endEvent = async () => {
+    setIsEndEventPopupVisible(true);
+  };
 
-  // console.log("pouletabledata:", pouleTableData.pouleTable[0]);
+  const closeEndEventPopup = () => {
+    setIsEndEventPopupVisible(false);
+    fetchEventData();
+    fetchEventRanking();
+    
+  };
+  console.log("eventdata:",eventData);
+  const totalPages = Math.ceil(eventRanking.length / limit);
 
   return (
     <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">
       <Breadcrumbs items={breadcrumbsItems} />
-      <h1 className="my-10 ml-12 text-left text-4xl font-semibold">
-        {eventData.tournamentName} -{" "}
-        {constructEventName(eventData.gender, eventData.weapon)}
-      </h1>
+      <div className="flex justify-between items-center mr-12 py-4 px-4">
+        <h1 className="my-10 ml-12 text-left text-4xl font-semibold">
+          {eventData.tournamentName} -{" "}
+          {constructEventName(eventData.gender, eventData.weapon)}
+        </h1>
+        {eventData.event_ended && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            whileHover={{
+              scale: 1.1,
+              backgroundColor: "#E3170A",
+              transition: { duration: 0.3 },
+            }}
+            className="bg-red-500 p-4 text-white rounded-md h-12 w-sm flex justify-center items-center"
+            onClick={endEvent}
+          >
+            End Event
+          </motion.button>
+        )}
+      </div>
+
+      {isEndEventPopupVisible && (
+        <>
+          <EndEvent id={eventID} closeEndEventPopup={closeEndEventPopup} />
+        </>
+      )}
 
       <div className="ml-12 mr-8 mb-10 grid grid-cols-3 auto-rows-fr gap-x-[10px] gap-y-[10px]">
         <div className="font-semibold text-lg">Date</div>

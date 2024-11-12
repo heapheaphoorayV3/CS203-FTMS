@@ -61,6 +61,10 @@ class EventService {
   async deleteEvent(eid) {
     return await ProtectedAPI.delete(`${baseURL}/delete-event/${eid}`);
   }
+
+  async endEvent(eid) {
+    return await ProtectedAPI.put(`${baseURL}/end-event/${eid}`);
+  }
 }
 
 export default new EventService();
