@@ -3,6 +3,7 @@ package cs203.ftms.overall.service.event;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -29,8 +30,6 @@ import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.repository.tournamentrelated.DirectEliminationMatchRepository;
 import cs203.ftms.overall.repository.tournamentrelated.EventRepository;
-import cs203.ftms.overall.repository.tournamentrelated.MatchRepository;
-import cs203.ftms.overall.repository.tournamentrelated.PouleRepository;
 import cs203.ftms.overall.repository.tournamentrelated.TournamentFencerRepository;
 import cs203.ftms.overall.repository.tournamentrelated.TournamentRepository;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
@@ -106,7 +105,8 @@ public class EventService {
         Event event = getEvent(eid);
         Tournament tournament = event.getTournament();
         validateOrganiser(event, organiser);
-        for (TournamentFencer tf : event.getFencers()) {
+        Set<TournamentFencer> fencersCopy = new HashSet<>(event.getFencers());
+        for (TournamentFencer tf : fencersCopy) {
             Fencer fencer = tf.getFencer();
             unregisterEvent(eid, fencer);
         }
@@ -116,6 +116,7 @@ public class EventService {
         tournamentRepository.save(tournament);
         eventRepository.delete(event);
     }
+
 
     private Tournament validateTournament(int tid, Organiser organiser) {
         Tournament tournament = tournamentRepository.findById(tid).orElse(null);

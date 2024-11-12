@@ -48,6 +48,7 @@ import cs203.ftms.overall.repository.tournamentrelated.TournamentRepository;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
 import cs203.ftms.overall.service.event.EventService;
 import cs203.ftms.overall.service.fencer.FencerService;
+import jakarta.transaction.Transactional;
 
 public class EventServiceTest {
 
@@ -693,5 +694,61 @@ public class EventServiceTest {
         assertThrows(EventCannotEndException.class, () -> {
             eventService.endTournamentEvent(eid);
         });
+    }
+
+
+    @Test
+    @Transactional
+    void deleteEvent_ValidOrganiser() {
+        // Arrange
+        Organiser organiser = new Organiser();
+        organiser.setId(1);
+    
+        Tournament tournament = new Tournament();
+        tournament.setId(1);
+        tournament.setOrganiser(organiser);
+    
+        Event event = new Event();
+        event.setId(1);
+        event.setTournament(tournament);
+    
+        Fencer fencer1 = new Fencer();
+        fencer1.setId(1);
+    
+        Fencer fencer2 = new Fencer();
+        fencer2.setId(2);
+    
+        TournamentFencer tf1 = new TournamentFencer();
+        tf1.setFencer(fencer1);
+        tf1.setEvent(event); // Set the event for the tournament fencer
+        Set<TournamentFencer> fencer1profiles = new HashSet<>();
+        fencer1profiles.add(tf1);
+        fencer1.setTournamentFencerProfiles(fencer1profiles);
+        TournamentFencer tf2 = new TournamentFencer();
+        tf2.setFencer(fencer2);
+        tf2.setEvent(event); // Set the event for the tournament fencer
+        Set<TournamentFencer> fencer2profiles = new HashSet<>();
+        fencer2profiles.add(tf2);
+        fencer2.setTournamentFencerProfiles(fencer2profiles);
+
+
+        Set<TournamentFencer> fencers = new HashSet<>();
+        fencers.add(tf1);
+        fencers.add(tf2);
+        event.setFencers(fencers);
+    
+        Set<Event> events = new HashSet<>();
+        events.add(event);
+        tournament.setEvents(events);
+    
+        when(eventRepository.findById(1)).thenReturn(Optional.of(event));
+        when(tournamentRepository.findById(1)).thenReturn(Optional.of(tournament));
+    
+        // Act
+        eventService.deleteEvent(1, organiser);
+    
+        // Assert
+        verify(tournamentRepository, times(1)).save(tournament);
+        verify(eventRepository, times(1)).delete(event);
     }
 }

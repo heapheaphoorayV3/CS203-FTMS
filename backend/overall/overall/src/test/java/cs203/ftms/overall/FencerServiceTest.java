@@ -416,8 +416,8 @@ class FencerServiceTest {
 
         // Assert
         assertEquals(2, result.size());
-        assertEquals(event1.getId(), result.get(1).getId());
-        assertEquals(event2.getId(), result.get(0).getId());
+        assertEquals(event1.getId(), result.get(0).getId());
+        assertEquals(event2.getId(), result.get(1).getId());
     }
 
     @Test

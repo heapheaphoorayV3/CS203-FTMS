@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.times;
@@ -27,9 +28,14 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import cs203.ftms.overall.dto.CreateTournamentDTO;
 import cs203.ftms.overall.dto.clean.CleanEventDTO;
 import cs203.ftms.overall.dto.clean.CleanTournamentDTO;
+import cs203.ftms.overall.exception.TournamentAlreadyStartedException;
 import cs203.ftms.overall.model.tournamentrelated.Event;
+import cs203.ftms.overall.model.tournamentrelated.Poule;
 import cs203.ftms.overall.model.tournamentrelated.Tournament;
+import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
+import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.Organiser;
+import cs203.ftms.overall.repository.tournamentrelated.EventRepository;
 import cs203.ftms.overall.repository.tournamentrelated.TournamentRepository;
 import cs203.ftms.overall.service.event.EventService;
 import cs203.ftms.overall.service.tournament.TournamentService;
@@ -43,6 +49,9 @@ public class TournamentServiceTest {
 
     @Mock
     private TournamentRepository tournamentRepository;
+
+    @Mock
+    private EventRepository eventRepository;
 
     @Mock
     private EventService eventService;
@@ -97,53 +106,6 @@ public class TournamentServiceTest {
         assertEquals(tournamentId, result.getId());
     }
 
-// @Test
-//     public void getTournament_TournamentNotFound_ReturnNull() {
-//         // Arrange
-//         int tournamentId = 1;
-
-//         when(tournamentRepository.findById(tournamentId)).thenReturn(Optional.empty());
-
-//         // Act
-//         Tournament result = tournamentService.getTournament(tournamentId);
-
-//         // Assert
-//         assertNull(result);
-//     }
-
-//     @Test
-//     public void createTournament_ValidTournament_ReturnTournament() throws MethodArgumentNotValidException {
-//         // Arrange
-//         Organiser organiser = new Organiser();
-//         CreateTournamentDTO createTournamentDTO = new CreateTournamentDTO();
-//         createTournamentDTO.setName("National Tournament");
-//         createTournamentDTO.setSignupEndDate(LocalDate.of(2024, 9, 30));
-//         createTournamentDTO.setStartDate(LocalDate.of(2024, 10, 5));
-//         createTournamentDTO.setEndDate(LocalDate.of(2024, 10, 10));
-
-//         Tournament tournament = new Tournament(
-//             createTournamentDTO.getName(),
-//             organiser,
-//             createTournamentDTO.getSignupEndDate(),
-//             createTournamentDTO.getAdvancementRate(),
-//             createTournamentDTO.getStartDate(),
-//             createTournamentDTO.getEndDate(),
-//             createTournamentDTO.getLocation(),
-//             createTournamentDTO.getDescription(),
-//             createTournamentDTO.getRules(),
-//             createTournamentDTO.getDifficulty()
-//         );
-
-//         when(tournamentRepository.save(any(Tournament.class))).thenReturn(tournament);
-
-//         // Act
-//         Tournament result = tournamentService.createTournament(createTournamentDTO, organiser);
-
-//         // Assert
-//         assertNotNull(result);
-//         assertEquals("National Tournament", result.getName());
-//         verify(tournamentRepository, times(1)).save(any(Tournament.class));
-//     }
 
     @Test
     public void createTournament_InValidTournamentSignUpEndDate_ReturnException() {
@@ -461,4 +423,196 @@ public class TournamentServiceTest {
         assertEquals(1, result.size());
         assertEquals(pastTournament.getId(), result.get(0).getId());
     }
+
+    @Test
+    void deleteTournament_ValidOrganiser() {
+        // Arrange
+        Organiser organiser = new Organiser();
+        organiser.setId(1);
+    
+        Tournament tournament = new Tournament();
+        tournament.setId(1);
+        tournament.setOrganiser(organiser);
+        Set<Tournament> tournaments = new HashSet<>();
+        tournaments.add(tournament);
+        organiser.setTourHost(tournaments);
+    
+        Event event = new Event();
+        event.setId(1);
+        event.setTournament(tournament);
+        event.setFencers(new HashSet<>()); // Initialize the set of fencers
+    
+        Set<Event> events = new HashSet<>();
+        events.add(event);
+        tournament.setEvents(events);
+
+        Fencer fencer = new Fencer(); 
+        TournamentFencer tf = new TournamentFencer();
+        tf.setFencer(fencer);
+        event.setFencers(Collections.singleton(tf));
+    
+        when(tournamentRepository.findById(1)).thenReturn(Optional.of(tournament));
+        when(eventRepository.findById(1)).thenReturn(Optional.of(event));
+        // Act
+        tournamentService.deleteTournament(organiser, 1);
+    
+        // Assert
+        verify(tournamentRepository, times(1)).deleteTournamentById(1);
+    }
+
+    @Test
+@Transactional
+void removeFromOrganiser_DoesNotRemoveTournament() {
+    // Arrange
+    Organiser organiser = new Organiser();
+    organiser.setId(1);
+
+    Tournament tournament1 = new Tournament();
+    tournament1.setId(1);
+    tournament1.setOrganiser(organiser);
+
+    Tournament tournament2 = new Tournament();
+    tournament2.setId(2);
+    tournament2.setOrganiser(organiser);
+
+    Set<Tournament> tournaments = new HashSet<>();
+    tournaments.add(tournament1);
+    tournaments.add(tournament2);
+    organiser.setTourHost(tournaments);
+
+    Event event1 = new Event();
+    event1.setId(1);
+    event1.setTournament(tournament1);
+    Event event2 = new Event();
+    event2.setId(2);
+    event2.setTournament(tournament2);
+    tournament1.setEvents(Collections.singleton(event1));
+    tournament2.setEvents(Collections.singleton(event2));
+
+    Fencer fencer1 = new Fencer();
+    fencer1.setId(1);
+    Fencer fencer2 = new Fencer();
+    fencer2.setId(2);
+    TournamentFencer tf1 = new TournamentFencer();
+    tf1.setFencer(fencer1);
+    TournamentFencer tf2 = new TournamentFencer();
+    tf2.setFencer(fencer2);
+    Set<TournamentFencer> fencers = new HashSet<>();
+    fencers.add(tf1);
+    event1.setFencers(fencers);
+    Set<TournamentFencer> fencers2 = new HashSet<>();
+    fencers2.add(tf2);
+    event2.setFencers(fencers2);
+
+    when(tournamentRepository.findById(1)).thenReturn(Optional.of(tournament1));
+
+    // Act
+    tournamentService.deleteTournament(organiser, 1);
+
+    // Assert
+    assertTrue(organiser.getTourHost().contains(tournament2));
+    verify(tournamentRepository, times(1)).deleteTournamentById(1);
+    verify(eventRepository, times(1)).delete(any(Event.class));
+}
+
+    @Test
+    @Transactional
+    void deleteTournament_InvalidOrganiser() {
+        // Arrange
+        Organiser organiser = new Organiser();
+        organiser.setId(1);
+
+        Organiser differentOrganiser = new Organiser();
+        differentOrganiser.setId(2);
+
+        Tournament tournament = new Tournament();
+        tournament.setId(1);
+        tournament.setOrganiser(organiser);
+
+        when(tournamentRepository.findById(1)).thenReturn(Optional.of(tournament));
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            tournamentService.deleteTournament(differentOrganiser, 1);
+        });
+
+        assertEquals("Organiser does not match the tournament organiser.", exception.getMessage());
+    }
+
+    @Test
+    @Transactional
+    void deleteTournament_TournamentAlreadyStarted() {
+        // Arrange
+        Organiser organiser = new Organiser();
+        organiser.setId(1);
+
+        Tournament tournament = new Tournament();
+        tournament.setId(1);
+        tournament.setOrganiser(organiser);
+
+        Event event = new Event();
+        event.setId(1);
+        event.setTournament(tournament);
+        event.setPoules(Collections.singleton(new Poule())); // Simulate started event
+        Set<Event> events = new HashSet<>();
+        events.add(event);
+        tournament.setEvents(events);
+
+        when(tournamentRepository.findById(1)).thenReturn(Optional.of(tournament));
+
+        // Act & Assert
+        TournamentAlreadyStartedException exception = assertThrows(TournamentAlreadyStartedException.class, () -> {
+            tournamentService.deleteTournament(organiser, 1);
+        });
+
+        assertEquals("Cannot delete tournament that has already started!", exception.getMessage());
+    }
+
+    @Test
+    @Transactional
+    void deleteTournament_TournamentHasEmptyPoules() {
+    // Arrange
+    Organiser organiser = new Organiser();
+    organiser.setId(1);
+
+    Tournament tournament = new Tournament();
+    tournament.setId(1);
+    tournament.setOrganiser(organiser);
+    Set<Tournament> tournaments = new HashSet<>();
+    tournaments.add(tournament);
+    organiser.setTourHost(tournaments);
+
+    Event event = new Event();
+    event.setId(1);
+    event.setTournament(tournament);
+    event.setPoules(new HashSet<>()); // Use a mutable set for poules
+
+    // Add fencers to the event
+    Fencer fencer1 = new Fencer();
+    fencer1.setId(1);
+    Fencer fencer2 = new Fencer();
+    fencer2.setId(2);
+    TournamentFencer tf1 = new TournamentFencer();
+    tf1.setFencer(fencer1);
+    TournamentFencer tf2 = new TournamentFencer();
+    tf2.setFencer(fencer2);
+    Set<TournamentFencer> fencers = new HashSet<>();
+    fencers.add(tf1);
+    fencers.add(tf2);
+    event.setFencers(fencers);
+
+    Set<Event> events = new HashSet<>();
+    events.add(event);
+    tournament.setEvents(events);
+
+    when(tournamentRepository.findById(1)).thenReturn(Optional.of(tournament));
+
+    // Act
+    tournamentService.deleteTournament(organiser, 1);
+
+    // Assert
+    verify(tournamentRepository, times(1)).deleteTournamentById(1);
+    verify(eventRepository, times(1)).delete(event);
+}
+
 }
