@@ -37,7 +37,6 @@ jobs:
 
     - name: Cache Maven packages
       uses: actions/cache@v3
-      working-directory: backend/overall/overall
       with:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
