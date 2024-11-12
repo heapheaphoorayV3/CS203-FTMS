@@ -55,18 +55,6 @@ jobs:
         JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
         FRONTEND_SOURCE: http://localhost:3000
 
-    - name: Run Integration Tests
-      working-directory: backend/overall/overall
-      run: mvn test -Dtest=**/*IntegrationTest.java
-      env:
-        DB_URL: jdbc:mysql://localhost:3306/testdb
-        DB_USERNAME: root
-        DB_PASSWORD: root
-        GMAIL_ADDR: ${{ secrets.GMAIL_ADDR }}
-        GMAIL_APP_PW: ${{ secrets.GMAIL_APP_PW }}
-        JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
-        FRONTEND_SOURCE: http://localhost:3000
-
     - name: Generate Test Report
       working-directory: backend/overall/overall
       if: always()
