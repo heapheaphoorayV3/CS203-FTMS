@@ -207,7 +207,6 @@ export default function ViewEvent() {
       const sortedRanking = [...eventRanking].sort(
         (a, b) => a.tournamentRank - b.tournamentRank
       );
-
       const startIndex = Math.max(0, (currentPage - 1) * limit);
       const endIndex = Math.min(sortedRanking.length, startIndex + limit);
       setPaginatedData(sortedRanking.slice(startIndex, endIndex));
@@ -273,16 +272,16 @@ export default function ViewEvent() {
       name: loading
         ? "Loading..."
         : eventData
-          ? eventData.tournamentName
-          : "Not Found",
+        ? eventData.tournamentName
+        : "Not Found",
       link: `/tournaments/${tournamentID}`,
     },
     {
       name: loading
         ? "Loading..."
         : eventData
-          ? constructEventName(eventData.gender, eventData.weapon)
-          : "Not Found",
+        ? constructEventName(eventData.gender, eventData.weapon)
+        : "Not Found",
     },
   ];
 
@@ -405,7 +404,6 @@ export default function ViewEvent() {
     fetchEventData();
     fetchEventRanking();
   };
-  console.log("eventdata:", eventData);
   const totalPages = Math.ceil(eventRanking.length / limit);
 
   return (
@@ -429,7 +427,8 @@ export default function ViewEvent() {
             </p>
           </motion.div>
         ) : (
-          userType === 'O' && isOwner && (
+          userType === "O" &&
+          isOwner && (
             <motion.button
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -446,7 +445,6 @@ export default function ViewEvent() {
             </motion.button>
           )
         )}
-
       </div>
 
       {isEndEventPopupVisible && (
@@ -495,17 +493,23 @@ export default function ViewEvent() {
               {/* Other content always visible for all users */}
               <div className="flex items-end w-full">
                 <div className="mr-12 h-20">
-                  <label className="block font-medium mb-1 ml-1">Poule Results</label>
+                  <label className="block font-medium mb-1 ml-1">
+                    Poule Results
+                  </label>
                   <select
                     value={selectedPoule}
                     onChange={handlePouleChange}
                     className="block w-full py-2 px-3 border border-gray-300 rounded"
                   >
-                    {pouleTableData.pouleTable.map((poule, index) => (
-                      <option key={index} value={index + 1}>
-                        {`Poule ${index + 1}`}
-                      </option>
-                    ))}
+                    {pouleTableData.pouleTable.length === 0 ? (
+                      <option disabled>No poules available</option>
+                    ) : (
+                      pouleTableData.pouleTable.map((poule, index) => (
+                        <option key={index} value={index + 1}>
+                          {`Poule ${index + 1}`}
+                        </option>
+                      ))
+                    )}
                   </select>
                 </div>
 
@@ -534,11 +538,13 @@ export default function ViewEvent() {
                   )}
 
                   {isEndPoulesPopupVisible && (
-                    <EndPoules id={eventID} closeEndPoulesPopup={closeEndPoulesPopup} />
+                    <EndPoules
+                      id={eventID}
+                      closeEndPoulesPopup={closeEndPoulesPopup}
+                    />
                   )}
                 </div>
               </div>
-
               {/* Poule Table */}
               <table className="table text-lg">
                 <thead className="text-lg text-neutral">
@@ -547,7 +553,9 @@ export default function ViewEvent() {
                     <th className="w-24"></th>
                     {pouleTableData &&
                       pouleTableData.pouleTable[pouleIndex] &&
-                      Object.entries(pouleTableData.pouleTable[pouleIndex])[0] &&
+                      Object.entries(
+                        pouleTableData.pouleTable[pouleIndex]
+                      )[0] &&
                       Array.from({
                         length: Object.entries(
                           pouleTableData.pouleTable[pouleIndex]
@@ -564,10 +572,16 @@ export default function ViewEvent() {
                     Object.entries(pouleTableData.pouleTable[pouleIndex]).map(
                       ([fencer, results], idx) => {
                         const resultArray = results.split(",");
-                        const cleanedFencerName = fencer.replace(/ -- \d+$/, "");
+                        const cleanedFencerName = fencer.replace(
+                          / -- \d+$/,
+                          ""
+                        );
 
                         return (
-                          <tr key={idx} className="border-b border-gray-300 h-[68px]">
+                          <tr
+                            key={idx}
+                            className="border-b border-gray-300 h-[68px]"
+                          >
                             <td className="w-60">{cleanedFencerName}</td>
                             <td className="font-bold text-center border-r border-gray-300 w-24">
                               {idx + 1}
@@ -575,10 +589,11 @@ export default function ViewEvent() {
                             {resultArray.map((result, resultIndex) => (
                               <td
                                 key={resultIndex}
-                                className={`border border-gray-300 hover:bg-gray-100 ${result === "-1"
+                                className={`border border-gray-300 hover:bg-gray-100 ${
+                                  result === "-1"
                                     ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
                                     : ""
-                                  }`}
+                                }`}
                               >
                                 {result === "-1" ? (
                                   result
@@ -589,8 +604,11 @@ export default function ViewEvent() {
                                     onChange={(event) =>
                                       handleInputChange(event, resultIndex, idx)
                                     }
-                                    className={`w-full text-center ${!isInputValid ? "border-red-500" : "border-gray-300"
-                                      }`}
+                                    className={`w-full text-center ${
+                                      !isInputValid
+                                        ? "border-red-500"
+                                        : "border-gray-300"
+                                    }`}
                                   />
                                 ) : (
                                   result
@@ -603,7 +621,7 @@ export default function ViewEvent() {
                     )
                   ) : (
                     <tr className="text-center border-b border-gray-300">
-                      <td colSpan={7}>No poules available yet</td>
+                      <td colSpan={7} className="text-lg font-medium">No poules available yet</td>
                     </tr>
                   )}
                 </tbody>
