@@ -1,5 +1,9 @@
 package cs203.ftms.overall;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -7,9 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.annotation.Propagation;
 
 import cs203.ftms.overall.dto.AuthenticationDTO;
 import cs203.ftms.overall.dto.CompleteFencerProfileDTO;
@@ -35,6 +38,8 @@ import cs203.ftms.overall.model.tournamentrelated.Tournament;
 import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.model.userrelated.User;
+import cs203.ftms.overall.repository.tournamentrelated.EventRepository;
+import cs203.ftms.overall.repository.tournamentrelated.MatchRepository;
 import cs203.ftms.overall.repository.tournamentrelated.TournamentFencerRepository;
 import cs203.ftms.overall.repository.tournamentrelated.TournamentRepository;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
@@ -44,11 +49,17 @@ import cs203.ftms.overall.service.authentication.AuthenticationService;
 import cs203.ftms.overall.service.event.EventService;
 import cs203.ftms.overall.service.fencer.FencerService;
 import cs203.ftms.overall.service.tournament.TournamentService;
-import jakarta.transaction.Transactional;
+
+// import jakarta.persistence.PersistenceContext;
+// import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
+
 
 
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+// @Transactional
 class SpringBootIntegrationTest {
 
 	@LocalServerPort
@@ -60,6 +71,7 @@ class SpringBootIntegrationTest {
 	@Autowired
 	private TestRestTemplate restTemplate;
 
+    // repositories
 	@Autowired
 	private TournamentRepository tournaments;
 
@@ -72,6 +84,21 @@ class SpringBootIntegrationTest {
     @Autowired 
     private RefreshTokenRepository refresh;
 
+    // @Autowired
+    // private OrganiserRepository organisers;
+    
+    // @Autowired
+    // private FencerRepository fencers;
+
+    @Autowired
+    private EventRepository events;
+
+    @Autowired
+    private MatchRepository matches;
+
+    
+
+    // services
     @Autowired
     private AuthenticationService authenticationService;
 
@@ -87,21 +114,35 @@ class SpringBootIntegrationTest {
     @Autowired
     private EventService eventService;
 
+    // @PersistenceContext
+    // private EntityManager entityManager;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     @BeforeEach
     void setUp() {
+        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");
         tournamentFencers.deleteAll();
+        matches.deleteAll();
+        events.deleteAll();
         tournaments.deleteAll();
         refresh.deleteAll();
-		users.deleteAll();
+        users.deleteAll();
+        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
     }
 
-	@AfterEach
-	void tearDown(){
+    @AfterEach
+    void tearDown() {
+        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");
         tournamentFencers.deleteAll();
-		tournaments.deleteAll();
+        matches.deleteAll();
+        events.deleteAll();
+        tournaments.deleteAll();
         refresh.deleteAll();
-		users.deleteAll();
-	}
+        users.deleteAll();
+        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
+    }
 
     @Transactional
     public String createAndAuthOrganiser() throws Exception{
@@ -333,7 +374,7 @@ class SpringBootIntegrationTest {
         String jwtToken = jwtService.generateToken(o);
         Tournament t = createTournament(o);
         
-        URI uri = new URI(baseUrl + port + "/api/v1/event/" + t.getId() + "/create-event");
+        URI uri = new URI(baseUrl + port + "/api/v1/event/create-event/" + t.getId());
 
         List<CreateEventDTO> request = new ArrayList<>();
 
@@ -369,7 +410,8 @@ class SpringBootIntegrationTest {
         HttpEntity<List<CreateEventDTO>> entity = new HttpEntity<>(request, headers);
         
         ResponseEntity<String> result = restTemplate.postForEntity(uri, entity, String.class);
-        
+        System.out.println(result.getBody());
+
         assertEquals(201, result.getStatusCode().value());
     }
     
@@ -402,8 +444,9 @@ class SpringBootIntegrationTest {
         Organiser o = (Organiser) users.findByEmail(oemail).orElse(null);
         String jwtToken = jwtService.generateToken(o);
         Tournament t = createTournament(o);
+        System.out.println("tournament id " + t.getId());
         
-        URI uri = new URI(baseUrl + port + "/api/v1/event/" + t.getId() + "/create-event");
+        URI uri = new URI(baseUrl + port + "/api/v1/event/create-event/" + t.getId());
 
         List<CreateEventDTO> request = new ArrayList<>();
 
@@ -439,6 +482,8 @@ class SpringBootIntegrationTest {
         HttpEntity<List<CreateEventDTO>> entity = new HttpEntity<>(request, headers);
         
         ResponseEntity<String> result = restTemplate.postForEntity(uri, entity, String.class);
+        System.out.println(result.getBody());
+
         
         assertEquals(400, result.getStatusCode().value());
     }
@@ -473,5 +518,6 @@ class SpringBootIntegrationTest {
         
         assertEquals(400, result.getStatusCode().value());
     }
+
 }
 
