@@ -1,11 +1,10 @@
 name: Backend CI/CD
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'backend/**'  # Only trigger for backend changes
+  workflow_run:
+    workflows: ["Spring Unit and Integration Tests"]
+    types:
+      - completed
 
 jobs:
   build_and_provision:
