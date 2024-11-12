@@ -3,6 +3,7 @@ package cs203.ftms.overall.service.fencer;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -109,6 +110,7 @@ public class FencerService {
         for(TournamentFencer tf: f.getTournamentFencerProfiles()){
             events.add(eventRepository.findById(tf.getEvent().getId()).orElse(null));
         }
+        events.sort(Comparator.comparing(Event::getDate));
         return events;
     }
 

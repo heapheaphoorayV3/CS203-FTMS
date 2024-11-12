@@ -392,9 +392,11 @@ class FencerServiceTest {
 
         Event event1 = new Event();
         event1.setId(1);
+        event1.setDate(LocalDate.now().minusDays(10));
 
         Event event2 = new Event();
         event2.setId(2);
+        event2.setDate(LocalDate.now().plusDays(9));
 
         TournamentFencer tournamentFencer1 = new TournamentFencer();
         tournamentFencer1.setEvent(event1);
