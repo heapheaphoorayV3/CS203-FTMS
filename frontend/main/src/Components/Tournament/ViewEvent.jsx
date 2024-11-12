@@ -23,7 +23,6 @@ export default function ViewEvent() {
   // Check if organiser is the owner of the event
   const [isOwner, setIsOwner] = useState(false);
   const [userType, setUserType] = useState(sessionStorage.getItem("userType"));
-
   const [eventData, setEventData] = useState(null);
   const [pouleTableData, setPouleTableData] = useState(null);
   const [cleanedPouleData, setCleanedPouleData] = useState([]);
@@ -55,11 +54,11 @@ export default function ViewEvent() {
       // console.log("event data =>");
     } catch (error) {
       if (error.response) {
-        console.log("Error response data: ", error.response.data);
+        console.log("Error response data for event data: ", error.response.data);
         setError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request: ", error.request);
+        console.log("Error request for event data: ", error.request);
         setError("Event Data has failed to load, please try again later.");
       } else {
         // Something happened in setting up the request that triggered an Error
@@ -112,11 +111,11 @@ export default function ViewEvent() {
       setCleanedPouleData(processedData);
     } catch (error) {
       if (error.response) {
-        console.log("Error response data: ", error.response.data);
+        console.log("Error response data for poule table: ", error.response.data);
         setError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request: ", error.request);
+        console.log("Error request for poule table: ", error.request);
         setError("Poule Data has failed to load, please try again later.");
       } else {
         // Something happened in setting up the request that triggered an Error
@@ -137,7 +136,7 @@ export default function ViewEvent() {
         setError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request: ", error.request);
+        console.log("Error request for matches: ", error.request);
         setError(
           "Direct Elimination Data has failed to load, please try again later."
         );
@@ -162,7 +161,7 @@ export default function ViewEvent() {
         setError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request: ", error.request);
+        console.log("Error request for fetching event ranking: ", error.request);
         setError(
           "Event Ranking Data has failed to load, please try again later."
         );

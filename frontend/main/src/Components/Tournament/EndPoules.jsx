@@ -51,11 +51,7 @@ const EndPoules = ({ id, closeEndPoulesPopup }) => {
           >
             End Poules
           </button>
-          {error && (
-            <div className="text-xl font-semibold text-center mt-5">
-              <p>{error}</p>
-            </div>
-          )}
+          {error && <h2 className="text-red-500 text-center mt-4"> {error} </h2>}
         </div>
       </div>
     </div>
