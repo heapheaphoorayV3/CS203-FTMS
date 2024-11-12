@@ -74,7 +74,7 @@ public class TournamentService {
 
     @Transactional
     public Tournament updateTournament(int tid, CreateTournamentDTO dto, Organiser o)
-            throws MethodArgumentNotValidException {
+        throws MethodArgumentNotValidException {
         Tournament tournament = getTournament(tid);
         validateOrganiser(tournament, o);
         validateTournamentDates(dto);

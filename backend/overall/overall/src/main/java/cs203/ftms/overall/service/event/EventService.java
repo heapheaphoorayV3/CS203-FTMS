@@ -85,8 +85,7 @@ public class EventService {
 
     @Transactional
     public List<Event> createEvent(int tid, Organiser organiser, List<CreateEventDTO> eventDTOs) 
-            throws MethodArgumentNotValidException, EventAlreadyExistsException {
-
+        throws MethodArgumentNotValidException, EventAlreadyExistsException {
         Tournament tournament = validateTournament(tid, organiser);
         if (tournament == null) {
             return new ArrayList<>();
@@ -109,11 +108,11 @@ public class EventService {
     @Transactional
     public void deleteEvent(int eid, Organiser organiser) {
         Event event = getEvent(eid);
+        validateOrganiser(event, organiser);
         if (event.getDirectEliminationMatches().size() != 0 || event.getPoules().size() != 0) {
             throw new EventCannotEndException("Event cannot be deleted as it has matches or poules!");
         }
         Tournament tournament = event.getTournament();
-        validateOrganiser(event, organiser);
         Set<TournamentFencer> fencersCopy = new HashSet<>(event.getFencers());
         for (TournamentFencer tf : fencersCopy) {
             Fencer fencer = tf.getFencer();
@@ -161,7 +160,7 @@ public class EventService {
         return eventRepository.save(event);
     }
 
-    private void validateOrganiser(Event event, Organiser organiser) {
+    public void validateOrganiser(Event event, Organiser organiser) {
         Tournament tournament = event.getTournament();
         if (!tournament.getOrganiser().equals(organiser)) {
             throw new IllegalArgumentException("Organiser does not match the tournament organiser.");
@@ -259,8 +258,9 @@ public class EventService {
         return tfs;
     }
 
-    public void endTournamentEvent(int eid) throws EventCannotEndException {
+    public void endTournamentEvent(int eid, Organiser o) throws EventCannotEndException {
         Event event = eventRepository.findById(eid).orElseThrow(() -> new EntityDoesNotExistException("Event does not exist!"));
+        validateOrganiser(event, o);
         if (event.isOver()) {
             throw new EventCannotEndException("Event has already been ended!");
         }

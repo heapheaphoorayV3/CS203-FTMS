@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -22,6 +24,8 @@ import cs203.ftms.overall.dto.PouleResultsDTO;
 import cs203.ftms.overall.dto.PouleTableDTO;
 import cs203.ftms.overall.dto.SinglePouleTableDTO;
 import cs203.ftms.overall.dto.clean.CleanPouleDTO;
+import cs203.ftms.overall.model.userrelated.Organiser;
+import cs203.ftms.overall.model.userrelated.User;
 import cs203.ftms.overall.service.match.PouleService;
 
 @RestController
@@ -47,7 +51,10 @@ public class PouleController {
     @PostMapping("/create-poules/{eid}")
     @PreAuthorize("hasRole('ORGANISER')")
     public ResponseEntity<PouleTableDTO> createPoules(@PathVariable int eid, @RequestBody CreatePoulesDTO dto) {
-        Set<CleanPouleDTO> create = pouleService.createPoules(eid, dto);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        Organiser organiser = (Organiser) user;
+        Set<CleanPouleDTO> create = pouleService.createPoules(eid, dto, organiser);
         PouleTableDTO res = pouleService.getPouleTable(eid, true);
         return new ResponseEntity<>(res, HttpStatus.CREATED);
     }
@@ -61,7 +68,10 @@ public class PouleController {
     @PutMapping("/update-poule-table/{eid}")
     @PreAuthorize("hasRole('ORGANISER')")
     public ResponseEntity<String> updatePouleScore(@PathVariable int eid, @RequestBody SinglePouleTableDTO dto) throws MethodArgumentNotValidException {
-        boolean update = pouleService.updatePouleTable(eid, dto);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        Organiser organiser = (Organiser) user;
+        boolean update = pouleService.updatePouleTable(eid, dto, organiser);
         if (update) {
             return new ResponseEntity<>("poule update successful", HttpStatus.OK);
         }

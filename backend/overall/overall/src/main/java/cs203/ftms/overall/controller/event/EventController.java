@@ -131,7 +131,10 @@ public class EventController {
     @PutMapping("/end-event/{eid}")
     @PreAuthorize("hasRole('ORGANISER')")
     public ResponseEntity<String> endEvent(@PathVariable int eid) {
-        eventService.endTournamentEvent(eid);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        Organiser organiser = (Organiser) user;
+        eventService.endTournamentEvent(eid, organiser);
         return new ResponseEntity<>("event ended", HttpStatus.OK);
     }
 

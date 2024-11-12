@@ -22,6 +22,7 @@ import cs203.ftms.overall.model.tournamentrelated.Match;
 import cs203.ftms.overall.model.tournamentrelated.Poule;
 import cs203.ftms.overall.model.tournamentrelated.PouleMatch;
 import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
+import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.repository.tournamentrelated.DirectEliminationMatchRepository;
 import cs203.ftms.overall.repository.tournamentrelated.MatchRepository;
 import cs203.ftms.overall.repository.tournamentrelated.TournamentFencerRepository;
@@ -82,8 +83,9 @@ public class DirectEliminationService {
     }
 
     @Transactional
-    public void createAllDEMatches(int eid) {
+    public void createAllDEMatches(int eid, Organiser organiser) {
         Event event = eventService.getEvent(eid);
+        eventService.validateOrganiser(event, organiser);
         // check whether all poule matches are done
         if (event.getPoules().isEmpty()) {
             throw new PouleMatchesNotDoneException("Poules not created yet!");
@@ -198,7 +200,9 @@ public class DirectEliminationService {
     }
 
     @Transactional
-    public void updateDEMatch(int eid, UpdateDirectEliminationMatchDTO dto) {
+    public void updateDEMatch(int eid, UpdateDirectEliminationMatchDTO dto, Organiser organiser) {
+        Event event = eventService.getEvent(eid);
+        eventService.validateOrganiser(event, organiser);
         DirectEliminationMatch dm = getDirectEliminationMatch(dto.getMatchId(), eid);
 
         dm.setScore1(dto.getScore1());

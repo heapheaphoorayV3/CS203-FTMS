@@ -26,6 +26,7 @@ import cs203.ftms.overall.model.tournamentrelated.Event;
 import cs203.ftms.overall.model.tournamentrelated.Tournament;
 import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
 import cs203.ftms.overall.model.userrelated.Fencer;
+import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.repository.tournamentrelated.DirectEliminationMatchRepository;
 import cs203.ftms.overall.repository.tournamentrelated.EventRepository;
 import cs203.ftms.overall.repository.tournamentrelated.MatchRepository;
@@ -239,6 +240,9 @@ public class DirectEliminationServiceTest {
     @Test
     void updateDEMatch() {
         // Arrange
+        Organiser organiser = new Organiser();
+        Tournament tournament = new Tournament();
+        tournament.setOrganiser(organiser);
         int eid = 1;
         int matchId = 1;
         int score1 = 15;
@@ -246,6 +250,7 @@ public class DirectEliminationServiceTest {
 
         Event event = new Event();
         event.setId(eid);
+        event.setTournament(tournament);
 
         DirectEliminationMatch match = new DirectEliminationMatch();
         match.setId(matchId);
@@ -274,7 +279,7 @@ public class DirectEliminationServiceTest {
         when(tournamentFencerRepository.findById(fencer2.getId())).thenReturn(Optional.of(fencer2));
 
         // Act
-        directEliminationService.updateDEMatch(eid, dto);
+        directEliminationService.updateDEMatch(eid, dto, organiser);
 
         // Assert
         verify(matchRepository).save(match);
@@ -285,6 +290,12 @@ public class DirectEliminationServiceTest {
     @Test
     void updateDEMatch_MatchDoesNotExist() {
         // Arrange
+        Organiser organiser = new Organiser();
+        Tournament tournament = new Tournament();
+        tournament.setOrganiser(organiser);
+        Event event = new Event();
+        event.setId(1);
+        event.setTournament(tournament);
         int eid = 1;
         int matchId = 1;
         int score1 = 15;
@@ -299,7 +310,7 @@ public class DirectEliminationServiceTest {
 
         // Act & Assert
         assertThrows(EntityDoesNotExistException.class, () -> {
-            directEliminationService.updateDEMatch(eid, dto);
+            directEliminationService.updateDEMatch(eid, dto, organiser);
         });
     }
 
@@ -307,6 +318,9 @@ public class DirectEliminationServiceTest {
     @Test
     void updateDEMatch_MatchNotInEvent() {
         // Arrange
+        Organiser organiser = new Organiser();
+        Tournament tournament = new Tournament();
+        tournament.setOrganiser(organiser);
         int eid = 1;
         int matchId = 1;
         int score1 = 15;
@@ -314,6 +328,7 @@ public class DirectEliminationServiceTest {
 
         Event event = new Event();
         event.setId(eid);
+        event.setTournament(tournament);
 
         Event differentEvent = new Event();
         differentEvent.setId(2);
@@ -332,7 +347,7 @@ public class DirectEliminationServiceTest {
 
         // Act & Assert
         assertThrows(EntityDoesNotExistException.class, () -> {
-            directEliminationService.updateDEMatch(eid, dto);
+            directEliminationService.updateDEMatch(eid, dto, organiser);
         });
 
     }
@@ -341,6 +356,9 @@ public class DirectEliminationServiceTest {
     @Test
     void updateDEMatch_TournamentFencerDoesNotExist() {
         // Arrange
+        Organiser organiser = new Organiser();
+        Tournament tournament = new Tournament();
+        tournament.setOrganiser(organiser);
         int eid = 1;
         int matchId = 1;
         int score1 = 15;
@@ -348,6 +366,7 @@ public class DirectEliminationServiceTest {
 
         Event event = new Event();
         event.setId(eid);
+        event.setTournament(tournament);
 
         DirectEliminationMatch match = new DirectEliminationMatch();
         match.setId(matchId);
@@ -372,13 +391,16 @@ public class DirectEliminationServiceTest {
 
         // Act & Assert
         assertThrows(EntityDoesNotExistException.class, () -> {
-            directEliminationService.updateDEMatch(eid, dto);
+            directEliminationService.updateDEMatch(eid, dto, organiser);
         });
     }
 
     @Test
     void updateDEMatch_NextMatchDoesNotExist() {
         // Arrange
+        Organiser organiser = new Organiser();
+        Tournament tournament = new Tournament();
+        tournament.setOrganiser(organiser);
         int eid = 1;
         int matchId = 1;
         int score1 = 15;
@@ -386,6 +408,7 @@ public class DirectEliminationServiceTest {
 
         Event event = new Event();
         event.setId(eid);
+        event.setTournament(tournament);
 
         DirectEliminationMatch match = new DirectEliminationMatch();
         match.setId(matchId);
@@ -413,13 +436,16 @@ public class DirectEliminationServiceTest {
 
         // Act & Assert
         assertThrows(EntityDoesNotExistException.class, () -> {
-            directEliminationService.updateDEMatch(eid, dto);
+            directEliminationService.updateDEMatch(eid, dto, organiser);
         });
     }
 
     @Test
     void updateDEMatch_Fencer2WinsWithLowerRank() {
         // Arrange
+        Organiser organiser = new Organiser();
+        Tournament tournament = new Tournament();
+        tournament.setOrganiser(organiser);
         int eid = 1;
         int matchId = 1;
         int score1 = 10;
@@ -427,6 +453,7 @@ public class DirectEliminationServiceTest {
 
         Event event = new Event();
         event.setId(eid);
+        event.setTournament(tournament);
 
         DirectEliminationMatch match = new DirectEliminationMatch();
         match.setId(matchId);
@@ -457,7 +484,7 @@ public class DirectEliminationServiceTest {
         when(tournamentFencerRepository.findById(fencer2.getId())).thenReturn(Optional.of(fencer2));
 
         // Act
-        directEliminationService.updateDEMatch(eid, dto);
+        directEliminationService.updateDEMatch(eid, dto, organiser);
 
         // Assert
         verify(matchRepository).save(match);
@@ -470,6 +497,9 @@ public class DirectEliminationServiceTest {
     @Test
     void updateDEMatch_Fencer1WinsAndNextMatchFencer1IsSet() {
         // Arrange
+        Organiser organiser = new Organiser();
+        Tournament tournament = new Tournament();
+        tournament.setOrganiser(organiser);
         int eid = 1;
         int matchId = 1;
         int score1 = 15;
@@ -477,6 +507,7 @@ public class DirectEliminationServiceTest {
 
         Event event = new Event();
         event.setId(eid);
+        event.setTournament(tournament);
 
         DirectEliminationMatch match = new DirectEliminationMatch();
         match.setId(matchId);
@@ -508,7 +539,7 @@ public class DirectEliminationServiceTest {
         when(tournamentFencerRepository.findById(fencer2.getId())).thenReturn(Optional.of(fencer2));
 
         // Act
-        directEliminationService.updateDEMatch(eid, dto);
+        directEliminationService.updateDEMatch(eid, dto, organiser);
 
         // Assert
         verify(matchRepository).save(match);
@@ -521,6 +552,9 @@ public class DirectEliminationServiceTest {
     @Test
     void updateDEMatch_Fencer2WinsAndNextMatchFencer1IsSet() {
         // Arrange
+        Organiser organiser = new Organiser();
+        Tournament tournament = new Tournament();
+        tournament.setOrganiser(organiser);
         int eid = 1;
         int matchId = 1;
         int score1 = 10;
@@ -528,6 +562,7 @@ public class DirectEliminationServiceTest {
 
         Event event = new Event();
         event.setId(eid);
+        event.setTournament(tournament);
 
         DirectEliminationMatch match = new DirectEliminationMatch();
         match.setId(matchId);
@@ -559,7 +594,7 @@ public class DirectEliminationServiceTest {
         when(tournamentFencerRepository.findById(fencer2.getId())).thenReturn(Optional.of(fencer2));
 
         // Act
-        directEliminationService.updateDEMatch(eid, dto);
+        directEliminationService.updateDEMatch(eid, dto, organiser);
 
         // Assert
         verify(matchRepository).save(match);
@@ -573,6 +608,9 @@ public class DirectEliminationServiceTest {
     @Test
     void updateDEMatch_Fencer1WinsAndNextMatchFencer1IsUnset() {
         // Arrange
+        Organiser organiser = new Organiser();
+        Tournament tournament = new Tournament();
+        tournament.setOrganiser(organiser);
         int eid = 1;
         int matchId = 1;
         int score1 = 15;
@@ -580,6 +618,7 @@ public class DirectEliminationServiceTest {
 
         Event event = new Event();
         event.setId(eid);
+        event.setTournament(tournament);
 
         DirectEliminationMatch match = new DirectEliminationMatch();
         match.setId(matchId);
@@ -611,7 +650,7 @@ public class DirectEliminationServiceTest {
         when(tournamentFencerRepository.findById(fencer2.getId())).thenReturn(Optional.of(fencer2));
 
         // Act
-        directEliminationService.updateDEMatch(eid, dto);
+        directEliminationService.updateDEMatch(eid, dto, organiser);
 
         // Assert
         verify(matchRepository).save(match);
@@ -624,6 +663,9 @@ public class DirectEliminationServiceTest {
     @Test
     void updateDEMatch_Fencer1WinsAndNextMatchFencer1IsFencer1() {
         // Arrange
+        Organiser organiser = new Organiser();
+        Tournament tournament = new Tournament();
+        tournament.setOrganiser(organiser);
         int eid = 1;
         int matchId = 1;
         int score1 = 15;
@@ -631,6 +673,7 @@ public class DirectEliminationServiceTest {
 
         Event event = new Event();
         event.setId(eid);
+        event.setTournament(tournament);
 
         DirectEliminationMatch match = new DirectEliminationMatch();
         match.setId(matchId);
@@ -662,7 +705,7 @@ public class DirectEliminationServiceTest {
         when(tournamentFencerRepository.findById(fencer2.getId())).thenReturn(Optional.of(fencer2));
 
         // Act
-        directEliminationService.updateDEMatch(eid, dto);
+        directEliminationService.updateDEMatch(eid, dto, organiser);
 
         // Assert
         verify(matchRepository).save(match);
@@ -675,6 +718,9 @@ public class DirectEliminationServiceTest {
     @Test
     void updateDEMatch_Fencer1WinsAndNextMatchFencer1IsFencer2() {
         // Arrange
+        Organiser organiser = new Organiser();
+        Tournament tournament = new Tournament();
+        tournament.setOrganiser(organiser);
         int eid = 1;
         int matchId = 1;
         int score1 = 15;
@@ -682,6 +728,7 @@ public class DirectEliminationServiceTest {
 
         Event event = new Event();
         event.setId(eid);
+        event.setTournament(tournament);
 
         DirectEliminationMatch match = new DirectEliminationMatch();
         match.setId(matchId);
@@ -713,7 +760,7 @@ public class DirectEliminationServiceTest {
         when(tournamentFencerRepository.findById(fencer2.getId())).thenReturn(Optional.of(fencer2));
 
         // Act
-        directEliminationService.updateDEMatch(eid, dto);
+        directEliminationService.updateDEMatch(eid, dto, organiser);
 
         // Assert
         verify(matchRepository).save(match);
@@ -726,6 +773,9 @@ public class DirectEliminationServiceTest {
     @Test
     void updateDEMatch_Fencer1WinsAndNextMatchFencer2IsUnset() {
         // Arrange
+        Organiser organiser = new Organiser();
+        Tournament tournament = new Tournament();
+        tournament.setOrganiser(organiser);
         int eid = 1;
         int matchId = 1;
         int score1 = 15;
@@ -733,6 +783,7 @@ public class DirectEliminationServiceTest {
 
         Event event = new Event();
         event.setId(eid);
+        event.setTournament(tournament);
 
         DirectEliminationMatch match = new DirectEliminationMatch();
         match.setId(matchId);
@@ -765,7 +816,7 @@ public class DirectEliminationServiceTest {
         when(tournamentFencerRepository.findById(fencer2.getId())).thenReturn(Optional.of(fencer2));
 
         // Act
-        directEliminationService.updateDEMatch(eid, dto);
+        directEliminationService.updateDEMatch(eid, dto, organiser);
 
         // Assert
         verify(matchRepository).save(match);
@@ -778,6 +829,9 @@ public class DirectEliminationServiceTest {
     @Test
     void updateDEMatch_Fencer1WinsAndNextMatchFencer2IsFencer1() {
         // Arrange
+        Organiser organiser = new Organiser();
+        Tournament tournament = new Tournament();
+        tournament.setOrganiser(organiser);
         int eid = 1;
         int matchId = 1;
         int score1 = 15;
@@ -785,6 +839,7 @@ public class DirectEliminationServiceTest {
 
         Event event = new Event();
         event.setId(eid);
+        event.setTournament(tournament);
 
         DirectEliminationMatch match = new DirectEliminationMatch();
         match.setId(matchId);
@@ -817,7 +872,7 @@ public class DirectEliminationServiceTest {
         when(tournamentFencerRepository.findById(fencer2.getId())).thenReturn(Optional.of(fencer2));
 
         // Act
-        directEliminationService.updateDEMatch(eid, dto);
+        directEliminationService.updateDEMatch(eid, dto, organiser);
 
         // Assert
         verify(matchRepository).save(match);
@@ -830,6 +885,9 @@ public class DirectEliminationServiceTest {
     @Test
     void updateDEMatch_Fencer1WinsAndNextMatchFencer2IsFencer2() {
         // Arrange
+        Organiser organiser = new Organiser();
+        Tournament tournament = new Tournament();
+        tournament.setOrganiser(organiser);
         int eid = 1;
         int matchId = 1;
         int score1 = 15;
@@ -837,6 +895,7 @@ public class DirectEliminationServiceTest {
 
         Event event = new Event();
         event.setId(eid);
+        event.setTournament(tournament);
 
         DirectEliminationMatch match = new DirectEliminationMatch();
         match.setId(matchId);
@@ -869,7 +928,7 @@ public class DirectEliminationServiceTest {
         when(tournamentFencerRepository.findById(fencer2.getId())).thenReturn(Optional.of(fencer2));
 
         // Act
-        directEliminationService.updateDEMatch(eid, dto);
+        directEliminationService.updateDEMatch(eid, dto, organiser);
 
         // Assert
         verify(matchRepository).save(match);
@@ -882,6 +941,9 @@ public class DirectEliminationServiceTest {
     @Test
     void updateDEMatch_Fencer1WinsAndNextMatchBothFencerSet() {
         // Arrange
+        Organiser organiser = new Organiser();
+        Tournament tournament = new Tournament();
+        tournament.setOrganiser(organiser);
         int eid = 1;
         int matchId = 1;
         int score1 = 15;
@@ -889,6 +951,7 @@ public class DirectEliminationServiceTest {
 
         Event event = new Event();
         event.setId(eid);
+        event.setTournament(tournament);
 
         DirectEliminationMatch match = new DirectEliminationMatch();
         match.setId(matchId);
@@ -921,7 +984,7 @@ public class DirectEliminationServiceTest {
         when(tournamentFencerRepository.findById(fencer2.getId())).thenReturn(Optional.of(fencer2));
 
         // Act
-        directEliminationService.updateDEMatch(eid, dto);
+        directEliminationService.updateDEMatch(eid, dto, organiser);
 
         // Assert
         verify(matchRepository).save(match);
@@ -934,6 +997,9 @@ public class DirectEliminationServiceTest {
     @Test
     void updateDEMatch_RoundOf2() {
         // Arrange
+        Organiser organiser = new Organiser();
+        Tournament tournament = new Tournament();
+        tournament.setOrganiser(organiser);
         int eid = 1;
         int matchId = 1;
         int score1 = 15;
@@ -941,6 +1007,7 @@ public class DirectEliminationServiceTest {
 
         Event event = new Event();
         event.setId(eid);
+        event.setTournament(tournament);
 
         DirectEliminationMatch match = new DirectEliminationMatch();
         match.setId(matchId);
@@ -968,7 +1035,7 @@ public class DirectEliminationServiceTest {
         when(tournamentFencerRepository.findById(fencer2.getId())).thenReturn(Optional.of(fencer2));
 
         // Act
-        directEliminationService.updateDEMatch(eid, dto);
+        directEliminationService.updateDEMatch(eid, dto, organiser);
 
         // Assert
         verify(matchRepository).save(match);
