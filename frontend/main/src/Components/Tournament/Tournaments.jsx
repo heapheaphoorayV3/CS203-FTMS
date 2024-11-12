@@ -103,8 +103,8 @@ export default function Tournaments() {
             <tr className="border-b border-gray-300">
               <th>Tournament Name</th>
               <th>Location</th>
-              <th>Dates</th>
-              <th>Status</th>
+              <th className="text-center">Dates</th>
+              <th className="text-center">Status</th>
             </tr>
           </thead>
           <tbody>
@@ -123,10 +123,10 @@ export default function Tournaments() {
                     </a>
                   </td>
                   <td>{tournament.location}</td>
-                  <td>
+                  <td className="text-center">
                     {formatDateRange(tournament.startDate, tournament.endDate)}
                   </td>
-                  <td>
+                  <td className="text-center">
                     {getTournamentStatus(
                       tournament.startDate,
                       tournament.endDate
