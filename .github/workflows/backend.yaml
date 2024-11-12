@@ -1,9 +1,13 @@
 name: Backend CI/CD
 
 on:
-  push:
-    branches:
-      - main
+  # push:
+  #   branches:
+  #     - main
+  workflow_run:
+    workflows: ["Spring Unit and Integration Tests"]
+    types:
+      - completed
 
 jobs:
   build_and_provision:
