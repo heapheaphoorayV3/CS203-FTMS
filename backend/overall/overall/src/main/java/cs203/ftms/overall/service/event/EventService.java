@@ -150,6 +150,7 @@ public class EventService {
     public Event updateEvent(int eid, Organiser organiser, UpdateEventDTO dto) throws MethodArgumentNotValidException {
         Event event = getEvent(eid);
         validateOrganiser(event, organiser);
+        validateEventOver(event);
         OtherValidations.validUpdateEventDate(dto.getDate(), event.getTournament());
         updateEventDetails(event, dto);
         return eventRepository.save(event);
@@ -159,6 +160,12 @@ public class EventService {
         Tournament tournament = event.getTournament();
         if (!tournament.getOrganiser().equals(organiser)) {
             throw new IllegalArgumentException("Organiser does not match the tournament organiser.");
+        }
+    }
+
+    private void validateEventOver(Event event) {
+        if (event.isOver()) {
+            throw new IllegalArgumentException("Event is over!");
         }
     }
 
