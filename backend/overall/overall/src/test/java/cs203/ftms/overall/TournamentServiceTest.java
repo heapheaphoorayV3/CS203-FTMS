@@ -121,6 +121,12 @@ public class TournamentServiceTest {
         createTournamentDTO.setSignupEndDate(LocalDate.of(2024, 9, 30));
         createTournamentDTO.setStartDate(LocalDate.of(2024, 10, 5));
         createTournamentDTO.setEndDate(LocalDate.of(2024, 10, 10));
+        createTournamentDTO.setAdvancementRate(100);
+        createTournamentDTO.setLocation("National Stadium");
+        createTournamentDTO.setDescription("Description");
+        createTournamentDTO.setRules("Rules");
+        createTournamentDTO.setDifficulty('B');
+
 
         Tournament tournament = new Tournament(
             createTournamentDTO.getName(),

@@ -45,7 +45,7 @@ jobs:
 
     - name: Run Unit Tests
       working-directory: backend/overall/overall
-      run: mvn test -Dtest=!**/*ServiceTest.java
+      run: mvn test -Dtest=**/*ServiceTest.java
       env:
         DB_URL: jdbc:mysql://localhost:3306/testdb
         DB_USERNAME: root
