@@ -425,19 +425,6 @@ export default function ViewEvent() {
 
   const totalPages = Math.ceil(eventRanking.length / limit);
 
-  function getRowColour(fencer) {
-    let rowBgColor;
-    if (poulesResults.bypassFencers.includes(fencer)) {
-      rowBgColor = "bg-blue-100";
-    } else if (poulesResults.fenceOffFencers.includes(fencer)) {
-      rowBgColor = "bg-red-100 !important";
-    } else if (poulesResults.eliminatedFencers.includes(fencer)) {
-      rowBgColor = "bg-blue-500";
-    }
-    console.log("bgcolor:", rowBgColor);
-    return rowBgColor;
-  }
-
   return (
     <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">
       <Breadcrumbs items={breadcrumbsItems} />
@@ -706,9 +693,7 @@ export default function ViewEvent() {
                         return (
                           <tr
                             key={idx}
-                            className={`border-b border-gray-300 ${getRowColour(
-                              fencer
-                            )} hover:bg-gray-100`}
+                            className={`border-b border-gray-300 hover:bg-gray-100`}
                           >
                             <td className="text-center">{idx + 1}</td>
                             <td className="w-1/4">{fencer.fencerName}</td>

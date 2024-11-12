@@ -46,13 +46,13 @@ const EndEvent = ({ id, closeEndEventPopup }) => {
             Are you sure you want to end this event?
           </h1>
           <button
-            className="w-1/5 bg-red-500 text-white font-semibold py-2 rounded-md hover:bg-red-600"
+            className="w-1/4 bg-red-500 text-white font-semibold py-2 rounded-md hover:bg-red-600"
             onClick={handleEndEvent}
           >
             End Event
           </button>
           {error && (
-            <div className="text-xl font-semibold text-center mt-5">
+            <div className="text-red-500 text-center mt-5">
               <p>{error}</p>
             </div>
           )}
