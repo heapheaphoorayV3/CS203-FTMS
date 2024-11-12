@@ -519,6 +519,7 @@ public class PouleService {
         }
 
         List<TournamentFencer> sortedFencers = getSortedFencersByEvent(event);
+        updateTournamentFencerRanks(sortedFencers);
 
         mappings.put("Bypass", sortedFencers.subList(0, bypass));
         mappings.put("FenceOff", sortedFencers.subList(bypass, fencersAdvanced));
@@ -574,7 +575,7 @@ public class PouleService {
         Map<String, List<TournamentFencer>> mappings = getFencersAfterPoules(event);
         List<TournamentFencer> sortedFencers = getSortedFencers(mappings);
     
-        updateTournamentFencerRanks(sortedFencers);
+        // updateTournamentFencerRanks(sortedFencers);
         populatePouleResultsDTO(dto, mappings);
     
         return dto;
