@@ -106,6 +106,57 @@ public class TournamentServiceTest {
         assertEquals(tournamentId, result.getId());
     }
 
+@Test
+    public void getTournament_TournamentNotFound_ReturnNull() {
+    // Arrange
+    int nonExistentTournamentId = 999;
+    when(tournamentRepository.findById(nonExistentTournamentId)).thenReturn(Optional.empty());
+
+    // Act & Assert
+    assertThrows(EntityDoesNotExistException.class, () -> {
+        tournamentService.getTournament(nonExistentTournamentId);
+    });
+    }
+
+    @Test
+    public void createTournament_ValidTournament_ReturnTournament() throws MethodArgumentNotValidException {
+        // Arrange
+        Organiser organiser = new Organiser();
+        CreateTournamentDTO createTournamentDTO = new CreateTournamentDTO();
+        createTournamentDTO.setName("National Tournament");
+        createTournamentDTO.setSignupEndDate(LocalDate.of(2024, 9, 30));
+        createTournamentDTO.setStartDate(LocalDate.of(2024, 10, 5));
+        createTournamentDTO.setEndDate(LocalDate.of(2024, 10, 10));
+        createTournamentDTO.setAdvancementRate(100);
+        createTournamentDTO.setLocation("National Stadium");
+        createTournamentDTO.setDescription("Description");
+        createTournamentDTO.setRules("Rules");
+        createTournamentDTO.setDifficulty('B');
+
+
+        Tournament tournament = new Tournament(
+            createTournamentDTO.getName(),
+            organiser,
+            createTournamentDTO.getSignupEndDate(),
+            createTournamentDTO.getAdvancementRate(),
+            createTournamentDTO.getStartDate(),
+            createTournamentDTO.getEndDate(),
+            createTournamentDTO.getLocation(),
+            createTournamentDTO.getDescription(),
+            createTournamentDTO.getRules(),
+            createTournamentDTO.getDifficulty()
+        );
+
+        when(tournamentRepository.save(any(Tournament.class))).thenReturn(tournament);
+
+        // Act
+        Tournament result = tournamentService.createTournament(createTournamentDTO, organiser);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("National Tournament", result.getName());
+        verify(tournamentRepository, times(1)).save(any(Tournament.class));
+    }
 
     @Test
     public void createTournament_InValidTournamentSignUpEndDate_ReturnException() {

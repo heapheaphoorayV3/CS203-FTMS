@@ -1,0 +1,198 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'  # Only trigger for backend changes
+
+jobs:
+  build_and_provision:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    needs: [unit_test, integration_test]  # Requires test job from backend_tests.yaml to complete
+    env:
+      DB_URL: ${{ secrets.DB_URL }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      GMAIL_ADDR: ${{ secrets.GMAIL_ADDR }}
+      GMAIL_APP_PW: ${{ secrets.GMAIL_APP_PW }}
+      JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+      FRONTEND_SOURCE: ${{ secrets.FRONTEND_SOURCE }} # frontend cloudfront domain name
+
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build and Push Docker Image
+      working-directory: backend/overall/overall
+      env:
+        DB_URL: ${{ secrets.DB_URL }}
+        DB_USERNAME: ${{ secrets.DB_USERNAME }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        GMAIL_ADDR: ${{ secrets.GMAIL_ADDR }}
+        GMAIL_APP_PW: ${{ secrets.GMAIL_APP_PW }}
+        JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+        FRONTEND_SOURCE: ${{ secrets.FRONTEND_SOURCE }}
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        # Build the docker image
+        docker build \
+          --build-arg GMAIL_ADDR=${GMAIL_ADDR} \
+          --build-arg GMAIL_APP_PW=${GMAIL_APP_PW} \
+          --build-arg JWT_SECRET_KEY=${JWT_SECRET_KEY} \
+          --build-arg FRONTEND_SOURCE=${FRONTEND_SOURCE} \
+          --build-arg DB_URL=${DB_URL} \
+          --build-arg DB_USERNAME=${DB_USERNAME} \
+          --build-arg DB_PASSWORD=${DB_PASSWORD} \
+          -t ${ECR_REGISTRY}/${ECR_REPOSITORY}:latest .
+        
+        # Push both tags
+        docker push ${ECR_REGISTRY}/${ECR_REPOSITORY}:latest
+
+    - name: Install Terraform
+      run: |
+        wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+        echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+        sudo apt update && sudo apt install terraform -y
+
+    - name: Terraform Init
+      working-directory: deployment/
+      env:
+        TF_VAR_vpc_id: ${{ secrets.VPC_ID }}
+        TF_VAR_public_subnet_1_id: ${{ secrets.PUBLIC_SUBNET_1_ID }}
+        TF_VAR_public_subnet_2_id: ${{ secrets.PUBLIC_SUBNET_2_ID }}
+        TF_VAR_internet_gateway_id: ${{ secrets.INTERNET_GATEWAY_ID }}
+        TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
+        TF_VAR_aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+        TF_VAR_db_username: ${{ secrets.DB_USERNAME }}
+        TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+        TF_VAR_jwt_secret_key: ${{ secrets.JWT_SECRET_KEY }}
+        TF_VAR_frontend_source: ${{ secrets.FRONTEND_SOURCE }}
+        TF_VAR_db_url: ${{ secrets.DB_URL }}
+        TF_VAR_gmail_addr: ${{ secrets.GMAIL_ADDR }}
+        TF_VAR_gmail_app_pw: ${{ secrets.GMAIL_APP_PW }}
+        TF_VAR_custom_header_value: ${{ secrets.CLOUDFRONT_CUSTOM_HEADER }}
+        TFSTATE_BUCKET_NAME: ${{ secrets.TFSTATE_BUCKET_NAME }}
+        TFSTATE_BUCKET_KEY: ${{ secrets.TFSTATE_BUCKET_KEY }}
+        TFSTATE_DYNAMODB_TABLE: ${{ secrets.TFSTATE_DYNAMODB_TABLE }}
+      run: |
+        terraform init \
+          -backend-config="bucket=${TFSTATE_BUCKET_NAME}" \
+          -backend-config="key=${TFSTATE_BUCKET_KEY}" \
+          -backend-config="region=${TF_VAR_aws_region}" \
+          -backend-config="dynamodb_table=${TFSTATE_DYNAMODB_TABLE}" \
+          -backend-config="encrypt=true"
+        terraform workspace new prod || terraform workspace select prod
+
+    - name: Terraform Plan Destroy
+      working-directory: deployment/
+      env:
+        TF_VAR_vpc_id: ${{ secrets.VPC_ID }}
+        TF_VAR_public_subnet_1_id: ${{ secrets.PUBLIC_SUBNET_1_ID }}
+        TF_VAR_public_subnet_2_id: ${{ secrets.PUBLIC_SUBNET_2_ID }}
+        TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
+        TF_VAR_aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+        TF_VAR_db_username: ${{ secrets.DB_USERNAME }}
+        TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+        TF_VAR_jwt_secret_key: ${{ secrets.JWT_SECRET_KEY }}
+        TF_VAR_frontend_source: ${{ secrets.FRONTEND_SOURCE }}
+        TF_VAR_db_url: ${{ secrets.DB_URL }}
+        TF_VAR_gmail_addr: ${{ secrets.GMAIL_ADDR }}
+        TF_VAR_gmail_app_pw: ${{ secrets.GMAIL_APP_PW }}
+        TF_VAR_custom_header_value: ${{ secrets.CLOUDFRONT_CUSTOM_HEADER }}
+        # TF_VAR_tfstate_bucket_name: ${{ secrets.TFSTATE_BUCKET_NAME }}
+        # TF_VAR_tfstate_bucket_key: ${{ secrets.TFSTATE_BUCKET_KEY }}
+        # TF_VAR_tfstate_dynamodb_table: ${{ secrets.TFSTATE_DYNAMODB_TABLE }}
+      run: terraform plan -destroy -out=destroy.tfplan
+
+    - name: Terraform Destroy
+      working-directory: deployment/
+      env:
+        TF_VAR_vpc_id: ${{ secrets.VPC_ID }}
+        TF_VAR_public_subnet_1_id: ${{ secrets.PUBLIC_SUBNET_1_ID }}
+        TF_VAR_public_subnet_2_id: ${{ secrets.PUBLIC_SUBNET_2_ID }}
+        TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
+        TF_VAR_aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+        TF_VAR_db_username: ${{ secrets.DB_USERNAME }}
+        TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+        TF_VAR_jwt_secret_key: ${{ secrets.JWT_SECRET_KEY }}
+        TF_VAR_frontend_source: ${{ secrets.FRONTEND_SOURCE }}
+        TF_VAR_db_url: ${{ secrets.DB_URL }}
+        TF_VAR_gmail_addr: ${{ secrets.GMAIL_ADDR }}
+        TF_VAR_gmail_app_pw: ${{ secrets.GMAIL_APP_PW }}
+        TF_VAR_custom_header_value: ${{ secrets.CLOUDFRONT_CUSTOM_HEADER }}
+        # TF_VAR_tfstate_bucket_name: ${{ secrets.TFSTATE_BUCKET_NAME }}
+        # TF_VAR_tfstate_bucket_key: ${{ secrets.TFSTATE_BUCKET_KEY }}
+        # TF_VAR_tfstate_dynamodb_table: ${{ secrets.TFSTATE_DYNAMODB_TABLE }}
+      run: |
+        terraform apply -auto-approve "destroy.tfplan"
+        sleep 30  # Wait for resources to be fully destroyed
+
+    - name: Terraform Plan
+      working-directory: deployment/
+      env:
+        TF_VAR_vpc_id: ${{ secrets.VPC_ID }}
+        TF_VAR_public_subnet_1_id: ${{ secrets.PUBLIC_SUBNET_1_ID }}
+        TF_VAR_public_subnet_2_id: ${{ secrets.PUBLIC_SUBNET_2_ID }}
+        TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
+        TF_VAR_aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+        TF_VAR_db_username: ${{ secrets.DB_USERNAME }}
+        TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+        TF_VAR_jwt_secret_key: ${{ secrets.JWT_SECRET_KEY }}
+        TF_VAR_frontend_source: ${{ secrets.FRONTEND_SOURCE }}
+        TF_VAR_db_url: ${{ secrets.DB_URL }}
+        TF_VAR_gmail_addr: ${{ secrets.GMAIL_ADDR }}
+        TF_VAR_gmail_app_pw: ${{ secrets.GMAIL_APP_PW }}
+        TF_VAR_custom_header_value: ${{ secrets.CLOUDFRONT_CUSTOM_HEADER }}
+        # TF_VAR_tfstate_bucket_name: ${{ secrets.TFSTATE_BUCKET_NAME }}
+        # TF_VAR_tfstate_bucket_key: ${{ secrets.TFSTATE_BUCKET_KEY }}
+        # TF_VAR_tfstate_dynamodb_table: ${{ secrets.TFSTATE_DYNAMODB_TABLE }}
+      run: terraform plan -out=apply.tfplan
+
+    - name: Terraform Apply
+      working-directory: deployment/
+      env:
+        TF_VAR_vpc_id: ${{ secrets.VPC_ID }}
+        TF_VAR_public_subnet_1_id: ${{ secrets.PUBLIC_SUBNET_1_ID }}
+        TF_VAR_public_subnet_2_id: ${{ secrets.PUBLIC_SUBNET_2_ID }}
+        TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
+        TF_VAR_aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+        TF_VAR_db_username: ${{ secrets.DB_USERNAME }}
+        TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+        TF_VAR_jwt_secret_key: ${{ secrets.JWT_SECRET_KEY }}
+        TF_VAR_frontend_source: ${{ secrets.FRONTEND_SOURCE }}
+        TF_VAR_db_url: ${{ secrets.DB_URL }}
+        TF_VAR_gmail_addr: ${{ secrets.GMAIL_ADDR }}
+        TF_VAR_gmail_app_pw: ${{ secrets.GMAIL_APP_PW }}
+        TF_VAR_custom_header_value: ${{ secrets.CLOUDFRONT_CUSTOM_HEADER }}
+        # TF_VAR_tfstate_bucket_name: ${{ secrets.TFSTATE_BUCKET_NAME }}
+        # TF_VAR_tfstate_bucket_key: ${{ secrets.TFSTATE_BUCKET_KEY }}
+        # TF_VAR_tfstate_dynamodb_table: ${{ secrets.TFSTATE_DYNAMODB_TABLE }}
+      run: terraform apply -auto-approve "apply.tfplan"
+
+    - name: Save CloudFront Domain
+      working-directory: deployment/
+      run: |
+        terraform output -raw cloudfront_domain_name > cloudfront_domain.txt
+
+    - name: Upload CloudFront Domain
+      uses: actions/upload-artifact@v3
+      with:
+        name: terraform-output
+        path: deployment/cloudfront_domain.txt
