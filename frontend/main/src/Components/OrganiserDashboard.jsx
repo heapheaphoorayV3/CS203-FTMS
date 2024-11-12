@@ -29,85 +29,85 @@ const OrganiserDashboard = () => {
   });
   const [editedData, setEditedData] = useState(initialEditedData);
 
+  const fetchData = async () => {
+    try {
+      const response = await OrganiserService.getProfile();
+      setUserData(response.data);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      setError("Failed to load user data.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchTournamentData = async () => {
+    setLoading(true);
+    try {
+      const response = await OrganiserService.getAllHostedTournaments();
+      const tournaments = response.data;
+      const currentDate = new Date();
+      const ongoingTournamentsData = tournaments
+        .filter((tournament) => {
+          const startDate = new Date(tournament.startDate);
+          const endDate = new Date(tournament.endDate);
+          return startDate <= currentDate && currentDate <= endDate;
+        })
+        .map((tournament) => {
+          const totalParticipants = tournament.events.reduce((sum, event) => {
+            return sum + (event.fencers ? event.fencers.length : 0);
+          }, 0);
+          return { ...tournament, totalParticipants };
+        });
+      setOngoingTournaments(ongoingTournamentsData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setError("Failed to load data.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchUpcomingTournaments = async () => {
+    setLoading(true);
+    try {
+      const response =
+        await OrganiserService.getOrganiserUpcomingTournaments();
+
+      const sortedTournaments = response.data.sort((a, b) => {
+        const dateA = new Date(a.startDate);
+        const dateB = new Date(b.startDate);
+        return dateA - dateB;
+      });
+      setUpcomingTournaments(sortedTournaments);
+    } catch (error) {
+      console.error("Error fetching upcoming tournaments: ", error);
+      setError("Failed to fetch upcoming tournaments");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchPastTournaments = async () => {
+    setLoading(true);
+    try {
+      const response = await OrganiserService.getOrganiserPastTournaments();
+      const sortedTournaments = response.data.sort((a, b) => {
+        const dateA = new Date(a.startDate);
+        const dateB = new Date(b.startDate);
+        return dateA - dateB;
+      });
+      setPastTournaments(sortedTournaments);
+    } catch (error) {
+      console.error("Error fetching past tournaments: ", error);
+      setError("Failed to fetch past tournaments");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     setLoading(true);
-    const fetchData = async () => {
-      try {
-        const response = await OrganiserService.getProfile();
-        setUserData(response.data);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        setError("Failed to load user data.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchTournamentData = async () => {
-      setLoading(true);
-      try {
-        const response = await OrganiserService.getAllHostedTournaments();
-        const tournaments = response.data;
-        const currentDate = new Date();
-        const ongoingTournamentsData = tournaments
-          .filter((tournament) => {
-            const startDate = new Date(tournament.startDate);
-            const endDate = new Date(tournament.endDate);
-            return startDate <= currentDate && currentDate <= endDate;
-          })
-          .map((tournament) => {
-            const totalParticipants = tournament.events.reduce((sum, event) => {
-              return sum + (event.fencers ? event.fencers.length : 0);
-            }, 0);
-            return { ...tournament, totalParticipants };
-          });
-        setOngoingTournaments(ongoingTournamentsData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setError("Failed to load data.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchUpcomingTournaments = async () => {
-      setLoading(true);
-      try {
-        const response =
-          await OrganiserService.getOrganiserUpcomingTournaments();
-
-        const sortedTournaments = response.data.sort((a, b) => {
-          const dateA = new Date(a.startDate);
-          const dateB = new Date(b.startDate);
-          return dateA - dateB;
-        });
-        setUpcomingTournaments(sortedTournaments);
-      } catch (error) {
-        console.error("Error fetching upcoming tournaments: ", error);
-        setError("Failed to fetch upcoming tournaments");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchPastTournaments = async () => {
-      setLoading(true);
-      try {
-        const response = await OrganiserService.getOrganiserPastTournaments();
-        const sortedTournaments = response.data.sort((a, b) => {
-          const dateA = new Date(a.startDate);
-          const dateB = new Date(b.startDate);
-          return dateA - dateB;
-        });
-        setPastTournaments(sortedTournaments);
-      } catch (error) {
-        console.error("Error fetching past tournaments: ", error);
-        setError("Failed to fetch past tournaments");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchTournamentData();
     fetchData();
     fetchUpcomingTournaments();
@@ -189,6 +189,7 @@ const OrganiserDashboard = () => {
   const closeUpdateTournamentPopup = () => {
     setIsUpdateTournamentPopupVisible(false);
     setSelectedTournament(null);
+    fetchUpcomingTournaments();
   };
 
   const deleteTournament = (tournamentToDelete) => {

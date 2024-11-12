@@ -18,6 +18,7 @@ const UpdateBracketMatch = ({ matches, onClose, eventID }) => {
 
   let roundTypeValue = watch("roundTypeInput");
   let roundTypes = ["Select Round"];
+  let watchedfencer1Score = watch("firstScore");
 
   // The number of match types/rounds (Top 16, Quarters, Semis, Finals, etc)
   let numRoundTypes = Math.log2(matches.length + 1); // Add 1 to account for the final match
@@ -179,7 +180,7 @@ const UpdateBracketMatch = ({ matches, onClose, eventID }) => {
                 required: "Please fill this in!",
                 validate: (value) => {
                   return (
-                    (value >= 0) ||
+                    (value >= 0 && value <= 15) ||
                     "Please enter a valid score"
                   );
                 },
@@ -206,10 +207,13 @@ const UpdateBracketMatch = ({ matches, onClose, eventID }) => {
               {...register("secondScore", {
                 required: "Please fill this in!",
                 validate: (value) => {
-                  return (
-                    (value >= 0) ||
-                    "Please enter a valid score"
-                  );
+                  if (value < 0 || value > 15) {
+                    return "Please enter a valid score (0 - 15 inclusive)";
+                  }
+                  if (value === watchedfencer1Score) {
+                    return "Please enter a valid score (no ties)";
+                  }
+                  return true;
                 },
               })}
               className={`w-full border rounded-md p-2 ${errors.secondScore

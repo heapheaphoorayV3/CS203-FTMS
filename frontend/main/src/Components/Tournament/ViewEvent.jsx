@@ -211,12 +211,12 @@ export default function ViewEvent() {
       );
       const startIndex = Math.max(0, (currentPage - 1) * limit);
       const endIndex = Math.min(eventRanking.length, startIndex + limit);
-      if (eventData.isOver) {
+      if (!loading && eventData.isOver) {
         setPaginatedData(sortedRankingByRank.slice(startIndex, endIndex));
       } else {
         setPaginatedData(sortedRankingByPoints.slice(startIndex, endIndex));
       }
-      
+
     } else {
       setPaginatedData([]);
     }
@@ -279,16 +279,16 @@ export default function ViewEvent() {
       name: loading
         ? "Loading..."
         : eventData
-        ? eventData.tournamentName
-        : "Not Found",
+          ? eventData.tournamentName
+          : "Not Found",
       link: `/tournaments/${tournamentID}`,
     },
     {
       name: loading
         ? "Loading..."
         : eventData
-        ? constructEventName(eventData.gender, eventData.weapon)
-        : "Not Found",
+          ? constructEventName(eventData.gender, eventData.weapon)
+          : "Not Found",
     },
   ];
 
@@ -325,6 +325,7 @@ export default function ViewEvent() {
     setIsUpdating(false);
     setIsInputValid(true);
     setUpdatePoulesScores({});
+    fetchPouleTable();
   };
 
   function handleInputChange(event, index, rowIndex) {
@@ -489,21 +490,26 @@ export default function ViewEvent() {
                   <label className="block font-medium mb-1 ml-1">
                     Poule Results
                   </label>
-                  <select
-                    value={selectedPoule}
-                    onChange={handlePouleChange}
-                    className="block w-full py-2 px-3 border border-gray-300 rounded"
-                  >
-                    {pouleTableData.pouleTable.length === 0 ? (
-                      <option disabled>No poules available</option>
-                    ) : (
-                      pouleTableData.pouleTable.map((poule, index) => (
-                        <option key={index} value={index + 1}>
-                          {`Poule ${index + 1}`}
-                        </option>
-                      ))
-                    )}
-                  </select>
+                  {isUpdating ?
+                    `Poule ${selectedPoule}` :
+                    (
+                      <select
+                        value={selectedPoule}
+                        onChange={handlePouleChange}
+                        className="block w-full py-2 px-3 border border-gray-300 rounded"
+                      >
+                        {pouleTableData.pouleTable.length === 0 ? (
+                          <option disabled>No poules available</option>
+                        ) : (
+                          pouleTableData.pouleTable.map((poule, index) => (
+                            <option key={index} value={index + 1}>
+                              {`Poule ${index + 1}`}
+                            </option>
+                          ))
+                        )}
+                      </select>
+                    )
+                  }
                 </div>
 
                 <div className="flex gap-2">
@@ -603,11 +609,10 @@ export default function ViewEvent() {
                               {resultArray.map((result, resultIndex) => (
                                 <td
                                   key={resultIndex}
-                                  className={`border border-gray-300 hover:bg-gray-100 ${
-                                    result === "-1"
+                                  className={`border border-gray-300 hover:bg-gray-100 ${result === "-1"
                                       ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
                                       : ""
-                                  }`}
+                                    }`}
                                 >
                                   {result === "-1" ? (
                                     result
@@ -622,11 +627,10 @@ export default function ViewEvent() {
                                           idx
                                         )
                                       }
-                                      className={`w-full text-center ${
-                                        !isInputValid
+                                      className={`w-full text-center ${!isInputValid
                                           ? "border-red-500"
                                           : "border-gray-300"
-                                      }`}
+                                        }`}
                                     />
                                   ) : (
                                     result
@@ -688,7 +692,7 @@ export default function ViewEvent() {
               />
             )}
           </Tab>
-          <Tab label="Ranking">
+          <Tab label="Placements">
             <div className="py-4">
               {/* <h2 className="text-lg font-medium mb-2">Ranking</h2> */}
               {paginatedData.length > 0 ? (
@@ -699,7 +703,6 @@ export default function ViewEvent() {
                       <th className="text-center w-20">Rank</th>
                       <th className="w-1/2">Name</th>
                       <th className="text-center">Country</th>
-                      <th className="text-center">Points</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -711,7 +714,6 @@ export default function ViewEvent() {
                         <td className="text-center">{index + 1}</td>
                         <td>{item.fencerName}</td>
                         <td className="text-center">{item.country}</td>
-                        <td className="text-center">{item.poulePoints}</td>
                       </tr>
                     ))}
                   </tbody>
