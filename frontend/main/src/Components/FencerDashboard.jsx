@@ -20,7 +20,8 @@ const FencerDashboard = () => {
   const [pastRank, setPastRank] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showCompleteProfileModal, setShowCompleteProfileModal] = useState(false);
+  const [showCompleteProfileModal, setShowCompleteProfileModal] =
+    useState(false);
   const [modalErrors, setModalErrors] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [contactNoErrors, setContactNoErrors] = useState({});
@@ -92,7 +93,12 @@ const FencerDashboard = () => {
       setLoading(true);
       try {
         const response = await FencerService.getFencerPastEvents();
-        setPastEvents(response.data);
+        const sortedEvents = response.data.sort((a, b) => {
+          const dateA = new Date(a.eventDate);
+          const dateB = new Date(b.eventDate);
+          return dateA - dateB;
+        });
+        setPastEvents(sortedEvents);
       } catch (error) {
         console.error("Error fetching past events: ", error);
         setError("Failed to load past events");
@@ -148,7 +154,8 @@ const FencerDashboard = () => {
     fetchPastEventPointsForGraph();
   }, []);
 
-  useEffect(() => { // Check if user has completed their profile
+  useEffect(() => {
+    // Check if user has completed their profile
     if (
       !loading &&
       (!userData.gender ||
@@ -194,8 +201,13 @@ const FencerDashboard = () => {
 
   const validateEditInputs = () => {
     const newErrors = {};
-    if (!validator.isMobilePhone(editedData.contactNo, 'any', { strictMode: true })) {
-      newErrors.contactNo = "Please enter a valid phone number with country code!";
+    if (
+      !validator.isMobilePhone(editedData.contactNo, "any", {
+        strictMode: true,
+      })
+    ) {
+      newErrors.contactNo =
+        "Please enter a valid phone number with country code!";
     }
     setContactNoErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -210,7 +222,9 @@ const FencerDashboard = () => {
         setIsEditing(false);
       } catch (error) {
         console.error("Error saving profile:", error);
-        setContactNoErrors({ contactNo: "Please enter a valid phone number with country code!" });
+        setContactNoErrors({
+          contactNo: "Please enter a valid phone number with country code!",
+        });
       }
     }
   };
@@ -218,7 +232,7 @@ const FencerDashboard = () => {
   const handleCompleteProfileChange = (e) => {
     const { name, value } = e.target;
     setIncompleteData((prevData) => ({ ...prevData, [name]: value }));
-  }
+  };
 
   const handleCompleteProfileSubmit = async (e) => {
     e.preventDefault();
@@ -230,7 +244,6 @@ const FencerDashboard = () => {
     const dateOfBirth = userData.dateOfBirth;
 
     if (!isValidDebutYear(Number(debutYear), dateOfBirth)) {
-
       setModalErrors({
         debutYear: `Invalid debut year. You must be at least 8 years old, 
       and your debut year must be at most ${new Date().getFullYear()}.`,
@@ -307,15 +320,29 @@ const FencerDashboard = () => {
   };
 
   // Data and options for the #Tournament per month graph
-  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
   const getMostRecentSevenMonths = () => {
-
     const currentDate = new Date();
     const months = [];
 
     for (let i = 6; i >= 0; i--) {
       const monthIndex = (currentDate.getMonth() - i + 12) % 12;
-      const year = currentDate.getFullYear() - Math.floor((i - currentDate.getMonth() + 11) / 12);
+      const year =
+        currentDate.getFullYear() -
+        Math.floor((i - currentDate.getMonth() + 11) / 12);
       months.push(`${monthNames[monthIndex]} ${year}`);
     }
 
@@ -323,7 +350,6 @@ const FencerDashboard = () => {
   };
 
   const getParticaptedTournamentsPerMonth = () => {
-
     let months = getMostRecentSevenMonths();
     // Initialise an array of all 0s
     const eventCounts = new Array(months.length).fill(0);
@@ -333,7 +359,9 @@ const FencerDashboard = () => {
       for (let i = 0; i < pastEvents.length; i++) {
         // Format pastEvent eventDate to be compared to the values in months[]
         const pastEventDate = new Date(pastEvents[i].eventDate);
-        const pastEventMonth = `${monthNames[pastEventDate.getMonth() - 1]} ${pastEventDate.getFullYear()}`;
+        const pastEventMonth = `${
+          monthNames[pastEventDate.getMonth() - 1]
+        } ${pastEventDate.getFullYear()}`;
 
         // Comparing formatted month with values in months[]
         for (let i = 0; i < months.length; i++) {
@@ -344,7 +372,7 @@ const FencerDashboard = () => {
       }
     }
     return eventCounts;
-  }
+  };
 
   const pointsGraphData = {
     labels: getMostRecentSevenMonths(),
@@ -363,8 +391,8 @@ const FencerDashboard = () => {
       y: {
         beginAtZero: true,
         ticks: {
-          stepSize: 1
-        }
+          stepSize: 1,
+        },
       },
     },
   };
@@ -395,47 +423,48 @@ const FencerDashboard = () => {
           <div className="flex font-medium">Email:</div>
           <div className="flex">{userData.email}</div>
           <div className="flex font-medium">Contact Number:</div>
-          <div className="flex">{isEditing ? (
-            <input
-              name="contactNo"
-              type="text"
-              value={editedData.contactNo}
-              onChange={handleEditChange}
-              className={`border p-1 rounded-lg ${contactNoErrors.contactNo ? 'border-red-500' : ''}`}
-              placeholder="Contact Number (e.g. +65********)"
-            />
-          ) : (
-            userData.contactNo
-          )}
-          {contactNoErrors.contactNo && (
-            <div className="text-red-500 text-sm ml-4">
-              {contactNoErrors.contactNo}
-            </div>
-          )}
+          <div className="flex">
+            {isEditing ? (
+              <input
+                name="contactNo"
+                type="text"
+                value={editedData.contactNo}
+                onChange={handleEditChange}
+                className={`border p-1 rounded-lg ${
+                  contactNoErrors.contactNo ? "border-red-500" : ""
+                }`}
+                placeholder="Contact Number (e.g. +65********)"
+              />
+            ) : (
+              userData.contactNo
+            )}
+            {contactNoErrors.contactNo && (
+              <div className="text-red-500 text-sm ml-4">
+                {contactNoErrors.contactNo}
+              </div>
+            )}
           </div>
-          
+
           <div className="flex font-medium">Birth Date:</div>
           <div className="flex">{formatDate(userData.dateOfBirth)}</div>
           <div className="flex font-medium">Gender:</div>
           <div className="flex">
-            {userData.gender === "M" ?
-              "Male"
-              : userData.gender === "F" ?
-                "Female"
-                : "-"}
+            {userData.gender === "M"
+              ? "Male"
+              : userData.gender === "F"
+              ? "Female"
+              : "-"}
           </div>
           <hr className="col-span-2 my-4 border-gray-300 w-full" />
           <div className="flex font-medium">Category:</div>
           <div className="flex">
-            {userData.weapon === "F" ?
-              "Foil"
-              : userData.weapon === "E" ?
-                "Épée"
-                : userData.weapon === "S" ?
-                  "Sabre"
-                  :
-                  "-"
-            }
+            {userData.weapon === "F"
+              ? "Foil"
+              : userData.weapon === "E"
+              ? "Épée"
+              : userData.weapon === "S"
+              ? "Sabre"
+              : "-"}
           </div>
           <div className="flex font-medium">Dominant Arm:</div>
           <div className="flex">
@@ -499,14 +528,21 @@ const FencerDashboard = () => {
             <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
               <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-auto">
                 <div className="p-6">
-                  <h2 className="text-center text-xl font-semibold mb-4">Complete Your Profile</h2>
-                  <form onSubmit={handleCompleteProfileSubmit} className="space-y-4">
+                  <h2 className="text-center text-xl font-semibold mb-4">
+                    Complete Your Profile
+                  </h2>
+                  <form
+                    onSubmit={handleCompleteProfileSubmit}
+                    className="space-y-4"
+                  >
                     {/* Gender */}
                     <div>
-                      <label className="block text-sm font-medium mb-1">Gender:</label>
+                      <label className="block text-sm font-medium mb-1">
+                        Gender:
+                      </label>
                       <select
                         name="gender"
-                        value={incompleteData.gender || ''}
+                        value={incompleteData.gender || ""}
                         onChange={handleCompleteProfileChange}
                         className="w-full border rounded-lg p-2"
                         required
@@ -521,10 +557,12 @@ const FencerDashboard = () => {
 
                     {/* Category */}
                     <div>
-                      <label className="block text-sm font-medium mb-1">Category:</label>
+                      <label className="block text-sm font-medium mb-1">
+                        Category:
+                      </label>
                       <select
                         name="weapon"
-                        value={incompleteData.weapon || ''}
+                        value={incompleteData.weapon || ""}
                         onChange={handleCompleteProfileChange}
                         className="w-full border rounded-lg p-2"
                         required
@@ -540,10 +578,12 @@ const FencerDashboard = () => {
 
                     {/* Dominant Arm */}
                     <div>
-                      <label className="block text-sm font-medium mb-1">Dominant Arm:</label>
+                      <label className="block text-sm font-medium mb-1">
+                        Dominant Arm:
+                      </label>
                       <select
                         name="dominantArm"
-                        value={incompleteData.dominantArm || ''}
+                        value={incompleteData.dominantArm || ""}
                         onChange={handleCompleteProfileChange}
                         className="w-full border rounded-lg p-2"
                         required
@@ -558,14 +598,17 @@ const FencerDashboard = () => {
 
                     {/* Debut Year */}
                     <div>
-                      <label className="block text-sm font-medium mb-1">Debut Year:</label>
+                      <label className="block text-sm font-medium mb-1">
+                        Debut Year:
+                      </label>
                       <input
                         name="debutYear"
                         type="number"
-                        value={incompleteData.debutYear || ''}
+                        value={incompleteData.debutYear || ""}
                         onChange={handleCompleteProfileChange}
-                        className={`w-full border rounded-lg p-2 ${modalErrors.debutYear ? 'border-red-500' : ''
-                          }`}
+                        className={`w-full border rounded-lg p-2 ${
+                          modalErrors.debutYear ? "border-red-500" : ""
+                        }`}
                         required
                       />
                       {modalErrors.debutYear && (
@@ -577,11 +620,13 @@ const FencerDashboard = () => {
 
                     {/* Club */}
                     <div>
-                      <label className="block text-sm font-medium mb-1">Club:</label>
+                      <label className="block text-sm font-medium mb-1">
+                        Club:
+                      </label>
                       <input
                         name="club"
                         type="text"
-                        value={incompleteData.club || ''}
+                        value={incompleteData.club || ""}
                         onChange={handleCompleteProfileChange}
                         className="w-full border rounded-lg p-2"
                         required
@@ -670,24 +715,25 @@ const FencerDashboard = () => {
                         <td className="underline hover:text-primary">
                           {item.tournamentName}
                         </td>
-                        <td className="text-center">{formatDate(item.eventDate)}</td>
                         <td className="text-center">
-                          {pastRank && pastRank[index]
-                            ? pastRank[index].rank
+                          {formatDate(item.eventDate)}
+                        </td>
+                        <td className="text-center">
+                          {pastEventPoints && pastEventPoints[item.id]
+                            ? pastEventPoints[item.id].pointsAfterEvent
                             : "-"}
                         </td>
                       </tr>
-                    ))
-                    }
+                    ))}
                   </tbody>
-                </table>) :
-                (
-                  <div className="flex justify-center items-center h-full">
-                    <h2 className="text-lg font-medium">
-                      No past tournaments available yet
-                    </h2>
-                  </div>
-                )}
+                </table>
+              ) : (
+                <div className="flex justify-center items-center h-full">
+                  <h2 className="text-lg font-medium">
+                    No past tournaments available yet
+                  </h2>
+                </div>
+              )}
             </div>
           </Tab>
           <Tab label="Upcoming Tournaments">
@@ -719,7 +765,9 @@ const FencerDashboard = () => {
                             {item.tournamentName}
                           </Link>
                         </td>
-                        <td className="text-center">{formatDate(item.eventDate)}</td>
+                        <td className="text-center">
+                          {formatDate(item.eventDate)}
+                        </td>
                         <td className="text-center">
                           {formatTimeTo24Hour(item.startTime)}
                         </td>
@@ -729,14 +777,14 @@ const FencerDashboard = () => {
                       </tr>
                     ))}
                   </tbody>
-                </table>) :
-                (
-                  <div className="flex justify-center items-center h-full">
-                    <h2 className="text-lg font-medium">
-                      No upcoming tournaments available yet
-                    </h2>
-                  </div>
-                )}
+                </table>
+              ) : (
+                <div className="flex justify-center items-center h-full">
+                  <h2 className="text-lg font-medium">
+                    No upcoming tournaments available yet
+                  </h2>
+                </div>
+              )}
             </div>
           </Tab>
         </Tabs>
