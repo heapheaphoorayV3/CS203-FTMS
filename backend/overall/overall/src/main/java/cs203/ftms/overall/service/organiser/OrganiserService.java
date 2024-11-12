@@ -19,6 +19,7 @@ import cs203.ftms.overall.repository.tournamentrelated.TournamentRepository;
 import cs203.ftms.overall.repository.userrelated.OrganiserRepository;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
 import cs203.ftms.overall.service.authentication.AuthenticationService;
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class OrganiserService {
@@ -38,7 +39,7 @@ public class OrganiserService {
     }
 
     public CleanOrganiserDTO getCleanOrganiserDTO(Organiser o) {
-        if (o == null) return null;
+        if (o == null) throw new EntityNotFoundException("Organiser cannot be null");
         return new CleanOrganiserDTO(o.getId(), o.isVerified(), o.getName(), o.getEmail(), o.getContactNo(), o.getCountry());
     }
 

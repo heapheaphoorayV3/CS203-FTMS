@@ -40,9 +40,6 @@ public class PouleController {
     @PreAuthorize("hasRole('ORGANISER')")
     public ResponseEntity<Set<String>> getRecommendedPoules(@PathVariable int eid) {
         Set<String> res = pouleService.recommendPoules(eid);
-        if (res == null) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
     
@@ -52,19 +49,13 @@ public class PouleController {
     public ResponseEntity<PouleTableDTO> createPoules(@PathVariable int eid, @RequestBody CreatePoulesDTO dto) {
         Set<CleanPouleDTO> create = pouleService.createPoules(eid, dto);
         PouleTableDTO res = pouleService.getPouleTable(eid, true);
-        if (create != null && res != null) {
-            return new ResponseEntity<>(res, HttpStatus.CREATED);
-        }
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(res, HttpStatus.CREATED);
     }
 
     @GetMapping("/get-poule-table/{eid}")
     public ResponseEntity<PouleTableDTO> getPouleTable(@PathVariable int eid) {
         PouleTableDTO res = pouleService.getPouleTable(eid, false);
-        if (res != null) {
-            return new ResponseEntity<>(res, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
     @PutMapping("/update-poule-table/{eid}")
@@ -81,9 +72,6 @@ public class PouleController {
     @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
     public ResponseEntity<PouleResultsDTO> getPouleResults(@PathVariable int eid) {
         PouleResultsDTO res = pouleService.poulesResult(eid);
-        if(res.getFenceOffFencers() != null){
-            return new ResponseEntity<>(res, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 }

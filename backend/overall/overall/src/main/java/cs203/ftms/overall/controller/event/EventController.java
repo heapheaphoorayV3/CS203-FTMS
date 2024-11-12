@@ -63,7 +63,7 @@ public class EventController {
             }
             return new ResponseEntity<>(res, HttpStatus.CREATED);
         }
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.BAD_REQUEST);
     }
 
     @PutMapping("/update-event/{eid}")
@@ -72,10 +72,7 @@ public class EventController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         Event event = eventService.updateEvent(eid, (Organiser) user, e);
-        if (event != null) {
-            return new ResponseEntity<>(eventService.getCleanEventDTO(event), HttpStatus.OK);
-        }
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(eventService.getCleanEventDTO(event), HttpStatus.OK);
     }
 
     @PutMapping("/register/{eid}")
@@ -117,17 +114,8 @@ public class EventController {
     
     @GetMapping("/event-details/{eid}")
     public ResponseEntity<CleanEventDTO> getEvent(@PathVariable int eid) {
-        Event event;
-        try {
-            event = eventService.getEvent(eid);
-        } catch (EntityDoesNotExistException e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
-
+        Event event = eventService.getEvent(eid);
         CleanEventDTO res = eventService.getCleanEventDTO(event);
-        if (res == null) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 

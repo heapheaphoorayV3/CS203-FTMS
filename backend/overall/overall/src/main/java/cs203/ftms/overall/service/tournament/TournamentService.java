@@ -43,8 +43,7 @@ public class TournamentService {
     }
 
     public CleanTournamentDTO getCleanTournamentDTO(Tournament t) {
-        if (t == null)
-            return null;
+        if (t == null) throw new EntityDoesNotExistException("Tournament cannot be null");
 
         List<CleanEventDTO> cleanEvents = new ArrayList<>();
         for (Event e : t.getEvents()) {
@@ -103,7 +102,7 @@ public class TournamentService {
         }
     }
 
-    private void updateTournamentDetails(Tournament tournament, CreateTournamentDTO dto) {
+    private void updateTournamentDetails(Tournament tournament, CreateTournamentDTO dto) throws MethodArgumentNotValidException {
         tournament.setName(dto.getName());
         tournament.setSignupEndDate(dto.getSignupEndDate());
         tournament.setAdvancementRate(dto.getAdvancementRate());
@@ -113,6 +112,9 @@ public class TournamentService {
         tournament.setDescription(dto.getDescription());
         tournament.setRules(dto.getRules());
         tournament.setDifficulty(dto.getDifficulty());
+        OtherValidations.validTournamentSignUpEndDate(tournament);
+        OtherValidations.validTournamentDates(tournament);
+        tournamentRepository.save(tournament);
     }
 
     public List<Tournament> getUpcomingTournaments() {

@@ -37,10 +37,10 @@ public class DirectEliminationController {
     public ResponseEntity<List<DirectEliminationBracketDTO>> createDirectEliminationMatches(@PathVariable int eid) {
         directEliminationService.createAllDEMatches(eid);
         List<DirectEliminationBracketDTO> res = directEliminationService.generateDirectEliminationBracketDTOs(eid);
-        if (res != null && res.size() != 0) {
+        if (res.size() != 0) {
             return new ResponseEntity<>(res, HttpStatus.CREATED);
         }
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
     }
 
     @PutMapping("/update-direct-elimination-match/{eid}")
@@ -48,18 +48,15 @@ public class DirectEliminationController {
     public ResponseEntity<List<DirectEliminationBracketDTO>> updateDirectEliminationMatch(@PathVariable int eid, @RequestBody UpdateDirectEliminationMatchDTO dto) {
         directEliminationService.updateDEMatch(eid, dto);
         List<DirectEliminationBracketDTO> res = directEliminationService.generateDirectEliminationBracketDTOs(eid);
-        if (res != null && res.size() != 0) {
+        if (res.size() != 0) {
             return new ResponseEntity<>(res, HttpStatus.CREATED);
         }
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("/get-direct-elimination-matches/{eid}")
     public ResponseEntity<List<DirectEliminationBracketDTO>> getDirectEliminationMatches(@PathVariable int eid) {
         List<DirectEliminationBracketDTO> res = directEliminationService.generateDirectEliminationBracketDTOs(eid);
-        if (res != null) {
-            return new ResponseEntity<>(res, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 }
