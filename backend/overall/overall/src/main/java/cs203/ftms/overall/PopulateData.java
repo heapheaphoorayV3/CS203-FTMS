@@ -155,7 +155,7 @@ public class PopulateData {
         for(int i = 0; i < 3; i++){
             List<Event> events = eventService.createEvent(tournamentRepository.findByName("Tournament" + i).get().getId(), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get(), List.of(new CreateEventDTO('M', 'S', 10, LocalDate.of(2024, 12, 28 + i), LocalTime.of(10, 0, 0), LocalTime.of(17, 0, 0))));
             for (Event event : events) {
-                event.setDate(LocalDate.of(2023, 12, 28 + i));
+                event.setDate(LocalDate.of(2024, 12, 10 + i));
             }
         }
         for (int i = 3; i < 6; i++) {
