@@ -11,7 +11,6 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,6 +36,8 @@ import cs203.ftms.overall.exception.FencerAlreadyRegisteredForEventException;
 import cs203.ftms.overall.exception.SignUpDateOverExcpetion;
 import cs203.ftms.overall.model.tournamentrelated.DirectEliminationMatch;
 import cs203.ftms.overall.model.tournamentrelated.Event;
+import cs203.ftms.overall.model.tournamentrelated.Poule;
+import cs203.ftms.overall.model.tournamentrelated.PouleMatch;
 import cs203.ftms.overall.model.tournamentrelated.Tournament;
 import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
 import cs203.ftms.overall.model.userrelated.Fencer;
@@ -80,11 +81,10 @@ public class EventServiceTest {
 
     @Test
     void getCleanEventDTO_EventIsNull() {
-        // Act
-        CleanEventDTO result = eventService.getCleanEventDTO(null);
-
-        // Assert
-        assertNull(result);
+        // Act & Assert
+        assertThrows(EntityDoesNotExistException.class, () -> {
+            eventService.getCleanEventDTO(null);
+        });
     }
     
     @Test
@@ -227,10 +227,12 @@ public class EventServiceTest {
         int tcid = 1;
         Fencer fencer = new Fencer("DOE John", "john.doe@example.com", "password"
         , "+6594949499", "Singapore", LocalDate.of(2000, 1, 1));
+        fencer.setWeapon('S');
+        fencer.setGender('W');
         Organiser organiser = new Organiser("Organizer One", "organizer.one@example.com", "password", "+6599999999", "Singapore");
         
         Tournament tournament = new Tournament("hi", organiser, LocalDate.of(2024, 12, 10), 60, LocalDate.of(2024, 12, 12), LocalDate.of(2024, 12, 15), "singapore", "hi", "hi", 'B');
-        Event event = new Event(tournament, 'F', 'S', 10, LocalDate.of(2024, 12, 12), LocalTime.now(), LocalTime.now().plusHours(3));
+        Event event = new Event(tournament, 'W', 'S', 10, LocalDate.of(2024, 12, 12), LocalTime.now(), LocalTime.now().plusHours(3));
 
 
         when(eventRepository.findById(tcid)).thenReturn(Optional.of(event));
@@ -610,6 +612,16 @@ public class EventServiceTest {
         Event event = new Event();
         event.setId(eid);
 
+        PouleMatch pMatch = new PouleMatch();
+        pMatch.setWinner(1);
+        Set<PouleMatch> matches = new HashSet<>();
+        matches.add(pMatch);
+        Poule poule = new Poule();
+        poule.setPouleMatches(matches);
+        Set<Poule> poules = new HashSet<>();
+        poules.add(poule);
+        event.setPoules(poules);
+
         DirectEliminationMatch match = new DirectEliminationMatch();
         match.setWinner(1);
 
@@ -667,12 +679,46 @@ public class EventServiceTest {
         Event event = new Event();
         event.setId(eid);
 
+        PouleMatch pMatch = new PouleMatch();
+        pMatch.setWinner(1);
+        Set<PouleMatch> matches = new HashSet<>();
+        matches.add(pMatch);
+        Poule poule = new Poule();
+        poule.setPouleMatches(matches);
+        Set<Poule> poules = new HashSet<>();
+        poules.add(poule);
+        event.setPoules(poules);
+
         DirectEliminationMatch match = new DirectEliminationMatch();
         match.setWinner(-1);
 
+        Fencer fencer1 = new Fencer();
+        fencer1.setId(1);
+        fencer1.setPoints(100);
+
+        Fencer fencer2 = new Fencer();
+        fencer2.setId(2);
+        fencer2.setPoints(200);
+
+        TournamentFencer tournamentFencer1 = new TournamentFencer();
+        tournamentFencer1.setFencer(fencer1);
+        tournamentFencer1.setTournamentRank(1);
+
+        TournamentFencer tournamentFencer2 = new TournamentFencer();
+        tournamentFencer2.setFencer(fencer2);
+        tournamentFencer2.setTournamentRank(2);
+
+        Set<TournamentFencer> fencers = new HashSet<>();
+        fencers.add(tournamentFencer1);
+        fencers.add(tournamentFencer2);
+        event.setFencers(fencers);
+
         when(eventRepository.findById(eid)).thenReturn(Optional.of(event));
         when(directEliminationMatchRepository.findByEventAndRoundOf(event, 2)).thenReturn(Arrays.asList(match));
+        when(tournamentFencerRepository.findByEvent(event)).thenReturn(Arrays.asList(tournamentFencer1, tournamentFencer2));
 
+        // Assert
+        assertEquals(false, event.isOver());
         // Act & Assert
         assertThrows(EventCannotEndException.class, () -> {
             eventService.endTournamentEvent(eid);
@@ -731,6 +777,12 @@ public class EventServiceTest {
         fencer2profiles.add(tf2);
         fencer2.setTournamentFencerProfiles(fencer2profiles);
 
+        // DirectEliminationMatch match = new DirectEliminationMatch();
+        // match.setWinner(1);
+        // Set<DirectEliminationMatch> matches = new HashSet<>();
+        // matches.add(match);
+        event.setDirectEliminationMatches(new HashSet<>());
+        event.setPoules(new HashSet<>());
 
         Set<TournamentFencer> fencers = new HashSet<>();
         fencers.add(tf1);

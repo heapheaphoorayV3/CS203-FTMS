@@ -11,7 +11,6 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +27,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import cs203.ftms.overall.dto.CreateTournamentDTO;
 import cs203.ftms.overall.dto.clean.CleanEventDTO;
 import cs203.ftms.overall.dto.clean.CleanTournamentDTO;
+import cs203.ftms.overall.exception.EntityDoesNotExistException;
 import cs203.ftms.overall.exception.TournamentAlreadyStartedException;
 import cs203.ftms.overall.model.tournamentrelated.Event;
 import cs203.ftms.overall.model.tournamentrelated.Poule;
@@ -173,11 +173,10 @@ public class TournamentServiceTest {
 
     @Test
     void testGetCleanOrganiserDTO_ReturnsNull_WhenOrganiserIsNull() {
-        // Act
-        CleanTournamentDTO result = tournamentService.getCleanTournamentDTO(null);
-
-        // Assert
-        assertNull(result);
+    // Act & Assert
+    assertThrows(EntityDoesNotExistException.class, () -> {
+        tournamentService.getCleanTournamentDTO(null);
+    });
     }
 
 
@@ -238,7 +237,7 @@ public class TournamentServiceTest {
 
         // Assert
         assertEquals(existingTournament, result);
-        verify(tournamentRepository).save(existingTournament);
+        verify(tournamentRepository, times(2)).save(existingTournament); 
     }
 
     @Test
@@ -270,8 +269,8 @@ public class TournamentServiceTest {
 
         // Assert
         assertEquals(existingTournament, result);
-        verify(tournamentRepository).save(existingTournament);
-    }
+        verify(tournamentRepository, times(2)).save(existingTournament); 
+    }   
 
     @Test
     @Transactional
@@ -342,7 +341,7 @@ public class TournamentServiceTest {
 
         // Assert
         assertEquals(existingTournament, result);
-        verify(tournamentRepository).save(existingTournament);
+        verify(tournamentRepository, times(2)).save(existingTournament); 
     }
 
     @Test

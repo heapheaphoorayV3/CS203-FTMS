@@ -7,7 +7,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -25,6 +25,7 @@ import cs203.ftms.overall.repository.tournamentrelated.TournamentRepository;
 import cs203.ftms.overall.repository.userrelated.OrganiserRepository;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
 import cs203.ftms.overall.service.organiser.OrganiserService;
+import jakarta.persistence.EntityNotFoundException;
 
 class OrganiserServiceTest {
 
@@ -67,11 +68,10 @@ class OrganiserServiceTest {
 
     @Test
     void testGetCleanOrganiserDTO_ReturnsNull_WhenOrganiserIsNull() {
-        // Act
-        CleanOrganiserDTO result = organiserService.getCleanOrganiserDTO(null);
-
-        // Assert
-        assertNull(result);
+        // Act & Assert
+        assertThrows(EntityNotFoundException.class, () -> {
+            organiserService.getCleanOrganiserDTO(null);
+        });
     }
 
     // 2. Tests for getOrganiserTournaments
