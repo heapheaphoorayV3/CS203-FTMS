@@ -1,35 +1,45 @@
 import React, { useEffect, useState } from "react";
 import Pagination from "../Others/PaginationButton.jsx";
 import AdminService from "../../Services/Admin/AdminService.js";
-import { set } from "react-hook-form";
 
-/*
-TODO
-- Add loading state
-- Axios Timeout since Backend needs to send emails to all organisers when verified before sending a 200 response 
-  no solution yet, needs more work on backend
-*/
 export default function VerifyOrganisers() {
 
     const [organisers, setOrganisers] = useState([]); // State to store fetched organisers
     const [currentPage, setCurrentPage] = useState(1); // State for current page
     const [totalPages, setTotalPages] = useState(1); // State for total pages
     const limit = 8; // Number of organisers per page
-    const [isSubmitError, setSubmitError] = useState(false); // State for error handling
+    const [loading, setLoading] = useState(true); // State for loading state
+    const [error, setError] = useState(null); // State for error handling
+    const [submitError, setSubmitError] = useState(null); // State for error handling
     const [checkboxState, setCheckboxState] = useState({}); // State to track checkboxes --> Array of Approved/Denied Organisers (to send Backend)
+
+    // Function to fetch organisers
+    const fetchOrganisers = async () => {
+        setLoading(true); // Set loading
+        try {
+            const response = await AdminService.getUnverifiedOrganisers();
+            setOrganisers(response.data);
+            setTotalPages(Math.ceil(organisers.length / limit));
+        } catch (error) {
+            if (error.response) {
+                console.log("Error response data: ", error.response.data);
+                setError(error.response.data);
+            } else if (error.request) {
+                // The request was made but no response was received
+                console.log("Error request: ", error.request);
+                setError("Failed to fetch unverified organisers, please try again later.");
+            } else {
+                // Something happened in setting up the request that triggered an Error
+                console.log("Unknown Error: " + error);
+                setError("Failed to fetch unverified organisers, please try again later.");
+            }
+        } finally {
+            setLoading(false); // Set loading to false
+        }
+    };
 
     // Get unverified organisers (only on first load)
     useEffect(() => {
-        const fetchOrganisers = async () => {
-            try {
-                const response = await AdminService.getUnverifiedOrganisers();
-                console.log(response);
-                setOrganisers(response.data);
-                setTotalPages(Math.ceil(organisers.length / limit));
-            } catch (error) {
-                console.error('Error fetching organisers:', error);
-            }
-        };
         fetchOrganisers();
     }, []);
 
@@ -73,9 +83,6 @@ export default function VerifyOrganisers() {
                 delete newState[id]; // Remove entry if undefined (no selection)
             }
 
-            // Log the current state of all checkboxes
-            console.log('Current Checkbox States:' + newState + " Length: " + Object.keys(checkboxState).length);
-
             return newState;
         });
 
@@ -108,27 +115,48 @@ export default function VerifyOrganisers() {
         try {
             console.log('Submitting verifications: ', data);
             await AdminService.verifyOrganiser(data);
-            window.location.reload();
+            fetchOrganisers();
         } catch (error) {
-            setSubmitError(true);
-            console.log(error);
+            if (error.response) {
+                console.log("Error response data: ", error.response.data);
+                setSubmitError(error.response.data);
+            } else if (error.request) {
+                // The request was made but no response was received
+                console.log("Error request: ", error.request);
+                setSubmitError("Failed to submit verifications, please try again later.");
+            } else {
+                // Something happened in setting up the request that triggered an Error
+                console.log("Unknown Error: " + error);
+                setSubmitError("Failed to submit verifications, please try again later.");
+            }
         }
+    }
+    // Loading / Error states
+    if (loading) {
+        return <div className="mt-10">Loading...</div>; // Show loading state
+    }
+    if (error) {
+        return (
+            <div className="flex justify-between mr-20 my-10">
+                <h1 className=" ml-12 text-left text-4xl font-semibold">{error}</h1>
+            </div>
+        ); 
     }
 
     return (
         <div className="flex flex-col bg-white items-center h-full gap-10 p-8">
             <h1 className="text-4xl font-bold mt-4">Verify Organisers</h1>
             {organisers.length > 0 ? (
-            <table className="table text-lg">
-                <thead>
-                    <tr className="text-lg text-primary border-b border-gray-300">
-                        <th>Organisation</th>
-                        <th>Email</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {organisers.map((organiser) => (
+                <table className="table text-lg">
+                    <thead>
+                        <tr className="text-lg text-primary border-b border-gray-300">
+                            <th>Organisation</th>
+                            <th>Email</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {organisers.map((organiser) => (
                             <tr key={organiser.id} className="border-b border-gray-300">
                                 <td>{organiser.name}</td>
                                 <td>{organiser.email}</td>
@@ -153,16 +181,16 @@ export default function VerifyOrganisers() {
                             </tr>
                         ))}
 
-                    {/* Add empty rows if there are less than 8 rows */}
-                    {Array.from({ length: limit - organisers.length }).map((_, index) => (
-                        <tr key={`empty-${index}`} className="border-transparent">
-                            <td>&nbsp;</td> {/* Empty cells */}
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>) : (
+                        {/* Add empty rows if there are less than 8 rows */}
+                        {Array.from({ length: limit - organisers.length }).map((_, index) => (
+                            <tr key={`empty-${index}`} className="border-transparent">
+                                <td>&nbsp;</td> {/* Empty cells */}
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>) : (
                 <h1 className="mt-16 text-xl font-semibold text-center text-gray-500">
                     No unverified organisers yet
                 </h1>
@@ -175,9 +203,9 @@ export default function VerifyOrganisers() {
                     Confirm Changes
                 </button>
             )}
-            {isSubmitError && (
-                <h1 className="text-xl font-semibold text-center text-red-500">
-                    Something went wrong. Please try again later!
+            {submitError && (
+                <h1 className="text-red-500 text-center mt-4">
+                    {submitError}
                 </h1>
             )}
             <Pagination
