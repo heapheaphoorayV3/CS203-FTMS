@@ -203,13 +203,20 @@ export default function ViewEvent() {
   useEffect(() => {
     if (Array.isArray(eventRanking) && eventRanking.length) {
       // Sort eventRanking based on poulePoints in descending order
-      const sortedRanking = [...eventRanking].sort(
+      const sortedRankingByPoints = [...eventRanking].sort(
+        (a, b) => b.poulePoints - a.poulePoints
+      );
+      const sortedRankingByRank = [...eventRanking].sort(
         (a, b) => a.tournamentRank - b.tournamentRank
       );
-
       const startIndex = Math.max(0, (currentPage - 1) * limit);
-      const endIndex = Math.min(sortedRanking.length, startIndex + limit);
-      setPaginatedData(sortedRanking.slice(startIndex, endIndex));
+      const endIndex = Math.min(eventRanking.length, startIndex + limit);
+      if (eventData.isOver) {
+        setPaginatedData(sortedRankingByRank.slice(startIndex, endIndex));
+      } else {
+        setPaginatedData(sortedRankingByPoints.slice(startIndex, endIndex));
+      }
+      
     } else {
       setPaginatedData([]);
     }
