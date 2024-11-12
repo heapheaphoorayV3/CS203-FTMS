@@ -368,7 +368,7 @@ export default function ViewEvent() {
         singleTable: Object.fromEntries(singleTableMap),
       };
 
-      console.log("sending to backend:",combinedData);
+      console.log("sending to backend:", combinedData);
 
       await EventService.updatePouleTable(eventID, combinedData);
 
@@ -382,6 +382,11 @@ export default function ViewEvent() {
 
   const endPoules = async () => {
     setIsEndPoulesPopupVisible(true);
+  };
+
+  const closeEndPoulesPopup = () => {
+    setIsEndPoulesPopupVisible(false);
+    fetchPouleTable();
     fetchMatches();
   };
 
@@ -484,9 +489,7 @@ export default function ViewEvent() {
                             <>
                               <EndPoules
                                 id={eventID}
-                                closeEndPoulesPopup={() =>
-                                  setIsEndPoulesPopupVisible(false)
-                                }
+                                closeEndPoulesPopup={closeEndPoulesPopup}
                               />
                             </>
                           )}
