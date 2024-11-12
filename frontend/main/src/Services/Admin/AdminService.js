@@ -10,6 +10,10 @@ class AdminService {
     return await ProtectedAPI.get(`${baseURL}/profile`);
   }
 
+  async changePassword(data) {
+    return await ProtectedAPI.put(`${baseURL}/change-password`, data);
+  }
+
   async getUnverifiedOrganisers() {
     return await ProtectedAPI.get(`${baseURL}/unverified-organiser`);
   }
