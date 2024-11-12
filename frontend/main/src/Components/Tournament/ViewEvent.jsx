@@ -488,7 +488,7 @@ export default function ViewEvent() {
             <div className="py-4">
               {/* Render only once for both 'O' (Organizers) and 'F' (Fencers) */}
               <div>
-                {userType === "O" && pouleTableData.pouleTable.length === 0 && (
+                {userType === "O" && pouleTableData.pouleTable.length === 0 && isOwner && (
                   <button
                     onClick={createPoules}
                     className="bg-blue-500 text-white px-4 py-2 rounded mt-2 mb-2"
@@ -525,7 +525,7 @@ export default function ViewEvent() {
 
                 <div className="flex gap-2">
                   {/* Conditional buttons for organizers */}
-                  {userType === "O" &&
+                  {userType === "O" && isOwner &&
                     pouleTableData.pouleTable.length > 0 &&
                     matches.length === 0 && (
                       <div className="flex mt-4 pb-2 space-x-2">
@@ -546,7 +546,7 @@ export default function ViewEvent() {
                     )}
 
                   {/* Conditional buttons and popup for updating poules */}
-                  {userType === "O" && isUpdating && (
+                  {userType === "O" && isUpdating && isOwner && (
                     <div className="flex mt-4 pb-2 space-x-2">
                       <button
                         onClick={submitUpdatePoules}
