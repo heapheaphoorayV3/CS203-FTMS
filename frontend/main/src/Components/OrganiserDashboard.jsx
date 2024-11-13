@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import editIcon from "../Assets/edit.png";
 import validator from "validator";
 import SearchBar from "./Others/SearchBar";
+import LoadingPage from "./Others/LoadingPage";
 
 const OrganiserDashboard = () => {
   const [userData, setUserData] = useState([]);
@@ -40,13 +41,10 @@ const OrganiserDashboard = () => {
     } catch (error) {
       console.error("Error fetching user data:", error);
       setError("Failed to load user data.");
-    } finally {
-      setLoading(false);
     }
   };
 
   const fetchTournamentData = async () => {
-    setLoading(true);
     try {
       const response = await OrganiserService.getAllHostedTournaments();
       const tournaments = response.data;
@@ -67,13 +65,10 @@ const OrganiserDashboard = () => {
     } catch (error) {
       console.error("Error fetching data:", error);
       setError("Failed to load data.");
-    } finally {
-      setLoading(false);
     }
   };
 
   const fetchUpcomingTournaments = async () => {
-    setLoading(true);
     try {
       const response = await OrganiserService.getOrganiserUpcomingTournaments();
 
@@ -86,13 +81,10 @@ const OrganiserDashboard = () => {
     } catch (error) {
       console.error("Error fetching upcoming tournaments: ", error);
       setError("Failed to fetch upcoming tournaments");
-    } finally {
-      setLoading(false);
     }
   };
 
   const fetchPastTournaments = async () => {
-    setLoading(true);
     try {
       const response = await OrganiserService.getOrganiserPastTournaments();
       const sortedTournaments = response.data.sort((a, b) => {
@@ -104,17 +96,19 @@ const OrganiserDashboard = () => {
     } catch (error) {
       console.error("Error fetching past tournaments: ", error);
       setError("Failed to fetch past tournaments");
-    } finally {
-      setLoading(false);
     }
   };
 
   useEffect(() => {
     setLoading(true);
-    fetchTournamentData();
-    fetchData();
-    fetchUpcomingTournaments();
-    fetchPastTournaments();
+    Promise.all([
+      fetchTournamentData(),
+    fetchData(),
+    fetchUpcomingTournaments(),
+    fetchPastTournaments(),
+    ]).then(() => {
+      setLoading(false);
+    });
   }, []);
 
   const formatDateRange = (start, end) => {
@@ -136,6 +130,7 @@ const OrganiserDashboard = () => {
     if (!isEditing) {
       setEditedData(initialEditedData); // Reset edited data
     }
+    else setContactNoErrors({});
   };
 
   const handleEditChange = (e) => {
@@ -175,22 +170,20 @@ const OrganiserDashboard = () => {
     }
   };
 
-  const cancelEditProfile = () => {
-    setEditedData(initialEditedData); // Reset
-    setIsEditing(false);
-    setContactNoErrors({});
-  };
-
   function handleSearch(e) {
     setInputSearch(e.target.value);
   }
 
   if (loading) {
-    return <div className="mt-10">Loading...</div>; // Show loading state
+    return <LoadingPage />;
   }
 
   if (error) {
-    return <div className="mt-10">{error}</div>; // Show error message if any
+    return (
+      <div className="flex justify-between mr-20 my-10">
+        <h1 className=" ml-12 text-left text-2xl font-semibold">{error}</h1>
+      </div>
+    ); // Show error message if any
   }
 
   // console.log("verified=" + userData.verified);
@@ -216,16 +209,23 @@ const OrganiserDashboard = () => {
     setSelectedTournament(null);
   };
 
-  const formatDate = (date) => {
-    const formattedDate = new Date(date).toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-    return formattedDate;
-  };
+  const filteredPastTournaments = pastTournaments?.filter((tournament) => {
+    return (
+      tournament.name.toLowerCase().includes(InputSearch.toLowerCase())
+    );
+  });
 
-  console.log(upcomingTournaments);
+  const filteredUpcomingTournaments = upcomingTournaments?.filter((tournament) => {
+    return (
+      tournament.name.toLowerCase().includes(InputSearch.toLowerCase())
+    );
+  });
+
+  const filteredOngoingTournaments = ongoingTournaments?.filter((tournament) => {
+    return (
+      tournament.name.toLowerCase().includes(InputSearch.toLowerCase())
+    );
+  });
 
   return (
     <div className="bg-white w-full h-full flex flex-col gap-2 p-8 overflow-auto">
@@ -326,20 +326,20 @@ const OrganiserDashboard = () => {
                     <thead className="text-lg text-primary">
                       <tr className="border-b border-gray-300">
                         <th className="w-20"></th>
-                        <th className="w-1/4">Tournament Name</th>
+                        <th className="text-center">Tournament Name</th>
                         <th className="text-center">Location</th>
                         <th className="text-center">Dates</th>
                         <th className="text-center">Total participants</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {ongoingTournaments.map((item, index) => (
+                      {filteredOngoingTournaments.map((item, index) => (
                         <tr
                           key={item.id}
                           className="border-b border-gray-300 hover:bg-gray-100"
                         >
                           <td className="text-center">{index + 1}</td>
-                          <td>
+                          <td className="text-center">
                             <Link
                               to={`/tournaments/${item.id}`}
                               className="underline hover:text-primary"
@@ -384,20 +384,20 @@ const OrganiserDashboard = () => {
                     <thead className="text-lg text-primary">
                       <tr className="border-b border-gray-300">
                         <th className="w-20"></th>
-                        <th className="w-1/4">Tournament Name</th>
+                        <th className="text-center">Tournament Name</th>
                         <th className="text-center">Location</th>
                         <th className="text-center">Dates</th>
                         <th className="text-center"></th>
                       </tr>
                     </thead>
                     <tbody>
-                      {upcomingTournaments.map((item, index) => (
+                      {filteredUpcomingTournaments.map((item, index) => (
                         <tr
                           key={item.id}
                           className="border-b border-gray-300 hover:bg-gray-100"
                         >
                           <td className="text-center">{index + 1}</td>
-                          <td>
+                          <td className="text-center">
                             <Link
                               to={`/tournaments/${item.id}`}
                               className="underline hover:text-primary"
@@ -451,19 +451,19 @@ const OrganiserDashboard = () => {
                     <thead className="text-lg text-primary">
                       <tr className="border-b border-gray-300">
                         <th className="w-20"></th>
-                        <th className="w-1/4">Tournament Name</th>
+                        <th className="text-center">Tournament Name</th>
                         <th className="text-center">Location</th>
                         <th className="text-center">Dates</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {pastTournaments.map((item, index) => (
+                      {filteredPastTournaments.map((item, index) => (
                         <tr
                           key={item.id}
                           className="border-b border-gray-300 hover:bg-gray-100"
                         >
                           <td className="text-center">{index + 1}</td>
-                          <td>
+                          <td className="text-center">
                             <Link
                               to={`/tournaments/${item.id}`}
                               className="underline hover:text-primary"

@@ -12,6 +12,7 @@ import CreateEvent from "./CreateEvent.jsx";
 import UpdateEvent from "./UpdateEvent.jsx";
 import DeleteEvent from "./DeleteEvent.jsx";
 import SubmitButton from "../Others/SubmitButton.jsx";
+import LoadingPage from "../Others/LoadingPage.jsx";
 
 function formatTimeTo24Hour(timeString) {
   const [hours, minutes] = timeString.split(":"); // Get hours and minutes
@@ -78,8 +79,6 @@ export default function ViewTournament() {
         console.log("Unknown Error: " + error);
         setError("Tournament Data has failed to load, please try again later.");
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -112,14 +111,14 @@ export default function ViewTournament() {
     }
   };
 
-  // Fetch Upcoming Tournament if Organiser to check if organiser is the owner of current tournament
+  // Fetch Hosted Tournament if Organiser to check if organiser is the owner of current tournament
   const checkIfOwner = async () => {
     try {
-      const response = await Organiser.getOrganiserUpcomingTournaments();
-      const upcomingTournaments = response.data;
+      const response = await Organiser.getAllHostedTournaments();
+      const hostedTournaments = response.data;
       let found = false;
-      for (let i = 0; i < upcomingTournaments.length; i++) {
-        if (upcomingTournaments[i].id == tournamentID) {
+      for (let i = 0; i < hostedTournaments.length; i++) {
+        if (hostedTournaments[i].id == tournamentID) {
           found = true;
           break;
         }
@@ -127,7 +126,7 @@ export default function ViewTournament() {
       setIsOwner(found);
     } catch (error) {
       console.error(
-        "Error fetching upcoming tournaments for organiser:",
+        "Error fetching hosted tournaments for organiser:",
         error
       );
       setError("Failed to load Tournament Data.");
@@ -147,9 +146,13 @@ export default function ViewTournament() {
       }
     }
   };
+
   // Fetch data whenever tournamentID changes
   useEffect(() => {
-    fetchData();
+    setLoading(true);
+    fetchData().then(() => {
+      setLoading(false);
+    })
   }, [tournamentID]);
 
   const userType = sessionStorage.getItem("userType");
@@ -179,7 +182,7 @@ export default function ViewTournament() {
 
   // Loading / Error states
   if (loading) {
-    return <div className="mt-10">Loading...</div>; // Show loading state
+    return <LoadingPage />; 
   }
   if (error) {
     return (
@@ -293,8 +296,6 @@ export default function ViewTournament() {
     } catch (error) {
       console.error("Error fetching tournament data:", error);
       setError("Failed to load tournament data.");
-    } finally {
-      setLoading(false);
     }
     setIsCreating(false);
   };
@@ -568,7 +569,7 @@ export default function ViewTournament() {
                           isPastStartDate() && (
                             <SubmitButton
                               disabled={true}
-                              styling={`h-12 w-40 justify-center rounded-md my-5 text-lg font-semibold leading-6 text-white shadow-sm bg-gray-500`}
+                              styling={`h-12 w-40 bg-gray-300 justify-center rounded-md my-5 text-lg font-semibold leading-6 text-gray shadow-sm`}
                             >
                               Signups Ended
                             </SubmitButton>

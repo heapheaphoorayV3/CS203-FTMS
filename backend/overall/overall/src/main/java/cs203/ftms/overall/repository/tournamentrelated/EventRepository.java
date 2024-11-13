@@ -11,6 +11,7 @@ import cs203.ftms.overall.model.tournamentrelated.Tournament;
 
 public interface EventRepository extends JpaRepository<Event, Integer> {
     Optional<Event> findByTournamentAndGenderAndWeapon(Tournament t, char g, char w);
-    List<Event> findByGenderAndWeapon(char gender, char weapon); // Add this line
+    List<Event> findByGenderAndWeapon(char gender, char weapon); 
+    List<Event> findByTournament(Tournament t); 
 
 }

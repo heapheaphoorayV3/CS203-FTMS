@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -80,14 +81,12 @@ public class FencerController {
     }
     
     @GetMapping("/international-ranking")
-    @PreAuthorize("hasAnyRole('FENCER', 'ORGANISER', 'ADMIN')")
-    public ResponseEntity<List<CleanFencerDTO>> getInternationalRanking() {
-        List<Fencer> fencers = fencerService.getInternationalRank(); 
-        List<CleanFencerDTO> res = new ArrayList<>();
-        for (Fencer fencer : fencers) {
-            res.add(fencerService.getCleanFencerDTO(fencer));
-        }
-        return new ResponseEntity<>(res, HttpStatus.OK);
+    @PreAuthorize("hasRole('FENCER')")
+    public ResponseEntity<Integer> getInternationalRanking() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        int rank = fencerService.getInternationalRank((Fencer) user); 
+        return new ResponseEntity<>(rank, HttpStatus.OK);
     }
 
     @PutMapping("/change-password")

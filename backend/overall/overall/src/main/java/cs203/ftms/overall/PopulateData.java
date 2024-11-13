@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,11 +30,13 @@ import cs203.ftms.overall.dto.RegisterOrganiserDTO;
 import cs203.ftms.overall.dto.SinglePouleTableDTO;
 import cs203.ftms.overall.dto.clean.CleanTournamentFencerDTO;
 import cs203.ftms.overall.model.tournamentrelated.Event;
+import cs203.ftms.overall.model.tournamentrelated.Tournament;
 import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
 import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.repository.tournamentrelated.EventRepository;
 import cs203.ftms.overall.repository.tournamentrelated.PouleRepository;
+import cs203.ftms.overall.repository.tournamentrelated.TournamentFencerRepository;
 import cs203.ftms.overall.repository.tournamentrelated.TournamentRepository;
 import cs203.ftms.overall.repository.userrelated.FencerRepository;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
@@ -63,9 +66,13 @@ public class PopulateData {
     private final EventRepository eventRepository;
     private final PouleRepository pouleRepository; 
     private final FencerRepository fencerRepository;
+    private final TournamentFencerRepository tournamentFencerRepository;
 
     @Autowired
-    public PopulateData(AuthenticationService authenticationService, TournamentService tournamentService, EventService eventService, FencerService fencerService, PouleService poulesService, UserRepository userRepository, TournamentRepository tournamentRepository, EventRepository eventRepository, PouleRepository pouleRepository, FencerRepository fencerRepository, DirectEliminationService directEliminationService) {
+    public PopulateData(AuthenticationService authenticationService, TournamentService tournamentService, EventService eventService, 
+    FencerService fencerService, PouleService poulesService, UserRepository userRepository, TournamentRepository tournamentRepository, 
+    EventRepository eventRepository, PouleRepository pouleRepository, FencerRepository fencerRepository, DirectEliminationService directEliminationService, 
+    TournamentFencerRepository tournamentFencerRepository) {
         this.authenticationService = authenticationService;
         this.tournamentService = tournamentService;
         this.eventService = eventService;
@@ -77,6 +84,7 @@ public class PopulateData {
         this.eventRepository = eventRepository;
         this.pouleRepository = pouleRepository;
         this.directEliminationService = directEliminationService;
+        this.tournamentFencerRepository = tournamentFencerRepository;
     }
 
     public void createAdmin() {
@@ -148,7 +156,12 @@ public class PopulateData {
         tournamentService.createTournament(new CreateTournamentDTO("Tournament3", LocalDate.of(2024, 12, 10), 100, LocalDate.of(2024, 12, 20), LocalDate.of(2024, 12, 30), "location", "description", "rules", 'B'), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
         tournamentService.createTournament(new CreateTournamentDTO("Tournament4", LocalDate.of(2024, 12, 10), 100, LocalDate.of(2024, 12, 20), LocalDate.of(2024, 12, 30), "location", "description", "rules", 'I'), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
         tournamentService.createTournament(new CreateTournamentDTO("Tournament5", LocalDate.of(2024, 12, 10), 100, LocalDate.of(2024, 12, 20), LocalDate.of(2024, 12, 30), "location", "description", "rules", 'A'), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
-
+        tournamentService.createTournament(new CreateTournamentDTO("Tournament6", LocalDate.of(2024, 12, 10), 100, LocalDate.of(2024, 12, 20), LocalDate.of(2024, 12, 30), "location", "description", "rules", 'B'), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
+        tournamentService.createTournament(new CreateTournamentDTO("Tournament7", LocalDate.of(2024, 12, 10), 100, LocalDate.of(2024, 12, 20), LocalDate.of(2024, 12, 30), "location", "description", "rules", 'I'), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
+        tournamentService.createTournament(new CreateTournamentDTO("Tournament8", LocalDate.of(2024, 12, 10), 100, LocalDate.of(2024, 12, 20), LocalDate.of(2024, 12, 30), "location", "description", "rules", 'A'), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
+        tournamentService.createTournament(new CreateTournamentDTO("Tournament9", LocalDate.of(2024, 12, 10), 100, LocalDate.of(2024, 12, 20), LocalDate.of(2024, 12, 30), "location", "description", "rules", 'B'), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
+        tournamentService.createTournament(new CreateTournamentDTO("Tournament10", LocalDate.of(2024, 12, 10), 100, LocalDate.of(2024, 12, 20), LocalDate.of(2024, 12, 30), "location", "description", "rules", 'I'), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
+        tournamentService.createTournament(new CreateTournamentDTO("Tournament11", LocalDate.of(2024, 12, 10), 100, LocalDate.of(2024, 12, 20), LocalDate.of(2024, 12, 30), "location", "description", "rules", 'A'), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
     }
 
     public void createEvent() throws MethodArgumentNotValidException {
@@ -158,13 +171,13 @@ public class PopulateData {
                 event.setDate(LocalDate.of(2024, 12, 10 + i));
             }
         }
-        for (int i = 3; i < 6; i++) {
+        for (int i = 3; i < 12; i++) {
             eventService.createEvent(tournamentRepository.findByName("Tournament" + i).get().getId(), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get(), List.of(new CreateEventDTO('M', 'S', 10, LocalDate.of(2024, 12, 30), LocalTime.of(10, 0, 0), LocalTime.of(17, 0, 0))));
         }
     }
 
     public void registerFencerForEvent() {
-        for(int i = 0; i < 6; i++){
+        for(int i = 0; i < 12; i++){
             for (int j = 1; j <= FENCER_COUNT; j++) {
                 eventService.registerEvent(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament" + i).get(), 'M', 'S').get().getId(), (Fencer) userRepository.findByEmail("MSfencer" + j + "@gmail.com").get());
             }
@@ -236,15 +249,57 @@ public class PopulateData {
     }
 
     public void setTournamentFencerPoints() {
-        Fencer f = fencerRepository.findById(3).get();
+        Fencer f = fencerRepository.findAll().get(0);
         Set<TournamentFencer> tfs = f.getTournamentFencerProfiles();
         List<TournamentFencer> tfList = new ArrayList<>(tfs);
         Collections.sort(tfList, (a, b) -> a.getEvent().getDate().compareTo(b.getEvent().getDate()));
         int previousPoints = f.getPoints();
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 4; i++) {
             TournamentFencer tf = tfList.get(i);
-            tf.setPointsAfterEvent(previousPoints + random.nextInt(300));
+            tf.setPointsAfterEvent(previousPoints + i*100);
             previousPoints = tf.getPointsAfterEvent();
+            tournamentFencerRepository.save(tf);
+        }
+        f.setPoints(previousPoints);
+        fencerRepository.save(f);
+    }
+
+    public void modifyDates() {
+        List<Tournament> tournaments = tournamentRepository.findAll();
+        for (int i = 0; i < 6; i++) {
+            Tournament t = tournaments.get(i);
+            List<Event> events = eventRepository.findByTournament(t);
+            if (i == 0 || i == 1) {
+                
+                System.out.println(events.size());
+                for (Event e : events) {
+                    e.setDate(LocalDate.now());
+                    System.out.println(e.getDate());
+                    eventRepository.save(e);
+                }
+                t.setSignupEndDate(LocalDate.now().minusDays(3));
+                t.setStartDate(LocalDate.now().minusDays(1));
+                t.setEndDate(LocalDate.now().plusDays(1));
+                
+            } else if (i == 2 || i == 3) {
+                for (Event e : events) {
+                    e.setDate(LocalDate.now().minusMonths(1).plusDays(i));
+                    eventRepository.save(e);
+                }
+                t.setSignupEndDate(LocalDate.now().minusMonths(i).plusDays(i - 1));
+                t.setStartDate(LocalDate.now().minusMonths(i).plusDays(i - 1));
+                t.setEndDate(LocalDate.now().minusMonths(i).plusDays(i + 1));
+            } else {
+                for (Event e : events) {
+                    e.setDate(LocalDate.now().minusMonths(i-1).plusDays(i));
+                    eventRepository.save(e);
+                }
+                t.setSignupEndDate(LocalDate.now().minusMonths(i-1).plusDays(i - 1));
+                t.setStartDate(LocalDate.now().minusMonths(i-1).plusDays(i - 1));
+                t.setEndDate(LocalDate.now().minusMonths(i-1).plusDays(i + 1));
+            }
+            t.setEvents(new HashSet<>(events));
+            tournamentRepository.save(t);
         }
     }
 
@@ -263,6 +318,7 @@ public class PopulateData {
             createTournament();
             createEvent();
             registerFencerForEvent();
+            modifyDates();
             setTournamentFencerPoints();
             return;
         }

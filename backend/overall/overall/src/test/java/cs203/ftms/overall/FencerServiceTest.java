@@ -232,43 +232,37 @@ class FencerServiceTest {
 
     // Tests for getInternationalRank
     @Test
-    void testGetInternationalRank_ReturnsSortedFencers() {
+    void testGetInternationalRank_MenSabre_ReturnsSortedFencers() {
         // Arrange
         Fencer fencer1 = new Fencer();
         fencer1.setId(1);
         fencer1.setPoints(50);
+        fencer1.setGender('M');
+        fencer1.setWeapon('S');
         Fencer fencer2 = new Fencer();
         fencer2.setId(2);
         fencer2.setPoints(100);
+        fencer2.setGender('M');
+        fencer2.setWeapon('S');
         Fencer fencer3 = new Fencer();
         fencer3.setId(3);
         fencer3.setPoints(75);
+        fencer3.setGender('M');
+        fencer3.setWeapon('S');
         
         List<Fencer> fencers = Arrays.asList(fencer1, fencer2, fencer3);
         when(fencerRepository.findAll()).thenReturn(fencers);
 
         // Act
-        List<Fencer> result = fencerService.getInternationalRank();
+        int result1 = fencerService.getInternationalRank(fencer1);
+        int result2 = fencerService.getInternationalRank(fencer2);
+        int result3 = fencerService.getInternationalRank(fencer3);
 
         // Assert
-        assertEquals(3, result.size());
-        assertEquals(2, result.get(0).getId());  // Highest points
-        assertEquals(3, result.get(1).getId());  // Second highest points
-        assertEquals(1, result.get(2).getId());  // Lowest points
-        verify(fencerRepository, times(1)).findAll();
-    }
-
-    @Test
-    void testGetInternationalRank_ReturnsEmptyList_WhenNoFencersExist() {
-        // Arrange
-        when(fencerRepository.findAll()).thenReturn(Collections.emptyList());
-
-        // Act
-        List<Fencer> result = fencerService.getInternationalRank();
-
-        // Assert
-        assertTrue(result.isEmpty());
-        verify(fencerRepository, times(1)).findAll();
+        assertEquals(3, result1);   // Lowest points
+        assertEquals(1, result2);  // Highest points
+        assertEquals(2, result3);  // Second highest points
+        verify(fencerRepository, times(3)).findAll();
     }
 
     // @Test

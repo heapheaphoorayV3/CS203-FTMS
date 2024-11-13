@@ -7,7 +7,8 @@ import { Link } from "react-router-dom";
 import EventService from "../Services/Event/EventService";
 import validator from "validator";
 import SearchBar from "./Others/SearchBar";
-import Pagination from "./Others/PaginationButton";
+import LoadingPage from "./Others/LoadingPage";
+import { set } from "react-hook-form";
 
 function formatTimeTo24Hour(timeString) {
   const [hours, minutes] = timeString.split(":"); // Get hours and minutes
@@ -16,13 +17,14 @@ function formatTimeTo24Hour(timeString) {
 
 const FencerDashboard = () => {
   const [userData, setUserData] = useState({});
-  const [rankingData, setRankingData] = useState(null);
+  const [internationalRanking, setInternationalRanking] = useState(null);
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [InputSearch, setInputSearch] = useState("");
   const [pastEvents, setPastEvents] = useState([]);
   const [pastRank, setPastRank] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [internationalRankingError, setInternationalRankingError] = useState(null);
   const [showCompleteProfileModal, setShowCompleteProfileModal] =
     useState(false);
   const [modalErrors, setModalErrors] = useState({});
@@ -46,153 +48,128 @@ const FencerDashboard = () => {
   });
   // Hooks for Graph data (pastEvents will store the pat event names while the following will store the points)
   const [pastEventPoints, setPastEventPoints] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [paginatedData, setPaginatedData] = useState([]);
-  const limit = 10;
 
-  // useEffect(() => {
-  //   if (Array.isArray(rankingData) && rankingData.length) {
-  //     const sortedRanking = [...rankingData].sort(
-  //       (a, b) => b.points - a.points
-  //     );
-
-  //     const startIndex = Math.max(0, (currentPage - 1) * limit);
-  //     const endIndex = Math.min(sortedRanking.length, startIndex + limit);
-  //     setPaginatedData(sortedRanking.slice(startIndex, endIndex));
-  //   } else {
-  //     setPaginatedData([]);
-  //   }
-  // }, [rankingData, currentPage, limit]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await FencerService.getProfile();
-        setUserData(response.data);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        setError("Failed to load user data.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchInternationalRanking = async () => {
-      setLoading(true);
-      try {
-        const response = await FencerService.getInternationalRanking();
-        setRankingData(response.data);
-      } catch (error) {
-        console.error("Error fetching international ranking: ", error);
-        setError("Failed to load international ranking");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchUpcomingEvents = async () => {
-      setLoading(true);
-      try {
-        const response = await FencerService.getFencerUpcomingEvents();
-        const sortedEvents = response.data.sort((a, b) => {
-          const dateA = new Date(a.eventDate);
-          const dateB = new Date(b.eventDate);
-          return dateA - dateB;
-        });
-
-        setUpcomingEvents(sortedEvents);
-      } catch (error) {
-        console.error("Error fetching upcoming events: ", error);
-        setError("Failed to load upcoming events");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchPastEvents = async () => {
-      setLoading(true);
-      try {
-        const response = await FencerService.getFencerPastEvents();
-        const sortedEvents = response.data.sort((a, b) => {
-          const dateA = new Date(a.eventDate);
-          const dateB = new Date(b.eventDate);
-          return dateA - dateB;
-        });
-        setPastEvents(sortedEvents);
-      } catch (error) {
-        console.error("Error fetching past events: ", error);
-        setError("Failed to load past events");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchPastRank = async () => {
-      if (!pastEvents || pastEvents.length === 0) return;
-      setLoading(true);
-      try {
-        const eventIDs = pastEvents.map((event) => event.id);
-        const ranks = [];
-
-        for (const eventId of eventIDs) {
-          const response = await EventService.getEventRanking(eventId);
-          let userRank = response.data.find(
-            (arr) => arr.fencerId === userData.id
-          );
-
-          if (userRank) {
-            ranks.push({ eventId, rank: userRank.tournamentRank });
-          }
-        }
-
-        setPastRank(ranks);
-      } catch (error) {
-        console.error("Error fetching rank: ", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchPastEventPointsForGraph = async () => {
-      setLoading(true);
-      try {
-        const response = await FencerService.getPastEventPointsForGraph();
-        setPastEventPoints(response.data);
-      } catch (error) {
-        console.error("Error fetching past events points for graph: ", error);
-        setError("Failed to load past events points for graph");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-    fetchInternationalRanking();
-    fetchUpcomingEvents();
-    fetchPastEvents();
-    fetchPastRank();
-    fetchPastEventPointsForGraph();
-  }, []);
-
-  useEffect(() => {
-    // Check if user has completed their profile
-    if (
-      !loading &&
-      (!userData.gender ||
-        !userData.weapon ||
-        !userData.dominantArm ||
-        !userData.debutYear ||
-        !userData.club)
-    ) {
-      setShowCompleteProfileModal(true);
+  const fetchData = async () => {
+    try {
+      const response = await FencerService.getProfile();
+      setUserData(response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      setError("Failed to load user data.");
     }
-  }, [userData]);
+  };
+
+  const fetchInternationalRanking = async () => {
+    try {
+      const response = await FencerService.getInternationalRanking();
+      console.log("International Ranking Data:", response.data);
+      if (response.data.length === -1) {
+        setInternationalRankingError("Fencer not found")
+      } else {
+        setInternationalRanking(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching international ranking: ", error);
+      setInternationalRankingError("Failed to load");
+    }
+  };
+
+  const fetchUpcomingEvents = async () => {
+    try {
+      const response = await FencerService.getFencerUpcomingEvents();
+      const sortedEvents = response.data.sort((a, b) => {
+        const dateA = new Date(a.eventDate);
+        const dateB = new Date(b.eventDate);
+        return dateA - dateB;
+      });
+
+      setUpcomingEvents(sortedEvents);
+    } catch (error) {
+      console.error("Error fetching upcoming events: ", error);
+      setError("Failed to load upcoming events");
+    }
+  };
+
+  const fetchPastEvents = async () => {
+    try {
+      const response = await FencerService.getFencerPastEvents();
+      const sortedEvents = response.data.sort((a, b) => {
+        const dateA = new Date(a.eventDate);
+        const dateB = new Date(b.eventDate);
+        return dateA - dateB;
+      });
+      setPastEvents(sortedEvents);
+    } catch (error) {
+      console.error("Error fetching past events: ", error);
+      setError("Failed to load past events");
+    }
+  };
+
+  const fetchPastRank = async () => {
+    if (!pastEvents || pastEvents.length === 0) return;
+    try {
+      const eventIDs = pastEvents.map((event) => event.id);
+      const ranks = [];
+
+      for (const eventId of eventIDs) {
+        const response = await EventService.getEventRanking(eventId);
+        let userRank = response.data.find(
+          (arr) => arr.fencerId === userData.id
+        );
+
+        if (userRank) {
+          ranks.push({ eventId, rank: userRank.tournamentRank });
+        }
+      }
+
+      setPastRank(ranks);
+    } catch (error) {
+      console.error("Error fetching rank: ", error);
+    }
+  };
+
+  const fetchPastEventPointsForGraph = async () => {
+    try {
+      const response = await FencerService.getPastEventPointsForGraph();
+      setPastEventPoints(response.data);
+    } catch (error) {
+      console.error("Error fetching past events points for graph: ", error);
+      setError("Failed to load past events points for graph");
+    }
+  };
+
+
+  // Use Effect to get all data
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([
+      fetchData(),
+      fetchInternationalRanking(),
+      fetchUpcomingEvents(),
+      fetchPastEvents(),
+      fetchPastRank(),
+      fetchPastEventPointsForGraph()
+    ]).then((user) => {
+      setLoading(false);
+      // Check if user has completed profile
+      if (!user[0].gender ||
+        !user[0].weapon ||
+        !user[0].dominantArm ||
+        !user[0].debutYear ||
+        !user[0].club
+      ) {
+        setShowCompleteProfileModal(true);
+      }
+    });
+  }, []);
 
   const handleEditClick = () => {
     setIsEditing(!isEditing); // Toggle between view and edit mode
     if (!isEditing) {
       setEditedData(initialEditedData); // Reset edited data
     }
+    else setContactNoErrors({});
   };
 
   const formatDate = (date) => {
@@ -283,18 +260,16 @@ const FencerDashboard = () => {
     }
   };
 
-  const cancelEditProfile = () => {
-    setEditedData(initialEditedData); // Reset
-    setIsEditing(false);
-    setContactNoErrors({});
-  };
-
   if (loading) {
-    return <div className="mt-10">Loading...</div>; // Show loading state
+    return <LoadingPage />;
   }
 
   if (error) {
-    return <div className="mt-10">{error}</div>; // Show error message if any
+    return (
+      <div className="flex justify-between mr-20 my-10">
+        <h1 className=" ml-12 text-left text-2xl font-semibold">{error}</h1>
+      </div>
+    ); // Show error message if any
   }
 
   // Data and options for the Event Points per Event graph
@@ -323,7 +298,7 @@ const FencerDashboard = () => {
     return pastSevenEventPoints;
   };
 
-  const rankGraphData = {
+  const pointsGraphData = {
     labels: getPastSevenEvents(),
     datasets: [
       {
@@ -335,7 +310,7 @@ const FencerDashboard = () => {
     ],
   };
 
-  const rankGraphOptions = {
+  const pointsGraphOptions = {
     scales: {
       y: {
         beginAtZero: true,
@@ -380,6 +355,7 @@ const FencerDashboard = () => {
 
     // Iterate over the events and count the number of events for each month
     if (pastEvents && pastEvents.length > 0) {
+      console.log("pastEvents:" + pastEvents);
       for (let i = 0; i < pastEvents.length; i++) {
         // Format pastEvent eventDate to be compared to the values in months[]
         const pastEventDate = new Date(pastEvents[i].eventDate);
@@ -397,7 +373,7 @@ const FencerDashboard = () => {
     return eventCounts;
   };
 
-  const pointsGraphData = {
+  const participationsGraphData = {
     labels: getMostRecentSevenMonths(),
     datasets: [
       {
@@ -409,7 +385,7 @@ const FencerDashboard = () => {
     ],
   };
 
-  const pointsGraphOptions = {
+  const participationsGraphOptions = {
     scales: {
       y: {
         beginAtZero: true,
@@ -420,17 +396,17 @@ const FencerDashboard = () => {
     },
   };
 
-  const getUserRank = () => {
-    if (!rankingData || !Array.isArray(rankingData)) {
-      return "Ranking data not available";
-    }
-
-    const sortedRankingData = rankingData.sort((a, b) => b.points - a.points);
-    const userIndex = sortedRankingData.findIndex(
-      (rank) => rank.id === userData.id
+  const filteredUpcomingEvents = upcomingEvents?.filter((event) => {
+    return (
+      event.tournamentName.toLowerCase().includes(InputSearch.toLowerCase())
     );
-    return userIndex !== -1 ? userIndex + 1 : "User rank not found";
-  };
+  });
+
+  const filteredPastEvents = pastEvents?.filter((event) => {
+    return (
+      event.tournamentName.toLowerCase().includes(InputSearch.toLowerCase())
+    );
+  });
 
   return (
     <div className="bg-white w-full h-full flex flex-col gap-2 p-8 overflow-auto">
@@ -699,7 +675,7 @@ const FencerDashboard = () => {
             <div className="grid grid-cols-[2fr_3fr_3fr]">
               <div className="grid grid-cols-[2fr_1fr] gap-y-4 ml-4 my-4 text-xl w-75">
                 <div className="flex font-medium">International Rank</div>
-                <div className="flex">{getUserRank()}</div>
+                <div className={`flex ${internationalRankingError && "text-red-500"}`}>{internationalRankingError || internationalRanking}</div>
                 <div className="flex font-medium">Total Points</div>
                 <div className="flex">
                   {userData.points ? userData.points : "-"}
@@ -713,15 +689,15 @@ const FencerDashboard = () => {
 
               <div className="w-[99%] h-full">
                 <LineGraph
-                  data={rankGraphData}
-                  options={rankGraphOptions}
+                  data={pointsGraphData}
+                  options={pointsGraphOptions}
                   height={200}
                 />
               </div>
               <div className="w-[99%] h-full">
                 <LineGraph
-                  data={pointsGraphData}
-                  options={pointsGraphOptions}
+                  data={participationsGraphData}
+                  options={participationsGraphOptions}
                   height={200}
                 />
               </div>
@@ -743,31 +719,27 @@ const FencerDashboard = () => {
                     <thead className="text-lg text-primary">
                       <tr className="border-b border-gray-300">
                         <th className="w-20"></th>
-                        <th className="w-1/4">Tournament Name</th>
+                        <th>Tournament Name</th>
                         <th className="text-center">Date</th>
-                        <th className="text-center">Points</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {pastEvents.map((item, index) => (
+                      {filteredPastEvents.map((item, index) => (
                         <tr
                           key={item.id}
                           className="border-b border-gray-300 hover:bg-gray-100"
                         >
                           <td className="text-center">{index + 1}</td>
-                          <Link
-                            to={`/tournaments/${item.id}`}
-                            className="underline hover:text-primary"
-                          >
-                            {item.tournamentName}
-                          </Link>
-                          <td className="text-center">
-                            {formatDate(item.eventDate)}
+                          <td>
+                            <Link
+                              to={`/tournaments/${item.id}`}
+                              className="underline hover:text-primary"
+                            >
+                              {item.tournamentName}
+                            </Link>
                           </td>
                           <td className="text-center">
-                            {pastEventPoints && pastEventPoints[item.id]
-                              ? pastEventPoints[item.id].pointsAfterEvent
-                              : "-"}
+                            {formatDate(item.eventDate)}
                           </td>
                         </tr>
                       ))}
@@ -799,20 +771,20 @@ const FencerDashboard = () => {
                     <thead className="text-lg text-primary">
                       <tr className="border-b border-gray-300">
                         <th className="w-20"></th>
-                        <th className="w-1/4">Tournament Name</th>
+                        <th className="text-center">Tournament Name</th>
                         <th className="text-center">Date</th>
                         <th className="text-center">Start Time</th>
                         <th className="text-center">End Time</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {upcomingEvents.map((item, index) => (
+                      {filteredUpcomingEvents.map((item, index) => (
                         <tr
                           key={item.id}
                           className="border-b border-gray-300 hover:bg-gray-100"
                         >
                           <td className="text-center">{index + 1}</td>
-                          <td>
+                          <td className="text-center">
                             <Link
                               to={`/tournaments/${item.id}`}
                               className="underline hover:text-primary"

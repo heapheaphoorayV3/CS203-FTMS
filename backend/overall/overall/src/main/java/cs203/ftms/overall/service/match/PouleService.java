@@ -157,12 +157,9 @@ public class PouleService {
 
     public Set<CleanPouleDTO> createPoules(int eid, CreatePoulesDTO dto, Organiser o) {
         Event event = eventService.getEvent(eid);
-        try {
-            if (event.getTournament().getSignupEndDate().isBefore(LocalDate.now())) {
-                throw new SignUpDateNotOverException();
-            } 
-        }catch (SignUpDateNotOverException e) {
-        throw e;
+
+        if (event.getTournament().getSignupEndDate().isAfter(LocalDate.now())) {
+            throw new SignUpDateNotOverException();
         }
 
         eventService.validateOrganiser(event, o);
@@ -428,7 +425,6 @@ public class PouleService {
             TournamentFencer tf1 = fencers.get(i);
             String key = createPouleKey(tf1);
             String[] values = newPouleTable.get(key).split(",");
-            System.out.println("values: " + Arrays.toString(values));
             updatePouleMatches(poule, fencers, tf1, values, i);
         }
 

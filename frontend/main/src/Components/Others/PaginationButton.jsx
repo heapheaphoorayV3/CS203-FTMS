@@ -1,5 +1,5 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/16/solid";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // PaginationButton component with dynamic button size
 function PaginationButton({ element, onClick, isActive, buttonSize, isVisible, ...props }) {
@@ -13,7 +13,6 @@ function PaginationButton({ element, onClick, isActive, buttonSize, isVisible, .
             >
                 {element}
             </button>
-
         </li>
     );
 }
@@ -21,8 +20,18 @@ function PaginationButton({ element, onClick, isActive, buttonSize, isVisible, .
 // Main Pagination component
 export default function Pagination({ totalPages, buttonSize = 'px-3 h-8', currentPage, onPageChange }) {
     const [visibleStartPage, setVisibleStartPage] = useState(1); // Track the start of visible range
-
     const visiblePageButtons = 5; // Limit to showing 5 page buttons at a time
+
+    useEffect(() => {
+        // Reset visibleStartPage if currentPage is less than visibleStartPage
+        if (currentPage < visibleStartPage) {
+            setVisibleStartPage(currentPage);
+        }
+        // Adjust visibleStartPage if currentPage is greater than totalPages
+        if (currentPage > totalPages) {
+            setVisibleStartPage(Math.max(1, totalPages - visiblePageButtons + 1));
+        }
+    }, [currentPage, totalPages, visiblePageButtons, visibleStartPage]);
 
     if (totalPages < 2) return null; // Don't render if there are less than 2 pages
 
@@ -73,7 +82,6 @@ export default function Pagination({ totalPages, buttonSize = 'px-3 h-8', curren
                     isVisible={currentPage > 1} // Control visibility
                     extraStyling="rounded-l-md"
                 />
-
                 {/* Dynamic Page Number Buttons */}
                 {getVisiblePageNumbers().map((number) => (
                     <PaginationButton
@@ -85,7 +93,6 @@ export default function Pagination({ totalPages, buttonSize = 'px-3 h-8', curren
                         isVisible={true} // Always visible
                     />
                 ))}
-
                 {/* Next Button - Always present but invisible if currentPage is at the last page */}
                 <PaginationButton
                     element={<ChevronRightIcon className="h-5" />}

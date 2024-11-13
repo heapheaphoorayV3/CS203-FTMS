@@ -37,7 +37,7 @@ const LandingPage = () => {
             }}
             transition={{ duration: 0.5, yoyo: Infinity }}
             onClick={(e) => handleSubmit(e, "/signup-options")}
-            className="bg-indigo-600 hover:bg-indigo-500 text-white text-xl font-bold py-2 px-6 rounded-full mb-8"
+            className="bg-indigo-600 hover:bg-indigo-500 text-white text-xl font-bold py-2 px-6 rounded-md mb-8"
           >
             Sign up now
           </motion.button>

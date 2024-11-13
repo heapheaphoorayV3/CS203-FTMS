@@ -69,10 +69,14 @@ public class FencerService {
         return userRepository.save(f);
     }
 
-    public List<Fencer> getInternationalRank(){
-        List<Fencer> fencers = fencerRepository.findAll();
-        Collections.sort(fencers, new FencerPointsComparator());
-        return fencers;
+    public int getInternationalRank(Fencer f) {
+        List<Fencer> fencers = getFilterdInternationalRank(f.getWeapon(), f.getGender());
+        for (int i = 1; i <= fencers.size(); i++) {
+            if (fencers.get(i - 1).equals(f)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public String changePassword(User u, String oldPassword, String newPassword) {
@@ -154,12 +158,11 @@ public class FencerService {
         Set<TournamentFencer> tfs = f.getTournamentFencerProfiles();
         List<TournamentFencer> tfList = new ArrayList<>(tfs);
         Collections.sort(tfList, (a, b) -> a.getEvent().getDate().compareTo(b.getEvent().getDate()));
-        for (TournamentFencer tf : tfList) {
-            System.out.println(tf.getEvent().getId());
-        }
         List<CleanTournamentFencerDTO> res = new ArrayList<>();
         for (TournamentFencer tf : tfList) {
-            res.add(getCleanTournamentFencerDTO(tf));
+            if (tf.getEvent().getDate().isBefore(LocalDate.now())) {
+                res.add(getCleanTournamentFencerDTO(tf));
+            }
         }
         return res;
     }

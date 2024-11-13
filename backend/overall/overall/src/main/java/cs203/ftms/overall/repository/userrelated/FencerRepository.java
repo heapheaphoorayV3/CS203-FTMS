@@ -7,4 +7,5 @@ import cs203.ftms.overall.model.userrelated.Fencer;
 
 public interface FencerRepository extends JpaRepository<Fencer, Integer> {
     Optional<Fencer> findByEmail(String email);
+    Optional<Fencer> findByName(String name);
 }
