@@ -180,7 +180,7 @@ export default function Chatbot() {
         );
         setRecommendedTournaments([]);
       } else {
-        // console.log("upcoming:", fencerUpcomingEvents);
+        console.log("upcoming:", fencerUpcomingEvents);
         const filteredTournaments = response.data.filter((tournament) => {
           return !fencerUpcomingEvents.some(
             (upcomingEvent) => upcomingEvent.tournamentName === tournament.name
