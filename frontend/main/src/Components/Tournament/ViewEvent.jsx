@@ -246,7 +246,7 @@ export default function ViewEvent() {
   if (error) {
     return (
       <div className="flex justify-between mr-20 my-10">
-        <h1 className=" ml-12 text-left text-4xl font-semibold">{error}</h1>
+        <h1 className=" ml-12 text-left text-2xl font-semibold">{error}</h1>
       </div>
     ); // Show error message if any
   }
