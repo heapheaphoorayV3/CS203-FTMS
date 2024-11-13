@@ -9,6 +9,7 @@ import validator from "validator";
 import SearchBar from "./Others/SearchBar";
 import Pagination from "./Others/PaginationButton";
 import LoadingPage from "./Others/LoadingPage";
+import { set } from "react-hook-form";
 
 function formatTimeTo24Hour(timeString) {
   const [hours, minutes] = timeString.split(":"); // Get hours and minutes
@@ -17,13 +18,14 @@ function formatTimeTo24Hour(timeString) {
 
 const FencerDashboard = () => {
   const [userData, setUserData] = useState({});
-  const [rankingData, setRankingData] = useState(null);
+  const [internationalRanking, setInternationalRanking] = useState(null);
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [InputSearch, setInputSearch] = useState("");
   const [pastEvents, setPastEvents] = useState([]);
   const [pastRank, setPastRank] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [internationalRankingError, setInternationalRankingError] = useState(null);
   const [showCompleteProfileModal, setShowCompleteProfileModal] =
     useState(false);
   const [modalErrors, setModalErrors] = useState({});
@@ -65,114 +67,109 @@ const FencerDashboard = () => {
   //   }
   // }, [rankingData, currentPage, limit]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await FencerService.getProfile();
-        setUserData(response.data);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        setError("Failed to load user data.");
-      } finally {
-        setLoading(false);
+  const fetchData = async () => {
+    try {
+      const response = await FencerService.getProfile();
+      setUserData(response.data);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      setError("Failed to load user data.");
+    }
+  };
+
+  const fetchInternationalRanking = async () => {
+    try {
+      const response = await FencerService.getInternationalRanking();
+      console.log("International Ranking Data:", response.data);
+      if (response.data.length === -1) {
+        setInternationalRankingError("Fencer not found")
+      } else {
+        setInternationalRanking(response.data);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching international ranking: ", error);
+      setInternationalRankingError("Failed to load");
+    }
+  };
 
-    const fetchInternationalRanking = async () => {
-      setLoading(true);
-      try {
-        const response = await FencerService.getInternationalRanking(userData.gender, userData.weapon);
-        setRankingData(response.data);
-      } catch (error) {
-        console.error("Error fetching international ranking: ", error);
-        setError("Failed to load international ranking");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchUpcomingEvents = async () => {
+    try {
+      const response = await FencerService.getFencerUpcomingEvents();
+      const sortedEvents = response.data.sort((a, b) => {
+        const dateA = new Date(a.eventDate);
+        const dateB = new Date(b.eventDate);
+        return dateA - dateB;
+      });
 
-    const fetchUpcomingEvents = async () => {
-      setLoading(true);
-      try {
-        const response = await FencerService.getFencerUpcomingEvents();
-        const sortedEvents = response.data.sort((a, b) => {
-          const dateA = new Date(a.eventDate);
-          const dateB = new Date(b.eventDate);
-          return dateA - dateB;
-        });
+      setUpcomingEvents(sortedEvents);
+    } catch (error) {
+      console.error("Error fetching upcoming events: ", error);
+      setError("Failed to load upcoming events");
+    }
+  };
 
-        setUpcomingEvents(sortedEvents);
-      } catch (error) {
-        console.error("Error fetching upcoming events: ", error);
-        setError("Failed to load upcoming events");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchPastEvents = async () => {
+    try {
+      const response = await FencerService.getFencerPastEvents();
+      const sortedEvents = response.data.sort((a, b) => {
+        const dateA = new Date(a.eventDate);
+        const dateB = new Date(b.eventDate);
+        return dateA - dateB;
+      });
+      setPastEvents(sortedEvents);
+    } catch (error) {
+      console.error("Error fetching past events: ", error);
+      setError("Failed to load past events");
+    }
+  };
 
-    const fetchPastEvents = async () => {
-      setLoading(true);
-      try {
-        const response = await FencerService.getFencerPastEvents();
-        const sortedEvents = response.data.sort((a, b) => {
-          const dateA = new Date(a.eventDate);
-          const dateB = new Date(b.eventDate);
-          return dateA - dateB;
-        });
-        setPastEvents(sortedEvents);
-      } catch (error) {
-        console.error("Error fetching past events: ", error);
-        setError("Failed to load past events");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchPastRank = async () => {
+    if (!pastEvents || pastEvents.length === 0) return;
+    try {
+      const eventIDs = pastEvents.map((event) => event.id);
+      const ranks = [];
 
-    const fetchPastRank = async () => {
-      if (!pastEvents || pastEvents.length === 0) return;
-      setLoading(true);
-      try {
-        const eventIDs = pastEvents.map((event) => event.id);
-        const ranks = [];
+      for (const eventId of eventIDs) {
+        const response = await EventService.getEventRanking(eventId);
+        let userRank = response.data.find(
+          (arr) => arr.fencerId === userData.id
+        );
 
-        for (const eventId of eventIDs) {
-          const response = await EventService.getEventRanking(eventId);
-          let userRank = response.data.find(
-            (arr) => arr.fencerId === userData.id
-          );
-
-          if (userRank) {
-            ranks.push({ eventId, rank: userRank.tournamentRank });
-          }
+        if (userRank) {
+          ranks.push({ eventId, rank: userRank.tournamentRank });
         }
-
-        setPastRank(ranks);
-      } catch (error) {
-        console.error("Error fetching rank: ", error);
-      } finally {
-        setLoading(false);
       }
-    };
 
-    const fetchPastEventPointsForGraph = async () => {
-      setLoading(true);
-      try {
-        const response = await FencerService.getPastEventPointsForGraph();
-        setPastEventPoints(response.data);
-      } catch (error) {
-        console.error("Error fetching past events points for graph: ", error);
-        setError("Failed to load past events points for graph");
-      } finally {
-        setLoading(false);
-      }
-    };
+      setPastRank(ranks);
+    } catch (error) {
+      console.error("Error fetching rank: ", error);
+    }
+  };
 
-    fetchData();
-    fetchInternationalRanking();
-    fetchUpcomingEvents();
-    fetchPastEvents();
-    fetchPastRank();
-    fetchPastEventPointsForGraph();
+  const fetchPastEventPointsForGraph = async () => {
+    try {
+      const response = await FencerService.getPastEventPointsForGraph();
+      setPastEventPoints(response.data);
+    } catch (error) {
+      console.error("Error fetching past events points for graph: ", error);
+      setError("Failed to load past events points for graph");
+    }
+  };
+
+
+  // Use Effect to get all data
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([
+      fetchData(),
+      fetchInternationalRanking(),
+      fetchUpcomingEvents(),
+      fetchPastEvents(),
+      fetchPastRank(),
+      fetchPastEventPointsForGraph()
+    ]).then((results) => {
+      setLoading(false);
+    })
   }, []);
 
   useEffect(() => {
@@ -423,18 +420,6 @@ const FencerDashboard = () => {
         },
       },
     },
-  };
-
-  const getUserRank = () => {
-    if (!rankingData || !Array.isArray(rankingData)) {
-      return "Ranking data not available";
-    }
-
-    const sortedRankingData = rankingData.sort((a, b) => b.points - a.points);
-    const userIndex = sortedRankingData.findIndex(
-      (rank) => rank.id === userData.id
-    );
-    return userIndex !== -1 ? userIndex + 1 : "User rank not found";
   };
 
   const filteredUpcomingEvents = upcomingEvents?.filter((event) => {
@@ -716,7 +701,7 @@ const FencerDashboard = () => {
             <div className="grid grid-cols-[2fr_3fr_3fr]">
               <div className="grid grid-cols-[2fr_1fr] gap-y-4 ml-4 my-4 text-xl w-75">
                 <div className="flex font-medium">International Rank</div>
-                <div className="flex">{getUserRank()}</div>
+                <div className={`flex ${internationalRankingError && "text-red-500"}`}>{internationalRankingError || internationalRanking}</div>
                 <div className="flex font-medium">Total Points</div>
                 <div className="flex">
                   {userData.points ? userData.points : "-"}
