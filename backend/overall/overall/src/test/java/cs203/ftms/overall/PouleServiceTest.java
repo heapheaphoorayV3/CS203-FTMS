@@ -1,5 +1,6 @@
 package cs203.ftms.overall;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -396,90 +397,96 @@ public class PouleServiceTest {
         assertEquals(expected, result);
     }
 
-    // @Test
-    // void createPoules_ShouldCreateAndReturnPoules() {
-    //     // Arrange
-    //     Organiser organiser = new Organiser();
-    //     Tournament tournament = new Tournament();
-    //     tournament.setOrganiser(organiser);
-    //     int eventId = 1;
-    //     CreatePoulesDTO dto = new CreatePoulesDTO();
-    //     dto.setPouleCount(2);
+    @Test
+    void createPoules_ShouldCreateAndReturnPoules() {
+        // Arrange
+        Organiser organiser = new Organiser();
+        Tournament tournament = new Tournament();
+        tournament.setStartDate(LocalDate.now().plusDays(10));
+        tournament.setEndDate(LocalDate.now().plusDays(20));
+        tournament.setOrganiser(organiser);
+        tournament.setSignupEndDate(LocalDate.now().plusDays(5));
+        int eventId = 1;
+        CreatePoulesDTO dto = new CreatePoulesDTO();
+        dto.setPouleCount(2);
 
-    //     Event event = new Event();
-    //     event.setId(eventId);
-    //     event.setPoules(Collections.emptySet());
-    //     event.setTournament(tournament);
+        Event event = new Event();
+        event.setId(eventId);
+        event.setPoules(Collections.emptySet());
+        event.setTournament(tournament);
+        event.setDate(LocalDate.now().plusDays(10));
 
-    //     Set<TournamentFencer> fencers = new HashSet<>();
-    //     for (int i = 0; i < 5; i++) {
-    //         TournamentFencer tournamentFencer = new TournamentFencer();
-    //         Fencer fencer = new Fencer();
-    //         fencer.setPoints(100); // Set some points for the fencer
-    //         tournamentFencer.setFencer(fencer);
-    //         fencers.add(tournamentFencer);
-    //     }
-    //     event.setFencers(fencers);
+        Set<TournamentFencer> fencers = new HashSet<>();
+        for (int i = 0; i < 5; i++) {
+            TournamentFencer tournamentFencer = new TournamentFencer();
+            Fencer fencer = new Fencer();
+            fencer.setPoints(100); // Set some points for the fencer
+            tournamentFencer.setFencer(fencer);
+            fencers.add(tournamentFencer);
+        }
+        event.setFencers(fencers);
 
-    //     when(eventService.getEvent(eventId)).thenReturn(event);
-    //     when(eventRepository.save(event)).thenReturn(event);
+        when(eventService.getEvent(eventId)).thenReturn(event);
+        when(eventRepository.save(event)).thenReturn(event);
 
 
-    //     // Act
-    //     Set<CleanPouleDTO> result = pouleService.createPoules(eventId, dto, organiser);
+        // Act
+        Set<CleanPouleDTO> result = pouleService.createPoules(eventId, dto, organiser);
 
-    //     // Assert
-    //     verify(eventService).getEvent(eventId);
-    //     assertNotNull(result);
-    // }
+        // Assert
+        verify(eventService).getEvent(eventId);
+        assertNotNull(result);
+    }
     
-    // @Test
-    // void createPoules_PoulesAlreadyExist() {
-    //     // Arrange
-    //     int eventId = 1;
-    //     CreatePoulesDTO dto = new CreatePoulesDTO();
-    //     dto.setPouleCount(2);
+    @Test
+    void createPoules_PoulesAlreadyExist() {
+        // Arrange
+        int eventId = 1;
+        CreatePoulesDTO dto = new CreatePoulesDTO();
+        dto.setPouleCount(2);
 
-    //     Event event = new Event();
-    //     event.setId(eventId);
-    //     event.setGender('M');
-    //     event.setWeapon('S');
+        Event event = new Event();
+        event.setId(eventId);
+        event.setGender('M');
+        event.setWeapon('S');
+        event.setDate(LocalDate.now().plusDays(10));
 
-    //     Set<TournamentFencer> fencers = new HashSet<>();
-    //     for (int i = 0; i < 5; i++) {
-    //         TournamentFencer tournamentFencer = new TournamentFencer();
-    //         Fencer fencer = new Fencer();
-    //         fencer.setPoints(100); // Set some points for the fencer
-    //         tournamentFencer.setFencer(fencer);
-    //         fencers.add(tournamentFencer);
-    //     }
+        Set<TournamentFencer> fencers = new HashSet<>();
+        for (int i = 0; i < 5; i++) {
+            TournamentFencer tournamentFencer = new TournamentFencer();
+            Fencer fencer = new Fencer();
+            fencer.setPoints(100); // Set some points for the fencer
+            tournamentFencer.setFencer(fencer);
+            fencers.add(tournamentFencer);
+        }
 
-    //     Set<PouleMatch> pouleMatches = new HashSet<>();
-    //     Organiser organiser = new Organiser();
-    //     Tournament tournament = new Tournament();
-    //     tournament.setOrganiser(organiser);
-    //     event.setFencers(fencers);
-    //     Set<Poule> poules = new HashSet<>();
-    //     Poule poule = new Poule();
-    //     poule.setPouleMatches(pouleMatches);
-    //     poule.setFencers(fencers);
-    //     poules.add(poule);
-    //     event.setPoules(poules);
-    //     poule.setPouleMatches(pouleMatches);
-    //     poule.setEvent(event);
-    //     event.setTournament(tournament);
+        Set<PouleMatch> pouleMatches = new HashSet<>();
+        Organiser organiser = new Organiser();
+        Tournament tournament = new Tournament();
+        tournament.setOrganiser(organiser);
+        tournament.setSignupEndDate(LocalDate.now().plusDays(5));
+        event.setFencers(fencers);
+        Set<Poule> poules = new HashSet<>();
+        Poule poule = new Poule();
+        poule.setPouleMatches(pouleMatches);
+        poule.setFencers(fencers);
+        poules.add(poule);
+        event.setPoules(poules);
+        poule.setPouleMatches(pouleMatches);
+        poule.setEvent(event);
+        event.setTournament(tournament);
 
-    //     when(eventService.getEvent(eventId)).thenReturn(event);
-    //     when(eventRepository.save(event)).thenReturn(event);
+        when(eventService.getEvent(eventId)).thenReturn(event);
+        when(eventRepository.save(event)).thenReturn(event);
 
 
-    //     // Act
-    //     Set<CleanPouleDTO> result = pouleService.createPoules(eventId, dto, organiser);
+        // Act
+        Set<CleanPouleDTO> result = pouleService.createPoules(eventId, dto, organiser);
 
-    //     // Assert
-    //     verify(eventService).getEvent(eventId);
-    //     assertNotNull(result);
-    // }
+        // Assert
+        verify(eventService).getEvent(eventId);
+        assertNotNull(result);
+    }
 
     @Test
     void getPoulesOfEvent_ShouldReturnCleanPoules() {

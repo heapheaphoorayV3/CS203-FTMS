@@ -218,39 +218,39 @@ class ChatbotServiceTest {
         assertEquals(0, result.size());
     }
 
+    @Test
+    void getRecommendedTournaments_OnlyReturnBeginnerTournament() {
+        // Arrange
+        Fencer fencer = new Fencer();
+        fencer.setId(11);
+        fencer.setName("John Doe");
+        fencer.setEmail("john@example.com");
+        fencer.setContactNo("123456789");
+        fencer.setCountry("USA");
+        fencer.setDateOfBirth(LocalDate.of(1990, 1, 1));
+        fencer.setDominantArm('R');
+        fencer.setWeapon('F');
+        fencer.setClub("Best Club");
+        fencer.setPoints(1);
+        fencer.setDebutYear(2023); // Experience is less than 3 years
+        fencer.setGender('M');
 
-    // @Test
-    // void getRecommendedTournaments_NoSuitableEventForWinrate() {
-    //     // Arrange
-    //     Fencer fencer = new Fencer();
-    //     fencer.setId(11);
-    //     fencer.setName("John Doe");
-    //     fencer.setEmail("john@example.com");
-    //     fencer.setContactNo("123456789");
-    //     fencer.setCountry("USA");
-    //     fencer.setDateOfBirth(LocalDate.of(1990, 1, 1));
-    //     fencer.setDominantArm('R');
-    //     fencer.setWeapon('F');
-    //     fencer.setClub("Best Club");
-    //     fencer.setPoints(1);
-    //     fencer.setDebutYear(2023); // Experience is less than 3 years
-    //     fencer.setGender('M');
+        List<Tournament> tournaments = createMockTournaments();
+        when(tournamentRepository.findAll()).thenReturn(tournaments);
+        when(fencerRepository.findById(1)).thenReturn(Optional.of(fencer));
+        when(eventRepository.findById(1)).thenReturn(Optional.of(createMockEvent(1, 'M', 'F')));
+        when(eventRepository.findById(2)).thenReturn(Optional.of(createMockEvent(2, 'M', 'F')));
+        when(eventRepository.findById(3)).thenReturn(Optional.of(createMockEvent(3, 'M', 'F')));
 
-    //     List<Tournament> tournaments = createMockTournaments();
-    //     when(tournamentRepository.findAll()).thenReturn(tournaments);
-    //     when(fencerRepository.findById(1)).thenReturn(Optional.of(fencer));
-    //     when(eventRepository.findById(1)).thenReturn(Optional.of(createMockEvent(1, 'M', 'F')));
-    //     when(eventRepository.findById(2)).thenReturn(Optional.of(createMockEvent(2, 'M', 'F')));
-    //     when(eventRepository.findById(3)).thenReturn(Optional.of(createMockEvent(3, 'M', 'F')));
+        ChatbotService spyChatbotService = Mockito.spy(chatbotService);
 
-    //     ChatbotService spyChatbotService = Mockito.spy(chatbotService);
+        // Act
+        List<Tournament> result = spyChatbotService.getRecommendedTournaments(fencer);
 
-    //     // Act
-    //     List<Tournament> result = spyChatbotService.getRecommendedTournaments(fencer);
+        // Assert
+        assertEquals(1, result.size());
+    }
 
-    //     // Assert
-    //     assertEquals(0, result.size());
-    // }
 
     private List<Tournament> createMockTournaments() {
         Event event1 = createMockEvent(1, 'M', 'F');
@@ -259,6 +259,7 @@ class ChatbotServiceTest {
         Set<Event> events1 = new HashSet<>();
         events1.add(event1);
         tournament1.setEvents(events1);
+        event1.setTournament(tournament1);
     
         Event event2 = createMockEvent(2, 'M', 'F');
         Tournament tournament2 = new Tournament();
@@ -266,6 +267,7 @@ class ChatbotServiceTest {
         Set<Event> events2 = new HashSet<>();
         events2.add(event2);
         tournament2.setEvents(events2);
+        event2.setTournament(tournament2);
     
         Event event3 = createMockEvent(3, 'M', 'F');
         Tournament tournament3 = new Tournament();
@@ -273,6 +275,7 @@ class ChatbotServiceTest {
         Set<Event> events3 = new HashSet<>();
         events3.add(event3);
         tournament3.setEvents(events3);
+        event3.setTournament(tournament3);
     
         return Arrays.asList(tournament1, tournament2, tournament3);
     }
