@@ -97,6 +97,9 @@ public class ChatbotService {
     }
 
     private boolean isEventSuitable(Event e, char gender, char weapon, Fencer f) {
+        if(calculateWinrate(e.getId(), f) == 3){
+            return e.getTournament().getDifficulty() == 'B';
+        }
         return e.getGender() == gender && e.getWeapon() == weapon && calculateWinrate(e.getId(), f) < 3;
     }
 
@@ -111,9 +114,17 @@ public class ChatbotService {
     }
 
     public int calculateWinrate(int eid, Fencer f){
+        int ifFencerInEvent = 1;
+
         Event e = eventRepository.findById(eid).orElseThrow(() -> new EntityDoesNotExistException("Event does not exist!"));
+        
+        for(TournamentFencer tf : e.getFencers()){
+            if(tf.getFencer().getId() == f.getId()){
+                ifFencerInEvent = 0;
+            }
+        }
         int expectedRank = expectedRank(e, f);
-        int totalFencers = e.getFencers().size();
+        int totalFencers = e.getFencers().size() + ifFencerInEvent;
         if(totalFencers == 0 || expectedRank <= totalFencers / 10){
             return 1;
         }else if(expectedRank <= totalFencers / 2) {
