@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -253,7 +254,7 @@ public class PopulateData {
         List<TournamentFencer> tfList = new ArrayList<>(tfs);
         Collections.sort(tfList, (a, b) -> a.getEvent().getDate().compareTo(b.getEvent().getDate()));
         int previousPoints = f.getPoints();
-        for (int i = 2; i < 6; i++) {
+        for (int i = 0; i < 4; i++) {
             TournamentFencer tf = tfList.get(i);
             tf.setPointsAfterEvent(previousPoints + i*100);
             previousPoints = tf.getPointsAfterEvent();
@@ -267,33 +268,37 @@ public class PopulateData {
         List<Tournament> tournaments = tournamentRepository.findAll();
         for (int i = 0; i < 6; i++) {
             Tournament t = tournaments.get(i);
-            Set<Event> events = t.getEvents();
+            List<Event> events = eventRepository.findByTournament(t);
             if (i == 0 || i == 1) {
+                
+                System.out.println(events.size());
                 for (Event e : events) {
                     e.setDate(LocalDate.now());
+                    System.out.println(e.getDate());
                     eventRepository.save(e);
                 }
                 t.setSignupEndDate(LocalDate.now().minusDays(3));
                 t.setStartDate(LocalDate.now().minusDays(1));
                 t.setEndDate(LocalDate.now().plusDays(1));
+                
             } else if (i == 2 || i == 3) {
                 for (Event e : events) {
-                    e.setDate(LocalDate.now().minusMonths(1));
+                    e.setDate(LocalDate.now().minusMonths(1).plusDays(i));
                     eventRepository.save(e);
                 }
-                t.setSignupEndDate(LocalDate.now().minusMonths(i-1).plusDays(i - 1));
-                t.setStartDate(LocalDate.now().minusMonths(i-1).plusDays(i - 1));
-                t.setEndDate(LocalDate.now().minusMonths(i-1).plusDays(i + 1));
+                t.setSignupEndDate(LocalDate.now().minusMonths(i).plusDays(i - 1));
+                t.setStartDate(LocalDate.now().minusMonths(i).plusDays(i - 1));
+                t.setEndDate(LocalDate.now().minusMonths(i).plusDays(i + 1));
             } else {
                 for (Event e : events) {
-                    e.setDate(LocalDate.now().minusMonths(i-1));
+                    e.setDate(LocalDate.now().minusMonths(i-1).plusDays(i));
                     eventRepository.save(e);
                 }
                 t.setSignupEndDate(LocalDate.now().minusMonths(i-1).plusDays(i - 1));
                 t.setStartDate(LocalDate.now().minusMonths(i-1).plusDays(i - 1));
                 t.setEndDate(LocalDate.now().minusMonths(i-1).plusDays(i + 1));
             }
-            t.setEvents(events);
+            t.setEvents(new HashSet<>(events));
             tournamentRepository.save(t);
         }
     }
