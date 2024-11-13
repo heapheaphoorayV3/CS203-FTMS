@@ -151,7 +151,7 @@ const FencerDashboard = () => {
       fetchPastEventPointsForGraph()
     ]).then((results) => {
       setLoading(false);
-    })
+    });
   }, []);
 
   useEffect(() => {
@@ -302,7 +302,7 @@ const FencerDashboard = () => {
     return pastSevenEventPoints;
   };
 
-  const rankGraphData = {
+  const pointsGraphData = {
     labels: getPastSevenEvents(),
     datasets: [
       {
@@ -314,7 +314,7 @@ const FencerDashboard = () => {
     ],
   };
 
-  const rankGraphOptions = {
+  const pointsGraphOptions = {
     scales: {
       y: {
         beginAtZero: true,
@@ -359,6 +359,7 @@ const FencerDashboard = () => {
 
     // Iterate over the events and count the number of events for each month
     if (pastEvents && pastEvents.length > 0) {
+      console.log("pastEvents:" + pastEvents);
       for (let i = 0; i < pastEvents.length; i++) {
         // Format pastEvent eventDate to be compared to the values in months[]
         const pastEventDate = new Date(pastEvents[i].eventDate);
@@ -376,7 +377,7 @@ const FencerDashboard = () => {
     return eventCounts;
   };
 
-  const pointsGraphData = {
+  const participationsGraphData = {
     labels: getMostRecentSevenMonths(),
     datasets: [
       {
@@ -388,7 +389,7 @@ const FencerDashboard = () => {
     ],
   };
 
-  const pointsGraphOptions = {
+  const participationsGraphOptions = {
     scales: {
       y: {
         beginAtZero: true,
@@ -692,15 +693,15 @@ const FencerDashboard = () => {
 
               <div className="w-[99%] h-full">
                 <LineGraph
-                  data={rankGraphData}
-                  options={rankGraphOptions}
+                  data={pointsGraphData}
+                  options={pointsGraphOptions}
                   height={200}
                 />
               </div>
               <div className="w-[99%] h-full">
                 <LineGraph
-                  data={pointsGraphData}
-                  options={pointsGraphOptions}
+                  data={participationsGraphData}
+                  options={participationsGraphOptions}
                   height={200}
                 />
               </div>
@@ -722,9 +723,8 @@ const FencerDashboard = () => {
                     <thead className="text-lg text-primary">
                       <tr className="border-b border-gray-300">
                         <th className="w-20"></th>
-                        <th className="text-center">Tournament Name</th>
+                        <th>Tournament Name</th>
                         <th className="text-center">Date</th>
-                        <th className="text-center">Points</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -744,11 +744,6 @@ const FencerDashboard = () => {
                           </td>
                           <td className="text-center">
                             {formatDate(item.eventDate)}
-                          </td>
-                          <td className="text-center">
-                            {pastEventPoints && pastEventPoints[item.id]
-                              ? pastEventPoints[item.id].pointsAfterEvent
-                              : "-"}
                           </td>
                         </tr>
                       ))}

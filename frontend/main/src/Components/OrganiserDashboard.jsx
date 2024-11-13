@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import editIcon from "../Assets/edit.png";
 import validator from "validator";
 import SearchBar from "./Others/SearchBar";
+import LoadingPage from "./Others/LoadingPage";
 
 const OrganiserDashboard = () => {
   const [userData, setUserData] = useState([]);
@@ -40,13 +41,10 @@ const OrganiserDashboard = () => {
     } catch (error) {
       console.error("Error fetching user data:", error);
       setError("Failed to load user data.");
-    } finally {
-      setLoading(false);
     }
   };
 
   const fetchTournamentData = async () => {
-    setLoading(true);
     try {
       const response = await OrganiserService.getAllHostedTournaments();
       const tournaments = response.data;
@@ -67,13 +65,10 @@ const OrganiserDashboard = () => {
     } catch (error) {
       console.error("Error fetching data:", error);
       setError("Failed to load data.");
-    } finally {
-      setLoading(false);
     }
   };
 
   const fetchUpcomingTournaments = async () => {
-    setLoading(true);
     try {
       const response = await OrganiserService.getOrganiserUpcomingTournaments();
 
@@ -86,13 +81,10 @@ const OrganiserDashboard = () => {
     } catch (error) {
       console.error("Error fetching upcoming tournaments: ", error);
       setError("Failed to fetch upcoming tournaments");
-    } finally {
-      setLoading(false);
     }
   };
 
   const fetchPastTournaments = async () => {
-    setLoading(true);
     try {
       const response = await OrganiserService.getOrganiserPastTournaments();
       const sortedTournaments = response.data.sort((a, b) => {
@@ -104,17 +96,19 @@ const OrganiserDashboard = () => {
     } catch (error) {
       console.error("Error fetching past tournaments: ", error);
       setError("Failed to fetch past tournaments");
-    } finally {
-      setLoading(false);
     }
   };
 
   useEffect(() => {
     setLoading(true);
-    fetchTournamentData();
-    fetchData();
-    fetchUpcomingTournaments();
-    fetchPastTournaments();
+    Promise.all([
+      fetchTournamentData(),
+    fetchData(),
+    fetchUpcomingTournaments(),
+    fetchPastTournaments(),
+    ]).then(() => {
+      setLoading(false);
+    });
   }, []);
 
   const formatDateRange = (start, end) => {
@@ -181,7 +175,7 @@ const OrganiserDashboard = () => {
   }
 
   if (loading) {
-    return <div className="mt-10">Loading...</div>; // Show loading state
+    return <LoadingPage />;
   }
 
   if (error) {
