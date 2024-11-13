@@ -21,15 +21,12 @@ import LandingPage from "./Components/Others/LandingPage";
 import InternationalRanking from "./Components/InternationalRanking";
 import Chatbot from "./Components/Chatbot";
 import UnauthorisedPage from "./Components/Authentication/UnauthorisedPage";
-import AuthProviderFencer from "./Components/Authentication/AuthProviderFencer";
-import AuthProviderOrganiser from "./Components/Authentication/AuthProviderOrganiser";
-import AuthProviderAdmin from "./Components/Authentication/AuthProviderAdmin";
-
+import AuthProvider from "./Components/Authentication/AuthProvider";
+import PageNotFound from "./Components/Others/PageNotFound";
 
 function App() {
   return (
     <Router>
-
       <Routes>
         {/* Unauthenticated Layout */}
         <Route element={<DefaultLayout />}>
@@ -48,26 +45,29 @@ function App() {
         </Route>
 
         {/* Fencer Layout */}
-        <Route element={<AuthProviderFencer><DefaultLayout /></AuthProviderFencer>}>
+        <Route element={<AuthProvider requiredUserType='F'><DefaultLayout /></AuthProvider>}>
           <Route path="/fencer-dashboard" element={<FencerDashboard />} />
           <Route path="/chatbot" element={<Chatbot />} />
         </Route>
 
         {/* Organiser Layout */}
-        <Route element={<AuthProviderOrganiser><DefaultLayout /></AuthProviderOrganiser>}>
+        <Route element={<AuthProvider requiredUserType='O'><DefaultLayout /></AuthProvider>}>
           <Route path="/organiser-dashboard" element={<OrganiserDashboard />} />
           <Route path="/create-tournament" element={<CreateTournament />} />
           <Route path="/tournament/:tournamentID/create-event" element={<CreateEvent />} />
         </Route>
 
         {/* Admin Layout */}
-        <Route element={<AuthProviderAdmin><DefaultLayout /></AuthProviderAdmin>}>
+        <Route element={<AuthProvider requiredUserType='A'><DefaultLayout /></AuthProvider>}>
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/verify-organisers" element={<VerifyOrganisers />} />
         </Route>
 
+        <Route element={<DefaultLayout />}>         
+          {/* 404 route at the end */}
+          <Route path="*" element={<PageNotFound />} />
+        </Route>
       </Routes>
-
     </Router>
   );
 }

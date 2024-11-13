@@ -2,29 +2,32 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthService from '../../Services/Authentication/AuthService';
 
-export default function AuthProvider({ children }) {
+export default function AuthProvider({ children, requiredUserType }) {
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     // Use effect to prevent children from rendering until token is re-verified
     useEffect(() => {
         const verifyToken = async () => {
-            // If no refresh token redirect to sign-in
-            if (!sessionStorage.getItem('refreshToken')) {
-                console.log("No refresh token found, directing to sign-in"); 
-                navigate('/signin');
+            const storedUserType = sessionStorage.getItem("userType");
+            const refreshToken = sessionStorage.getItem('refreshToken');
+
+            // Check if refresh token exists and user type matches
+            if (!refreshToken || storedUserType !== requiredUserType) {
+                console.log(`Unauthorized access. Required: ${requiredUserType}, Found: ${storedUserType}`);
+                navigate('/unauthorised');
+                return;
             }
 
             try {
-                console.log("In verify token");
-                const response = await AuthService.refreshToken(sessionStorage.getItem('refreshToken'));
+                console.log("Verifying token");
+                const response = await AuthService.refreshToken(refreshToken);
                 sessionStorage.setItem('token', response.data.token);
                 sessionStorage.setItem('refreshToken', response.data.refreshToken);
                 sessionStorage.setItem('userType', response.data.userType);
                 console.log("Token refreshed successfully");
             } catch (error) {
-                // If error redirect to sign-in also
-                console.error("Token verification failed in AuthProvider");
+                console.error("Token verification failed");
                 navigate('/signin');
             } finally {
                 setLoading(false);
@@ -32,7 +35,7 @@ export default function AuthProvider({ children }) {
         };
 
         verifyToken();
-    }, []);
+    }, [requiredUserType, navigate]);
 
     if (loading) {
         return <div>Loading...</div>; // Replace with your loading indicator
