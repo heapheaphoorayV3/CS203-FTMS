@@ -136,6 +136,7 @@ const OrganiserDashboard = () => {
     if (!isEditing) {
       setEditedData(initialEditedData); // Reset edited data
     }
+    else setContactNoErrors({});
   };
 
   const handleEditChange = (e) => {
@@ -175,12 +176,6 @@ const OrganiserDashboard = () => {
     }
   };
 
-  const cancelEditProfile = () => {
-    setEditedData(initialEditedData); // Reset
-    setIsEditing(false);
-    setContactNoErrors({});
-  };
-
   function handleSearch(e) {
     setInputSearch(e.target.value);
   }
@@ -218,15 +213,6 @@ const OrganiserDashboard = () => {
   const closeDeleteTournamentPopup = () => {
     setIsDeleteTournamentPopupVisible(false);
     setSelectedTournament(null);
-  };
-
-  const formatDate = (date) => {
-    const formattedDate = new Date(date).toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-    return formattedDate;
   };
 
   const filteredPastTournaments = pastTournaments?.filter((tournament) => {
@@ -346,7 +332,7 @@ const OrganiserDashboard = () => {
                     <thead className="text-lg text-primary">
                       <tr className="border-b border-gray-300">
                         <th className="w-20"></th>
-                        <th className="w-1/4">Tournament Name</th>
+                        <th className="text-center">Tournament Name</th>
                         <th className="text-center">Location</th>
                         <th className="text-center">Dates</th>
                         <th className="text-center">Total participants</th>
@@ -359,7 +345,7 @@ const OrganiserDashboard = () => {
                           className="border-b border-gray-300 hover:bg-gray-100"
                         >
                           <td className="text-center">{index + 1}</td>
-                          <td>
+                          <td className="text-center">
                             <Link
                               to={`/tournaments/${item.id}`}
                               className="underline hover:text-primary"
@@ -404,7 +390,7 @@ const OrganiserDashboard = () => {
                     <thead className="text-lg text-primary">
                       <tr className="border-b border-gray-300">
                         <th className="w-20"></th>
-                        <th className="w-1/4">Tournament Name</th>
+                        <th className="text-center">Tournament Name</th>
                         <th className="text-center">Location</th>
                         <th className="text-center">Dates</th>
                         <th className="text-center"></th>
@@ -417,7 +403,7 @@ const OrganiserDashboard = () => {
                           className="border-b border-gray-300 hover:bg-gray-100"
                         >
                           <td className="text-center">{index + 1}</td>
-                          <td>
+                          <td className="text-center">
                             <Link
                               to={`/tournaments/${item.id}`}
                               className="underline hover:text-primary"
@@ -471,7 +457,7 @@ const OrganiserDashboard = () => {
                     <thead className="text-lg text-primary">
                       <tr className="border-b border-gray-300">
                         <th className="w-20"></th>
-                        <th className="w-1/4">Tournament Name</th>
+                        <th className="text-center">Tournament Name</th>
                         <th className="text-center">Location</th>
                         <th className="text-center">Dates</th>
                       </tr>
@@ -483,7 +469,7 @@ const OrganiserDashboard = () => {
                           className="border-b border-gray-300 hover:bg-gray-100"
                         >
                           <td className="text-center">{index + 1}</td>
-                          <td>
+                          <td className="text-center">
                             <Link
                               to={`/tournaments/${item.id}`}
                               className="underline hover:text-primary"

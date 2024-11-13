@@ -236,7 +236,9 @@ public class EventService {
     @Transactional
     public boolean unregisterEvent(int eid, Fencer f) {
         Event event = getEvent(eid);
-
+        if (event.getTournament().getSignupEndDate().isBefore(LocalDate.now())) {
+            throw new SignUpDateOverExcpetion("Sign up date is over!");
+        }
         Set<TournamentFencer> fencers = event.getFencers(); 
         fencers.removeIf(tf -> tf.getFencer().equals(f));
         event.setFencers(fencers);
@@ -269,6 +271,9 @@ public class EventService {
     public void endTournamentEvent(int eid, Organiser o) throws EventCannotEndException {
         Event event = eventRepository.findById(eid).orElseThrow(() -> new EntityDoesNotExistException("Event does not exist!"));
         validateOrganiser(event, o);
+        if (event.getDate().isAfter(LocalDate.now())) {
+            throw new EventCannotEndException("Event has not started yet!");
+        }
         if (event.isOver()) {
             throw new EventCannotEndException("Event has already been ended!");
         }

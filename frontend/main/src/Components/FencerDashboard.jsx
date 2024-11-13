@@ -7,7 +7,6 @@ import { Link } from "react-router-dom";
 import EventService from "../Services/Event/EventService";
 import validator from "validator";
 import SearchBar from "./Others/SearchBar";
-import Pagination from "./Others/PaginationButton";
 import LoadingPage from "./Others/LoadingPage";
 import { set } from "react-hook-form";
 
@@ -49,23 +48,6 @@ const FencerDashboard = () => {
   });
   // Hooks for Graph data (pastEvents will store the pat event names while the following will store the points)
   const [pastEventPoints, setPastEventPoints] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [paginatedData, setPaginatedData] = useState([]);
-  const limit = 10;
-
-  // useEffect(() => {
-  //   if (Array.isArray(rankingData) && rankingData.length) {
-  //     const sortedRanking = [...rankingData].sort(
-  //       (a, b) => b.points - a.points
-  //     );
-
-  //     const startIndex = Math.max(0, (currentPage - 1) * limit);
-  //     const endIndex = Math.min(sortedRanking.length, startIndex + limit);
-  //     setPaginatedData(sortedRanking.slice(startIndex, endIndex));
-  //   } else {
-  //     setPaginatedData([]);
-  //   }
-  // }, [rankingData, currentPage, limit]);
 
   const fetchData = async () => {
     try {
@@ -191,6 +173,7 @@ const FencerDashboard = () => {
     if (!isEditing) {
       setEditedData(initialEditedData); // Reset edited data
     }
+    else setContactNoErrors({});
   };
 
   const formatDate = (date) => {
@@ -279,12 +262,6 @@ const FencerDashboard = () => {
     } catch (error) {
       console.error("Error completing profile:", error);
     }
-  };
-
-  const cancelEditProfile = () => {
-    setEditedData(initialEditedData); // Reset
-    setIsEditing(false);
-    setContactNoErrors({});
   };
 
   if (loading) {
@@ -421,6 +398,18 @@ const FencerDashboard = () => {
       },
     },
   };
+
+  const filteredUpcomingEvents = upcomingEvents?.filter((event) => {
+    return (
+      event.tournamentName.toLowerCase().includes(InputSearch.toLowerCase())
+    );
+  });
+
+  const filteredPastEvents = pastEvents?.filter((event) => {
+    return (
+      event.tournamentName.toLowerCase().includes(InputSearch.toLowerCase())
+    );
+  });
 
   return (
     <div className="bg-white w-full h-full flex flex-col gap-2 p-8 overflow-auto">
@@ -733,7 +722,7 @@ const FencerDashboard = () => {
                     <thead className="text-lg text-primary">
                       <tr className="border-b border-gray-300">
                         <th className="w-20"></th>
-                        <th className="w-1/4">Tournament Name</th>
+                        <th className="text-center">Tournament Name</th>
                         <th className="text-center">Date</th>
                         <th className="text-center">Points</th>
                       </tr>
@@ -745,12 +734,14 @@ const FencerDashboard = () => {
                           className="border-b border-gray-300 hover:bg-gray-100"
                         >
                           <td className="text-center">{index + 1}</td>
-                          <Link
-                            to={`/tournaments/${item.id}`}
-                            className="underline hover:text-primary"
-                          >
-                            {item.tournamentName}
-                          </Link>
+                          <td>
+                            <Link
+                              to={`/tournaments/${item.id}`}
+                              className="underline hover:text-primary"
+                            >
+                              {item.tournamentName}
+                            </Link>
+                          </td>
                           <td className="text-center">
                             {formatDate(item.eventDate)}
                           </td>
@@ -789,7 +780,7 @@ const FencerDashboard = () => {
                     <thead className="text-lg text-primary">
                       <tr className="border-b border-gray-300">
                         <th className="w-20"></th>
-                        <th className="w-1/4">Tournament Name</th>
+                        <th className="text-center">Tournament Name</th>
                         <th className="text-center">Date</th>
                         <th className="text-center">Start Time</th>
                         <th className="text-center">End Time</th>
@@ -802,7 +793,7 @@ const FencerDashboard = () => {
                           className="border-b border-gray-300 hover:bg-gray-100"
                         >
                           <td className="text-center">{index + 1}</td>
-                          <td>
+                          <td className="text-center">
                             <Link
                               to={`/tournaments/${item.id}`}
                               className="underline hover:text-primary"
