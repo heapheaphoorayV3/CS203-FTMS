@@ -1,11 +1,11 @@
 name: Frontend CI/CD
 
 on:
+  workflow_dispatch:
   workflow_run:
     workflows: ["Backend CI/CD"]
     types:
       - completed
-  workflow__dispatch:
 
 permissions:
   actions: read   
