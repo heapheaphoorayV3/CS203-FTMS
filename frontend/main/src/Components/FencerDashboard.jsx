@@ -712,9 +712,12 @@ const FencerDashboard = () => {
                         className="border-b border-gray-300 hover:bg-gray-100"
                       >
                         <td className="text-center">{index + 1}</td>
-                        <td className="underline hover:text-primary">
+                        <Link
+                          to={`/tournaments/${item.id}`}
+                          className="underline hover:text-primary"
+                        >
                           {item.tournamentName}
-                        </td>
+                        </Link>
                         <td className="text-center">
                           {formatDate(item.eventDate)}
                         </td>

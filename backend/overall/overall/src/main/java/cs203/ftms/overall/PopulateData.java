@@ -175,7 +175,7 @@ public class PopulateData {
         Set<String> recommendation = pouleService.recommendPoules(tournamentRepository.findByName("Tournament0").get().getId());
         String[] recommendationArray = recommendation.toArray(new String[0]);
         int poulesCount = recommendationArray[recommendationArray.length - 1].charAt(0) - '0';
-        pouleService.createPoules(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament0").get(), 'M', 'S').get().getId(), new CreatePoulesDTO(poulesCount));
+        pouleService.createPoules(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament0").get(), 'M', 'S').get().getId(), new CreatePoulesDTO(poulesCount), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
     }
 
     public void createPouleMatches() {
@@ -195,7 +195,7 @@ public class PopulateData {
         singlePoule1.put("5 MSFencer (Singapore) -- 5", "0,2,-1,5,5");
         singlePoule1.put("3 MSFencer (Singapore) -- 3", "0,3,2,-1,5");
         singlePoule1.put("1 MSFencer (Singapore) -- 1", "0,3,1,3,-1");
-        pouleService.updatePouleTable(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament0").get(), 'M', 'S').get().getId(), new SinglePouleTableDTO(2, singlePoule1));
+        pouleService.updatePouleTable(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament0").get(), 'M', 'S').get().getId(), new SinglePouleTableDTO(2, singlePoule1), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
       
         Map<String, String> singlePoule2 = new LinkedHashMap<>();
         singlePoule2.put("10 MSFencer (Singapore) -- 10", "-1,5,5,5,5");
@@ -203,7 +203,7 @@ public class PopulateData {
         singlePoule2.put("6 MSFencer (Singapore) -- 6", "0,2,-1,5,5");
         singlePoule2.put("4 MSFencer (Singapore) -- 4", "0,3,2,-1,5");
         singlePoule2.put("2 MSFencer (Singapore) -- 2", "0,3,1,3,-1");
-        pouleService.updatePouleTable(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament0").get(), 'M', 'S').get().getId(), new SinglePouleTableDTO(1, singlePoule2));
+        pouleService.updatePouleTable(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament0").get(), 'M', 'S').get().getId(), new SinglePouleTableDTO(1, singlePoule2), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
     }
 
     public void printUpdatedPouleTable() {
@@ -232,7 +232,7 @@ public class PopulateData {
     }
 
     public void createDirectEliminationMatches() {
-        directEliminationService.createAllDEMatches(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament0").get(), 'M', 'S').get().getId());
+        directEliminationService.createAllDEMatches(eventRepository.findByTournamentAndGenderAndWeapon(tournamentRepository.findByName("Tournament0").get(), 'M', 'S').get().getId(), (Organiser) userRepository.findByEmail("organiser1@xyz.com").get());
     }
 
     public void setTournamentFencerPoints() {
@@ -267,13 +267,13 @@ public class PopulateData {
             return;
         }
 
-        if (pouleRepository.count() == 0) {
-            createPoules();
-            createPouleMatches();
-            updatePouleTable();
-            printUpdatedPouleTable();
-            printPouleResult();
-            createDirectEliminationMatches();
-        }
+        // if (pouleRepository.count() == 0) {
+        //     createPoules();
+        //     createPouleMatches();
+        //     updatePouleTable();
+        //     printUpdatedPouleTable();
+        //     printPouleResult();
+        //     createDirectEliminationMatches();
+        // }
     }
 }

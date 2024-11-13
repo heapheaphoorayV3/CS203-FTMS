@@ -608,9 +608,16 @@ public class EventServiceTest {
     void endTournamentEvent() {
         // Arrange
         int eid = 1;
+        Organiser organiser = new Organiser();
+        Tournament tournament = new Tournament();
+        tournament.setOrganiser(organiser);
 
         Event event = new Event();
         event.setId(eid);
+        Set<Event> events = new HashSet<>();
+        events.add(event);
+        tournament.setEvents(events);
+        event.setTournament(tournament);
 
         PouleMatch pMatch = new PouleMatch();
         pMatch.setWinner(1);
@@ -651,7 +658,7 @@ public class EventServiceTest {
         when(tournamentFencerRepository.findByEvent(event)).thenReturn(Arrays.asList(tournamentFencer1, tournamentFencer2));
 
         // Act
-        eventService.endTournamentEvent(eid);
+        eventService.endTournamentEvent(eid, organiser);
 
         // Assert
         verify(eventRepository).save(event);
@@ -667,7 +674,7 @@ public class EventServiceTest {
 
         // Act & Assert
         assertThrows(EntityDoesNotExistException.class, () -> {
-            eventService.endTournamentEvent(eid);
+            eventService.endTournamentEvent(eid, new Organiser());
         });
     }
 
@@ -675,9 +682,13 @@ public class EventServiceTest {
     void endTournamentEvent_FinalMatchNotCompleted() {
         // Arrange
         int eid = 1;
+        Organiser organiser = new Organiser();
+        Tournament tournament = new Tournament();
+        tournament.setOrganiser(organiser);
 
         Event event = new Event();
         event.setId(eid);
+        event.setTournament(tournament);
 
         PouleMatch pMatch = new PouleMatch();
         pMatch.setWinner(1);
@@ -721,24 +732,27 @@ public class EventServiceTest {
         assertEquals(false, event.isOver());
         // Act & Assert
         assertThrows(EventCannotEndException.class, () -> {
-            eventService.endTournamentEvent(eid);
+            eventService.endTournamentEvent(eid, organiser);
         });
     }
 
     @Test
     void endTournamentEvent_EventAlreadyEnded() {
         // Arrange
+        Organiser organiser = new Organiser();
+        Tournament tournament = new Tournament();
+        tournament.setOrganiser(organiser);
         int eid = 1;
 
         Event event = new Event();
         event.setId(eid);
         event.setOver(true); // Mark the event as already ended
-
+        event.setTournament(tournament);
         when(eventRepository.findById(eid)).thenReturn(Optional.of(event));
 
         // Act & Assert
         assertThrows(EventCannotEndException.class, () -> {
-            eventService.endTournamentEvent(eid);
+            eventService.endTournamentEvent(eid, organiser);
         });
     }
 

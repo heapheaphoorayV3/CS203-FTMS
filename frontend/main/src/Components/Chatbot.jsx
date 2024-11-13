@@ -6,17 +6,18 @@ import ChatbotService from "../Services/Chatbot/ChatbotService";
 import FencerService from "../Services/Fencer/FencerService";
 import SubmitButton from "./Others/SubmitButton";
 import { Link } from "react-router-dom";
+import EventService from "../Services/Event/EventService";
 
 export default function Chatbot() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [userData, setUserData] = useState({});
+  const [fencerEvents, setFencerEvents] = useState([]);
   const [fencerUpcomingEvents, setFencerUpcomingEvents] = useState([]);
   const [recommendedTournaments, setRecommendedTournaments] = useState([]);
   const [selectedChoice, setSelectedChoice] = useState(null);
   const [showInput, setShowInput] = useState(false);
   const [eventID, setEventID] = useState("");
-  const [accessDenied, setAccessDenied] = useState(false);
   const [messages, setMessages] = useState([
     { text: "Hello! What would you like to know?", sender: "bot" },
   ]);
@@ -43,6 +44,36 @@ export default function Chatbot() {
         }
       } finally {
         setLoading(false);
+      }
+    };
+
+    const fetchFencerEvents = async () => {
+      setLoading(true);
+      try {
+        const response = await EventService.getAllEventsByGenderAndWeapon();
+        console.log("all:", response.data);
+        setFencerEvents(response.data);
+      } catch (error) {
+        if (error.response.status === 403) {
+          console.log("Unauthorized access to events.");
+          setError(
+            "Unauthorized: You don't have permission to use the chatbot."
+          );
+        } else if (error.request) {
+          // The request was made but no response was received
+          console.log("Error request: ", error.request);
+          setError(
+            "Fencer Events Data has failed to load, please try again later."
+          );
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          console.log("Unknown Error: " + error);
+          setError(
+            "Fencer Events Data has failed to load, please try again later."
+          );
+        }
+      } finally {
+        setLoading(true);
       }
     };
 
@@ -76,6 +107,7 @@ export default function Chatbot() {
     };
 
     fetchUserData();
+    fetchFencerEvents();
     fetchFencerUpcomingEvents();
   }, []);
 
@@ -100,9 +132,6 @@ export default function Chatbot() {
       addMessage(`Your projected points: ${response.data}`, "bot");
       setShowInput(false);
     } catch (error) {
-      // console.log("Error status:", error.response?.status);
-      // console.error("Error fetching projected points: ", error);
-      // setError("Failed to load projected points");
       if (error.response?.status === 400) {
         addMessage("No projected points available for this event.", "botError");
       } else {
@@ -123,7 +152,6 @@ export default function Chatbot() {
       setShowInput(false);
     } catch (error) {
       console.error("Error fetching win rate: ", error);
-      // setError("Failed to load win rate");
       if (error.response?.status === 400) {
         addMessage("No win rate available for this event.", "botError");
       } else {
@@ -152,7 +180,7 @@ export default function Chatbot() {
         );
         setRecommendedTournaments([]);
       } else {
-        console.log("upcoming:", fencerUpcomingEvents);
+        // console.log("upcoming:", fencerUpcomingEvents);
         const filteredTournaments = response.data.filter((tournament) => {
           return !fencerUpcomingEvents.some(
             (upcomingEvent) => upcomingEvent.tournamentName === tournament.name
@@ -171,7 +199,6 @@ export default function Chatbot() {
       }
     } catch (error) {
       console.error("Error fetching recommended tournaments: ", error);
-      // setError("Failed to load recommended tournaments");
       if (error.response?.status === 400) {
         addMessage(
           "No recommended tournaments available for this event.",
@@ -200,7 +227,7 @@ export default function Chatbot() {
     addMessage(`I want to get my ${choice}!`, "user");
 
     if (choice === "projected points" || choice === "win rate") {
-      if (fencerUpcomingEvents.length === 0) {
+      if (fencerEvents.length === 0) {
         addMessage(
           "No upcoming tournaments. Please register for a tournament first.",
           "bot"
@@ -225,7 +252,7 @@ export default function Chatbot() {
 
   const handleSubmitEventID = (id) => {
     if (id) {
-      const selectedEvent = fencerUpcomingEvents.find((event) => {
+      const selectedEvent = fencerEvents.find((event) => {
         return event.id === id;
       });
 
@@ -326,9 +353,9 @@ export default function Chatbot() {
   );
 
   // Loading / Error states
-  if (loading) {
-    return <div className="mt-10">Loading...</div>; // Show loading state
-  }
+  // if (loading) {
+  //   return <div className="mt-10">Loading...</div>; // Show loading state
+  // }
   if (error) {
     return (
       <div className="flex justify-between mr-20 my-10">
@@ -417,7 +444,7 @@ export default function Chatbot() {
               <div className="rounded-lg bg-gray-100 p-6 text-gray-800 shadow-md text-lg">
                 <h2 className="text-2xl font-bold">Select a tournament</h2>
                 <div className="mt-2 space-y-2">
-                  {fencerUpcomingEvents.map((event) => (
+                  {fencerEvents.map((event) => (
                     <button
                       key={event.id}
                       onClick={() => handleEventSelection(event.id)}
@@ -438,121 +465,3 @@ export default function Chatbot() {
     </div>
   );
 }
-
-//   return (
-//     <div className="bg-white h-full overflow-y-auto">
-//       <h1 className="my-10 ml-12 text-left text-4xl font-semibold">Chatbot</h1>
-//       <div className="flex w-[80%] ml-12 mb-12">
-//         <motion.div
-//           initial={{ opacity: 0, scale: 0.5 }}
-//           animate={{ opacity: 1, scale: 1 }}
-//           transition={{ duration: 0.8 }}
-//         >
-//           <img src={sender1} alt="Sender image" className="w-[200px] h-auto" />
-//         </motion.div>
-//         <div className="flex flex-col h-auto w-full" id="messages">
-//           <motion.div
-//             initial={{ opacity: 0, scale: 0.5 }}
-//             animate={{ opacity: 1, scale: 1 }}
-//             transition={{ duration: 0.8 }}
-//           >
-//             <div className="rounded-md bg-blue-500 p-4 text-white mb-4 mr-12">
-//               <p>Hello! What would you like to know?</p>
-//             </div>
-//           </motion.div>
-//           <div className="flex justify-between gap-4 mr-12">
-//             <motion.div
-//               initial={{ opacity: 0, scale: 0.5 }}
-//               animate={{ opacity: 1, scale: 1 }}
-//               transition={{ duration: 1 }}
-//               whileHover={{ scale: 1.1, transition: { duration: 0.3 } }}
-//               className="rounded-md bg-blue-500 p-4 text-white w-full"
-//               onClick={() => handleOptionClick("points")}
-//             >
-//               <p>Get my projected points</p>
-//             </motion.div>
-//             <motion.div
-//               initial={{ opacity: 0, scale: 0.5 }}
-//               animate={{ opacity: 1, scale: 1 }}
-//               transition={{ duration: 1.4 }}
-//               whileHover={{ scale: 1.1, transition: { duration: 0.3 } }}
-//               className="rounded-md bg-blue-500 p-4 text-white w-full"
-//               onClick={() => handleOptionClick("win rate")}
-//             >
-//               <p>Get my win rate</p>
-//             </motion.div>
-//             <motion.div
-//               initial={{ opacity: 0, scale: 0.5 }}
-//               animate={{ opacity: 1, scale: 1 }}
-//               transition={{ duration: 1.8 }}
-//               whileHover={{ scale: 1.1, transition: { duration: 0.3 } }}
-//               className="rounded-md bg-blue-500 p-4 text-white w-full"
-//               onClick={() => setSelectedChoice("tournaments")}
-//             >
-//               <p>Recommend me tournaments</p>
-//             </motion.div>
-
-//             {selectedChoice && selectedChoice !== "tournaments" && (
-//               <div className="flex justify-end w-[80%] ml-[200px] mb-4">
-//                 <div className="flex flex-col h-auto w-full">
-//                   <div className="rounded-md bg-blue-800 p-4 text-white mb-4 ml-12">
-//                     <p>
-//                       {selectedChoice === "points" &&
-//                         "Enter event ID for projected points:"}
-//                       {selectedChoice === "win rate" &&
-//                         "Enter event ID for win rate:"}
-//                     </p>
-//                     <input
-//                       type="text"
-//                       value={eventID}
-//                       onChange={(e) => setEventID(e.target.value)}
-//                       placeholder="Enter event ID"
-//                       className="p-2 mt-2 rounded-md text-black"
-//                     />
-//                     <button
-//                       onClick={handleSubmitEventID}
-//                       className="mt-2 bg-green-500 p-2 rounded-md text-white"
-//                     >
-//                       Submit
-//                     </button>
-//                   </div>
-//                 </div>
-//               </div>
-//             )}
-//             {/* <div className="rounded-md bg-blue-500 p-4 text-white w-full">
-//               <p>Get my win rate</p>
-//             </div>
-//             <div className="rounded-md bg-blue-500 p-4 text-white w-full">
-//               <p>Recommend me tournaments</p>
-//             </div> */}
-//           </div>
-//         </div>
-//       </div>
-//       {/* <div className="flex justify-end w-[80%] ml-[200px]">
-//         <div className="flex flex-col h-auto w-full" id="messages">
-//           <div className="rounded-md bg-blue-800 p-4 text-white mb-4 ml-12"> */}
-//       {selectedChoice && (
-//         <div className="flex justify-end w-[80%] ml-[200px]">
-//           <div className="flex flex-col h-auto w-full" id="messages">
-//             <div className="rounded-md bg-blue-800 p-4 text-white mb-4 ml-12">
-//               {selectedChoice === "points" && projectedPoints && (
-//                 <p>Your projected points: {projectedPoints}</p>
-//               )}
-//               {selectedChoice === "win rate" && winRate && (
-//                 <p>Your win rate: {winRate}</p>
-//               )}
-//               {selectedChoice === "tournaments" && recommendedTournaments && (
-//                 <p>Recommended tournaments: {recommendedTournaments}</p>
-//               )}
-//             </div>
-//           </div>
-//           <img src={user1} alt="Sender image" className="w-[200px] h-auto" />
-//         </div>
-//       )}
-//     </div>
-//     //     </div>
-//     //     {/* <img src={user1} alt="Sender image" className="w-[200px] h-auto" /> */}
-//     //   </div>
-//     // </div>
-//   );
-// }

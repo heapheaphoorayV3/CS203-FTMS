@@ -31,7 +31,9 @@ import cs203.ftms.overall.exception.EntityDoesNotExistException;
 import cs203.ftms.overall.model.tournamentrelated.Event;
 import cs203.ftms.overall.model.tournamentrelated.Poule;
 import cs203.ftms.overall.model.tournamentrelated.PouleMatch;
+import cs203.ftms.overall.model.tournamentrelated.Tournament;
 import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
+import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.repository.tournamentrelated.EventRepository;
 import cs203.ftms.overall.repository.tournamentrelated.MatchRepository;
 import cs203.ftms.overall.repository.tournamentrelated.PouleRepository;
@@ -152,9 +154,15 @@ public class PouleService {
         }
     }
 
-    public Set<CleanPouleDTO> createPoules(int eid, CreatePoulesDTO dto) {
-        Event event = eventService.getEvent(eid);
+    private void validateOrganiser(Tournament tournament, Organiser organiser) {
+        if (tournament.getOrganiser().getId() != organiser.getId()) {
+            throw new IllegalArgumentException("Organiser does not match the tournament organiser.");
+        }
+    }
 
+    public Set<CleanPouleDTO> createPoules(int eid, CreatePoulesDTO dto, Organiser o) {
+        Event event = eventService.getEvent(eid);
+        eventService.validateOrganiser(event, o);
         if (poulesAlreadyExist(event)) {
             return getExistingPoules(event);
         }
@@ -167,6 +175,7 @@ public class PouleService {
 
         return getCleanPoules(poules);
     }
+
 
     // helper for createPoules
     private boolean poulesAlreadyExist(Event event) {
@@ -397,8 +406,9 @@ public class PouleService {
 
 
     @Transactional
-    public boolean updatePouleTable(int eid, SinglePouleTableDTO dto) throws MethodArgumentNotValidException {
+    public boolean updatePouleTable(int eid, SinglePouleTableDTO dto, Organiser o) throws MethodArgumentNotValidException {
         Event event = eventService.getEvent(eid);
+        eventService.validateOrganiser(event, o);
         Poule poule = getPouleByEventAndNumber(event, dto.getPouleNumber());
         Map<String, String> newPouleTable = dto.getSingleTable();
         List<TournamentFencer> fencers = getSortedFencers(poule);

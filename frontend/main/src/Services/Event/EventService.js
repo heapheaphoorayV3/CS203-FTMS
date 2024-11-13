@@ -69,6 +69,10 @@ class EventService {
   async endEvent(eid) {
     return await ProtectedAPI.put(`${baseURL}/end-event/${eid}`);
   }
+
+  async getAllEventsByGenderAndWeapon() {
+    return await ProtectedAPI.get(`${baseURL}/get-all-events-by-gender-and-weapon`);
+  } 
 }
 
 export default new EventService();

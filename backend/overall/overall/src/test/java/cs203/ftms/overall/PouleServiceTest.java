@@ -37,6 +37,7 @@ import cs203.ftms.overall.model.tournamentrelated.PouleMatch;
 import cs203.ftms.overall.model.tournamentrelated.Tournament;
 import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
 import cs203.ftms.overall.model.userrelated.Fencer;
+import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.repository.tournamentrelated.EventRepository;
 import cs203.ftms.overall.repository.tournamentrelated.MatchRepository;
 import cs203.ftms.overall.repository.tournamentrelated.PouleRepository;
@@ -398,6 +399,9 @@ public class PouleServiceTest {
     @Test
     void createPoules_ShouldCreateAndReturnPoules() {
         // Arrange
+        Organiser organiser = new Organiser();
+        Tournament tournament = new Tournament();
+        tournament.setOrganiser(organiser);
         int eventId = 1;
         CreatePoulesDTO dto = new CreatePoulesDTO();
         dto.setPouleCount(2);
@@ -405,6 +409,7 @@ public class PouleServiceTest {
         Event event = new Event();
         event.setId(eventId);
         event.setPoules(Collections.emptySet());
+        event.setTournament(tournament);
 
         Set<TournamentFencer> fencers = new HashSet<>();
         for (int i = 0; i < 5; i++) {
@@ -421,7 +426,7 @@ public class PouleServiceTest {
 
 
         // Act
-        Set<CleanPouleDTO> result = pouleService.createPoules(eventId, dto);
+        Set<CleanPouleDTO> result = pouleService.createPoules(eventId, dto, organiser);
 
         // Assert
         verify(eventService).getEvent(eventId);
@@ -450,7 +455,9 @@ public class PouleServiceTest {
         }
 
         Set<PouleMatch> pouleMatches = new HashSet<>();
-
+        Organiser organiser = new Organiser();
+        Tournament tournament = new Tournament();
+        tournament.setOrganiser(organiser);
         event.setFencers(fencers);
         Set<Poule> poules = new HashSet<>();
         Poule poule = new Poule();
@@ -460,13 +467,14 @@ public class PouleServiceTest {
         event.setPoules(poules);
         poule.setPouleMatches(pouleMatches);
         poule.setEvent(event);
+        event.setTournament(tournament);
 
         when(eventService.getEvent(eventId)).thenReturn(event);
         when(eventRepository.save(event)).thenReturn(event);
 
 
         // Act
-        Set<CleanPouleDTO> result = pouleService.createPoules(eventId, dto);
+        Set<CleanPouleDTO> result = pouleService.createPoules(eventId, dto, organiser);
 
         // Assert
         verify(eventService).getEvent(eventId);
@@ -630,11 +638,15 @@ public class PouleServiceTest {
     @Test
     void updatePouleTable_ShouldUpdatePouleTable() throws MethodArgumentNotValidException {
          // Arrange
+         Organiser organiser = new Organiser();
+         Tournament tournament = new Tournament();
+         tournament.setOrganiser(organiser);
          int eventId = 1;
          boolean createPM = true;
  
          Event event = new Event();
          event.setId(eventId);
+         event.setTournament(tournament);
  
          Set<TournamentFencer> fencers = new HashSet<>();
          for (int i = 0; i < 5; i++) {
@@ -697,7 +709,7 @@ public class PouleServiceTest {
         singlePouleTableDTO.getSingleTable().put("Fencer 4 (Country 4) -- 4", updated);
 
         // Act - Update the poule table
-        boolean result = pouleService.updatePouleTable(eventId, singlePouleTableDTO);
+        boolean result = pouleService.updatePouleTable(eventId, singlePouleTableDTO, organiser);
 
         // Assert
         verify(pouleRepository).findByEventAndPouleNumber(event, 1);
@@ -710,11 +722,15 @@ public class PouleServiceTest {
     @Test
     void updatePouleTable_UpdatePouleTableFencer1win() throws MethodArgumentNotValidException {
         // Arrange
+        Organiser organiser = new Organiser();
+        Tournament tournament = new Tournament();
+        tournament.setOrganiser(organiser);
         int eventId = 1;
         boolean createPM = true;
 
         Event event = new Event();
         event.setId(eventId);
+        event.setTournament(tournament);
 
         Set<TournamentFencer> fencers = new HashSet<>();
         for (int i = 0; i < 5; i++) {
@@ -771,7 +787,7 @@ public class PouleServiceTest {
         singlePouleTableDTO.getSingleTable().put("Fencer 4 (Country 4) -- 4", updated2);
 
         // Act - Update the poule table
-        boolean result = pouleService.updatePouleTable(eventId, singlePouleTableDTO);
+        boolean result = pouleService.updatePouleTable(eventId, singlePouleTableDTO, organiser);
 
         // Assert
         verify(pouleRepository).findByEventAndPouleNumber(event, 1);

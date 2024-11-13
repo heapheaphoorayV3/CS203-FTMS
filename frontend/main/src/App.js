@@ -6,7 +6,6 @@ import CreateTournament from "./Components/Tournament/CreateTournament";
 import OrganiserDashboard from "./Components/OrganiserDashboard";
 import AdminDashboard from "./Components/Admin/AdminDashboard";
 import CreateEvent from "./Components/Tournament/CreateEvent";
-import SignUpEvent from "./Components/Tournament/SignUpEvent";
 import SignupOptions from "./Components/Authentication/SignupOptions";
 import SignIn from "./Components/Authentication/SignIn";
 import ForgotPassword from "./Components/Authentication/ForgotPassword";
@@ -20,8 +19,11 @@ import Tournaments from "./Components/Tournament/Tournaments";
 import VerifyOrganisers from "./Components/Admin/VerifyOrganisers";
 import LandingPage from "./Components/Others/LandingPage";
 import InternationalRanking from "./Components/InternationalRanking";
-import AuthProvider from "./Components/Authentication/AuthProvider";
 import Chatbot from "./Components/Chatbot";
+import UnauthorisedPage from "./Components/Authentication/UnauthorisedPage";
+import AuthProviderFencer from "./Components/Authentication/AuthProviderFencer";
+import AuthProviderOrganiser from "./Components/Authentication/AuthProviderOrganiser";
+import AuthProviderAdmin from "./Components/Authentication/AuthProviderAdmin";
 
 
 function App() {
@@ -42,37 +44,28 @@ function App() {
           <Route path="/tournaments/:tournamentID" element={<ViewTournament />} />
           <Route path="/:tournamentID/view-event/:eventID" element={<ViewEvent />} />
           <Route path="/international-ranking" element={<InternationalRanking />} />
+          <Route path="/unauthorised" element={<UnauthorisedPage />} />
         </Route>
 
-        {/* Default Layout */}
-        <Route element={<AuthProvider><DefaultLayout /></AuthProvider>}>
-          <Route path="/" element={<LandingPage />} />
+        {/* Fencer Layout */}
+        <Route element={<AuthProviderFencer><DefaultLayout /></AuthProviderFencer>}>
           <Route path="/fencer-dashboard" element={<FencerDashboard />} />
+          <Route path="/chatbot" element={<Chatbot />} />
+        </Route>
+
+        {/* Organiser Layout */}
+        <Route element={<AuthProviderOrganiser><DefaultLayout /></AuthProviderOrganiser>}>
           <Route path="/organiser-dashboard" element={<OrganiserDashboard />} />
-          <Route path="/tournaments/:tournamentID" element={<ViewTournament />} />
-          <Route path="/view-event/:eventID" element={<ViewEvent />} />
-          <Route path="/tournaments" element={<Tournaments />} />
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup-options" element={<SignupOptions />} />
-          <Route path="/signup-fencer" element={<SignUpFencer />} />
-          <Route path="/signup-organiser" element={<SignUpOrganiser />} />
           <Route path="/create-tournament" element={<CreateTournament />} />
-          <Route
-            path="/tournament/:tournamentID/create-event"
-            element={<CreateEvent />}
-          />
-          <Route path="/signup-event" element={<SignUpEvent />} />
+          <Route path="/tournament/:tournamentID/create-event" element={<CreateEvent />} />
+        </Route>
+
+        {/* Admin Layout */}
+        <Route element={<AuthProviderAdmin><DefaultLayout /></AuthProviderAdmin>}>
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/verify-organisers" element={<VerifyOrganisers />} />
-          <Route
-            path="/international-ranking"
-            element={<InternationalRanking />}
-          />
-          <Route
-            path="/chatbot"
-            element={<Chatbot />}
-          />
         </Route>
+
       </Routes>
 
     </Router>

@@ -37,6 +37,7 @@ export default function SignUpOrganiser() {
       await AuthService.createOrganiser(formData);
       console.log("Sign up successful!");
       setSignUp(true);
+      setError(null);
     } catch (error) {
       if (error.response) {
         // Check if error.response.data is an object and has contactNo

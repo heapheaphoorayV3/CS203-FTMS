@@ -57,7 +57,10 @@ export default function ViewEvent() {
       // console.log("event data =>");
     } catch (error) {
       if (error.response) {
-        console.log("Error response data for event data: ", error.response.data);
+        console.log(
+          "Error response data for event data: ",
+          error.response.data
+        );
         setError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
@@ -114,7 +117,10 @@ export default function ViewEvent() {
       setCleanedPouleData(processedData);
     } catch (error) {
       if (error.response) {
-        console.log("Error response data for poule table: ", error.response.data);
+        console.log(
+          "Error response data for poule table: ",
+          error.response.data
+        );
         setError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
@@ -165,7 +171,10 @@ export default function ViewEvent() {
         setError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request for fetching event ranking: ", error.request);
+        console.log(
+          "Error request for fetching event ranking: ",
+          error.request
+        );
         setError(
           "Event Ranking Data has failed to load, please try again later."
         );
@@ -427,6 +436,8 @@ export default function ViewEvent() {
 
   const totalPages = Math.ceil(eventRanking.length / limit);
 
+  console.log("poulesresults null:", poulesResults);
+
   return (
     <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">
       <Breadcrumbs items={breadcrumbsItems} />
@@ -448,7 +459,8 @@ export default function ViewEvent() {
             </p>
           </motion.div>
         ) : (
-          userType === "O" && (
+          userType === "O" &&
+          isOwner && (
             <motion.button
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -488,14 +500,16 @@ export default function ViewEvent() {
             <div className="py-4">
               {/* Render only once for both 'O' (Organizers) and 'F' (Fencers) */}
               <div>
-                {userType === "O" && pouleTableData.pouleTable.length === 0 && (
-                  <button
-                    onClick={createPoules}
-                    className="bg-blue-500 text-white px-4 py-2 rounded mt-2 mb-2"
-                  >
-                    Create Poules
-                  </button>
-                )}
+                {userType === "O" &&
+                  pouleTableData.pouleTable.length === 0 &&
+                  isOwner && (
+                    <button
+                      onClick={createPoules}
+                      className="bg-blue-500 text-white px-4 py-2 rounded mt-2 mb-2"
+                    >
+                      Create Poules
+                    </button>
+                  )}
 
                 {/* Common Poule Results Dropdown */}
                 <div className="mr-12 h-20 max-w-sm">
@@ -526,6 +540,7 @@ export default function ViewEvent() {
                 <div className="flex gap-2">
                   {/* Conditional buttons for organizers */}
                   {userType === "O" &&
+                    isOwner &&
                     pouleTableData.pouleTable.length > 0 &&
                     matches.length === 0 && (
                       <div className="flex mt-4 pb-2 space-x-2">
@@ -546,7 +561,7 @@ export default function ViewEvent() {
                     )}
 
                   {/* Conditional buttons and popup for updating poules */}
-                  {userType === "O" && isUpdating && (
+                  {userType === "O" && isUpdating && isOwner && (
                     <div className="flex mt-4 pb-2 space-x-2">
                       <button
                         onClick={submitUpdatePoules}
@@ -672,30 +687,34 @@ export default function ViewEvent() {
           <Tab label="Poules Results">
             <div className="py-4">
               {/* <h2 className="text-lg font-medium mb-2">Ranking</h2> */}
-              {eventRanking.length > 0 ? (
-                <table className="table text-lg border-collapse mb-4">
-                  {/* head */}
-                  <thead className="text-lg text-primary">
-                    <tr className="border-b border-gray-300">
-                      <th className="text-center w-20">Rank</th>
-                      <th className="w-1/4">Name</th>
-                      <th className="text-center">Country</th>
-                      <th className="text-center">Result</th>
-                      <th className="text-center">Poule Wins</th>
-                      <th className="text-center">Poule Points</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {poulesResults.bypassFencers
-                      .concat(
-                        poulesResults.fenceOffFencers,
-                        poulesResults.eliminatedFencers
-                      )
-                      .map((fencer, idx) => {
-                        return (
+              {poulesResults !== null &&
+                // Check if at least one array has data
+                (poulesResults.bypassFencers.length > 0 ||
+                poulesResults.fenceOffFencers.length > 0 ||
+                poulesResults.eliminatedFencers.length > 0 ? (
+                  <table className="table text-lg border-collapse mb-4">
+                    {/* Table Header */}
+                    <thead className="text-lg text-primary">
+                      <tr className="border-b border-gray-300">
+                        <th className="text-center w-20">Rank</th>
+                        <th className="w-1/4">Name</th>
+                        <th className="text-center">Country</th>
+                        <th className="text-center">Result</th>
+                        <th className="text-center">Poule Wins</th>
+                        <th className="text-center">Poule Points</th>
+                      </tr>
+                    </thead>
+                    {/* Table Body */}
+                    <tbody>
+                      {poulesResults.bypassFencers
+                        .concat(
+                          poulesResults.fenceOffFencers,
+                          poulesResults.eliminatedFencers
+                        )
+                        .map((fencer, idx) => (
                           <tr
                             key={idx}
-                            className={`border-b border-gray-300 hover:bg-gray-100`}
+                            className="border-b border-gray-300 hover:bg-gray-100"
                           >
                             <td className="text-center">{idx + 1}</td>
                             <td className="w-1/4">{fencer.fencerName}</td>
@@ -712,17 +731,17 @@ export default function ViewEvent() {
                               {fencer.poulePoints}
                             </td>
                           </tr>
-                        );
-                      })}
-                  </tbody>
-                </table>
-              ) : (
-                <div className="flex justify-center items-center h-full">
-                  <h2 className="text-lg font-medium">
-                    No ranking available yet
-                  </h2>
-                </div>
-              )}
+                        ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  // Message when no ranking data is available
+                  <div className="flex justify-center items-center h-full">
+                    <h2 className="text-lg font-medium">
+                      No ranking available yet
+                    </h2>
+                  </div>
+                ))}
               <div className="flex flex-col justify-center items-center">
                 <PaginationButton
                   totalPages={totalPages}

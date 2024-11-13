@@ -44,6 +44,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/v1/poule/get-poule-table/**").permitAll()
                         .requestMatchers("/api/v1/direct-elimination/get-direct-elimination-matches/**").permitAll()
                         .requestMatchers("/health/simple").permitAll()
+                        .requestMatchers("/api/v1/poule/get-poules-result/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

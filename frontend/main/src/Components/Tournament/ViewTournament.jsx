@@ -141,6 +141,7 @@ export default function ViewTournament() {
 
       if (sessionStorage.getItem("userType") === "F") {
         fetchRegisteredEvents();
+        console.log("Fetching Registered Events" + registeredEvents);
       } else if (sessionStorage.getItem("userType") === "O") {
         checkIfOwner();
       }
