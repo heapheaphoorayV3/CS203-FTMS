@@ -293,6 +293,7 @@ public class PopulateData {
                 t.setStartDate(LocalDate.now().minusMonths(i-1).plusDays(i - 1));
                 t.setEndDate(LocalDate.now().minusMonths(i-1).plusDays(i + 1));
             }
+            t.setEvents(events);
             tournamentRepository.save(t);
         }
     }

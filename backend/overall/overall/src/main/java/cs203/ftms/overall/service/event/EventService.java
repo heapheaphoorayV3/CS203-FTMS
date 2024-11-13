@@ -236,7 +236,9 @@ public class EventService {
     @Transactional
     public boolean unregisterEvent(int eid, Fencer f) {
         Event event = getEvent(eid);
-
+        if (event.getTournament().getSignupEndDate().isBefore(LocalDate.now())) {
+            throw new SignUpDateOverExcpetion("Sign up date is over!");
+        }
         Set<TournamentFencer> fencers = event.getFencers(); 
         fencers.removeIf(tf -> tf.getFencer().equals(f));
         event.setFencers(fencers);
