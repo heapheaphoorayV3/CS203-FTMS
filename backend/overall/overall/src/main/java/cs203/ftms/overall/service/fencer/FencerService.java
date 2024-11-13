@@ -158,12 +158,11 @@ public class FencerService {
         Set<TournamentFencer> tfs = f.getTournamentFencerProfiles();
         List<TournamentFencer> tfList = new ArrayList<>(tfs);
         Collections.sort(tfList, (a, b) -> a.getEvent().getDate().compareTo(b.getEvent().getDate()));
-        for (TournamentFencer tf : tfList) {
-            System.out.println(tf.getEvent().getId());
-        }
         List<CleanTournamentFencerDTO> res = new ArrayList<>();
         for (TournamentFencer tf : tfList) {
-            res.add(getCleanTournamentFencerDTO(tf));
+            if (tf.getEvent().getDate().isBefore(LocalDate.now())) {
+                res.add(getCleanTournamentFencerDTO(tf));
+            }
         }
         return res;
     }

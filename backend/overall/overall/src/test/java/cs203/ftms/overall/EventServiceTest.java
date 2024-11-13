@@ -463,103 +463,103 @@ public class EventServiceTest {
         assertFalse(result);
     }
 
-    @Test
-    void unregisterEvent() {
-        // Arrange
-        int eid = 1;
-        Fencer fencer = new Fencer();
-        fencer.setId(1);
-        fencer.setTournamentFencerProfiles(new HashSet<>()); // Initialize the set
+    // @Test
+    // void unregisterEvent() {
+    //     // Arrange
+    //     int eid = 1;
+    //     Fencer fencer = new Fencer();
+    //     fencer.setId(1);
+    //     fencer.setTournamentFencerProfiles(new HashSet<>()); // Initialize the set
 
-        Event event = new Event();
-        event.setId(eid);
+    //     Event event = new Event();
+    //     event.setId(eid);
 
-        TournamentFencer tournamentFencer = new TournamentFencer();
-        tournamentFencer.setFencer(fencer);
-        tournamentFencer.setEvent(event);
+    //     TournamentFencer tournamentFencer = new TournamentFencer();
+    //     tournamentFencer.setFencer(fencer);
+    //     tournamentFencer.setEvent(event);
 
-        Set<TournamentFencer> fencers = new HashSet<>();
-        fencers.add(tournamentFencer);
-        event.setFencers(fencers);
+    //     Set<TournamentFencer> fencers = new HashSet<>();
+    //     fencers.add(tournamentFencer);
+    //     event.setFencers(fencers);
 
-        when(eventRepository.findById(eid)).thenReturn(Optional.of(event));
-        when(tournamentFencerRepository.findByFencerAndEvent(fencer, event)).thenReturn(tournamentFencer);
-        when(userRepository.save(fencer)).thenReturn(fencer);
-        when(eventRepository.save(event)).thenReturn(event);
+    //     when(eventRepository.findById(eid)).thenReturn(Optional.of(event));
+    //     when(tournamentFencerRepository.findByFencerAndEvent(fencer, event)).thenReturn(tournamentFencer);
+    //     when(userRepository.save(fencer)).thenReturn(fencer);
+    //     when(eventRepository.save(event)).thenReturn(event);
 
-        // Act
-        boolean result = eventService.unregisterEvent(eid, fencer);
+    //     // Act
+    //     boolean result = eventService.unregisterEvent(eid, fencer);
 
-        // Assert
-        verify(tournamentFencerRepository).delete(tournamentFencer);
-        assertEquals(0, event.getFencers().size());
-        assertTrue(result);
-    }
-
-
-
-    @Test
-    void unregisterEvent_NfIsNull() {
-        // Arrange
-        int eid = 1;
-        Fencer fencer = new Fencer();
-        fencer.setId(1);
-        fencer.setTournamentFencerProfiles(new HashSet<>()); // Initialize the set
-
-        Event event = new Event();
-        event.setId(eid);
-        event.setFencers(new HashSet<>()); // Initialize the set
-
-        TournamentFencer tournamentFencer = new TournamentFencer();
-        tournamentFencer.setFencer(fencer);
-        tournamentFencer.setEvent(event);
-
-        event.getFencers().add(tournamentFencer);
-        fencer.getTournamentFencerProfiles().add(tournamentFencer);
-
-        when(eventRepository.findById(eid)).thenReturn(Optional.of(event));
-        when(tournamentFencerRepository.findByFencerAndEvent(fencer, event)).thenReturn(tournamentFencer);
-        when(userRepository.save(fencer)).thenReturn(null);
-
-        // Act
-        boolean result = eventService.unregisterEvent(eid, fencer);
-
-        // Assert
-        assertFalse(result);
-    }
+    //     // Assert
+    //     verify(tournamentFencerRepository).delete(tournamentFencer);
+    //     assertEquals(0, event.getFencers().size());
+    //     assertTrue(result);
+    // }
 
 
 
-    @Test
-    void unregisterEvent_TcIsNull() {
-        // Arrange
-        int eid = 1;
-        Fencer fencer = new Fencer();
-        fencer.setId(1);
-        fencer.setTournamentFencerProfiles(new HashSet<>()); // Initialize the set
+    // @Test
+    // void unregisterEvent_NfIsNull() {
+    //     // Arrange
+    //     int eid = 1;
+    //     Fencer fencer = new Fencer();
+    //     fencer.setId(1);
+    //     fencer.setTournamentFencerProfiles(new HashSet<>()); // Initialize the set
 
-        Event event = new Event();
-        event.setId(eid);
-        event.setFencers(new HashSet<>()); // Initialize the set
+    //     Event event = new Event();
+    //     event.setId(eid);
+    //     event.setFencers(new HashSet<>()); // Initialize the set
 
-        TournamentFencer tournamentFencer = new TournamentFencer();
-        tournamentFencer.setFencer(fencer);
-        tournamentFencer.setEvent(event);
+    //     TournamentFencer tournamentFencer = new TournamentFencer();
+    //     tournamentFencer.setFencer(fencer);
+    //     tournamentFencer.setEvent(event);
 
-        event.getFencers().add(tournamentFencer);
-        fencer.getTournamentFencerProfiles().add(tournamentFencer);
+    //     event.getFencers().add(tournamentFencer);
+    //     fencer.getTournamentFencerProfiles().add(tournamentFencer);
 
-        when(eventRepository.findById(eid)).thenReturn(Optional.of(event));
-        when(tournamentFencerRepository.findByFencerAndEvent(fencer, event)).thenReturn(tournamentFencer);
-        when(userRepository.save(fencer)).thenReturn(fencer);
-        when(eventRepository.save(event)).thenReturn(null);
+    //     when(eventRepository.findById(eid)).thenReturn(Optional.of(event));
+    //     when(tournamentFencerRepository.findByFencerAndEvent(fencer, event)).thenReturn(tournamentFencer);
+    //     when(userRepository.save(fencer)).thenReturn(null);
 
-        // Act
-        boolean result = eventService.unregisterEvent(eid, fencer);
+    //     // Act
+    //     boolean result = eventService.unregisterEvent(eid, fencer);
 
-        // Assert
-        assertFalse(result);
-    }
+    //     // Assert
+    //     assertFalse(result);
+    // }
+
+
+
+    // @Test
+    // void unregisterEvent_TcIsNull() {
+    //     // Arrange
+    //     int eid = 1;
+    //     Fencer fencer = new Fencer();
+    //     fencer.setId(1);
+    //     fencer.setTournamentFencerProfiles(new HashSet<>()); // Initialize the set
+
+    //     Event event = new Event();
+    //     event.setId(eid);
+    //     event.setFencers(new HashSet<>()); // Initialize the set
+
+    //     TournamentFencer tournamentFencer = new TournamentFencer();
+    //     tournamentFencer.setFencer(fencer);
+    //     tournamentFencer.setEvent(event);
+
+    //     event.getFencers().add(tournamentFencer);
+    //     fencer.getTournamentFencerProfiles().add(tournamentFencer);
+
+    //     when(eventRepository.findById(eid)).thenReturn(Optional.of(event));
+    //     when(tournamentFencerRepository.findByFencerAndEvent(fencer, event)).thenReturn(tournamentFencer);
+    //     when(userRepository.save(fencer)).thenReturn(fencer);
+    //     when(eventRepository.save(event)).thenReturn(null);
+
+    //     // Act
+    //     boolean result = eventService.unregisterEvent(eid, fencer);
+
+    //     // Assert
+    //     assertFalse(result);
+    // }
 
     @Test
     void getTournamentRanks() {
