@@ -85,7 +85,7 @@ export default function ViewEvent() {
       for (let tournament of upcomingTournaments) {
         if (Array.isArray(tournament.events)) {
           for (let event of tournament.events) {
-            console.log("tournament.events id=",event.id);
+            console.log("tournament.events id=", event.id);
             console.log("current event id=", eventID);
             if (Number(event.id) === Number(eventID)) {
               found = true;
@@ -469,7 +469,6 @@ export default function ViewEvent() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
               whileHover={{
-                scale: 1.1,
                 backgroundColor: "#E3170A",
                 transition: { duration: 0.3 },
               }}
