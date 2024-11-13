@@ -6,6 +6,7 @@ import FencerService from "../../Services/Fencer/FencerService";
 import { Tabs, Tab } from "../Others/Tabs";
 import PaginationButton from "../Others/PaginationButton";
 import SearchBar from "../Others/SearchBar";
+import LoadingPage from "../Others/LoadingPage";
 
 const AdminDashboard = () => {
   const [userData, setUserData] = useState(null);
@@ -175,7 +176,7 @@ const AdminDashboard = () => {
   ]);
 
   if (loading || !userData) {
-    return <div className="mt-10">Loading...</div>; // Show loading state
+    return <LoadingPage />;
   }
 
   if (error) {

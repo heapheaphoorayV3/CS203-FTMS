@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Pagination from "../Others/PaginationButton.jsx";
 import AdminService from "../../Services/Admin/AdminService.js";
+import LoadingPage from "../Others/LoadingPage.jsx";
 
 export default function VerifyOrganisers() {
 
@@ -134,7 +135,7 @@ export default function VerifyOrganisers() {
     }
     // Loading / Error states
     if (loading) {
-        return <div className="mt-10">Loading...</div>; // Show loading state
+        return <LoadingPage />;
     }
     if (error) {
         return (

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import TournamentService from "../../Services/Tournament/TournamentService";
+import LoadingPage from "../Others/LoadingPage";
 import SearchBar from "../Others/SearchBar";
 
 export default function Tournaments() {
@@ -77,7 +78,7 @@ export default function Tournaments() {
   });
 
   if (loading) {
-    return <div className="mt-10">Loading...</div>; // Show loading state
+    return <LoadingPage />; // Show loading state
   }
 
   if (error) {
