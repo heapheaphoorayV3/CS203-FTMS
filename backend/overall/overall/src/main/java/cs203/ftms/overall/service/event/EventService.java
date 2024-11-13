@@ -303,7 +303,7 @@ public class EventService {
             TournamentFencer tf = tfs.get(i);
             Fencer fencer = tf.getFencer();
             fencer.setPoints(points + fencer.getPoints());
-            tf.setPointsAfterEvent(points + fencer.getPoints());
+            tf.setPointsAfterEvent(fencer.getPoints());
             userRepository.save(fencer);
         }
     }

@@ -134,7 +134,7 @@ public class FencerService {
         List<Event> events = new ArrayList<>();
         for(TournamentFencer tf: f.getTournamentFencerProfiles()){
             Event e = eventRepository.findById(tf.getEvent().getId()).orElse(null);
-            if(e.getDate().isBefore(LocalDate.now())){
+            if(e.getDate().isBefore(LocalDate.now()) || e.isOver() ){
                 events.add(e);
             }
         }
@@ -160,7 +160,7 @@ public class FencerService {
         Collections.sort(tfList, (a, b) -> a.getEvent().getDate().compareTo(b.getEvent().getDate()));
         List<CleanTournamentFencerDTO> res = new ArrayList<>();
         for (TournamentFencer tf : tfList) {
-            if (tf.getEvent().getDate().isBefore(LocalDate.now())) {
+            if (tf.getEvent().getDate().isBefore(LocalDate.now()) || tf.getEvent().isOver()) {
                 res.add(getCleanTournamentFencerDTO(tf));
             }
         }

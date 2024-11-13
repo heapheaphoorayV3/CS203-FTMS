@@ -274,7 +274,6 @@ public class PopulateData {
                 System.out.println(events.size());
                 for (Event e : events) {
                     e.setDate(LocalDate.now());
-                    System.out.println(e.getDate());
                     eventRepository.save(e);
                 }
                 t.setSignupEndDate(LocalDate.now().minusDays(3));
@@ -284,6 +283,7 @@ public class PopulateData {
             } else if (i == 2 || i == 3) {
                 for (Event e : events) {
                     e.setDate(LocalDate.now().minusMonths(1).plusDays(i));
+                    e.setOver(true);
                     eventRepository.save(e);
                 }
                 t.setSignupEndDate(LocalDate.now().minusMonths(i).plusDays(i - 1));
@@ -292,6 +292,7 @@ public class PopulateData {
             } else {
                 for (Event e : events) {
                     e.setDate(LocalDate.now().minusMonths(i-1).plusDays(i));
+                    e.setOver(true);
                     eventRepository.save(e);
                 }
                 t.setSignupEndDate(LocalDate.now().minusMonths(i-1).plusDays(i - 1));
