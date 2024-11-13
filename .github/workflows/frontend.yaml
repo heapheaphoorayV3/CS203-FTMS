@@ -5,6 +5,7 @@ on:
     workflows: ["Backend CI/CD"]
     types:
       - completed
+  workflow__dispatch:
 
 permissions:
   actions: read   
