@@ -44,6 +44,7 @@ import cs203.ftms.overall.dto.RegisterOrganiserDTO;
 import cs203.ftms.overall.dto.SinglePouleTableDTO;
 import cs203.ftms.overall.dto.UpdateDirectEliminationMatchDTO;
 import cs203.ftms.overall.model.tournamentrelated.DirectEliminationMatch;
+import cs203.ftms.overall.model.tournamentrelated.Event;
 import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.model.userrelated.User;
@@ -924,6 +925,11 @@ class SpringBootIntegrationTest {
         Organiser o = (Organiser) users.findByEmail("organizer.one@example.com").orElse(null);
         String jwtToken = jwtService.generateToken(o);
 
+        // Change event date for testing purpose
+        Event e = events.findAll().get(0);
+        e.setDate(LocalDate.of(2024, 11, 11));
+        events.save(e);
+
         URI uri = new URI(baseUrl + port + "/api/v1/event/end-event/" + events.findAll().get(0).getId());
 
         HttpHeaders headers = new HttpHeaders();
@@ -966,6 +972,6 @@ class SpringBootIntegrationTest {
                 String.class);
         
         assertEquals(400, result.getStatusCode().value());
-        assertEquals("Final match has not been completed!", result.getBody());        
+        assertEquals("Event has not started yet!", result.getBody());        
     }
 }
