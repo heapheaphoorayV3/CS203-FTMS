@@ -569,7 +569,7 @@ export default function ViewTournament() {
                           isPastStartDate() && (
                             <SubmitButton
                               disabled={true}
-                              styling={`h-12 w-40 justify-center rounded-md my-5 text-lg font-semibold leading-6 text-white shadow-sm bg-gray-500`}
+                              styling={`h-12 w-40 bg-gray-300 justify-center rounded-md my-5 text-lg font-semibold leading-6 text-gray shadow-sm`}
                             >
                               Signups Ended
                             </SubmitButton>
