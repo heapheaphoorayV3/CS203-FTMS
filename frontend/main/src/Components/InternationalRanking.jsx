@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import PaginationButton from "./Others/PaginationButton";
 import FencerService from "../Services/Fencer/FencerService";
 import SearchBar from "./Others/SearchBar";
+import LoadingPage from "./Others/LoadingPage";
 
 export default function InternationalRanking() {
   const [rankingData, setRankingData] = useState(null);
@@ -95,7 +96,7 @@ export default function InternationalRanking() {
   });
 
   if (loading) {
-    return <div className="mt-10">Loading...</div>; // Show loading state
+    return <LoadingPage />; // Show loading state
   }
 
   if (error) {
