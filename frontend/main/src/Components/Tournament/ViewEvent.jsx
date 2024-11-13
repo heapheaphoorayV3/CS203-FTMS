@@ -78,13 +78,15 @@ export default function ViewEvent() {
   // Fetch Upcoming Tournament if Organiser to check if organiser is the owner of current event
   const checkIfOwner = async () => {
     try {
-      const response = await OrganiserService.getOrganiserUpcomingTournaments();
+      const response = await OrganiserService.getAllHostedTournaments();
       const upcomingTournaments = response.data;
       console.log("upcoming tournaments:", upcomingTournaments);
       let found = false;
       for (let tournament of upcomingTournaments) {
         if (Array.isArray(tournament.events)) {
           for (let event of tournament.events) {
+            console.log("tournament.events id=",event.id);
+            console.log("current event id=", eventID);
             if (Number(event.id) === Number(eventID)) {
               found = true;
               break;
@@ -437,7 +439,7 @@ export default function ViewEvent() {
 
   const totalPages = Math.ceil(eventRanking.length / limit);
 
-  console.log("poulesresults null:", poulesResults);
+  console.log("isowner:", isOwner);
 
   return (
     <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">
