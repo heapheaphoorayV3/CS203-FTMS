@@ -221,29 +221,29 @@ const OrganiserDashboard = () => {
             Welcome back, {userData.name}
           </div>
 
-          <div className="grid grid-cols-[2fr_8fr] gap-y-2 gap-x-4 my-4 text-xl w-full">
+          <div className="grid grid-cols-[2fr_8fr] gap-y-2 gap-x-4 mt-4 text-xl w-full">
             {/* Email, ContactNo, Country, Verification Status */}
             <div className="flex font-medium">Email:</div>
             <div className="flex">{userData.email}</div>
             <div className="flex font-medium">Contact Number:</div>
             <div className="flex">{isEditing ? (
-            <input
-              name="contactNo"
-              type="text"
-              value={editedData.contactNo}
-              onChange={handleEditChange}
-              className={`border p-1 rounded-lg ${contactNoErrors.contactNo ? 'border-red-500' : ''}`}
-              placeholder="Contact Number (e.g. +65********)"
-            />
-          ) : (
-            userData.contactNo
-          )}
-          {contactNoErrors.contactNo && (
-            <div className="text-red-500 text-sm ml-4">
-              {contactNoErrors.contactNo}
+              <input
+                name="contactNo"
+                type="text"
+                value={editedData.contactNo}
+                onChange={handleEditChange}
+                className={`border p-1 rounded-lg ${contactNoErrors.contactNo ? 'border-red-500' : ''}`}
+                placeholder="Contact Number (e.g. +65********)"
+              />
+            ) : (
+              userData.contactNo
+            )}
+              {contactNoErrors.contactNo && (
+                <div className="text-red-500 text-sm ml-4">
+                  {contactNoErrors.contactNo}
+                </div>
+              )}
             </div>
-          )}
-          </div>
             <div className="flex font-medium">Country:</div>
             <div className="flex">{userData.country}</div>
             <div className="flex font-medium">Verification Status:</div>
@@ -251,21 +251,17 @@ const OrganiserDashboard = () => {
               {userData.verified ? "Verified" : "Pending Verification"}
             </div>
             {isEditing && (
-            <div>
-              <button
-                onClick={handleEditSubmit}
-                className="bg-green-400 text-white mt-2 px-2 py-1 mr-4 rounded"
-              >
-                Confirm Changes
-              </button>
-              <button
-                onClick={cancelEditProfile}
-                className="bg-red-400 text-white mt-2 px-2 py-1 rounded"
-              >
-                Cancel Changes
-              </button>
-            </div>
-          )}
+              <div className="col-span-2 flex justify-center w-full mt-4">
+                <button
+                  onClick={handleEditSubmit}
+                  className="bg-green-400 text-white px-6 py-2 rounded-lg 
+                hover:bg-green-600 transition-colors duration-200
+                shadow-md hover:shadow-lg"
+                >
+                  Confirm Changes
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -274,7 +270,24 @@ const OrganiserDashboard = () => {
           className="absolute top-4 right-4 cursor-pointer text-gray-600"
           onClick={handleEditClick}
         >
-          <img src={editIcon} alt="Edit profile button" className="w-6 h-6" />
+          {isEditing ? (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6 hover:text-red-500 transition-colors duration-200"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          ) : (
+            <img src={editIcon} alt="Edit profile button" className="w-6 h-6" />
+          )}
         </div>
       </div>
 
