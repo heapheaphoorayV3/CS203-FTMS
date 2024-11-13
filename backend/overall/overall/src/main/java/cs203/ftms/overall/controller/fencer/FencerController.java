@@ -80,7 +80,7 @@ public class FencerController {
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
     
-    @GetMapping("/international-ranking/{gender}-{weapon}")
+    @GetMapping("/international-ranking")
     @PreAuthorize("hasRole('FENCER')")
     public ResponseEntity<Integer> getInternationalRanking(@PathVariable char gender, @PathVariable char weapon) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
