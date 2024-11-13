@@ -12,6 +12,7 @@ const CreatePoules = ({ onClose, eventID }) => {
   const [recommendedPoulesData, setRecommendedPoulesData] = useState([]);
   const [recommendedPoulesError, setRecommendedPoulesError] = useState(null);
   const [createPouleError, setCreatePouleError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchRecommendedPoules = async () => {
     try {
@@ -47,7 +48,7 @@ const CreatePoules = ({ onClose, eventID }) => {
       eid: String(eventID), // Add the eventID to the payload
       ...data, // Spread the rest of the data
     };
-    console.log(payload);
+    setIsLoading(true);
     try {
       await EventService.createPoules(payload.eid, payload);
       onClose();
@@ -64,6 +65,8 @@ const CreatePoules = ({ onClose, eventID }) => {
         console.log("Unknown Error: " + error);
         setCreatePouleError("Poule Creation Failed, please try again later.");
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -114,9 +117,8 @@ const CreatePoules = ({ onClose, eventID }) => {
                   return true; // If valid, return true
                 },
               })}
-              className={`w-full border rounded-md p-2 ${
-                errors.pouleCount ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`w-full border rounded-md p-2 ${errors.pouleCount ? "border-red-500" : "border-gray-300"
+                }`}
             />
             {errors.pouleCount && (
               <p className="text-red-500 text-sm italic">
@@ -126,24 +128,28 @@ const CreatePoules = ({ onClose, eventID }) => {
           </div>
 
           {/* Submit Button */}
-          <div className="md:col-span-2">
-            <button
+          <div className="md:col-span-2 flex justify-center items-center">
+            {!isLoading ? (<button
               onClick={handleSubmit}
-              className={`w-full rounded-md py-2 ${
-                recommendedPoulesData.length === 0
+              className={`w-full rounded-md py-2 ${recommendedPoulesData.length === 0
                   ? "bg-gray-300 text-gray-600 cursor-not-allowed"
                   : "bg-blue-500 text-white"
-              }`}
+                }`}
               disabled={recommendedPoulesData.length === 0} // Disable button when the length is not 0
             >
               Create Poules
-            </button>
+            </button>) : (
+              <button
+                className="py-2 relative"
+                disabled
+              >
+                <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-sky-500 mx-auto"></div>
+              </button>)}
           </div>
         </form>
         {createPouleError && (
           <h2 className="text-red-500 text-center mt-4">
-            {" "}
-            {createPouleError}{" "}
+            {createPouleError}
           </h2>
         )}
       </div>
