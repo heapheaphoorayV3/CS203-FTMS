@@ -428,7 +428,6 @@ public class PouleService {
             TournamentFencer tf1 = fencers.get(i);
             String key = createPouleKey(tf1);
             String[] values = newPouleTable.get(key).split(",");
-            System.out.println("values: " + Arrays.toString(values));
             updatePouleMatches(poule, fencers, tf1, values, i);
         }
 
