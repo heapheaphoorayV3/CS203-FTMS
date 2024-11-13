@@ -7,7 +7,6 @@ import FencerService from "../Services/Fencer/FencerService";
 import { Link } from "react-router-dom";
 import EventService from "../Services/Event/EventService";
 
-
 export default function Chatbot() {
   const [error, setError] = useState(null);
   const [userData, setUserData] = useState({});
@@ -41,7 +40,7 @@ export default function Chatbot() {
           console.log("Unknown Error: " + error);
           setError("Fencer Data has failed to load, please try again later.");
         }
-      } 
+      }
     };
 
     const fetchFencerEvents = async () => {
@@ -128,7 +127,7 @@ export default function Chatbot() {
         addMessage("Failed to load projected points", "botError");
       }
       setShowInput(false);
-    } 
+    }
   };
 
   const fetchWinRate = async (eventID) => {
@@ -268,12 +267,13 @@ export default function Chatbot() {
         <motion.button
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.6 }}
           whileHover={{
             scale: 1.1,
             backgroundColor: "#4059AD",
             transition: { duration: 0.3 },
           }}
+          whileTap={{ scale: 0.9 }}
           className="bg-blue-500 p-4 text-white rounded-md w-full"
           onClick={() => handleOptionClick("projected points")}
         >
@@ -288,6 +288,7 @@ export default function Chatbot() {
             backgroundColor: "#4059AD",
             transition: { duration: 0.3 },
           }}
+          whileTap={{ scale: 0.9 }}
           className="bg-blue-500 p-4 text-white rounded-md w-full"
           onClick={() => handleOptionClick("win rate")}
         >
@@ -302,6 +303,7 @@ export default function Chatbot() {
             backgroundColor: "#4059AD",
             transition: { duration: 0.3 },
           }}
+          whileTap={{ scale: 0.9 }}
           className="bg-blue-500 p-4 text-white rounded-md w-full"
           onClick={() => handleOptionClick("recommended tournaments")}
         >
@@ -324,7 +326,11 @@ export default function Chatbot() {
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
-              whileHover={{ scale: 1.1 }}
+              whileHover={{
+                scale: 1.1,
+                transition: { duration: 0.3 },
+              }}
+              whileTap={{ scale: 0.9 }}
               className="bg-gray-200 p-4 text-black rounded-md w-full my-2"
             >
               {tournament.name}
