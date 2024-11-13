@@ -157,8 +157,8 @@ public class PouleService {
 
     public Set<CleanPouleDTO> createPoules(int eid, CreatePoulesDTO dto, Organiser o) {
         Event event = eventService.getEvent(eid);
-        
-        if (event.getTournament().getSignupEndDate().isBefore(LocalDate.now())) {
+
+        if (event.getTournament().getSignupEndDate().isAfter(LocalDate.now())) {
             throw new SignUpDateNotOverException();
         }
 

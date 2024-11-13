@@ -62,12 +62,13 @@ public class EventService {
 
     public List<Event> getFutureEventsByGenderAndWeapon(char gender, char weapon) {
         List<Event> events = eventRepository.findByGenderAndWeapon(gender, weapon);
+        List<Event> eventsToReturn = new ArrayList<>();
         for(Event e : events) {
-            if (e.getTournament().getStartDate().isBefore(LocalDate.now())) {
-                events.remove(e);
+            if (e.getTournament().getStartDate().isAfter(LocalDate.now())) {
+                eventsToReturn.add(e);
             }
         }
-        return events;
+        return eventsToReturn;
     }
 
     
