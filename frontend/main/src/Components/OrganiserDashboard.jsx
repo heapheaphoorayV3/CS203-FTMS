@@ -136,6 +136,7 @@ const OrganiserDashboard = () => {
     if (!isEditing) {
       setEditedData(initialEditedData); // Reset edited data
     }
+    else setContactNoErrors({});
   };
 
   const handleEditChange = (e) => {
@@ -175,12 +176,6 @@ const OrganiserDashboard = () => {
     }
   };
 
-  const cancelEditProfile = () => {
-    setEditedData(initialEditedData); // Reset
-    setIsEditing(false);
-    setContactNoErrors({});
-  };
-
   function handleSearch(e) {
     setInputSearch(e.target.value);
   }
@@ -218,15 +213,6 @@ const OrganiserDashboard = () => {
   const closeDeleteTournamentPopup = () => {
     setIsDeleteTournamentPopupVisible(false);
     setSelectedTournament(null);
-  };
-
-  const formatDate = (date) => {
-    const formattedDate = new Date(date).toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-    return formattedDate;
   };
 
   const filteredPastTournaments = pastTournaments?.filter((tournament) => {

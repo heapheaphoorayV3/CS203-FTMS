@@ -173,6 +173,7 @@ const FencerDashboard = () => {
     if (!isEditing) {
       setEditedData(initialEditedData); // Reset edited data
     }
+    else setContactNoErrors({});
   };
 
   const formatDate = (date) => {
@@ -261,12 +262,6 @@ const FencerDashboard = () => {
     } catch (error) {
       console.error("Error completing profile:", error);
     }
-  };
-
-  const cancelEditProfile = () => {
-    setEditedData(initialEditedData); // Reset
-    setIsEditing(false);
-    setContactNoErrors({});
   };
 
   if (loading) {
@@ -739,12 +734,14 @@ const FencerDashboard = () => {
                           className="border-b border-gray-300 hover:bg-gray-100"
                         >
                           <td className="text-center">{index + 1}</td>
-                          <Link
-                            to={`/tournaments/${item.id}`}
-                            className="underline hover:text-primary text-center"
-                          >
-                            {item.tournamentName}
-                          </Link>
+                          <td>
+                            <Link
+                              to={`/tournaments/${item.id}`}
+                              className="underline hover:text-primary"
+                            >
+                              {item.tournamentName}
+                            </Link>
+                          </td>
                           <td className="text-center">
                             {formatDate(item.eventDate)}
                           </td>
