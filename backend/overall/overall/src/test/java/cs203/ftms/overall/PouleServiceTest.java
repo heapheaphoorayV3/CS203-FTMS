@@ -405,7 +405,7 @@ public class PouleServiceTest {
         tournament.setStartDate(LocalDate.now().plusDays(10));
         tournament.setEndDate(LocalDate.now().plusDays(20));
         tournament.setOrganiser(organiser);
-        tournament.setSignupEndDate(LocalDate.now().plusDays(5));
+        tournament.setSignupEndDate(LocalDate.now().minusDays(5));
         int eventId = 1;
         CreatePoulesDTO dto = new CreatePoulesDTO();
         dto.setPouleCount(2);
@@ -449,7 +449,6 @@ public class PouleServiceTest {
         event.setId(eventId);
         event.setGender('M');
         event.setWeapon('S');
-        event.setDate(LocalDate.now().plusDays(10));
 
         Set<TournamentFencer> fencers = new HashSet<>();
         for (int i = 0; i < 5; i++) {
@@ -464,7 +463,7 @@ public class PouleServiceTest {
         Organiser organiser = new Organiser();
         Tournament tournament = new Tournament();
         tournament.setOrganiser(organiser);
-        tournament.setSignupEndDate(LocalDate.now().plusDays(5));
+        tournament.setSignupEndDate(LocalDate.now().minusDays(5));
         event.setFencers(fencers);
         Set<Poule> poules = new HashSet<>();
         Poule poule = new Poule();
