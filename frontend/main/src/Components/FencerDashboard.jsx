@@ -422,6 +422,18 @@ const FencerDashboard = () => {
     },
   };
 
+  const filteredUpcomingEvents = upcomingEvents?.filter((event) => {
+    return (
+      event.tournamentName.toLowerCase().includes(InputSearch.toLowerCase())
+    );
+  });
+
+  const filteredPastEvents = pastEvents?.filter((event) => {
+    return (
+      event.tournamentName.toLowerCase().includes(InputSearch.toLowerCase())
+    );
+  });
+
   return (
     <div className="bg-white w-full h-full flex flex-col gap-2 p-8 overflow-auto">
       <div className="bg-white border rounded-2xl shadow-lg p-6 flex flex-col w-full relative overflow-x-hidden">
