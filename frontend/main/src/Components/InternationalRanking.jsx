@@ -148,7 +148,7 @@ export default function InternationalRanking() {
           <thead className="text-lg text-primary">
             <tr className="border-b border-gray-300">
               <th className="text-center w-20">Rank</th>
-              <th className="w-1/2">Name</th>
+              <th className="text-center w-1/4">Name</th>
               <th className="text-center">Country</th>
               <th className="text-center">Points</th>
             </tr>
@@ -160,7 +160,7 @@ export default function InternationalRanking() {
                 className="border-b border-gray-300 hover:bg-gray-100"
               >
                 <td className="text-center">{index + 1}</td>
-                <td>{item.name}</td>
+                <td className="text-center w-1/4">{item.name}</td>
                 <td className="text-center">{item.country}</td>
                 <td className="text-center">{item.points}</td>
               </tr>
