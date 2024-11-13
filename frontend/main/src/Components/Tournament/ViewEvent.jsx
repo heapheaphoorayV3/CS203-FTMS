@@ -11,6 +11,7 @@ import UpdateBracketMatch from "./UpdateBracketMatch.jsx";
 import EndPoules from "./EndPoules.jsx";
 import EndEvent from "./EndEvent.jsx";
 import { motion } from "framer-motion";
+import LoadingPage from "../Others/LoadingPage.jsx";
 
 function formatTimeTo24Hour(timeString) {
   const [hours, minutes] = timeString.split(":"); // Get hours and minutes
@@ -239,13 +240,13 @@ export default function ViewEvent() {
   }, [eventID, tournamentID, userType]);
 
   if (loading) {
-    return <div className="mt-10">Loading...</div>; // Show loading state
+    return <LoadingPage />; // Show loading state
   }
 
   if (error) {
     return (
       <div className="flex justify-between mr-20 my-10">
-        <h1 className=" ml-12 text-left text-4xl font-semibold">{error}</h1>
+        <h1 className=" ml-12 text-left text-2xl font-semibold">{error}</h1>
       </div>
     ); // Show error message if any
   }

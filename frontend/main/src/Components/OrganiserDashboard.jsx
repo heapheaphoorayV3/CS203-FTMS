@@ -190,7 +190,11 @@ const OrganiserDashboard = () => {
   }
 
   if (error) {
-    return <div className="mt-10">{error}</div>; // Show error message if any
+    return (
+      <div className="flex justify-between mr-20 my-10">
+        <h1 className=" ml-12 text-left text-2xl font-semibold">{error}</h1>
+      </div>
+    ); // Show error message if any
   }
 
   // console.log("verified=" + userData.verified);
@@ -225,7 +229,23 @@ const OrganiserDashboard = () => {
     return formattedDate;
   };
 
-  console.log(upcomingTournaments);
+  const filteredPastTournaments = pastTournaments?.filter((tournament) => {
+    return (
+      tournament.name.toLowerCase().includes(InputSearch.toLowerCase())
+    );
+  });
+
+  const filteredUpcomingTournaments = upcomingTournaments?.filter((tournament) => {
+    return (
+      tournament.name.toLowerCase().includes(InputSearch.toLowerCase())
+    );
+  });
+
+  const filteredOngoingTournaments = ongoingTournaments?.filter((tournament) => {
+    return (
+      tournament.name.toLowerCase().includes(InputSearch.toLowerCase())
+    );
+  });
 
   return (
     <div className="bg-white w-full h-full flex flex-col gap-2 p-8 overflow-auto">
@@ -333,7 +353,7 @@ const OrganiserDashboard = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {ongoingTournaments.map((item, index) => (
+                      {filteredOngoingTournaments.map((item, index) => (
                         <tr
                           key={item.id}
                           className="border-b border-gray-300 hover:bg-gray-100"
@@ -391,7 +411,7 @@ const OrganiserDashboard = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {upcomingTournaments.map((item, index) => (
+                      {filteredUpcomingTournaments.map((item, index) => (
                         <tr
                           key={item.id}
                           className="border-b border-gray-300 hover:bg-gray-100"
@@ -457,7 +477,7 @@ const OrganiserDashboard = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {pastTournaments.map((item, index) => (
+                      {filteredPastTournaments.map((item, index) => (
                         <tr
                           key={item.id}
                           className="border-b border-gray-300 hover:bg-gray-100"

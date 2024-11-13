@@ -8,6 +8,7 @@ import EventService from "../Services/Event/EventService";
 import validator from "validator";
 import SearchBar from "./Others/SearchBar";
 import Pagination from "./Others/PaginationButton";
+import LoadingPage from "./Others/LoadingPage";
 
 function formatTimeTo24Hour(timeString) {
   const [hours, minutes] = timeString.split(":"); // Get hours and minutes
@@ -80,7 +81,7 @@ const FencerDashboard = () => {
     const fetchInternationalRanking = async () => {
       setLoading(true);
       try {
-        const response = await FencerService.getInternationalRanking();
+        const response = await FencerService.getInternationalRanking(userData.gender, userData.weapon);
         setRankingData(response.data);
       } catch (error) {
         console.error("Error fetching international ranking: ", error);
@@ -290,11 +291,15 @@ const FencerDashboard = () => {
   };
 
   if (loading) {
-    return <div className="mt-10">Loading...</div>; // Show loading state
+    return <LoadingPage />;
   }
 
   if (error) {
-    return <div className="mt-10">{error}</div>; // Show error message if any
+    return (
+      <div className="flex justify-between mr-20 my-10">
+        <h1 className=" ml-12 text-left text-2xl font-semibold">{error}</h1>
+      </div>
+    ); // Show error message if any
   }
 
   // Data and options for the Event Points per Event graph
@@ -431,6 +436,18 @@ const FencerDashboard = () => {
     );
     return userIndex !== -1 ? userIndex + 1 : "User rank not found";
   };
+
+  const filteredUpcomingEvents = upcomingEvents?.filter((event) => {
+    return (
+      event.tournamentName.toLowerCase().includes(InputSearch.toLowerCase())
+    );
+  });
+
+  const filteredPastEvents = pastEvents?.filter((event) => {
+    return (
+      event.tournamentName.toLowerCase().includes(InputSearch.toLowerCase())
+    );
+  });
 
   return (
     <div className="bg-white w-full h-full flex flex-col gap-2 p-8 overflow-auto">
@@ -749,7 +766,7 @@ const FencerDashboard = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {pastEvents.map((item, index) => (
+                      {filteredPastEvents.map((item, index) => (
                         <tr
                           key={item.id}
                           className="border-b border-gray-300 hover:bg-gray-100"
@@ -806,7 +823,7 @@ const FencerDashboard = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {upcomingEvents.map((item, index) => (
+                      {filteredUpcomingEvents.map((item, index) => (
                         <tr
                           key={item.id}
                           className="border-b border-gray-300 hover:bg-gray-100"

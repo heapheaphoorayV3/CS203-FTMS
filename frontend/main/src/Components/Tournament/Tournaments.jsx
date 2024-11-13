@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import TournamentService from "../../Services/Tournament/TournamentService";
+import LoadingPage from "../Others/LoadingPage";
 import SearchBar from "../Others/SearchBar";
 
 export default function Tournaments() {
@@ -77,11 +78,15 @@ export default function Tournaments() {
   });
 
   if (loading) {
-    return <div className="mt-10">Loading...</div>; // Show loading state
+    return <LoadingPage />; // Show loading state
   }
 
   if (error) {
-    return <div className="mt-10">{error}</div>; // Show error message if any
+    return (
+      <div className="flex justify-between mr-20 my-10">
+        <h1 className=" ml-12 text-left text-2xl font-semibold">{error}</h1>
+      </div>
+    ); // Show error message if any
   }
 
   return (

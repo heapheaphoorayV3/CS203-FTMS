@@ -41,7 +41,7 @@ function App() {
           <Route path="/tournaments/:tournamentID" element={<ViewTournament />} />
           <Route path="/:tournamentID/view-event/:eventID" element={<ViewEvent />} />
           <Route path="/international-ranking" element={<InternationalRanking />} />
-          <Route path="/unauthorised" element={<UnauthorisedPage />} />
+          <Route path="/unauthorised" element={<UnauthorisedPage />} />"
         </Route>
 
         {/* Fencer Layout */}
