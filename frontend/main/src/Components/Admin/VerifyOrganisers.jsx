@@ -15,7 +15,6 @@ export default function VerifyOrganisers() {
 
   // Function to fetch organisers
   const fetchOrganisers = async () => {
-    setLoading(true); // Set loading
     try {
       const response = await AdminService.getUnverifiedOrganisers();
       setOrganisers(response.data);
@@ -37,14 +36,13 @@ export default function VerifyOrganisers() {
           "Failed to fetch unverified organisers, please try again later."
         );
       }
-    } finally {
-      setLoading(false); // Set loading to false
     }
   };
 
   // Get unverified organisers (only on first load)
   useEffect(() => {
-    fetchOrganisers();
+    setLoading(true);
+    fetchOrganisers().then(() => {setLoading(false);});
   }, []);
 
   // Effect to update the organisers and total pages based on current page

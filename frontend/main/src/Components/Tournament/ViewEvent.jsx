@@ -219,10 +219,6 @@ export default function ViewEvent() {
   useEffect(() => {
     setLoading(true);
 
-    if (sessionStorage.getItem("userType") === "O") {
-      checkIfOwner();
-    }
-
     if (eventID) {
       Promise.all([
         fetchEventData(),
@@ -230,12 +226,9 @@ export default function ViewEvent() {
         fetchMatches(),
         fetchEventRanking(),
         fetchPoulesResults(),
+        sessionStorage.getItem("userType") === "O" ? checkIfOwner() : Promise.resolve(),
       ])
         .then(() => {
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error("Error in fetching some data:", error);
           setLoading(false);
         });
     }
@@ -298,16 +291,16 @@ export default function ViewEvent() {
       name: loading
         ? "Loading..."
         : eventData
-        ? eventData.tournamentName
-        : "Not Found",
+          ? eventData.tournamentName
+          : "Not Found",
       link: `/tournaments/${tournamentID}`,
     },
     {
       name: loading
         ? "Loading..."
         : eventData
-        ? constructEventName(eventData.gender, eventData.weapon)
-        : "Not Found",
+          ? constructEventName(eventData.gender, eventData.weapon)
+          : "Not Found",
     },
   ];
 
@@ -634,11 +627,10 @@ export default function ViewEvent() {
                               {resultArray.map((result, resultIndex) => (
                                 <td
                                   key={resultIndex}
-                                  className={`border border-gray-300 hover:bg-gray-100 ${
-                                    result === "-1"
+                                  className={`border border-gray-300 hover:bg-gray-100 ${result === "-1"
                                       ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
                                       : ""
-                                  }`}
+                                    }`}
                                 >
                                   {result === "-1" ? (
                                     result
@@ -653,11 +645,10 @@ export default function ViewEvent() {
                                           idx
                                         )
                                       }
-                                      className={`w-full text-center ${
-                                        !isInputValid
+                                      className={`w-full text-center ${!isInputValid
                                           ? "border-red-500"
                                           : "border-gray-300"
-                                      }`}
+                                        }`}
                                     />
                                   ) : (
                                     result
@@ -689,8 +680,8 @@ export default function ViewEvent() {
               {poulesResults !== null &&
                 // Check if at least one array has data
                 (poulesResults.bypassFencers.length > 0 ||
-                poulesResults.fenceOffFencers.length > 0 ||
-                poulesResults.eliminatedFencers.length > 0 ? (
+                  poulesResults.fenceOffFencers.length > 0 ||
+                  poulesResults.eliminatedFencers.length > 0 ? (
                   <table className="table text-lg border-collapse mb-4">
                     {/* Table Header */}
                     <thead className="text-lg text-primary">
@@ -722,8 +713,8 @@ export default function ViewEvent() {
                               {poulesResults.bypassFencers.includes(fencer)
                                 ? "Bypass"
                                 : poulesResults.fenceOffFencers.includes(fencer)
-                                ? "Fence Off"
-                                : "Eliminated"}
+                                  ? "Fence Off"
+                                  : "Eliminated"}
                             </td>
                             <td className="text-center">{fencer.pouleWins}</td>
                             <td className="text-center">

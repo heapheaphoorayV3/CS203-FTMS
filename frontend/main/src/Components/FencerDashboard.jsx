@@ -151,7 +151,7 @@ const FencerDashboard = () => {
       fetchPastEventPointsForGraph()
     ]).then((results) => {
       setLoading(false);
-    })
+    });
   }, []);
 
   useEffect(() => {

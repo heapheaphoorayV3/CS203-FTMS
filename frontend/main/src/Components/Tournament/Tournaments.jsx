@@ -35,13 +35,12 @@ export default function Tournaments() {
         console.log("Unknown Error: " + error);
         setError("Tournament Data has failed to load, please try again later.");
       }
-    } finally {
-      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
+    setLoading(true);
+    fetchData().then(() => {setLoading(false);});
   }, []);
 
   console.log("tournament data:", tournamentData);

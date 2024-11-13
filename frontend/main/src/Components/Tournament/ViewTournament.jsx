@@ -79,8 +79,6 @@ export default function ViewTournament() {
         console.log("Unknown Error: " + error);
         setError("Tournament Data has failed to load, please try again later.");
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -113,14 +111,14 @@ export default function ViewTournament() {
     }
   };
 
-  // Fetch Upcoming Tournament if Organiser to check if organiser is the owner of current tournament
+  // Fetch Hosted Tournament if Organiser to check if organiser is the owner of current tournament
   const checkIfOwner = async () => {
     try {
-      const response = await Organiser.getOrganiserUpcomingTournaments();
-      const upcomingTournaments = response.data;
+      const response = await Organiser.getAllHostedTournaments();
+      const hostedTournaments = response.data;
       let found = false;
-      for (let i = 0; i < upcomingTournaments.length; i++) {
-        if (upcomingTournaments[i].id == tournamentID) {
+      for (let i = 0; i < hostedTournaments.length; i++) {
+        if (hostedTournaments[i].id == tournamentID) {
           found = true;
           break;
         }
@@ -128,7 +126,7 @@ export default function ViewTournament() {
       setIsOwner(found);
     } catch (error) {
       console.error(
-        "Error fetching upcoming tournaments for organiser:",
+        "Error fetching hosted tournaments for organiser:",
         error
       );
       setError("Failed to load Tournament Data.");
@@ -148,9 +146,13 @@ export default function ViewTournament() {
       }
     }
   };
+
   // Fetch data whenever tournamentID changes
   useEffect(() => {
-    fetchData();
+    setLoading(true);
+    fetchData().then(() => {
+      setLoading(false);
+    })
   }, [tournamentID]);
 
   const userType = sessionStorage.getItem("userType");
@@ -294,8 +296,6 @@ export default function ViewTournament() {
     } catch (error) {
       console.error("Error fetching tournament data:", error);
       setError("Failed to load tournament data.");
-    } finally {
-      setLoading(false);
     }
     setIsCreating(false);
   };
