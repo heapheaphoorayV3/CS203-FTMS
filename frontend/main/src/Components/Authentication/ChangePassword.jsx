@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import PasswordField from "../Others/PasswordField";
-import logo from "../../Assets/logo.png";
 import SubmitButton from "../Others/SubmitButton";
 import validator from "validator";
 import FencerService from "../../Services/Fencer/FencerService";
