@@ -69,9 +69,14 @@ public class FencerService {
         return userRepository.save(f);
     }
 
-    public int getInternationalRank(char weapon, char gender, Fencer f) {
-        List<Fencer> fencers = getFilterdInternationalRank(weapon, gender);
-        return fencers.indexOf(f) + 1;
+    public int getInternationalRank(Fencer f) {
+        List<Fencer> fencers = getFilterdInternationalRank(f.getWeapon(), f.getGender());
+        for (int i = 1; i <= fencers.size(); i++) {
+            if (fencers.get(i - 1).equals(f)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public String changePassword(User u, String oldPassword, String newPassword) {

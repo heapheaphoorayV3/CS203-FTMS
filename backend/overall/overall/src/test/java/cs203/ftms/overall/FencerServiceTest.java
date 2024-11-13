@@ -254,9 +254,9 @@ class FencerServiceTest {
         when(fencerRepository.findAll()).thenReturn(fencers);
 
         // Act
-        int result1 = fencerService.getInternationalRank('M', 'S', fencer1);
-        int result2 = fencerService.getInternationalRank('M', 'S', fencer2);
-        int result3 = fencerService.getInternationalRank('M', 'S', fencer3);
+        int result1 = fencerService.getInternationalRank(fencer1);
+        int result2 = fencerService.getInternationalRank(fencer2);
+        int result3 = fencerService.getInternationalRank(fencer3);
 
         // Assert
         assertEquals(3, result1);   // Lowest points

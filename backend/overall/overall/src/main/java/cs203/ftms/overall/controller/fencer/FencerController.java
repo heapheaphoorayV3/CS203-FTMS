@@ -85,7 +85,7 @@ public class FencerController {
     public ResponseEntity<Integer> getInternationalRanking(@PathVariable char gender, @PathVariable char weapon) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
-        int rank = fencerService.getInternationalRank(gender, weapon, (Fencer) user); 
+        int rank = fencerService.getInternationalRank((Fencer) user); 
         return new ResponseEntity<>(rank, HttpStatus.OK);
     }
 
