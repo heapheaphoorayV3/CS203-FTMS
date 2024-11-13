@@ -4,12 +4,11 @@ import user1 from "../Assets/user1.svg";
 import { motion } from "framer-motion";
 import ChatbotService from "../Services/Chatbot/ChatbotService";
 import FencerService from "../Services/Fencer/FencerService";
-import SubmitButton from "./Others/SubmitButton";
 import { Link } from "react-router-dom";
 import EventService from "../Services/Event/EventService";
 
+
 export default function Chatbot() {
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [userData, setUserData] = useState({});
   const [fencerEvents, setFencerEvents] = useState([]);
@@ -42,13 +41,10 @@ export default function Chatbot() {
           console.log("Unknown Error: " + error);
           setError("Fencer Data has failed to load, please try again later.");
         }
-      } finally {
-        setLoading(false);
-      }
+      } 
     };
 
     const fetchFencerEvents = async () => {
-      setLoading(true);
       try {
         const response = await EventService.getAllEventsByGenderAndWeapon();
         console.log("all:", response.data);
@@ -72,13 +68,10 @@ export default function Chatbot() {
             "Fencer Events Data has failed to load, please try again later."
           );
         }
-      } finally {
-        setLoading(true);
       }
     };
 
     const fetchFencerUpcomingEvents = async () => {
-      setLoading(true);
       try {
         const response = await FencerService.getFencerUpcomingEvents();
         setFencerUpcomingEvents(response.data);
@@ -101,8 +94,6 @@ export default function Chatbot() {
             "Fencer Upcoming Events Data has failed to load, please try again later."
           );
         }
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -125,7 +116,6 @@ export default function Chatbot() {
   };
 
   const fetchProjectedPoints = async (eventID) => {
-    setLoading(true);
     try {
       console.log("event ID:", eventID);
       const response = await ChatbotService.getProjectedPoints(eventID);
@@ -138,13 +128,10 @@ export default function Chatbot() {
         addMessage("Failed to load projected points", "botError");
       }
       setShowInput(false);
-    } finally {
-      setLoading(false);
-    }
+    } 
   };
 
   const fetchWinRate = async (eventID) => {
-    setLoading(true);
     try {
       const response = await ChatbotService.getWinRate(eventID);
 
@@ -158,13 +145,10 @@ export default function Chatbot() {
         addMessage("Failed to load win rate.", "botError");
       }
       setShowInput(false);
-    } finally {
-      setLoading(false);
     }
   };
 
   const fetchRecommendedTournaments = async () => {
-    setLoading(true);
     try {
       const fencerDetails = {
         weapon: userData.weapon,
@@ -207,8 +191,6 @@ export default function Chatbot() {
       } else {
         addMessage("Failed to load recommended tournaments", "botError");
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -352,10 +334,6 @@ export default function Chatbot() {
     </div>
   );
 
-  // Loading / Error states
-  // if (loading) {
-  //   return <div className="mt-10">Loading...</div>; // Show loading state
-  // }
   if (error) {
     return (
       <div className="flex justify-between mr-20 my-10">

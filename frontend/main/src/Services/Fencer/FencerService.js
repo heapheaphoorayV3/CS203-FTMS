@@ -19,8 +19,8 @@ class FencerService {
     return await ProtectedAPI.get(`${baseURL}/all`);
   }
 
-  async getInternationalRanking() {
-    return await ProtectedAPI.get(`${baseURL}/international-ranking`);
+  async getInternationalRanking(gender, weapon) {
+    return await ProtectedAPI.get(`${baseURL}/international-ranking/${gender}-${weapon}`);
   }
 
   async getFencerUpcomingEvents() {

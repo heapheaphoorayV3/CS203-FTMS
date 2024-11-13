@@ -8,6 +8,7 @@ import EventService from "../Services/Event/EventService";
 import validator from "validator";
 import SearchBar from "./Others/SearchBar";
 import Pagination from "./Others/PaginationButton";
+import LoadingPage from "./Others/LoadingPage";
 
 function formatTimeTo24Hour(timeString) {
   const [hours, minutes] = timeString.split(":"); // Get hours and minutes
@@ -80,7 +81,7 @@ const FencerDashboard = () => {
     const fetchInternationalRanking = async () => {
       setLoading(true);
       try {
-        const response = await FencerService.getInternationalRanking();
+        const response = await FencerService.getInternationalRanking(userData.gender, userData.weapon);
         setRankingData(response.data);
       } catch (error) {
         console.error("Error fetching international ranking: ", error);
@@ -290,7 +291,7 @@ const FencerDashboard = () => {
   };
 
   if (loading) {
-    return <div className="mt-10">Loading...</div>; // Show loading state
+    return <LoadingPage />;
   }
 
   if (error) {
