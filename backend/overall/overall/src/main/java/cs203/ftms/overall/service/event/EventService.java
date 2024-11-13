@@ -60,9 +60,17 @@ public class EventService {
     }
 
 
-    public List<Event> getEventsByGenderAndWeapon(char gender, char weapon) {
-        return eventRepository.findByGenderAndWeapon(gender, weapon);
+    public List<Event> getFutureEventsByGenderAndWeapon(char gender, char weapon) {
+        List<Event> events = eventRepository.findByGenderAndWeapon(gender, weapon);
+        for(Event e : events) {
+            if (e.getTournament().getStartDate().isBefore(LocalDate.now())) {
+                events.remove(e);
+            }
+        }
+        return events;
     }
+
+    
 
     public Event getEvent(int eid) {
         return eventRepository.findById(eid).orElseThrow(() -> new EntityDoesNotExistException("Event does not exist!"));

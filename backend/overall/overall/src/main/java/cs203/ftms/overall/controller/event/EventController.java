@@ -143,7 +143,7 @@ public class EventController {
     public ResponseEntity<List<CleanEventDTO>> getAllEventsByGenderAndWeapon(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
-        List<Event> events = eventService.getEventsByGenderAndWeapon(((Fencer) user).getGender(), ((Fencer) user).getWeapon());
+        List<Event> events = eventService.getFutureEventsByGenderAndWeapon(((Fencer) user).getGender(), ((Fencer) user).getWeapon());
         List<CleanEventDTO> res = new ArrayList<>();
         for (Event event : events) {
             res.add(eventService.getCleanEventDTO(event));
