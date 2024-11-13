@@ -107,7 +107,7 @@ export default function InternationalRanking() {
       <h1 className="my-10 ml-12 text-left text-4xl font-semibold">
         International Ranking
       </h1>
-      <div className="w-full max-w-sm min-w-[200px] ml-12 pb-8">
+      <div className="w-full max-w-sm min-w-[200px] ml-12 pb-2">
         <SearchBar
           value={InputSearch}
           onChange={handleSearch}

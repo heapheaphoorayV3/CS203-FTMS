@@ -2,44 +2,49 @@ import { useState, useEffect } from "react";
 import TournamentService from "../../Services/Tournament/TournamentService";
 import LoadingPage from "../Others/LoadingPage";
 import SearchBar from "../Others/SearchBar";
+import PaginationButton from "../Others/PaginationButton";
 
 export default function Tournaments() {
-  const [tournamentData, setTournamentData] = useState(null);
+  const [tournamentData, setTournamentData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [InputSearch, setInputSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [paginatedData, setPaginatedData] = useState([]);
+  const limit = 10;
+
+  const fetchData = async () => {
+    try {
+      const response = await TournamentService.getAllTournaments();
+      const sortedTournaments = response.data.sort((a, b) => {
+        const dateA = new Date(a.startDate);
+        const dateB = new Date(b.startDate);
+        return dateA - dateB;
+      });
+      setTournamentData(sortedTournaments);
+    } catch (error) {
+      if (error.response) {
+        console.log("Error response data: ", error.response.data);
+        setError(error.response.data);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.log("Error request: ", error.request);
+        setError("Tournament Data has failed to load, please try again later.");
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log("Unknown Error: " + error);
+        setError("Tournament Data has failed to load, please try again later.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await TournamentService.getAllTournaments();
-        const sortedTournaments = response.data.sort((a, b) => {
-          const dateA = new Date(a.startDate);
-          const dateB = new Date(b.startDate);
-          return dateA - dateB;
-        });
-        setTournamentData(sortedTournaments);
-      } catch (error) {
-        if (error.response) {
-          console.log("Error response data: ", error.response.data);
-          setError(error.response.data);
-        } else if (error.request) {
-          // The request was made but no response was received
-          console.log("Error request: ", error.request);
-          setError("Tournament Data has failed to load, please try again later.");
-        } else {
-          // Something happened in setting up the request that triggered an Error
-          console.log("Unknown Error: " + error);
-          setError("Tournament Data has failed to load, please try again later.");
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchData();
   }, []);
 
-  console.log(tournamentData);
+  console.log("tournament data:", tournamentData);
 
   const formatDateRange = (start, end) => {
     const startDate = new Date(start).toLocaleDateString("en-GB", {
@@ -73,9 +78,24 @@ export default function Tournaments() {
     setInputSearch(e.target.value);
   }
 
-  const filteredTournamentData = tournamentData?.filter((tournament) => {
+  const filteredTournamentData = paginatedData?.filter((tournament) => {
     return tournament.name.toLowerCase().includes(InputSearch.toLowerCase());
   });
+
+  useEffect(() => {
+    if (Array.isArray(tournamentData) && tournamentData.length) {
+      const startIndex = Math.max(0, (currentPage - 1) * limit);
+      const endIndex = Math.min(tournamentData.length, startIndex + limit);
+      setPaginatedData(tournamentData.slice(startIndex, endIndex));
+    } else {
+      setPaginatedData([]);
+    }
+  }, [tournamentData, currentPage, limit]);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+  const totalPages = Math.ceil(tournamentData.length / limit);
 
   if (loading) {
     return <LoadingPage />; // Show loading state
@@ -94,8 +114,8 @@ export default function Tournaments() {
       <h1 className="my-10 ml-12 text-left text-4xl font-semibold">
         Tournaments
       </h1>
-      <div className="w-full max-w-sm min-w-[200px] ml-12 pb-8">
-      <SearchBar
+      <div className="w-full max-w-sm min-w-[200px] ml-12 pb-2">
+        <SearchBar
           value={InputSearch}
           onChange={handleSearch}
           placeholder="Search Tournaments by Name..."
@@ -148,6 +168,14 @@ export default function Tournaments() {
             )}
           </tbody>
         </table>
+        <div className="flex flex-col mt-2 mb-2 justify-center items-center">
+          <PaginationButton
+            totalPages={totalPages}
+            buttonSize="w-10 h-10"
+            currentPage={currentPage}
+            onPageChange={handlePageChange}
+          />
+        </div>
       </div>
     </div>
   );
