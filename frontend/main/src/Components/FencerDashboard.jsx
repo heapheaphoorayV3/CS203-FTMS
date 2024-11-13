@@ -53,6 +53,7 @@ const FencerDashboard = () => {
     try {
       const response = await FencerService.getProfile();
       setUserData(response.data);
+      return response.data;
     } catch (error) {
       console.error("Error fetching user data:", error);
       setError("Failed to load user data.");
@@ -149,24 +150,19 @@ const FencerDashboard = () => {
       fetchPastEvents(),
       fetchPastRank(),
       fetchPastEventPointsForGraph()
-    ]).then((results) => {
+    ]).then((user) => {
       setLoading(false);
+      // Check if user has completed profile
+      if (!user[0].gender ||
+        !user[0].weapon ||
+        !user[0].dominantArm ||
+        !user[0].debutYear ||
+        !user[0].club
+      ) {
+        setShowCompleteProfileModal(true);
+      }
     });
   }, []);
-
-  useEffect(() => {
-    // Check if user has completed their profile
-    if (
-      !loading &&
-      (!userData.gender ||
-        !userData.weapon ||
-        !userData.dominantArm ||
-        !userData.debutYear ||
-        !userData.club)
-    ) {
-      setShowCompleteProfileModal(true);
-    }
-  }, [userData]);
 
   const handleEditClick = () => {
     setIsEditing(!isEditing); // Toggle between view and edit mode
