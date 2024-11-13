@@ -220,7 +220,7 @@ class ChatbotServiceTest {
 
 
     @Test
-    void getRecommendedTournaments_NoSuitableEventForWinrate() {
+    void getRecommendedTournaments_OnlyReturnBeginnerTournament() {
         // Arrange
         Fencer fencer = new Fencer();
         fencer.setId(11);
@@ -249,7 +249,7 @@ class ChatbotServiceTest {
         List<Tournament> result = spyChatbotService.getRecommendedTournaments(fencer);
 
         // Assert
-        assertEquals(0, result.size());
+        assertEquals(1, result.size());
     }
 
     private List<Tournament> createMockTournaments() {
@@ -259,6 +259,7 @@ class ChatbotServiceTest {
         Set<Event> events1 = new HashSet<>();
         events1.add(event1);
         tournament1.setEvents(events1);
+        event1.setTournament(tournament1);
     
         Event event2 = createMockEvent(2, 'M', 'F');
         Tournament tournament2 = new Tournament();
@@ -266,6 +267,7 @@ class ChatbotServiceTest {
         Set<Event> events2 = new HashSet<>();
         events2.add(event2);
         tournament2.setEvents(events2);
+        event2.setTournament(tournament2);
     
         Event event3 = createMockEvent(3, 'M', 'F');
         Tournament tournament3 = new Tournament();
@@ -273,6 +275,7 @@ class ChatbotServiceTest {
         Set<Event> events3 = new HashSet<>();
         events3.add(event3);
         tournament3.setEvents(events3);
+        event3.setTournament(tournament3);
     
         return Arrays.asList(tournament1, tournament2, tournament3);
     }

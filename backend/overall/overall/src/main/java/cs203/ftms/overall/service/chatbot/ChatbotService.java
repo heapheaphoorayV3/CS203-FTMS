@@ -125,7 +125,7 @@ public class ChatbotService {
         }
         int expectedRank = expectedRank(e, f);
         int totalFencers = e.getFencers().size() + ifFencerInEvent;
-        if(totalFencers == 0 || expectedRank <= totalFencers / 10){
+        if(totalFencers == 1 || expectedRank <= totalFencers / 10){
             return 1;
         }else if(expectedRank <= totalFencers / 2) {
             return 2;
