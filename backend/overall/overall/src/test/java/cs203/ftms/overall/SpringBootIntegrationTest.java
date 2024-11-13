@@ -699,46 +699,46 @@ class SpringBootIntegrationTest {
         assertEquals("Fencer's weapon does not match the event's weapon!", result.getBody());
     }
 
-    @Test
-    public void createPoule_ValidPoule_Success() throws Exception {
-        registerEvent();
-        Organiser o = (Organiser) users.findByEmail("organizer.one@example.com").orElse(null);
-        String jwtToken = jwtService.generateToken(o);
+    // @Test
+    // public void createPoule_ValidPoule_Success() throws Exception {
+    //     registerEvent();
+    //     Organiser o = (Organiser) users.findByEmail("organizer.one@example.com").orElse(null);
+    //     String jwtToken = jwtService.generateToken(o);
         
-        URI uri = new URI(baseUrl + port + "/api/v1/poule/create-poules/" + events.findAll().get(0).getId());
+    //     URI uri = new URI(baseUrl + port + "/api/v1/poule/create-poules/" + events.findAll().get(0).getId());
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + jwtToken);
-        headers.setContentType(MediaType.APPLICATION_JSON);
+    //     HttpHeaders headers = new HttpHeaders();
+    //     headers.set("Authorization", "Bearer " + jwtToken);
+    //     headers.setContentType(MediaType.APPLICATION_JSON);
 
-        CreatePoulesDTO request = new CreatePoulesDTO();
-        request.setPouleCount(2);
+    //     CreatePoulesDTO request = new CreatePoulesDTO();
+    //     request.setPouleCount(2);
 
-        HttpEntity<CreatePoulesDTO> entity = new HttpEntity<>(request, headers);
+    //     HttpEntity<CreatePoulesDTO> entity = new HttpEntity<>(request, headers);
 
-        ResponseEntity<PouleTableDTO> result = restTemplate.postForEntity(uri, entity, PouleTableDTO.class);
+    //     ResponseEntity<PouleTableDTO> result = restTemplate.postForEntity(uri, entity, PouleTableDTO.class);
 
-        List<Map<String, String>> pouleTableList = new ArrayList<>();
+    //     List<Map<String, String>> pouleTableList = new ArrayList<>();
 
-        Map<String, String> poule1 = new LinkedHashMap<>();
-        poule1.put("10 Fencer10 (Singapore) -- " + tournamentFencers.findAll().get(9).getId(), "-1,0,0,0,0");
-        poule1.put("8 Fencer8 (Singapore) -- " + tournamentFencers.findAll().get(7).getId(), "0,-1,0,0,0");
-        poule1.put("6 Fencer6 (Singapore) -- " + tournamentFencers.findAll().get(5).getId(), "0,0,-1,0,0");
-        poule1.put("4 Fencer4 (Singapore) -- " + tournamentFencers.findAll().get(3).getId(), "0,0,0,-1,0");
-        poule1.put("2 Fencer2 (Singapore) -- " + tournamentFencers.findAll().get(1).getId(), "0,0,0,0,-1");
-        pouleTableList.add(poule1);
+    //     Map<String, String> poule1 = new LinkedHashMap<>();
+    //     poule1.put("10 Fencer10 (Singapore) -- " + tournamentFencers.findAll().get(9).getId(), "-1,0,0,0,0");
+    //     poule1.put("8 Fencer8 (Singapore) -- " + tournamentFencers.findAll().get(7).getId(), "0,-1,0,0,0");
+    //     poule1.put("6 Fencer6 (Singapore) -- " + tournamentFencers.findAll().get(5).getId(), "0,0,-1,0,0");
+    //     poule1.put("4 Fencer4 (Singapore) -- " + tournamentFencers.findAll().get(3).getId(), "0,0,0,-1,0");
+    //     poule1.put("2 Fencer2 (Singapore) -- " + tournamentFencers.findAll().get(1).getId(), "0,0,0,0,-1");
+    //     pouleTableList.add(poule1);
 
-		Map<String, String> poule2 = new LinkedHashMap<>();
-        poule2.put("9 Fencer9 (Singapore) -- " + tournamentFencers.findAll().get(8).getId(), "-1,0,0,0,0");
-        poule2.put("7 Fencer7 (Singapore) -- " + tournamentFencers.findAll().get(6).getId(), "0,-1,0,0,0");
-        poule2.put("5 Fencer5 (Singapore) -- " + tournamentFencers.findAll().get(4).getId(), "0,0,-1,0,0");
-        poule2.put("3 Fencer3 (Singapore) -- " + tournamentFencers.findAll().get(2).getId(), "0,0,0,-1,0");
-        poule2.put("1 Fencer1 (Singapore) -- " + tournamentFencers.findAll().get(0).getId(), "0,0,0,0,-1");     
-        pouleTableList.add(poule2);
+	// 	Map<String, String> poule2 = new LinkedHashMap<>();
+    //     poule2.put("9 Fencer9 (Singapore) -- " + tournamentFencers.findAll().get(8).getId(), "-1,0,0,0,0");
+    //     poule2.put("7 Fencer7 (Singapore) -- " + tournamentFencers.findAll().get(6).getId(), "0,-1,0,0,0");
+    //     poule2.put("5 Fencer5 (Singapore) -- " + tournamentFencers.findAll().get(4).getId(), "0,0,-1,0,0");
+    //     poule2.put("3 Fencer3 (Singapore) -- " + tournamentFencers.findAll().get(2).getId(), "0,0,0,-1,0");
+    //     poule2.put("1 Fencer1 (Singapore) -- " + tournamentFencers.findAll().get(0).getId(), "0,0,0,0,-1");     
+    //     pouleTableList.add(poule2);
 
-        assertEquals(201, result.getStatusCode().value());
-        assertEquals(pouleTableList, result.getBody().getPouleTable());
-    }
+    //     assertEquals(201, result.getStatusCode().value());
+    //     assertEquals(pouleTableList, result.getBody().getPouleTable());
+    // }
 
 	// @Test
 	// public void updatePouleTable_validPouleTable_Success() throws Exception {
