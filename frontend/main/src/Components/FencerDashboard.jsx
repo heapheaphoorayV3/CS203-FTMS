@@ -78,13 +78,7 @@ const FencerDashboard = () => {
   const fetchUpcomingEvents = async () => {
     try {
       const response = await FencerService.getFencerUpcomingEvents();
-      const sortedEvents = response.data.sort((a, b) => {
-        const dateA = new Date(a.eventDate);
-        const dateB = new Date(b.eventDate);
-        return dateA - dateB;
-      });
-
-      setUpcomingEvents(sortedEvents);
+      setUpcomingEvents(response.data);
     } catch (error) {
       console.error("Error fetching upcoming events: ", error);
       setError("Failed to load upcoming events");
@@ -94,12 +88,7 @@ const FencerDashboard = () => {
   const fetchPastEvents = async () => {
     try {
       const response = await FencerService.getFencerPastEvents();
-      const sortedEvents = response.data.sort((a, b) => {
-        const dateA = new Date(a.eventDate);
-        const dateB = new Date(b.eventDate);
-        return dateA - dateB;
-      });
-      setPastEvents(sortedEvents);
+      setPastEvents(response.data);
     } catch (error) {
       console.error("Error fetching past events: ", error);
       setError("Failed to load past events");

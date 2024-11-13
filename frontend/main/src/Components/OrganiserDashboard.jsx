@@ -71,13 +71,7 @@ const OrganiserDashboard = () => {
   const fetchUpcomingTournaments = async () => {
     try {
       const response = await OrganiserService.getOrganiserUpcomingTournaments();
-
-      const sortedTournaments = response.data.sort((a, b) => {
-        const dateA = new Date(a.startDate);
-        const dateB = new Date(b.startDate);
-        return dateA - dateB;
-      });
-      setUpcomingTournaments(sortedTournaments);
+      setUpcomingTournaments(response.data);
     } catch (error) {
       console.error("Error fetching upcoming tournaments: ", error);
       setError("Failed to fetch upcoming tournaments");
@@ -87,12 +81,7 @@ const OrganiserDashboard = () => {
   const fetchPastTournaments = async () => {
     try {
       const response = await OrganiserService.getOrganiserPastTournaments();
-      const sortedTournaments = response.data.sort((a, b) => {
-        const dateA = new Date(a.startDate);
-        const dateB = new Date(b.startDate);
-        return dateA - dateB;
-      });
-      setPastTournaments(sortedTournaments);
+      setPastTournaments(response.data);
     } catch (error) {
       console.error("Error fetching past tournaments: ", error);
       setError("Failed to fetch past tournaments");
@@ -207,6 +196,7 @@ const OrganiserDashboard = () => {
   const closeDeleteTournamentPopup = () => {
     setIsDeleteTournamentPopupVisible(false);
     setSelectedTournament(null);
+    fetchUpcomingTournaments();
   };
 
   const filteredPastTournaments = pastTournaments?.filter((tournament) => {
