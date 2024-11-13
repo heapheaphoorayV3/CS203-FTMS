@@ -2,6 +2,7 @@ package cs203.ftms.overall.service.tournament;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -22,6 +23,7 @@ import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.repository.tournamentrelated.EventRepository;
 import cs203.ftms.overall.repository.tournamentrelated.TournamentFencerRepository;
 import cs203.ftms.overall.repository.tournamentrelated.TournamentRepository;
+import cs203.ftms.overall.repository.userrelated.UserRepository;
 import cs203.ftms.overall.service.event.EventService;
 import cs203.ftms.overall.validation.OtherValidations;
 import jakarta.transaction.Transactional;
@@ -32,14 +34,16 @@ public class TournamentService {
     private final EventService eventService;
     private final EventRepository eventRepository;
     private final TournamentFencerRepository tournamentFencerRepository;
+    private final UserRepository userRepository;
 
     @Autowired
     public TournamentService(TournamentRepository tournamentRepository, EventService eventService,
-            EventRepository eventRepository, TournamentFencerRepository tournamentFencerRepository) {
+            EventRepository eventRepository, TournamentFencerRepository tournamentFencerRepository, UserRepository userRepository) {
         this.tournamentRepository = tournamentRepository;
         this.eventService = eventService;
         this.eventRepository = eventRepository;
         this.tournamentFencerRepository = tournamentFencerRepository;
+        this.userRepository = userRepository;
     }
 
     public CleanTournamentDTO getCleanTournamentDTO(Tournament t) {
@@ -158,8 +162,12 @@ public class TournamentService {
     }
 
     private void unregisterAllFencers(Tournament tournament) {
-        for (Event event : tournament.getEvents()) {
-            for (TournamentFencer tf : event.getFencers()) {
+        List<Event> eventsCopy = new ArrayList<>(tournament.getEvents());
+        
+        for (Event event : eventsCopy) {
+            Set<TournamentFencer> fencersCopy = new HashSet<>(event.getFencers());
+            
+            for (TournamentFencer tf : fencersCopy) {
                 Fencer fencer = tf.getFencer();
                 eventService.unregisterEvent(event.getId(), fencer);
             }
@@ -170,16 +178,20 @@ public class TournamentService {
         Set<Tournament> tourHost = organiser.getTourHost();
         tourHost.removeIf(t -> t.getId() == tournament.getId());
         organiser.setTourHost(tourHost);
+        userRepository.save(organiser);
     }
 
+    @Transactional
     private void deleteTournamentAndEvents(Tournament tournament) {
-        for (Event event : tournament.getEvents()) {
+        List<Event> eventsCopy = new ArrayList<>(tournament.getEvents());
+        for (Event event : eventsCopy) {
             event.setTournament(null);
             eventRepository.delete(event);
         }
+        tournament.getEvents().clear();
         tournament.setOrganiser(null);
         tournament.setEvents(null);
-        tournamentRepository.deleteTournamentById(tournament.getId());
+        tournamentRepository.delete(tournament);
     }
 
 }
