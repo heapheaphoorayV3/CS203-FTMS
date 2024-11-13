@@ -7,18 +7,22 @@ import { Tabs, Tab } from "./Others/Tabs";
 import { Link } from "react-router-dom";
 import editIcon from "../Assets/edit.png";
 import validator from "validator";
+import SearchBar from "./Others/SearchBar";
 
 const OrganiserDashboard = () => {
   const [userData, setUserData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [InputSearch, setInputSearch] = useState("");
   const [upcomingTournaments, setUpcomingTournaments] = useState([]);
   const [pastTournaments, setPastTournaments] = useState([]);
   const [ongoingTournaments, setOngoingTournaments] = useState([]);
   // Selected torunament to update/delete
   const [selectedTournament, setSelectedTournament] = useState(null);
-  const [isUpdateTournamentPopupVisible, setIsUpdateTournamentPopupVisible] = useState(false);
-  const [isDeleteTournamentPopupVisible, setIsDeleteTournamentPopupVisible] = useState(false);
+  const [isUpdateTournamentPopupVisible, setIsUpdateTournamentPopupVisible] =
+    useState(false);
+  const [isDeleteTournamentPopupVisible, setIsDeleteTournamentPopupVisible] =
+    useState(false);
   const [contactNoErrors, setContactNoErrors] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const initialEditedData = () => ({
@@ -71,8 +75,7 @@ const OrganiserDashboard = () => {
   const fetchUpcomingTournaments = async () => {
     setLoading(true);
     try {
-      const response =
-        await OrganiserService.getOrganiserUpcomingTournaments();
+      const response = await OrganiserService.getOrganiserUpcomingTournaments();
 
       const sortedTournaments = response.data.sort((a, b) => {
         const dateA = new Date(a.startDate);
@@ -144,8 +147,13 @@ const OrganiserDashboard = () => {
 
   const validateEditInputs = () => {
     const newErrors = {};
-    if (!validator.isMobilePhone(editedData.contactNo, 'any', { strictMode: true })) {
-      newErrors.contactNo = "Please enter a valid phone number with country code!";
+    if (
+      !validator.isMobilePhone(editedData.contactNo, "any", {
+        strictMode: true,
+      })
+    ) {
+      newErrors.contactNo =
+        "Please enter a valid phone number with country code!";
     }
     setContactNoErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -159,7 +167,9 @@ const OrganiserDashboard = () => {
         setUserData((prevData) => ({ ...prevData, ...editedData }));
         setIsEditing(false);
       } catch (error) {
-        setContactNoErrors({ contactNo: "Please enter a valid phone number with country code!" });
+        setContactNoErrors({
+          contactNo: "Please enter a valid phone number with country code!",
+        });
         console.error("Error saving profile:", error);
       }
     }
@@ -170,6 +180,10 @@ const OrganiserDashboard = () => {
     setIsEditing(false);
     setContactNoErrors({});
   };
+
+  function handleSearch(e) {
+    setInputSearch(e.target.value);
+  }
 
   if (loading) {
     return <div className="mt-10">Loading...</div>; // Show loading state
@@ -226,18 +240,21 @@ const OrganiserDashboard = () => {
             <div className="flex font-medium">Email:</div>
             <div className="flex">{userData.email}</div>
             <div className="flex font-medium">Contact Number:</div>
-            <div className="flex">{isEditing ? (
-              <input
-                name="contactNo"
-                type="text"
-                value={editedData.contactNo}
-                onChange={handleEditChange}
-                className={`border p-1 rounded-lg ${contactNoErrors.contactNo ? 'border-red-500' : ''}`}
-                placeholder="Contact Number (e.g. +65********)"
-              />
-            ) : (
-              userData.contactNo
-            )}
+            <div className="flex">
+              {isEditing ? (
+                <input
+                  name="contactNo"
+                  type="text"
+                  value={editedData.contactNo}
+                  onChange={handleEditChange}
+                  className={`border p-1 rounded-lg ${
+                    contactNoErrors.contactNo ? "border-red-500" : ""
+                  }`}
+                  placeholder="Contact Number (e.g. +65********)"
+                />
+              ) : (
+                userData.contactNo
+              )}
               {contactNoErrors.contactNo && (
                 <div className="text-red-500 text-sm ml-4">
                   {contactNoErrors.contactNo}
@@ -296,43 +313,52 @@ const OrganiserDashboard = () => {
           <Tab label="Ongoing Tournaments Hosted">
             <div className="py-4">
               {ongoingTournaments.length > 0 ? (
-                <table className="table text-lg border-collapse">
-                  {/* head */}
-                  <thead className="text-lg text-primary">
-                    <tr className="border-b border-gray-300">
-                      <th className="w-20"></th>
-                      <th className="w-1/4">Tournament Name</th>
-                      <th className="text-center">Location</th>
-                      <th className="text-center">Dates</th>
-                      <th className="text-center">Total participants</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {ongoingTournaments.map((item, index) => (
-                      <tr
-                        key={item.id}
-                        className="border-b border-gray-300 hover:bg-gray-100"
-                      >
-                        <td className="text-center">{index + 1}</td>
-                        <td>
-                          <Link
-                            to={`/tournaments/${item.id}`}
-                            className="underline hover:text-primary"
-                          >
-                            {item.name}
-                          </Link>
-                        </td>
-                        <td className="text-center">{item.location}</td>
-                        <td className="text-center">
-                          {formatDateRange(item.startDate, item.endDate)}
-                        </td>
-                        <td className="text-center">
-                          {item.totalParticipants}
-                        </td>
+                <>
+                  <div className="max-w-sm">
+                    <SearchBar
+                      value={InputSearch}
+                      onChange={handleSearch}
+                      placeholder="Search Tournaments by Name..."
+                    />
+                  </div>
+                  <table className="table text-lg border-collapse">
+                    {/* head */}
+                    <thead className="text-lg text-primary">
+                      <tr className="border-b border-gray-300">
+                        <th className="w-20"></th>
+                        <th className="w-1/4">Tournament Name</th>
+                        <th className="text-center">Location</th>
+                        <th className="text-center">Dates</th>
+                        <th className="text-center">Total participants</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {ongoingTournaments.map((item, index) => (
+                        <tr
+                          key={item.id}
+                          className="border-b border-gray-300 hover:bg-gray-100"
+                        >
+                          <td className="text-center">{index + 1}</td>
+                          <td>
+                            <Link
+                              to={`/tournaments/${item.id}`}
+                              className="underline hover:text-primary"
+                            >
+                              {item.name}
+                            </Link>
+                          </td>
+                          <td className="text-center">{item.location}</td>
+                          <td className="text-center">
+                            {formatDateRange(item.startDate, item.endDate)}
+                          </td>
+                          <td className="text-center">
+                            {item.totalParticipants}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </>
               ) : (
                 <div className="flex justify-center items-center h-full">
                   <h2 className="text-lg font-medium">
@@ -345,47 +371,56 @@ const OrganiserDashboard = () => {
           <Tab label="Upcoming Tournaments Hosted">
             <div className="py-4">
               {upcomingTournaments.length > 0 ? (
-                <table className="table text-lg border-collapse">
-                  {/* head */}
-                  <thead className="text-lg text-primary">
-                    <tr className="border-b border-gray-300">
-                      <th className="w-20"></th>
-                      <th className="w-1/4">Tournament Name</th>
-                      <th className="text-center">Location</th>
-                      <th className="text-center">Dates</th>
-                      <th className="text-center"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {upcomingTournaments.map((item, index) => (
-                      <tr
-                        key={item.id}
-                        className="border-b border-gray-300 hover:bg-gray-100"
-                      >
-                        <td className="text-center">{index + 1}</td>
-                        <td>
-                          <Link
-                            to={`/tournaments/${item.id}`}
-                            className="underline hover:text-primary"
-                          >
-                            {item.name}
-                          </Link>
-                        </td>
-                        <td className="text-center">{item.location}</td>
-                        <td className="text-center">
-                          {formatDateRange(item.startDate, item.endDate)}
-                        </td>
-                        <td>
-                          <DropdownMenu
-                            entity="Tournament"
-                            updateEntity={() => updateTournament(item)}
-                            deleteEntity={() => deleteTournament(item)}
-                          />
-                        </td>
+                <>
+                  <div className="max-w-sm">
+                    <SearchBar
+                      value={InputSearch}
+                      onChange={handleSearch}
+                      placeholder="Search Tournaments by Name..."
+                    />
+                  </div>
+                  <table className="table text-lg border-collapse">
+                    {/* head */}
+                    <thead className="text-lg text-primary">
+                      <tr className="border-b border-gray-300">
+                        <th className="w-20"></th>
+                        <th className="w-1/4">Tournament Name</th>
+                        <th className="text-center">Location</th>
+                        <th className="text-center">Dates</th>
+                        <th className="text-center"></th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {upcomingTournaments.map((item, index) => (
+                        <tr
+                          key={item.id}
+                          className="border-b border-gray-300 hover:bg-gray-100"
+                        >
+                          <td className="text-center">{index + 1}</td>
+                          <td>
+                            <Link
+                              to={`/tournaments/${item.id}`}
+                              className="underline hover:text-primary"
+                            >
+                              {item.name}
+                            </Link>
+                          </td>
+                          <td className="text-center">{item.location}</td>
+                          <td className="text-center">
+                            {formatDateRange(item.startDate, item.endDate)}
+                          </td>
+                          <td>
+                            <DropdownMenu
+                              entity="Tournament"
+                              updateEntity={() => updateTournament(item)}
+                              deleteEntity={() => deleteTournament(item)}
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </>
               ) : (
                 <div className="flex justify-center items-center h-full">
                   <h2 className="text-lg font-medium">
@@ -410,39 +445,41 @@ const OrganiserDashboard = () => {
           <Tab label="Past Tournaments Hosted">
             <div className="py-4">
               {pastTournaments.length > 0 ? (
-                <table className="table text-lg border-collapse">
-                  {/* head */}
-                  <thead className="text-lg text-primary">
-                    <tr className="border-b border-gray-300">
-                      <th className="w-20"></th>
-                      <th className="w-1/4">Tournament Name</th>
-                      <th className="text-center">Location</th>
-                      <th className="text-center">Dates</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {pastTournaments.map((item, index) => (
-                      <tr
-                        key={item.id}
-                        className="border-b border-gray-300 hover:bg-gray-100"
-                      >
-                        <td className="text-center">{index + 1}</td>
-                        <td>
-                          <Link
-                            to={`/tournaments/${item.id}`}
-                            className="underline hover:text-primary"
-                          >
-                            {item.name}
-                          </Link>
-                        </td>
-                        <td className="text-center">{item.location}</td>
-                        <td className="text-center">
-                          {formatDateRange(item.startDate, item.endDate)}
-                        </td>
+                <>
+                  <table className="table text-lg border-collapse">
+                    {/* head */}
+                    <thead className="text-lg text-primary">
+                      <tr className="border-b border-gray-300">
+                        <th className="w-20"></th>
+                        <th className="w-1/4">Tournament Name</th>
+                        <th className="text-center">Location</th>
+                        <th className="text-center">Dates</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {pastTournaments.map((item, index) => (
+                        <tr
+                          key={item.id}
+                          className="border-b border-gray-300 hover:bg-gray-100"
+                        >
+                          <td className="text-center">{index + 1}</td>
+                          <td>
+                            <Link
+                              to={`/tournaments/${item.id}`}
+                              className="underline hover:text-primary"
+                            >
+                              {item.name}
+                            </Link>
+                          </td>
+                          <td className="text-center">{item.location}</td>
+                          <td className="text-center">
+                            {formatDateRange(item.startDate, item.endDate)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </>
               ) : (
                 <div className="flex justify-center items-center h-full">
                   <h2 className="text-lg font-medium">

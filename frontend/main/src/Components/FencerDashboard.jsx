@@ -6,6 +6,8 @@ import LineGraph from "./Others/LineGraph";
 import { Link } from "react-router-dom";
 import EventService from "../Services/Event/EventService";
 import validator from "validator";
+import SearchBar from "./Others/SearchBar";
+import Pagination from "./Others/PaginationButton";
 
 function formatTimeTo24Hour(timeString) {
   const [hours, minutes] = timeString.split(":"); // Get hours and minutes
@@ -16,6 +18,7 @@ const FencerDashboard = () => {
   const [userData, setUserData] = useState({});
   const [rankingData, setRankingData] = useState(null);
   const [upcomingEvents, setUpcomingEvents] = useState([]);
+  const [InputSearch, setInputSearch] = useState("");
   const [pastEvents, setPastEvents] = useState([]);
   const [pastRank, setPastRank] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,6 +46,23 @@ const FencerDashboard = () => {
   });
   // Hooks for Graph data (pastEvents will store the pat event names while the following will store the points)
   const [pastEventPoints, setPastEventPoints] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [paginatedData, setPaginatedData] = useState([]);
+  const limit = 10;
+
+  // useEffect(() => {
+  //   if (Array.isArray(rankingData) && rankingData.length) {
+  //     const sortedRanking = [...rankingData].sort(
+  //       (a, b) => b.points - a.points
+  //     );
+
+  //     const startIndex = Math.max(0, (currentPage - 1) * limit);
+  //     const endIndex = Math.min(sortedRanking.length, startIndex + limit);
+  //     setPaginatedData(sortedRanking.slice(startIndex, endIndex));
+  //   } else {
+  //     setPaginatedData([]);
+  //   }
+  // }, [rankingData, currentPage, limit]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -183,6 +203,10 @@ const FencerDashboard = () => {
     });
     return formattedDate;
   };
+
+  function handleSearch(e) {
+    setInputSearch(e.target.value);
+  }
 
   const isValidDebutYear = (year, dateOfBirth) => {
     if (!dateOfBirth) return false;
@@ -706,41 +730,50 @@ const FencerDashboard = () => {
           <Tab label="Past Tournaments">
             <div className="py-4">
               {pastEvents.length > 0 ? (
-                <table className="table text-lg border-collapse">
-                  {/* head */}
-                  <thead className="text-lg text-primary">
-                    <tr className="border-b border-gray-300">
-                      <th className="w-20"></th>
-                      <th className="w-1/4">Tournament Name</th>
-                      <th className="text-center">Date</th>
-                      <th className="text-center">Points</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {pastEvents.map((item, index) => (
-                      <tr
-                        key={item.id}
-                        className="border-b border-gray-300 hover:bg-gray-100"
-                      >
-                        <td className="text-center">{index + 1}</td>
-                        <Link
-                          to={`/tournaments/${item.id}`}
-                          className="underline hover:text-primary"
-                        >
-                          {item.tournamentName}
-                        </Link>
-                        <td className="text-center">
-                          {formatDate(item.eventDate)}
-                        </td>
-                        <td className="text-center">
-                          {pastEventPoints && pastEventPoints[item.id]
-                            ? pastEventPoints[item.id].pointsAfterEvent
-                            : "-"}
-                        </td>
+                <>
+                  <div className="max-w-sm">
+                    <SearchBar
+                      value={InputSearch}
+                      onChange={handleSearch}
+                      placeholder="Search Tournaments by Name..."
+                    />
+                  </div>
+                  <table className="table text-lg border-collapse">
+                    {/* head */}
+                    <thead className="text-lg text-primary">
+                      <tr className="border-b border-gray-300">
+                        <th className="w-20"></th>
+                        <th className="w-1/4">Tournament Name</th>
+                        <th className="text-center">Date</th>
+                        <th className="text-center">Points</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {pastEvents.map((item, index) => (
+                        <tr
+                          key={item.id}
+                          className="border-b border-gray-300 hover:bg-gray-100"
+                        >
+                          <td className="text-center">{index + 1}</td>
+                          <Link
+                            to={`/tournaments/${item.id}`}
+                            className="underline hover:text-primary"
+                          >
+                            {item.tournamentName}
+                          </Link>
+                          <td className="text-center">
+                            {formatDate(item.eventDate)}
+                          </td>
+                          <td className="text-center">
+                            {pastEventPoints && pastEventPoints[item.id]
+                              ? pastEventPoints[item.id].pointsAfterEvent
+                              : "-"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </>
               ) : (
                 <div className="flex justify-center items-center h-full">
                   <h2 className="text-lg font-medium">
@@ -753,45 +786,54 @@ const FencerDashboard = () => {
           <Tab label="Upcoming Tournaments">
             <div className="py-4">
               {upcomingEvents.length > 0 ? (
-                <table className="table text-lg border-collapse">
-                  {/* head */}
-                  <thead className="text-lg text-primary">
-                    <tr className="border-b border-gray-300">
-                      <th className="w-20"></th>
-                      <th className="w-1/4">Tournament Name</th>
-                      <th className="text-center">Date</th>
-                      <th className="text-center">Start Time</th>
-                      <th className="text-center">End Time</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {upcomingEvents.map((item, index) => (
-                      <tr
-                        key={item.id}
-                        className="border-b border-gray-300 hover:bg-gray-100"
-                      >
-                        <td className="text-center">{index + 1}</td>
-                        <td>
-                          <Link
-                            to={`/tournaments/${item.id}`}
-                            className="underline hover:text-primary"
-                          >
-                            {item.tournamentName}
-                          </Link>
-                        </td>
-                        <td className="text-center">
-                          {formatDate(item.eventDate)}
-                        </td>
-                        <td className="text-center">
-                          {formatTimeTo24Hour(item.startTime)}
-                        </td>
-                        <td className="text-center">
-                          {formatTimeTo24Hour(item.endTime)}
-                        </td>
+                <>
+                  <div className="max-w-sm">
+                    <SearchBar
+                      value={InputSearch}
+                      onChange={handleSearch}
+                      placeholder="Search Tournaments by Name..."
+                    />
+                  </div>
+                  <table className="table text-lg border-collapse">
+                    {/* head */}
+                    <thead className="text-lg text-primary">
+                      <tr className="border-b border-gray-300">
+                        <th className="w-20"></th>
+                        <th className="w-1/4">Tournament Name</th>
+                        <th className="text-center">Date</th>
+                        <th className="text-center">Start Time</th>
+                        <th className="text-center">End Time</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {upcomingEvents.map((item, index) => (
+                        <tr
+                          key={item.id}
+                          className="border-b border-gray-300 hover:bg-gray-100"
+                        >
+                          <td className="text-center">{index + 1}</td>
+                          <td>
+                            <Link
+                              to={`/tournaments/${item.id}`}
+                              className="underline hover:text-primary"
+                            >
+                              {item.tournamentName}
+                            </Link>
+                          </td>
+                          <td className="text-center">
+                            {formatDate(item.eventDate)}
+                          </td>
+                          <td className="text-center">
+                            {formatTimeTo24Hour(item.startTime)}
+                          </td>
+                          <td className="text-center">
+                            {formatTimeTo24Hour(item.endTime)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </>
               ) : (
                 <div className="flex justify-center items-center h-full">
                   <h2 className="text-lg font-medium">
