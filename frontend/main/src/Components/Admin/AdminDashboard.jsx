@@ -6,6 +6,7 @@ import FencerService from "../../Services/Fencer/FencerService";
 import { Tabs, Tab } from "../Others/Tabs";
 import PaginationButton from "../Others/PaginationButton";
 import SearchBar from "../Others/SearchBar";
+import LoadingPage from "../Others/LoadingPage";
 
 const AdminDashboard = () => {
   const [userData, setUserData] = useState(null);
@@ -25,51 +26,45 @@ const AdminDashboard = () => {
   const [totalOrganiserPages, setTotalOrganiserPages] = useState(0);
   const limit = 10;
 
+
+  const fetchData = async () => {
+    try {
+      console.log("Fetching user data...");
+      const response = await AdminService.getProfile();
+      setUserData(response.data);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      setError("Failed to load user data.");
+    }
+  };
+
+  const fetchAllFencersData = async () => {
+    try {
+      const response = await FencerService.getAllFencers();
+      // console.log(response.data);
+      setAllFencersData(response.data);
+    } catch (error) {
+      console.error("Error fetching all fencer data: ", error);
+      setError("Failed to load all fencer data");
+    }
+  };
+
+  const fetchAllOrganisersData = async () => {
+    try {
+      const response = await OrganiserService.getAllOrganisers();
+      // console.log(response.data);
+      setAllOrganisersData(response.data);
+    } catch (error) {
+      console.error("Error fetching all fencer data: ", error);
+      setError("Failed to load all fencer data");
+    }
+  };
+
+  // Fetch all required data for page
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        console.log("Fetching user data...");
-        const response = await AdminService.getProfile();
-        setUserData(response.data);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        setError("Failed to load user data.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchAllFencersData = async () => {
-      setLoading(true);
-      try {
-        const response = await FencerService.getAllFencers();
-        // console.log(response.data);
-        setAllFencersData(response.data);
-      } catch (error) {
-        console.error("Error fetching all fencer data: ", error);
-        setError("Failed to load all fencer data");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchAllOrganisersData = async () => {
-      setLoading(true);
-      try {
-        const response = await OrganiserService.getAllOrganisers();
-        // console.log(response.data);
-        setAllOrganisersData(response.data);
-      } catch (error) {
-        console.error("Error fetching all fencer data: ", error);
-        setError("Failed to load all fencer data");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-    fetchAllFencersData();
-    fetchAllOrganisersData();
+    setLoading(true);
+    Promise.all([fetchData(), fetchAllFencersData(), fetchAllOrganisersData()])
+           .then(() => {setLoading(false);});
   }, []);
 
   const handleFencerPageChange = (page) => {
@@ -175,11 +170,15 @@ const AdminDashboard = () => {
   ]);
 
   if (loading || !userData) {
-    return <div className="mt-10">Loading...</div>; // Show loading state
+    return <LoadingPage />;
   }
 
   if (error) {
-    return <div className="mt-10">{error}</div>; // Show error message if any
+    return (
+      <div className="flex justify-between mr-20 my-10">
+        <h1 className=" ml-12 text-left text-2xl font-semibold">{error}</h1>
+      </div>
+    ); // Show error message if any
   }
 
   return (

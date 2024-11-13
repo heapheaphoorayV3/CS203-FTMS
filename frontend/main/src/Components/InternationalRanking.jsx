@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import PaginationButton from "./Others/PaginationButton";
 import FencerService from "../Services/Fencer/FencerService";
 import SearchBar from "./Others/SearchBar";
+import LoadingPage from "./Others/LoadingPage";
 
 export default function InternationalRanking() {
   const [rankingData, setRankingData] = useState(null);
@@ -95,7 +96,7 @@ export default function InternationalRanking() {
   });
 
   if (loading) {
-    return <div className="mt-10">Loading...</div>; // Show loading state
+    return <LoadingPage />; // Show loading state
   }
 
   if (error) {
@@ -107,7 +108,7 @@ export default function InternationalRanking() {
       <h1 className="my-10 ml-12 text-left text-4xl font-semibold">
         International Ranking
       </h1>
-      <div className="w-full max-w-sm min-w-[200px] ml-12 pb-8">
+      <div className="w-full max-w-sm min-w-[200px] ml-12 pb-2">
         <SearchBar
           value={InputSearch}
           onChange={handleSearch}
@@ -147,7 +148,7 @@ export default function InternationalRanking() {
           <thead className="text-lg text-primary">
             <tr className="border-b border-gray-300">
               <th className="text-center w-20">Rank</th>
-              <th className="w-1/2">Name</th>
+              <th className="text-center w-1/4">Name</th>
               <th className="text-center">Country</th>
               <th className="text-center">Points</th>
             </tr>
@@ -159,7 +160,7 @@ export default function InternationalRanking() {
                 className="border-b border-gray-300 hover:bg-gray-100"
               >
                 <td className="text-center">{index + 1}</td>
-                <td>{item.name}</td>
+                <td className="text-center w-1/4">{item.name}</td>
                 <td className="text-center">{item.country}</td>
                 <td className="text-center">{item.points}</td>
               </tr>

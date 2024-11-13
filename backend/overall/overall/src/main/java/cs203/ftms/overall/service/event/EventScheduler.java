@@ -30,7 +30,7 @@ public class EventScheduler {
 
     @Scheduled(cron = "0 0 0 * * ?")
     public void checkEventHasEnoughParticipants() {
-        List<Tournament> tournaments = tournamentRepository.findBySignupEndDate(LocalDate.now());
+        List<Tournament> tournaments = tournamentRepository.findBySignupEndDate(LocalDate.now().minusDays(1));
         for (Tournament tournament : tournaments) {
             for (Event event : tournament.getEvents()) {
                 if (event.getParticipantCount() < event.getMinParticipants()) {

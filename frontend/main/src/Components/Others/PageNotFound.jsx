@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
 
-export default function UnauthorisedPage() {
-    // Animation variants for the main text
-    const textVariants = {
+export default function PageNotFound() {
+    // Animation variants for the numbers
+    const numberVariants = {
         initial: { y: -100, opacity: 0 },
         animate: { 
             y: 0, 
@@ -16,15 +16,15 @@ export default function UnauthorisedPage() {
 
     // Draggable constraints
     const dragConstraints = {
-        top: -50,
-        left: -50,
-        right: 50,
-        bottom: 50,
+        top: -100,
+        left: -100,
+        right: 100,
+        bottom: 100,
     };
 
     return (
         <div className="h-full w-full flex flex-col items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 relative overflow-hidden">
-            {/* Floating lock icons in background */}
+            {/* Interactive floating elements */}
             <div className="absolute inset-0 overflow-hidden">
                 {[...Array(12)].map((_, i) => (
                     <motion.div
@@ -37,7 +37,7 @@ export default function UnauthorisedPage() {
                         }}
                         drag
                         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-                        whileHover={{ scale: 1.2, color: "#DC2626" }}
+                        whileHover={{ scale: 1.2, color: "#4F46E5" }}
                         whileDrag={{ scale: 1.1 }}
                         animate={{
                             y: [0, -30, 0],
@@ -49,7 +49,7 @@ export default function UnauthorisedPage() {
                             delay: Math.random() * 2
                         }}
                     >
-                        🔒
+                        404
                     </motion.div>
                 ))}
             </div>
@@ -57,36 +57,25 @@ export default function UnauthorisedPage() {
             {/* Main content */}
             <div className="z-10 text-center">
                 <motion.div
-                    variants={textVariants}
+                    variants={numberVariants}
                     initial="initial"
                     animate="animate"
                     className="relative"
                 >
-                    {/* Main lock icon */}
-                    <motion.div 
-                        className="text-8xl mb-6 cursor-pointer"
-                        whileHover={{ scale: 1.1, rotate: [0, -10, 10, 0] }}
-                        drag
-                        dragConstraints={dragConstraints}
-                        whileDrag={{ scale: 0.95 }}
-                    >
-                        🔒
-                    </motion.div>
-
-                    {/* Interactive title */}
+                    {/* Interactive main 404 */}
                     <motion.h1 
-                        className="text-6xl font-bold text-red-600 mb-4 cursor-pointer"
-                        whileHover={{ scale: 1.05 }}
+                        className="text-9xl font-bold text-indigo-600 mb-4 cursor-pointer"
+                        whileHover={{ scale: 1.1 }}
                         drag
                         dragConstraints={dragConstraints}
                         whileDrag={{ scale: 0.95 }}
                     >
-                        Restricted Access
+                        404
                     </motion.h1>
 
-                    {/* Background text effect */}
+                    {/* Interactive background 404 */}
                     <motion.div
-                        className="absolute top-0 left-1/2 transform -translate-x-1/2 text-[200px] font-bold text-red-100 z-[-1] select-none"
+                        className="absolute top-0 left-1/2 transform -translate-x-1/2 text-[300px] font-bold text-indigo-100 z-[-1] select-none"
                         animate={{ 
                             rotate: [0, 5, -5, 0],
                             y: [0, -20, 0]
@@ -97,7 +86,7 @@ export default function UnauthorisedPage() {
                             ease: "easeInOut"
                         }}
                     >
-                        🔒
+                        404
                     </motion.div>
                 </motion.div>
 
@@ -107,23 +96,20 @@ export default function UnauthorisedPage() {
                     transition={{ delay: 0.5 }}
                     className="space-y-6"
                 >
-                    {/* Message */}
+                    {/* Interactive title */}
+                    <motion.h2 
+                        className="text-4xl font-semibold text-gray-700 cursor-pointer"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                    >
+                        Oops! Page Not Found
+                    </motion.h2>
                     <motion.p 
-                        className="text-xl text-gray-600 max-w-md mx-auto"
-                        whileHover={{ color: "#DC2626" }}
+                        className="text-gray-600 text-lg max-w-md mx-auto"
+                        whileHover={{ color: "#4F46E5" }}
                     >
-                        You do not have permission to access this page. 
-                        Are you logged in correctly?
+                        Where are you trying to go, buddy? This page doesn't exist.
                     </motion.p>
-
-                    {/* Additional info */}
-                    <motion.div
-                        className="text-gray-500 text-sm mt-4"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 1 }}
-                    >
-                    </motion.div>
                 </motion.div>
             </div>
         </div>

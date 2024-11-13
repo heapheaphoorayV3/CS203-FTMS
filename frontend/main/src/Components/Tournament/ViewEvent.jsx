@@ -11,6 +11,7 @@ import UpdateBracketMatch from "./UpdateBracketMatch.jsx";
 import EndPoules from "./EndPoules.jsx";
 import EndEvent from "./EndEvent.jsx";
 import { motion } from "framer-motion";
+import LoadingPage from "../Others/LoadingPage.jsx";
 
 function formatTimeTo24Hour(timeString) {
   const [hours, minutes] = timeString.split(":"); // Get hours and minutes
@@ -77,13 +78,15 @@ export default function ViewEvent() {
   // Fetch Upcoming Tournament if Organiser to check if organiser is the owner of current event
   const checkIfOwner = async () => {
     try {
-      const response = await OrganiserService.getOrganiserUpcomingTournaments();
+      const response = await OrganiserService.getAllHostedTournaments();
       const upcomingTournaments = response.data;
       console.log("upcoming tournaments:", upcomingTournaments);
       let found = false;
       for (let tournament of upcomingTournaments) {
         if (Array.isArray(tournament.events)) {
           for (let event of tournament.events) {
+            console.log("tournament.events id=", event.id);
+            console.log("current event id=", eventID);
             if (Number(event.id) === Number(eventID)) {
               found = true;
               break;
@@ -216,10 +219,6 @@ export default function ViewEvent() {
   useEffect(() => {
     setLoading(true);
 
-    if (sessionStorage.getItem("userType") === "O") {
-      checkIfOwner();
-    }
-
     if (eventID) {
       Promise.all([
         fetchEventData(),
@@ -227,25 +226,22 @@ export default function ViewEvent() {
         fetchMatches(),
         fetchEventRanking(),
         fetchPoulesResults(),
+        sessionStorage.getItem("userType") === "O" ? checkIfOwner() : Promise.resolve(),
       ])
         .then(() => {
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error("Error in fetching some data:", error);
           setLoading(false);
         });
     }
   }, [eventID, tournamentID, userType]);
 
   if (loading) {
-    return <div className="mt-10">Loading...</div>; // Show loading state
+    return <LoadingPage />; // Show loading state
   }
 
   if (error) {
     return (
       <div className="flex justify-between mr-20 my-10">
-        <h1 className=" ml-12 text-left text-4xl font-semibold">{error}</h1>
+        <h1 className=" ml-12 text-left text-2xl font-semibold">{error}</h1>
       </div>
     ); // Show error message if any
   }
@@ -295,16 +291,16 @@ export default function ViewEvent() {
       name: loading
         ? "Loading..."
         : eventData
-        ? eventData.tournamentName
-        : "Not Found",
+          ? eventData.tournamentName
+          : "Not Found",
       link: `/tournaments/${tournamentID}`,
     },
     {
       name: loading
         ? "Loading..."
         : eventData
-        ? constructEventName(eventData.gender, eventData.weapon)
-        : "Not Found",
+          ? constructEventName(eventData.gender, eventData.weapon)
+          : "Not Found",
     },
   ];
 
@@ -436,7 +432,7 @@ export default function ViewEvent() {
 
   const totalPages = Math.ceil(eventRanking.length / limit);
 
-  console.log("poulesresults null:", poulesResults);
+  console.log("isowner:", isOwner);
 
   return (
     <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">
@@ -462,11 +458,7 @@ export default function ViewEvent() {
           userType === "O" &&
           isOwner && (
             <motion.button
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
               whileHover={{
-                scale: 1.1,
                 backgroundColor: "#E3170A",
                 transition: { duration: 0.3 },
               }}
@@ -635,11 +627,10 @@ export default function ViewEvent() {
                               {resultArray.map((result, resultIndex) => (
                                 <td
                                   key={resultIndex}
-                                  className={`border border-gray-300 hover:bg-gray-100 ${
-                                    result === "-1"
+                                  className={`border border-gray-300 hover:bg-gray-100 ${result === "-1"
                                       ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
                                       : ""
-                                  }`}
+                                    }`}
                                 >
                                   {result === "-1" ? (
                                     result
@@ -654,11 +645,10 @@ export default function ViewEvent() {
                                           idx
                                         )
                                       }
-                                      className={`w-full text-center ${
-                                        !isInputValid
+                                      className={`w-full text-center ${!isInputValid
                                           ? "border-red-500"
                                           : "border-gray-300"
-                                      }`}
+                                        }`}
                                     />
                                   ) : (
                                     result
@@ -690,8 +680,8 @@ export default function ViewEvent() {
               {poulesResults !== null &&
                 // Check if at least one array has data
                 (poulesResults.bypassFencers.length > 0 ||
-                poulesResults.fenceOffFencers.length > 0 ||
-                poulesResults.eliminatedFencers.length > 0 ? (
+                  poulesResults.fenceOffFencers.length > 0 ||
+                  poulesResults.eliminatedFencers.length > 0 ? (
                   <table className="table text-lg border-collapse mb-4">
                     {/* Table Header */}
                     <thead className="text-lg text-primary">
@@ -723,8 +713,8 @@ export default function ViewEvent() {
                               {poulesResults.bypassFencers.includes(fencer)
                                 ? "Bypass"
                                 : poulesResults.fenceOffFencers.includes(fencer)
-                                ? "Fence Off"
-                                : "Eliminated"}
+                                  ? "Fence Off"
+                                  : "Eliminated"}
                             </td>
                             <td className="text-center">{fencer.pouleWins}</td>
                             <td className="text-center">

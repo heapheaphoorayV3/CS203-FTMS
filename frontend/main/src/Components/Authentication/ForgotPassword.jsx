@@ -7,13 +7,15 @@ import AuthService from "../../Services/Authentication/AuthService";
 
 export default function ForgotPassword() {
   const { control, handleSubmit, formState: { errors } } = useForm();
-  const [error, setError] = useState();
+  const [error, setError] = useState(null);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   //Send form data to server
   const onSubmit = async (data) => {
     try {
         const response = await AuthService.forgetPassword(data.email);
-        console.log("Response: " + response);
+        setIsSubmitted(true);
+        setError(null);
     } catch (error) {
       if (error.response) {
         // Check if error.response.data is an object and has contactNo
@@ -63,6 +65,7 @@ export default function ForgotPassword() {
             Send Confirmation Email
           </SubmitButton>
         </form>
+        {isSubmitted && <h2 className="text-green-500 text-center mt-4">Password reset email has been sent to you</h2>}
         {error && <h2 className="text-red-500 text-center mt-4"> {error} </h2>}
       </div>
     </div>
