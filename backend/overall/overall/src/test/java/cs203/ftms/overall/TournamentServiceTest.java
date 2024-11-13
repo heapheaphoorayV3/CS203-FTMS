@@ -37,6 +37,7 @@ import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.model.userrelated.Organiser;
 import cs203.ftms.overall.repository.tournamentrelated.EventRepository;
 import cs203.ftms.overall.repository.tournamentrelated.TournamentRepository;
+import cs203.ftms.overall.repository.userrelated.UserRepository;
 import cs203.ftms.overall.service.event.EventService;
 import cs203.ftms.overall.service.tournament.TournamentService;
 import cs203.ftms.overall.validation.OtherValidations;
@@ -52,6 +53,8 @@ public class TournamentServiceTest {
 
     @Mock
     private EventRepository eventRepository;
+
+    @Mock UserRepository userRepository;
 
     @Mock
     private EventService eventService;
@@ -503,67 +506,73 @@ public class TournamentServiceTest {
     
         when(tournamentRepository.findById(1)).thenReturn(Optional.of(tournament));
         when(eventRepository.findById(1)).thenReturn(Optional.of(event));
+        when(userRepository.save(organiser)).thenReturn(organiser);
         // Act
         tournamentService.deleteTournament(organiser, 1);
     
         // Assert
-        verify(tournamentRepository, times(1)).deleteTournamentById(1);
+        verify(tournamentRepository, times(1)).delete(tournament);
     }
 
     @Test
-@Transactional
-void removeFromOrganiser_DoesNotRemoveTournament() {
-    // Arrange
-    Organiser organiser = new Organiser();
-    organiser.setId(1);
+    @Transactional
+    void removeFromOrganiser_DoesNotRemoveTournament() {
+        // Arrange
+        Organiser organiser = new Organiser();
+        organiser.setId(1);
 
-    Tournament tournament1 = new Tournament();
-    tournament1.setId(1);
-    tournament1.setOrganiser(organiser);
+        Tournament tournament1 = new Tournament();
+        tournament1.setId(1);
+        tournament1.setOrganiser(organiser);
 
-    Tournament tournament2 = new Tournament();
-    tournament2.setId(2);
-    tournament2.setOrganiser(organiser);
+        Tournament tournament2 = new Tournament();
+        tournament2.setId(2);
+        tournament2.setOrganiser(organiser);
 
-    Set<Tournament> tournaments = new HashSet<>();
-    tournaments.add(tournament1);
-    tournaments.add(tournament2);
-    organiser.setTourHost(tournaments);
+        Set<Tournament> tournaments = new HashSet<>();
+        tournaments.add(tournament1);
+        tournaments.add(tournament2);
+        organiser.setTourHost(tournaments);
 
-    Event event1 = new Event();
-    event1.setId(1);
-    event1.setTournament(tournament1);
-    Event event2 = new Event();
-    event2.setId(2);
-    event2.setTournament(tournament2);
-    tournament1.setEvents(Collections.singleton(event1));
-    tournament2.setEvents(Collections.singleton(event2));
+        Event event1 = new Event();
+        event1.setId(1);
+        event1.setTournament(tournament1);
 
-    Fencer fencer1 = new Fencer();
-    fencer1.setId(1);
-    Fencer fencer2 = new Fencer();
-    fencer2.setId(2);
-    TournamentFencer tf1 = new TournamentFencer();
-    tf1.setFencer(fencer1);
-    TournamentFencer tf2 = new TournamentFencer();
-    tf2.setFencer(fencer2);
-    Set<TournamentFencer> fencers = new HashSet<>();
-    fencers.add(tf1);
-    event1.setFencers(fencers);
-    Set<TournamentFencer> fencers2 = new HashSet<>();
-    fencers2.add(tf2);
-    event2.setFencers(fencers2);
+        Event event2 = new Event();
+        event2.setId(2);
+        event2.setTournament(tournament2);
 
-    when(tournamentRepository.findById(1)).thenReturn(Optional.of(tournament1));
+        Set<Event> events1 = new HashSet<>();
+        events1.add(event1);
 
-    // Act
-    tournamentService.deleteTournament(organiser, 1);
+        Set<Event> events2 = new HashSet<>();
+        events2.add(event2);
 
-    // Assert
-    assertTrue(organiser.getTourHost().contains(tournament2));
-    verify(tournamentRepository, times(1)).deleteTournamentById(1);
-    verify(eventRepository, times(1)).delete(any(Event.class));
-}
+        tournament1.setEvents(events1);
+        tournament2.setEvents(events2);
+        TournamentFencer tf1 = new TournamentFencer();
+        tf1.setEvent(event1);
+
+        TournamentFencer tf2 = new TournamentFencer();
+        tf2.setEvent(event2);
+
+        Set<TournamentFencer> fencers = new HashSet<>();
+        fencers.add(tf1);
+        event1.setFencers(fencers);
+        Set<TournamentFencer> fencers2 = new HashSet<>();
+        fencers2.add(tf2);
+        event2.setFencers(fencers2);
+
+        when(tournamentRepository.findById(1)).thenReturn(Optional.of(tournament1));
+
+        // Act
+        tournamentService.deleteTournament(organiser, 1);
+
+        // Assert
+        assertTrue(organiser.getTourHost().contains(tournament2));
+        verify(tournamentRepository, times(1)).delete(tournament1);
+        verify(eventRepository, times(1)).delete(any(Event.class));
+    }
 
     @Test
     @Transactional
@@ -661,7 +670,7 @@ void removeFromOrganiser_DoesNotRemoveTournament() {
     tournamentService.deleteTournament(organiser, 1);
 
     // Assert
-    verify(tournamentRepository, times(1)).deleteTournamentById(1);
+    verify(tournamentRepository, times(1)).delete(tournament);
     verify(eventRepository, times(1)).delete(event);
 }
 
