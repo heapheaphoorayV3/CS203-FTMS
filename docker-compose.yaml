@@ -39,12 +39,15 @@ services:
   frontend:
     build:
       context: ./frontend/main
+      args:
+        - REACT_APP_BACKEND_SOURCE=${REACT_APP_BACKEND_SOURCE}
       dockerfile: Dockerfile
     ports:
       - "${FRONTEND_PORT}:3000"  # Map port specified in .env file
     # env_file:
     #   - ./frontend/main/.env
     environment:
-      - REACT_APP_BACKEND_SOURCE=http://localhost:${BACKEND_PORT}/api/v1
+      - REACT_APP_BACKEND_SOURCE=${REACT_APP_BACKEND_SOURCE}
     depends_on:
-      - backend
+      backend:
+        condition: service_started

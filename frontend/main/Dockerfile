@@ -9,6 +9,9 @@ RUN npm install
 
 COPY . .
 
+ARG REACT_APP_BACKEND_SOURCE
+RUN echo "REACT_APP_BACKEND_SOURCE=$REACT_APP_BACKEND_SOURCE" > .env
+
 # Build the React app
 RUN npm run build
 
