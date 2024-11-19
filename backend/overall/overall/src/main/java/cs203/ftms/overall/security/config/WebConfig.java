@@ -33,7 +33,6 @@ public class WebConfig {
                         .allowedOrigins("*")  // Allowed origin(s)
                         .allowedMethods("GET","POST","PATCH", "PUT", "DELETE", "OPTIONS", "HEAD")  // Allowed HTTP methods
                         .allowedHeaders("*");  // Allow all headers
-                        // .allowCredentials(true);  // Uncomment to allow cookies, authorization headers, etc.
             }
         };
     }

@@ -26,28 +26,57 @@ import jakarta.persistence.Table;
 @DiscriminatorValue("M")
 public class Match {
 
+    /**
+     * Unique identifier for the match.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    /**
+     * The ID of the first fencer participating in the match.
+     * References a TournamentFencer entity.
+     */
     @Column(name = "fencer1")
     private int fencer1;
 
+    /**
+     * The ID of the second fencer participating in the match.
+     * References a TournamentFencer entity.
+     */
     @Column(name = "fencer2")
     private int fencer2;
 
+    /**
+     * The number of points scored by the first fencer (fencer1).
+     * In fencing, points are also called "touches" or "hits".
+     */
     @Column(name = "score1")
     private int score1;
 
+    /**
+     * The number of points scored by the second fencer (fencer2).
+     * In fencing, points are also called "touches" or "hits".
+     */
     @Column(name = "score2")
     private int score2;
 
+    /**
+     * The ID of the winning fencer (references a TournamentFencer entity).
+     * This will be either fencer1 or fencer2's ID after the match is complete.
+     */
     @Column(name = "winner")
-    private int winner; // TournamentFencer winner ID
+    private int winner;
 
+    /**
+     * The event to which this match belongs.
+     * Each match must be associated with an event, and one event can have multiple matches.
+     * Fetched eagerly to ensure event details are always available when accessing a match.
+     */
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "event", nullable = false)
     private Event event;
+
 
     /**
      * Default constructor for Match, initializing participant and winner IDs to -1.

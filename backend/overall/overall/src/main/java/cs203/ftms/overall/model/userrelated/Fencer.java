@@ -23,30 +23,78 @@ import jakarta.persistence.OneToMany;
 @DiscriminatorValue("F")
 public class Fencer extends User {
 
+    /**
+     * The fencer's date of birth.
+     * Date format: yyyy-MM-dd
+     * Used for age verification and category assignment in tournaments.
+     */
     @Column(name = "date_of_birth")
     @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate dateOfBirth;
 
+    /**
+     * The fencer's dominant arm.
+     * Valid values:
+     * - 'R': Right-handed
+     * - 'L': Left-handed
+     * This information is important for bout organization and strategy.
+     */
     @Column(name = "dominant_arm")
     private char dominantArm;
 
+    /**
+     * The primary weapon category of the fencer.
+     * Valid values:
+     * - 'F': Foil
+     * - 'E': Epee
+     * - 'S': Sabre
+     * Determines which weapon events the fencer typically participates in.
+     */
     @Column(name = "weapon")
     private char weapon;
 
+    /**
+     * The fencing club or organization that the fencer represents.
+     * This could be a school, university, or private fencing club.
+     */
     @Column(name = "club")
     private String club;
 
+    /**
+     * The fencer's current ranking points.
+     * Accumulated from tournament performances.
+     * Used to determine seeding in tournaments and overall rankings.
+     */
     @Column(name = "points")
     private int points;
 
+    /**
+     * The year when the fencer started competitive fencing.
+     * Used to track experience level and career duration.
+     */
     @Column(name = "debut_year")
     private int debutYear;
 
+    /**
+     * The fencer's gender.
+     * Valid values:
+     * - 'M': Male
+     * - 'F': Female
+     * Used for appropriate event categorization and registration.
+     */
     @Column(name = "gender")
     private char gender;
 
+    /**
+     * Collection of all tournament participations for this fencer.
+     * Each entry represents the fencer's profile in a specific tournament event.
+     * Fetched eagerly to ensure tournament history is immediately available.
+     * Cascade ALL ensures that operations on the fencer cascade to their tournament profiles.
+     * For example, if a fencer is deleted, all their tournament profiles are also deleted.
+     */
     @OneToMany(mappedBy = "fencer", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<TournamentFencer> tournamentFencerProfiles;
+
 
     /**
      * Default constructor for Fencer.

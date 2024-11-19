@@ -13,9 +13,17 @@ import jakarta.persistence.ManyToOne;
 @DiscriminatorValue("P")
 public class PouleMatch extends Match {
 
+    /**
+     * The poule to which this match belongs.
+     * Each poule match must be associated with a specific poule in the tournament.
+     * This represents one of the round-robin matches that occurs within a poule,
+     * where each fencer faces every other fencer in their assigned poule.
+     * Multiple matches belong to one poule, hence the Many-to-One relationship.
+     */
     @ManyToOne
     @JoinColumn(name = "poule_id")
     private Poule poule;
+
 
     /**
      * Default constructor for PouleMatch.

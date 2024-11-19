@@ -140,7 +140,6 @@ public class AuthenticationController {
     @GetMapping("/refreshToken/{token}")
     public ResponseEntity<JwtDTO> refreshToken(@PathVariable String token){
         RefreshToken rf = refreshTokenService.findByToken(token).orElse(null);
-        System.out.println(rf);
         return refreshTokenService.findByToken(token)
                 .map(refreshTokenService::verifyExpiration)
                 .map(RefreshToken::getUser)

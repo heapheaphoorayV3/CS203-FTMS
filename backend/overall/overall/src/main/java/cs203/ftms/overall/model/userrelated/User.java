@@ -36,47 +36,117 @@ import jakarta.persistence.Table;
 @DiscriminatorValue("U")
 public class User implements UserDetails {
 
+    /**
+     * Unique identifier for the user.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    /**
+     * The user's full name.
+     * Used for identification and display purposes throughout the application.
+     */
     @Column(name = "name")
     private String name;
 
+    /**
+     * The user's country of residence.
+     * Used for regional settings and tournament organization.
+     */
     @Column(name = "country")
     private String country;
 
+    /**
+     * The user's email address.
+     * Must be unique across all users as it serves as the primary contact method.
+     * Used for:
+     * - Account login
+     * - System notifications
+     * - Password recovery
+     * - Account verification
+     */
     @Column(name = "email", unique = true, nullable = false)
     private String email;
 
+    /**
+     * The user's contact phone number.
+     * Used as an alternative contact method and for emergency communications.
+     */
     @Column(name = "contactNo")
     private String contactNo;
 
+    /**
+     * The user's hashed password.
+     * Stored using secure hashing algorithms for authentication.
+     * Never stored or transmitted in plain text.
+     */
     @Column(name = "password")
     private String password;
 
+    /**
+     * Timestamp of when the user account was created.
+     * Automatically set during account creation.
+     * Cannot be modified after creation.
+     */
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
     private Date createdAt;
 
+    /**
+     * Timestamp of the last update to the user account.
+     * Automatically updated whenever the user record is modified.
+     */
     @UpdateTimestamp
     @Column(name = "updated_at")
     private Date updatedAt;
 
+    /**
+     * Indicates whether the user account is locked.
+     * Locked accounts cannot:
+     * - Log in
+     * - Participate in tournaments
+     * - Modify their profile
+     * Used for security purposes and policy enforcement.
+     */
     @Column(name = "locked")
     private boolean locked;
 
+    /**
+     * The user's role in the system.
+     * Determines access levels and permissions.
+     * Roles include:
+     * - ADMIN
+     * - ORGANIZER
+     * - FENCER
+     */
     @Column(name = "role")
     private String role;
 
+    /**
+     * Token used for email verification and password reset.
+     * Temporary token that expires after a set duration.
+     * Null when no verification or reset is pending.
+     */
     @Column(name = "verification_token")
     private String verificationToken;
 
+    /**
+     * Timestamp of when the verification token was created.
+     * Used to enforce token expiration policies.
+     * Reset when a new token is generated.
+     */
     @Column(name = "verification_token_creation")
     private Date verificationTokenCreatedAt;
 
+    /**
+     * The refresh token associated with this user's current session.
+     * Used in the JWT authentication system for generating new access tokens.
+     * One-to-one relationship ensures only one active refresh token per user.
+     */
     @OneToOne(mappedBy = "user")
     private RefreshToken refreshToken;
+
 
     /**
      * Default constructor for User.

@@ -23,22 +23,46 @@ import jakarta.persistence.Table;
 @Table(name = "Poule")
 public class Poule implements Comparable<Poule> {
 
+    /**
+     * Unique identifier for the poule.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    /**
+     * The number assigned to this poule within its event.
+     * Used to distinguish between multiple poules in the same event (e.g., Poule 1, Poule 2, etc.).
+     */
     @Column(name = "poule_number")
     private int pouleNumber;
 
+    /**
+     * The event to which this poule belongs.
+     * Each poule must be associated with an event, and one event can have multiple poules.
+     * Fetched eagerly to ensure event details are always available when accessing a poule.
+     */
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
+    /**
+     * Set of matches that occur within this poule.
+     * Configured with cascade ALL to automatically handle related poule matches when the poule is modified.
+     * orphanRemoval ensures that matches are deleted when removed from this set.
+     * In a poule, each fencer fences against every other fencer in the same poule.
+     */
     @OneToMany(mappedBy = "poule", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PouleMatch> pouleMatches;
 
+    /**
+     * Set of fencers assigned to this poule.
+     * Each fencer in this set will fence against all other fencers in the same poule.
+     * The size of this set typically ranges from 5 to 7 fencers per poule.
+     */
     @OneToMany(mappedBy = "poule")
     private Set<TournamentFencer> fencers;
+
 
     /**
      * Default constructor for Poule.

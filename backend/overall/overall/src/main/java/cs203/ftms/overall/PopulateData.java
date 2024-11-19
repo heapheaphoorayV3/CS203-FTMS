@@ -108,7 +108,6 @@ public class PopulateData {
         for (int i = 1; i <= FENCER_COUNT; i++) {
             Fencer f = (Fencer) authenticationService.createFencer(new RegisterFencerDTO("MSFencer", "" + i, "MSfencer" + i + "@gmail.com", "Abcd1234!", "+6591234567", "Singapore", LocalDate.of(1999,1,1)));
             fencerService.completeProfile(f, new CompleteFencerProfileDTO('L', 'S', 'M', "Club", 2021));
-            // f.setPoints(random.nextInt(1000));
             f.setPoints(i * 100);
         }
     }
@@ -116,7 +115,6 @@ public class PopulateData {
         for (int i = 1; i <= FENCER_COUNT; i++) {
             Fencer f = (Fencer) authenticationService.createFencer(new RegisterFencerDTO("WSFencer", "" + i, "WSfencer" + i + "@gmail.com", "Abcd1234!", "+6591234567", "Singapore", LocalDate.of(1999,1,1)));
             fencerService.completeProfile(f, new CompleteFencerProfileDTO('L', 'S', 'W', "Club", 2021));
-            // f.setPoints(random.nextInt(1000));
             f.setPoints(i * 100);
         }
     }
@@ -124,7 +122,6 @@ public class PopulateData {
         for (int i = 1; i <= FENCER_COUNT; i++) {
             Fencer f = (Fencer) authenticationService.createFencer(new RegisterFencerDTO("MEFencer", "" + i, "MEfencer" + i + "@gmail.com", "Abcd1234!", "+6591234567", "Singapore", LocalDate.of(1999,1,1)));
             fencerService.completeProfile(f, new CompleteFencerProfileDTO('L', 'E', 'M', "Club", 2021));
-            // f.setPoints(random.nextInt(1000));
             f.setPoints(i * 100);
         }
     }
@@ -132,7 +129,6 @@ public class PopulateData {
         for (int i = 1; i <= FENCER_COUNT; i++) {
             Fencer f = (Fencer) authenticationService.createFencer(new RegisterFencerDTO("WEFencer", "" + i, "WEfencer" + i + "@gmail.com", "Abcd1234!", "+6591234567", "Singapore", LocalDate.of(1999,1,1)));
             fencerService.completeProfile(f, new CompleteFencerProfileDTO('L', 'E', 'W', "Club", 2021));
-            // f.setPoints(random.nextInt(1000));
             f.setPoints(i * 100);
         }
     }
@@ -140,7 +136,6 @@ public class PopulateData {
         for (int i = 1; i <= FENCER_COUNT; i++) {
             Fencer f = (Fencer) authenticationService.createFencer(new RegisterFencerDTO("MFFencer", "" + i, "MFfencer" + i + "@gmail.com", "Abcd1234!", "+6591234567", "Singapore", LocalDate.of(1999,1,1)));
             fencerService.completeProfile(f, new CompleteFencerProfileDTO('L', 'F', 'M', "Club", 2021));
-            // f.setPoints(random.nextInt(1000));
             f.setPoints(i * 100);
         }
     }
@@ -148,7 +143,6 @@ public class PopulateData {
         for (int i = 1; i <= FENCER_COUNT; i++) {
             Fencer f = (Fencer) authenticationService.createFencer(new RegisterFencerDTO("WFFencer", "" + i, "WFfencer" + i + "@gmail.com", "Abcd1234!", "+6591234567", "Singapore", LocalDate.of(1999,1,1)));
             fencerService.completeProfile(f, new CompleteFencerProfileDTO('L', 'F', 'W', "Club", 2021));
-            // f.setPoints(random.nextInt(1000));
             f.setPoints(i * 100);
         }
     }
@@ -203,6 +197,7 @@ public class PopulateData {
             }
         }
         System.out.println("end of poule table display");
+        System.out.println();
     }
 
     public void updatePouleTable() throws MethodArgumentNotValidException {
@@ -230,6 +225,7 @@ public class PopulateData {
                 System.out.println(key + " " + line.get(key));
             }
         }
+        System.out.println();
     }
 
     public void printPouleResult() {
@@ -246,6 +242,7 @@ public class PopulateData {
         for (CleanTournamentFencerDTO ctf : pouleResults.getEliminatedFencers()) {
             System.out.println(ctf.getFencerName() + " - Poule wins:" + ctf.getPouleWins() + ", Poule points:" + ctf.getPoulePoints());
         }
+        System.out.println();
     }
 
     public void createDirectEliminationMatches() {
@@ -274,8 +271,6 @@ public class PopulateData {
             Tournament t = tournaments.get(i);
             List<Event> events = eventRepository.findByTournament(t);
             if (i == 0 || i == 1) {
-                
-                System.out.println(events.size());
                 for (Event e : events) {
                     e.setDate(LocalDate.now());
                     eventRepository.save(e);

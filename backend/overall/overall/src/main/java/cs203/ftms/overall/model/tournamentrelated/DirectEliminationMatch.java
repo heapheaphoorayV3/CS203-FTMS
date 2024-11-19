@@ -13,11 +13,26 @@ import jakarta.persistence.Entity;
 @DiscriminatorValue("D")
 public class DirectEliminationMatch extends Match {
 
+    /**
+     * Indicates the tournament round this match belongs to (e.g., 32 for Round of 32, 16 for Round of 16, 8 for Quarter-finals, 4 for Semi-finals, 2 for Finals).
+     * For example:
+     * - roundOf = 32 means this match is part of the Round of 32
+     * - roundOf = 16 means this match is part of the Round of 16
+     * - roundOf = 8 means this match is part of the Quarter-finals
+     * - roundOf = 4 means this match is part of the Semi-finals
+     * - roundOf = 2 means this match is the Finals
+     */
     @Column(name = "round_of")
     private int roundOf;
 
+    /**
+     * The ID of the next match in the elimination bracket that this match's winner will advance to.
+     * For example, winners of two Round of 16 matches will advance to face each other in a Round of 8 match.
+     * Will be 0 for the final match as there is no next match to advance to.
+     */
     @Column(name = "next_match_id")
     private int nextMatchId;
+
 
     /**
      * Default constructor for DirectEliminationMatch.

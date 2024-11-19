@@ -24,46 +24,90 @@ import jakarta.persistence.Table;
 @Table(name = "event")
 public class Event {
 
+    /**
+     * Unique identifier for the event.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    /**
+     * The tournament this event belongs to.
+     * Many events of different category (grouped by gender and weapon) can belong to one tournament.
+     */
     @ManyToOne
     @JoinColumn(name = "tournament_id")
     private Tournament tournament; 
 
+    /**
+     * Set of fencers participating in this event.
+     * One event can have many tournament fencers.
+     */
     @OneToMany(mappedBy = "event")
     private Set<TournamentFencer> fencers; 
-    
+
+    /**
+     * Flag indicating whether the event has ended.
+     */
     @Column(name = "event_ended")
     private boolean isOver;
 
+    /**
+     * Gender category for the event ('M' for Men, 'W' for Women).
+     */
     @Column(name = "gender")
     private char gender;
-    
+
+    /**
+     * Type of weapon used in the event ('F' for Foil, 'E' for Epee, 'S' for Sabre).
+     */
     @Column(name = "weapon") 
     private char weapon; 
 
+    /**
+     * Minimum number of participants required for the event.
+     */
     @Column(name = "min_participants")
     private int minParticipants;
 
+    /**
+     * Current number of participants registered for the event.
+     */
     @Column(name = "participant_count")
     private int participantCount;
 
+    /**
+     * Date when the event takes place.
+     */
     @Column(name = "date")
     private LocalDate date;
 
+    /**
+     * Scheduled start time of the event.
+     */
     @Column(name = "start_time")
     private LocalTime startTime; 
 
+    /**
+     * Scheduled end time of the event.
+     */
     @Column(name = "end_time")
     private LocalTime endTime;
-    
+
+    /**
+     * Set of poules (round-robin groups) in this event.
+     * One event can have multiple poules.
+     */
     @OneToMany(mappedBy = "event")
     private Set<Poule> poules;
 
+    /**
+     * Set of direct elimination matches in this event.
+     * One event can have multiple direct elimination matches.
+     */
     @OneToMany(mappedBy = "event")
     private Set<DirectEliminationMatch> directEliminationMatches;
+
 
     /**
      * Default constructor for Event.

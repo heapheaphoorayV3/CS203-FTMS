@@ -20,11 +20,34 @@ import jakarta.persistence.OneToMany;
 @DiscriminatorValue("O")
 public class Organiser extends User {
 
+    /**
+     * Indicates whether the organiser's account has been verified by administrators.
+     * Verified organisers have full privileges to create and manage tournaments.
+     * Default value is false until verification is completed.
+     * Verification status affects what actions the organiser can perform:
+     * - Unverified organisers cannot login to perform any organiser functions like create or modify tournaments
+     * - Verified organisers can create, modify, and manage tournaments
+     */
     @Column(name = "verified")
     private boolean verified;
 
+    /**
+     * Collection of all tournaments created and managed by this organiser.
+     * Configured with:
+     * - Eager fetching to ensure tournament data is immediately available
+     * - Cascade ALL to automatically handle related tournament operations
+     * - orphanRemoval to ensure tournaments are deleted if removed from this collection
+     * 
+     * This relationship allows the organiser to:
+     * - Create new tournaments
+     * - Modify tournament details
+     * - Monitor tournament progress
+     * - Access participant information
+     * - Manage tournament schedules
+     */
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "organiser", orphanRemoval = true)
     private Set<Tournament> tourHost;
+
 
     /**
      * Default constructor for Organiser.

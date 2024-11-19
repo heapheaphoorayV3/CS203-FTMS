@@ -54,7 +54,6 @@ public class RefreshTokenService {
      * @return an Optional containing the RefreshToken if found, otherwise empty.
      */
     public Optional<RefreshToken> findByToken(String token) {
-        System.out.println("find by token service: " + token);
         return refreshTokenRepository.findByToken(token);
     }
 
@@ -67,7 +66,6 @@ public class RefreshTokenService {
      * @throws RuntimeException if the token is expired.
      */
     public RefreshToken verifyExpiration(RefreshToken token) {
-        System.out.println("verify expiry service");
         if (token.getExpiryDate().compareTo(Instant.now()) < 0) {
             refreshTokenRepository.delete(token);
             throw new RuntimeException(token.getToken() + " Refresh token is expired. Please make a new login..!");

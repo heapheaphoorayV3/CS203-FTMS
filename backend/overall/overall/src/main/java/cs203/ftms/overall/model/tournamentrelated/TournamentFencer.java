@@ -26,37 +26,82 @@ import jakarta.persistence.Table;
 @Table(name = "tournament_fencer")
 public class TournamentFencer {
 
+    /**
+     * Unique identifier for the tournament fencer entry.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    /**
+     * The fencer participating in the tournament.
+     * Represents the actual fencer entity with their personal details.
+     * Fetched eagerly to ensure fencer details are always available.
+     * Cannot be null as every tournament fencer must be associated with a real fencer.
+     */
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "fencer_id", nullable = false)
     private Fencer fencer;
 
+    /**
+     * The specific event within the tournament that this fencer is participating in.
+     * Fetched eagerly to ensure event details are always available.
+     * For example, Men's Foil, Women's Epee, etc.
+     */
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "event_id")
     private Event event;
 
+    /**
+     * Collection of all matches this fencer has participated in during the tournament.
+     * Includes both poule matches and direct elimination matches.
+     * Fetched eagerly to ensure match details are immediately available.
+     */
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "tournament_fencer_matches")
     private Set<Match> matches;
 
+    /**
+     * The poule group this fencer is assigned to during the poule round.
+     * Cascade operations are limited to PERSIST and DETACH to maintain data integrity.
+     * May be null if the fencer hasn't been assigned to a poule yet or if the event
+     * doesn't use poules.
+     */
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.DETACH})
     @JoinColumn(name = "poule_id")
     private Poule poule;
 
+    /**
+     * The fencer's final ranking in the tournament.
+     * Updated after each round (poules and direct elimination).
+     * Lower numbers indicate better performance (1 is first place).
+     */
     @Column(name = "tournament_rank")
     private int tournamentRank;
 
+    /**
+     * The number of victories achieved by the fencer during the poule round.
+     * Used in calculating the fencer's seeding for direct elimination.
+     */
     @Column(name = "poule_wins")
     private int pouleWins;
 
+    /**
+     * The total number of points scored by the fencer during the poule round.
+     * Used along with poule wins to determine seeding for direct elimination.
+     * Points are the sum of touches scored minus touches received in poule matches.
+     */
     @Column(name = "poule_points")
     private int poulePoints;
 
+    /**
+     * The total ranking points earned by the fencer after the event is complete.
+     * These points contribute to the fencer's overall ranking in the competition circuit.
+     * Points are awarded based on final placement and event importance.
+     */
     @Column(name = "points_after_event")
     private int pointsAfterEvent;
+
 
     /**
      * Constructs a TournamentFencer associated with a specific fencer and event.

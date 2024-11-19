@@ -26,46 +26,99 @@ import jakarta.persistence.Table;
 @Table(name = "tournament")
 public class Tournament {
 
+    /**
+     * Unique identifier for the tournament.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    /**
+     * The name of the tournament.
+     * This is the official title that will be displayed to users.
+     */
     @Column(name = "name")
     private String name;
 
+    /**
+     * The organiser who created and manages this tournament.
+     * Each tournament must have one organiser, while an organiser can manage multiple tournaments.
+     */
     @ManyToOne
     @JoinColumn(name = "organiser_id")
     private Organiser organiser;
 
+    /**
+     * The deadline for fencers to register for the tournament.
+     * Date format: yyyy-MM-dd
+     * Needs to be 2 days before the tournament starts.
+     */
     @Column(name = "signup_end_date")
     @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate signupEndDate;
 
+    /**
+     * The percentage of fencers who advance from pools to direct elimination.
+     * For example, if set to 80, the top 80% of fencers will advance after the pool round.
+     */
     @Column(name = "advancement_rate")
     private int advancementRate;
 
+    /**
+     * The first day of the tournament.
+     * Date format: yyyy-MM-dd
+     */
     @Column(name = "start_date")
     @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate startDate;
 
+    /**
+     * The last day of the tournament.
+     * Date format: yyyy-MM-dd
+     */
     @Column(name = "end_date")
     @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate endDate;
 
+    /**
+     * The physical location where the tournament will be held.
+     * Should include venue name and address details.
+     */
     @Column(name = "location")
     private String location;
 
+    /**
+     * Detailed description of the tournament.
+     * May include information about the format, schedule, and other relevant details.
+     */
     @Column(name = "description")
     private String description;
 
+    /**
+     * Specific rules and regulations for the tournament.
+     * May include equipment requirements, dress code, and competition format details.
+     */
     @Column(name = "rules")
     private String rules;
 
+    /**
+     * The difficulty level of the tournament.
+     * Valid values:
+     * - 'B': Beginner
+     * - 'I': Intermediate
+     * - 'A': Advanced
+     */
     @Column(name = "difficulty")
-    private char difficulty; // B, I, A for Beginner, Intermediate, Advanced
+    private char difficulty;
 
+    /**
+     * The set of events that make up this tournament.
+     * A tournament can have multiple events (e.g., Men's Foil, Women's Epee, etc.).
+     * CascadeType.ALL ensures that operations on the tournament cascade to its events.
+     */
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL)
     private Set<Event> events;
+
 
     /**
      * Default constructor for Tournament.
