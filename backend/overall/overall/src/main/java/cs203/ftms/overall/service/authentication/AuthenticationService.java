@@ -155,7 +155,7 @@ public class AuthenticationService {
         String token = UUID.randomUUID().toString();
         user.setVerificationToken(token);
         userRepository.save(user);
-        String content = String.format("Please reset your password at http://%s/reset-password/%s \nThe token will expire in 15 minutes.", frontendSource, token);
+        String content = String.format("Please reset your password at %s/reset-password/%s \nThe token will expire in 15 minutes.", frontendSource, token);
         mailService.sendMail(email, "Reset Password", content);
         return "Email sent";
     }
