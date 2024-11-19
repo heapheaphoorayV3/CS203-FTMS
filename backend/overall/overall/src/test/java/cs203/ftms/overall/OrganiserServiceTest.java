@@ -1,20 +1,21 @@
 package cs203.ftms.overall;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
 
 import cs203.ftms.overall.dto.UpdateOrganiserProfileDTO;
@@ -46,7 +47,10 @@ class OrganiserServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    // 1. Tests for getCleanOrganiserDTO
+    /**
+     * Tests if getCleanOrganiserDTO returns a valid CleanOrganiserDTO
+     * when the Organiser is not null.
+     */
     @Test
     void testGetCleanOrganiserDTO_ReturnsDTO_WhenOrganiserIsNotNull() {
         // Arrange
@@ -66,6 +70,10 @@ class OrganiserServiceTest {
         assertEquals(organiser.getCountry(), result.getCountry());
     }
 
+    /**
+     * Tests if getCleanOrganiserDTO throws an exception
+     * when the Organiser is null.
+     */
     @Test
     void testGetCleanOrganiserDTO_ReturnsNull_WhenOrganiserIsNull() {
         // Act & Assert
@@ -74,7 +82,10 @@ class OrganiserServiceTest {
         });
     }
 
-    // 2. Tests for getOrganiserTournaments
+    /**
+     * Tests if getOrganiserTournaments returns a list of tournaments
+     * associated with the given Organiser when tournaments exist.
+     */
     @Test
     void testGetOrganiserTournaments_ReturnsTournamentList_WhenTournamentsExist() {
         // Arrange
@@ -96,6 +107,10 @@ class OrganiserServiceTest {
         verify(tournamentRepository, times(1)).findByOrganiserId(organiser.getId());
     }
 
+    /**
+     * Tests if getOrganiserTournaments returns an empty list
+     * when no tournaments exist for the given Organiser.
+     */
     @Test
     void testGetOrganiserTournaments_ReturnsNull_WhenNoTournamentsExist() {
         // Arrange
@@ -111,6 +126,10 @@ class OrganiserServiceTest {
         verify(tournamentRepository, times(1)).findByOrganiserId(organiser.getId());
     }
 
+    /**
+     * Tests if updateProfile correctly updates the Organiser's profile
+     * based on the given UpdateOrganiserProfileDTO.
+     */
     @Test
     void updateProfile() {
         // Arrange
@@ -138,6 +157,10 @@ class OrganiserServiceTest {
         verify(userRepository).save(organiser);
     }
 
+    /**
+     * Tests if getOrganiserUpcomingTournaments returns a list of
+     * future tournaments for the given Organiser.
+     */
     @Test
     void getOrganiserUpcomingTournaments() {
         // Arrange
@@ -163,6 +186,10 @@ class OrganiserServiceTest {
         assertEquals(futureTournament.getId(), result.get(0).getId());
     }
 
+    /**
+     * Tests if getOrganiserPastTournaments returns a list of
+     * past tournaments for the given Organiser.
+     */
     @Test
     void getOrganiserPastTournaments() {
         // Arrange
@@ -188,6 +215,9 @@ class OrganiserServiceTest {
         assertEquals(pastTournament.getId(), result.get(0).getId());
     }
 
+    /**
+     * Tests if getAllOrganisers returns a list of all Organisers in the system.
+     */
     @Test
     void getAllOrganisers_ShouldReturnAllOrganisers() {
         // Arrange

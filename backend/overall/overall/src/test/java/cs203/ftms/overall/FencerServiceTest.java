@@ -1,28 +1,27 @@
 package cs203.ftms.overall;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -77,6 +76,9 @@ class FencerServiceTest {
         authenticationService = new AuthenticationService(userRepository, authenticationManager, passwordEncoder, null);
     }
 
+    /**
+     * Test case to verify that getting a clean tournament fencer DTO returns null when the input is null.
+     */
     @Test
     void getCleanTournamentFencerDTO_TournamentFencerIsNull() {
         // Act
@@ -86,6 +88,9 @@ class FencerServiceTest {
         assertNull(result);
     }
 
+    /**
+     * Test case to verify that a clean tournament fencer DTO is correctly created when the tournament fencer is not null.
+     */
     @Test
     void getCleanTournamentFencerDTO_TournamentFencerIsNotNull() {
         // Arrange
@@ -123,6 +128,9 @@ class FencerServiceTest {
         assertEquals(10, result.getPoulePoints());
     }
 
+    /**
+     * Test case to verify that a clean fencer DTO is correctly created from a valid fencer.
+     */
     @Test
     void getCleanFencerDTO_ValidFencer_ReturnCleanFencer() {
         // Given
@@ -151,6 +159,9 @@ class FencerServiceTest {
         assertEquals(fencer.getDebutYear(), cleanFencerDTO.getDebutYear());
     }
 
+    /**
+     * Test case to verify that getting a clean fencer DTO returns null for an invalid fencer.
+     */
     @Test
     void getCleanFencerDTO_InvalidFencer_ReturnNull() {
         // When
@@ -159,6 +170,10 @@ class FencerServiceTest {
         // Then
         assertNull(cleanFencerDTO);
     }
+
+    /**
+     * Test case to verify that all fencers are correctly retrieved from the repository.
+     */
     @Test
     void getAllFencers() {
         // Arrange
@@ -182,6 +197,9 @@ class FencerServiceTest {
         assertEquals("Jane Doe", result.get(1).getName());
     }
 
+    /**
+     * Test case to verify that completing a fencer profile with valid input updates the fencer details.
+     */
     @Test
     void completeProfile_ValidInput_ReturnFencer() throws MethodArgumentNotValidException {
         // Given
@@ -209,6 +227,9 @@ class FencerServiceTest {
         verify(userRepository, times(1)).save(fencer);
     }
 
+    /**
+     * Test case to verify that completing a fencer profile with an invalid debut year throws an exception.
+     */
     @Test
     void completeProfile_InvalidDebutYear_ReturnException() {
         // Given
@@ -230,7 +251,9 @@ class FencerServiceTest {
         verify(userRepository, times(0)).save(any(Fencer.class));
     }
 
-    // Tests for getInternationalRank
+    /**
+     * Test case to verify the international ranking of male sabre fencers based on their points.
+     */
     @Test
     void testGetInternationalRank_MenSabre_ReturnsSortedFencers() {
         // Arrange
@@ -265,52 +288,10 @@ class FencerServiceTest {
         verify(fencerRepository, times(3)).findAll();
     }
 
-    // @Test
-    // void changePassword_OldPasswordCorrect() {
-    //     // Arrange
-    //     Fencer fencer = new Fencer();
-    //     fencer.setEmail("fencer@gmail.com");
-    //     fencer.setPassword("oldPassword");
-    //     userRepository.save(fencer);
-
-    //     // when(authenticationManager.authenticate(any())).thenReturn(null);
-    //     // when(userRepository.findByEmail(fencer.getEmail())).thenReturn(Optional.of(fencer));
-
-    //     when(userRepository.save(any(Fencer.class))).thenReturn(fencer);
-    //     when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-    //             .thenReturn(null);        
-    //     when(userRepository.findByEmail(fencer.getEmail())).thenReturn(Optional.of(fencer));
-    //     when(authenticationService.authenticateUser(fencer.getEmail(), "oldPassword")).thenReturn(fencer);
-
-    //     // Act
-    //     String result = fencerService.changePassword(fencer, "oldPassword", "newPassword");
-    //     System.out.println(result);
-
-
-    //     // // Arrange
-    //     // String email = "user@example.com";
-    //     // String password = "Abcd1234!";
-    //     // String newPassword = "Abce!1234";
-
-    //     // when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-    //     //         .thenReturn(null);
-    //     // User user = new Fencer();
-    //     // user.setEmail(email);
-    //     // when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
-
-    //     // // Act
-    //     // User authenticatedUser = authenticationService.authenticateUser(email, password);
-
-    //     // // Act
-    //     // String result = fencerService.changePassword(user, password, newPassword);
-
-    //     // // Assert
-    //     // assertEquals("password changed successfully", result);
-    //     // verify(userRepository).save(user);
-    //     // assertEquals("newPassword", user.getPassword());
-    // }
-
-        @Test
+    /**
+     * Test case to verify that updating a fencer's profile applies all changes correctly.
+     */
+    @Test
     void updateProfile() {
         // Arrange
         Fencer fencer = new Fencer();
@@ -343,6 +324,9 @@ class FencerServiceTest {
         verify(userRepository).save(fencer);
     }
 
+    /**
+     * Test case to verify that only past events are retrieved from a fencer's profile.
+     */
     @Test
     void getFencerPastEventsProfiles() {
         // Arrange
@@ -377,7 +361,9 @@ class FencerServiceTest {
         assertEquals(pastEvent.getId(), result.get(0).getEvent().getId());
     }
 
-
+    /**
+     * Test case to verify that all events (past and upcoming) associated with a fencer are retrieved.
+     */
     @Test
     void getFencerEvents() {
         // Arrange
@@ -389,10 +375,6 @@ class FencerServiceTest {
         event1.setDate(LocalDate.now().minusDays(10));
 
         Event event2 = new Event();
-        event2.setId(2);
-        event2.setDate(LocalDate.now().plusDays(9));
-        event2.setId(2);
-        event2.setDate(LocalDate.now().plusDays(9));
         event2.setId(2);
         event2.setDate(LocalDate.now().plusDays(9));
 
@@ -420,6 +402,9 @@ class FencerServiceTest {
         assertEquals(event2.getId(), result.get(1).getId());
     }
 
+    /**
+     * Test case to verify that only upcoming events are retrieved from a fencer's profile.
+     */
     @Test
     void getFencerUpcomingEvents() {
         // Arrange
@@ -457,6 +442,9 @@ class FencerServiceTest {
         assertEquals(futureEvent.getId(), result.get(0).getId());
     }
 
+    /**
+     * Test case to verify that only past events associated with a fencer are retrieved.
+     */
     @Test
     void getFencerPastEvents() {
         // Arrange
@@ -465,11 +453,11 @@ class FencerServiceTest {
 
         Event pastEvent = new Event();
         pastEvent.setId(1);
-        pastEvent.setDate(LocalDate.now().minusDays(10));
+        pastEvent.setDate(LocalDate.now().minusDays(10)); // Past date
 
         Event futureEvent = new Event();
         futureEvent.setId(2);
-        futureEvent.setDate(LocalDate.now().plusDays(10));
+        futureEvent.setDate(LocalDate.now().plusDays(10)); // Future date
 
         TournamentFencer pastTournamentFencer = new TournamentFencer();
         pastTournamentFencer.setEvent(pastEvent);
@@ -490,46 +478,48 @@ class FencerServiceTest {
         List<Event> result = fencerService.getFencerPastEvents(fencer);
 
         // Assert
-        assertEquals(1, result.size());
-        assertEquals(pastEvent.getId(), result.get(0).getId());
+        assertEquals(1, result.size()); // Only one past event should be returned
+        assertEquals(pastEvent.getId(), result.get(0).getId()); // Verify the returned event is the past event
     }
 
-
+    /**
+     * Test case to verify that fencer rankings can be filtered by weapon type and gender.
+     */
     @Test
     void getFilterdInternationalRank() {
         // Arrange
         Fencer fencer1 = new Fencer();
         fencer1.setId(1);
-        fencer1.setWeapon('E');
-        fencer1.setGender('M');
+        fencer1.setWeapon('E'); // Eligible weapon
+        fencer1.setGender('M'); // Eligible gender
         fencer1.setPoints(100);
 
         Fencer fencer2 = new Fencer();
         fencer2.setId(2);
-        fencer2.setWeapon('E');
-        fencer2.setGender('F');
+        fencer2.setWeapon('E'); // Eligible weapon
+        fencer2.setGender('F'); // Ineligible gender
         fencer2.setPoints(200);
 
         Fencer fencer3 = new Fencer();
         fencer3.setId(3);
-        fencer3.setWeapon('S');
-        fencer3.setGender('M');
+        fencer3.setWeapon('S'); // Ineligible weapon
+        fencer3.setGender('M'); // Eligible gender
         fencer3.setPoints(150);
 
         List<Fencer> fencers = Arrays.asList(fencer1, fencer2, fencer3);
         when(fencerRepository.findAll()).thenReturn(fencers);
 
         // Act
-        List<Fencer> result = fencerService.getFilterdInternationalRank('E', 'M');
+        List<Fencer> result = fencerService.getFilterdInternationalRank('E', 'M'); // Filter by weapon 'E' and gender 'M'
 
         // Assert
-        assertEquals(1, result.size());
-        assertEquals(fencer1.getId(), result.get(0).getId());
+        assertEquals(1, result.size()); // Only one fencer matches the criteria
+        assertEquals(fencer1.getId(), result.get(0).getId()); // Verify the correct fencer is returned
     }
 
-
-
-
+    /**
+     * Test case to verify that past events are sorted and converted into DTOs for a fencer.
+     */
     @Test
     void getFencerPastEventsPoints_ShouldReturnSortedCleanTournamentFencerDTOs() {
         // Arrange
@@ -568,6 +558,7 @@ class FencerServiceTest {
 
         // Assert
         assertEquals(2, result.size());
-
+        assertEquals(event1.getId(), result.get(0).getEventId());
+        assertEquals(event2.getId(), result.get(1).getEventId());
     }
 }

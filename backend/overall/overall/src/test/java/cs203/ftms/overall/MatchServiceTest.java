@@ -1,16 +1,17 @@
 package cs203.ftms.overall;
 
-import java.util.List;
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
 
 import cs203.ftms.overall.dto.clean.CleanMatchDTO;
@@ -39,6 +40,9 @@ class MatchServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
+    /**
+     * Tests if getFencersInMatch correctly retrieves the two fencers participating in a match.
+     */
     @Test
     void getFencersInMatch_ShouldReturnFencers() {
         // Arrange
@@ -70,7 +74,10 @@ class MatchServiceTest {
         assertEquals(fencer2, result.get(1));
     }
 
-        @Test
+    /**
+     * Tests if getFencer1 correctly retrieves the first fencer in a match.
+     */
+    @Test
     void getFencer1_ShouldReturnFencer() {
         // Arrange
         Match match = new Match();
@@ -91,6 +98,9 @@ class MatchServiceTest {
         assertEquals(fencer1, result);
     }
 
+    /**
+     * Tests if getFencer1 throws an EntityDoesNotExistException when the first fencer does not exist.
+     */
     @Test
     void getFencer1_ShouldThrowException_WhenFencerDoesNotExist() {
         // Arrange
@@ -103,6 +113,9 @@ class MatchServiceTest {
         assertThrows(EntityDoesNotExistException.class, () -> matchService.getFencer1(match));
     }
 
+    /**
+     * Tests if getFencer2 correctly retrieves the second fencer in a match.
+     */
     @Test
     void getFencer2_ShouldReturnFencer() {
         // Arrange
@@ -124,6 +137,9 @@ class MatchServiceTest {
         assertEquals(fencer2, result);
     }
 
+    /**
+     * Tests if getFencer2 throws an EntityDoesNotExistException when the second fencer does not exist.
+     */
     @Test
     void getFencer2_ShouldThrowException_WhenFencerDoesNotExist() {
         // Arrange
@@ -136,6 +152,9 @@ class MatchServiceTest {
         assertThrows(EntityDoesNotExistException.class, () -> matchService.getFencer2(match));
     }
 
+    /**
+     * Tests if getCleanMatchDTO correctly creates a CleanMatchDTO for a valid match.
+     */
     @Test
     void getCleanMatchDTO_ShouldReturnCleanMatchDTO() {
         // Arrange
@@ -159,8 +178,9 @@ class MatchServiceTest {
         f2.setName("Fencer 2");
         fencer2.setFencer(f2);
 
-        CleanTournamentFencerDTO cleanFencer1 = new CleanTournamentFencerDTO(fencer1.getId(), f1.getId(), f1.getName(), f1.getClub(), f1.getCountry(), 'R' , fencer1.getTournamentRank(), 1, fencer1.getPouleWins(), fencer1.getPoulePoints(), 0);
-        CleanTournamentFencerDTO cleanFencer2 = new CleanTournamentFencerDTO(fencer2.getId(), f2.getId(), f2.getName(), f2.getClub(), f2.getCountry(), 'R' , fencer2.getTournamentRank(), 1, fencer2.getPouleWins(), fencer2.getPoulePoints(), 0);
+        CleanTournamentFencerDTO cleanFencer1 = new CleanTournamentFencerDTO(fencer1.getId(), f1.getId(), f1.getName(), f1.getClub(), f1.getCountry(), 'R', fencer1.getTournamentRank(), 1, fencer1.getPouleWins(), fencer1.getPoulePoints(), 0);
+        CleanTournamentFencerDTO cleanFencer2 = new CleanTournamentFencerDTO(fencer2.getId(), f2.getId(), f2.getName(), f2.getClub(), f2.getCountry(), 'R', fencer2.getTournamentRank(), 1, fencer2.getPouleWins(), fencer2.getPoulePoints(), 0);
+
         when(tournamentFencerRepository.findById(1)).thenReturn(Optional.of(fencer1));
         when(tournamentFencerRepository.findById(2)).thenReturn(Optional.of(fencer2));
         when(eventService.getCleanTournamentFencerDTO(fencer1)).thenReturn(cleanFencer1);
@@ -178,6 +198,10 @@ class MatchServiceTest {
         assertEquals(match.getWinner(), result.getWinner());
         assertEquals('A', result.getMatchType());
     }
+
+    /**
+     * Tests if getCleanMatchDTO creates a CleanMatchDTO with null fencers when fencer IDs are invalid.
+     */
     @Test
     void getCleanMatchDTO_ShouldReturnNullFencers_WhenFencerListIsEmpty() {
         // Arrange
@@ -204,6 +228,9 @@ class MatchServiceTest {
         assertEquals('A', result.getMatchType());
     }
 
+    /**
+     * Tests if getCleanMatchDTO throws an EntityDoesNotExistException when the first fencer does not exist.
+     */
     @Test
     void getCleanMatchDTO_ShouldThrowException_WhenFencer1DoesNotExist() {
         // Arrange
@@ -218,6 +245,9 @@ class MatchServiceTest {
         assertThrows(EntityDoesNotExistException.class, () -> matchService.getCleanMatchDTO(match, 'A'));
     }
 
+    /**
+     * Tests if getCleanMatchDTO throws an EntityDoesNotExistException when the second fencer does not exist.
+     */
     @Test
     void getCleanMatchDTO_ShouldThrowException_WhenFencer2DoesNotExist() {
         // Arrange
@@ -235,6 +265,9 @@ class MatchServiceTest {
         assertThrows(EntityDoesNotExistException.class, () -> matchService.getCleanMatchDTO(match, 'A'));
     }
 
+    /**
+     * Tests if getCleanMatchDTO throws an EntityDoesNotExistException when both fencers do not exist.
+     */
     @Test
     void getCleanMatchDTO_ShouldThrowException_WhenBothFencersDoNotExist() {
         // Arrange

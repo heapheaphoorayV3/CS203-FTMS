@@ -63,7 +63,11 @@ class AuthenticationServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
-        @Test
+    /**
+     * Tests the behavior of getCleanFencer method when a valid Fencer object is provided.
+     * Verifies that the Fencer object is correctly mapped to the CleanFencerDTO.
+     */
+    @Test
     void getCleanFencer_ValidFencer_ReturnsCleanFencerDTO() {
         // Arrange
         Fencer fencer = new Fencer();
@@ -99,6 +103,10 @@ class AuthenticationServiceTest {
         assertEquals(fencer.getGender(), cleanFencerDTO.getGender());
     }
 
+    /**
+     * Tests the behavior of getCleanOrganiser method when a valid Organiser object is provided.
+     * Verifies that the Organiser object is correctly mapped to the CleanOrganiserDTO.
+     */
     @Test
     void getCleanOrganiser_ValidOrganiser_ReturnsCleanOrganiserDTO() {
         // Arrange
@@ -123,6 +131,10 @@ class AuthenticationServiceTest {
         assertEquals(organiser.getCountry(), cleanOrganiserDTO.getCountry());
     }
 
+    /**
+     * Tests the createFencer method when the fencer is created with valid fields.
+     * Verifies that the fencer is created successfully and the password is encoded.
+     */
     @Test
     void createFencer_ValidFields_Success() {
         // Arrange
@@ -143,6 +155,10 @@ class AuthenticationServiceTest {
         verify(userRepository).save(any(User.class));
     }
 
+    /**
+     * Tests the createFencer method when a fencer with the same email already exists.
+     * Verifies that a UserAlreadyExistException is thrown.
+     */
     @Test
     void createFencer_AlreadyExist_Failure() {
         // Arrange
@@ -155,6 +171,10 @@ class AuthenticationServiceTest {
         assertThrows(UserAlreadyExistException.class, () -> authenticationService.createFencer(registerFencerDTO));
     }
 
+    /**
+     * Tests the createOrganiser method when the organiser is created with valid fields.
+     * Verifies that the organiser is created successfully and the password is encoded.
+     */
     @Test
     void createOrganiser_ValidFields_ReturnTrue() {
         // Arrange
@@ -174,6 +194,10 @@ class AuthenticationServiceTest {
         verify(userRepository).save(any(User.class));
     }
 
+    /**
+     * Tests the createOrganiser method when an organiser with the same email already exists.
+     * Verifies that a UserAlreadyExistException is thrown.
+     */
     @Test
     void createOrganiser_AlreadyExist_Failure() {
         // Arrange
@@ -185,6 +209,10 @@ class AuthenticationServiceTest {
         assertThrows(UserAlreadyExistException.class, () -> authenticationService.createOrganiser(registerOrganiserDTO));
     }
 
+    /**
+     * Tests the createAdmin method when the admin is created with valid fields.
+     * Verifies that the admin is created successfully and the password is encoded.
+     */
     @Test
     void createAdmin_ValidFields_ReturnTrue() {
         // Arrange
@@ -204,6 +232,10 @@ class AuthenticationServiceTest {
         verify(userRepository).save(any(User.class));
     }
 
+    /**
+     * Tests the createAdmin method when an admin with the same email already exists.
+     * Verifies that a UserAlreadyExistException is thrown.
+     */
     @Test
     void createAdmin_AlreadyExist_Failure() {
         // Arrange
@@ -215,6 +247,10 @@ class AuthenticationServiceTest {
         assertThrows(UserAlreadyExistException.class, () -> authenticationService.createAdmin(registerAdminDTO));
     }
 
+    /**
+     * Tests the authenticateUser method when valid authentication details are provided.
+     * Verifies that the authentication is successful and returns the authenticated user.
+     */
     @Test
     void authenticateUser_ValidFields_ReturnTrue() {
         // Arrange
@@ -238,6 +274,10 @@ class AuthenticationServiceTest {
         verify(userRepository).findByEmail(email);
     }
 
+    /**
+     * Tests the getUser method when a valid user ID is provided.
+     * Verifies that the method correctly returns the user associated with the ID.
+     */
     @Test
     void getUser_ValidId_ReturnUser() {
         // Arrange
@@ -255,6 +295,10 @@ class AuthenticationServiceTest {
         verify(userRepository).findById(userId);
     }
 
+    /**
+     * Tests the getUser method when an invalid user ID is provided.
+     * Verifies that an EntityNotFoundException is thrown when the user is not found.
+     */
     @Test
     void getUser_InvalidId_ThrowsException() {
         // Arrange
@@ -265,6 +309,10 @@ class AuthenticationServiceTest {
         assertThrows(EntityNotFoundException.class, () -> authenticationService.getUser(userId));
     }
 
+    /**
+     * Tests the forgetPassword method when the user is found.
+     * Verifies that the method generates a token and sends an email.
+     */
     @Test
     void forgetPassword_UserFound_ReturnsToken() {
         // Arrange
@@ -284,6 +332,10 @@ class AuthenticationServiceTest {
         verify(mailService).sendMail(any(String.class), any(String.class), any(String.class));
     }
 
+    /**
+     * Tests the forgetPassword method when the user is not found.
+     * Verifies that the method returns a "User not found" message.
+     */
     @Test
     void forgetPassword_UserNotFound_ReturnsUserNotFound() {
         // Arrange
@@ -298,6 +350,10 @@ class AuthenticationServiceTest {
         verify(userRepository).findByEmail(email);
     }
 
+    /**
+     * Tests the resetPassword method when a valid token is provided.
+     * Verifies that the password is successfully updated.
+     */
     @Test
     void resetPassword_ValidToken_Success() {
         // Arrange
@@ -319,6 +375,10 @@ class AuthenticationServiceTest {
         verify(userRepository).save(user);
     }
 
+    /**
+     * Tests the resetPassword method when an invalid token is provided.
+     * Verifies that the method returns "User not found".
+     */
     @Test
     void resetPassword_InvalidToken_ReturnsInvalidToken() {
         // Arrange
@@ -334,6 +394,10 @@ class AuthenticationServiceTest {
         verify(userRepository).findByVerificationToken(token);
     }
 
+    /**
+     * Tests the resetPassword method when an expired token is provided.
+     * Verifies that the method returns "Expired token".
+     */
     @Test
     void resetPassword_ExpiredToken_ReturnsExpiredToken() {
         // Arrange

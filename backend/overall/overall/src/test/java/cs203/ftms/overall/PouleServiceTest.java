@@ -75,9 +75,12 @@ public class PouleServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
+    /**
+     * Tests if getCleanPouleDTO correctly retrieves and processes data
+     * for a poule in the Men's Sabre category.
+     */
     @Test
     void getCleanPouleDTO_MenSabre() {
-
         // Arrange
         Event event = new Event();
         event.setId(1);
@@ -141,9 +144,12 @@ public class PouleServiceTest {
         assertEquals(2, cleanFencers.size());
     }
 
+    /**
+     * Tests if getCleanPouleDTO correctly retrieves and processes data
+     * for a poule in the Women's Foil category.
+     */
     @Test
     void getCleanPouleDTO_WomenFoil() {
-
         // Arrange
         Event event = new Event();
         event.setId(1);
@@ -207,9 +213,11 @@ public class PouleServiceTest {
         assertEquals(2, cleanFencers.size());
     }
 
+    /**
+     * Tests the functionality of getCleanPouleDTO for Men's Épée category.
+     */
     @Test
     void getCleanPouleDTO_MenEpee() {
-
         // Arrange
         Event event = new Event();
         event.setId(1);
@@ -273,9 +281,11 @@ public class PouleServiceTest {
         assertEquals(2, cleanFencers.size());
     }
 
+    /**
+     * Tests the functionality of getCleanPouleDTO when no weapon and gender are provided.
+     */
     @Test
     void getCleanPouleDTO_NoWeaponAndGender() {
-
         // Arrange
         Event event = new Event();
         event.setId(1);
@@ -337,6 +347,9 @@ public class PouleServiceTest {
         assertEquals(2, cleanFencers.size());
     }
 
+    /**
+     * Tests if recommendPoules suggests correct configurations for a 10-fencer event.
+     */
     @Test
     void recommendPoules_10Fencers() {
         // Arrange
@@ -356,6 +369,10 @@ public class PouleServiceTest {
         assertEquals(expected, result);
     }
 
+    /**
+     * Tests if recommendPoules suggests correct configurations
+     * for a 16-fencer event.
+     */
     @Test
     void recommendPoules_16Fencers() {
         // Arrange
@@ -376,6 +393,10 @@ public class PouleServiceTest {
         assertEquals(expected, result);
     }
 
+    /**
+     * Tests if recommendPoules suggests correct configurations
+     * for a 15-fencer event.
+     */
     @Test
     void recommendPoules_15Fencers() {
         // Arrange
@@ -397,6 +418,9 @@ public class PouleServiceTest {
         assertEquals(expected, result);
     }
 
+    /**
+     * Test to verify that poules are successfully created and returned.
+     */
     @Test
     void createPoules_ShouldCreateAndReturnPoules() {
         // Arrange
@@ -429,7 +453,6 @@ public class PouleServiceTest {
         when(eventService.getEvent(eventId)).thenReturn(event);
         when(eventRepository.save(event)).thenReturn(event);
 
-
         // Act
         Set<CleanPouleDTO> result = pouleService.createPoules(eventId, dto, organiser);
 
@@ -437,7 +460,10 @@ public class PouleServiceTest {
         verify(eventService).getEvent(eventId);
         assertNotNull(result);
     }
-    
+
+    /**
+     * Test to check behavior when poules already exist for an event.
+     */
     @Test
     void createPoules_PoulesAlreadyExist() {
         // Arrange
@@ -478,7 +504,6 @@ public class PouleServiceTest {
         when(eventService.getEvent(eventId)).thenReturn(event);
         when(eventRepository.save(event)).thenReturn(event);
 
-
         // Act
         Set<CleanPouleDTO> result = pouleService.createPoules(eventId, dto, organiser);
 
@@ -487,6 +512,9 @@ public class PouleServiceTest {
         assertNotNull(result);
     }
 
+    /**
+     * Test to verify clean poules are returned for an event.
+     */
     @Test
     void getPoulesOfEvent_ShouldReturnCleanPoules() {
         // Arrange
@@ -523,7 +551,9 @@ public class PouleServiceTest {
         // Add more assertions as needed to verify the behavior
     }
 
-
+    /**
+     * Test to verify a poule table is returned when poules exist.
+     */
     @Test
     void getPouleTable_ShouldReturnPouleTable_WhenPoulesExist() {
         // Arrange
@@ -574,11 +604,15 @@ public class PouleServiceTest {
 
         // Act
         PouleTableDTO result = pouleService.getPouleTable(eventId, createPM);
+
         // Assert
         verify(eventService).getEvent(eventId);
         assertNotNull(result);
     }
 
+    /**
+     * Test to verify that a poule table is returned correctly when `createPM` is false.
+     */
     @Test
     void getPouleTable_ShouldReturnPouleTable_WhenCreatePMIsFalse() {
         // Arrange
@@ -641,59 +675,64 @@ public class PouleServiceTest {
         // Add more assertions as needed to verify the behavior
     }
 
+    /**
+     * Test to verify that a poule table is updated correctly.
+     * 
+     * @throws MethodArgumentNotValidException if validation fails during the update
+     */
     @Test
     void updatePouleTable_ShouldUpdatePouleTable() throws MethodArgumentNotValidException {
-         // Arrange
-         Organiser organiser = new Organiser();
-         Tournament tournament = new Tournament();
-         tournament.setOrganiser(organiser);
-         int eventId = 1;
-         boolean createPM = true;
- 
-         Event event = new Event();
-         event.setId(eventId);
-         event.setTournament(tournament);
- 
-         Set<TournamentFencer> fencers = new HashSet<>();
-         for (int i = 0; i < 5; i++) {
-             TournamentFencer tournamentFencer = new TournamentFencer();
-             tournamentFencer.setId(i);
-             Fencer fencer = new Fencer();
-             fencer.setPoints(100 + i); // Set some points for the fencer
-             fencer.setName("Fencer " + i);
-             fencer.setCountry("Country " + i);
-             tournamentFencer.setFencer(fencer);
-             fencers.add(tournamentFencer);
-         }
-         event.setFencers(fencers);
+        // Arrange
+        Organiser organiser = new Organiser();
+        Tournament tournament = new Tournament();
+        tournament.setOrganiser(organiser);
+        int eventId = 1;
+        boolean createPM = true;
 
-         Set<PouleMatch> pouleMatches = new HashSet<>();
-         for (int i = 0; i < 10; i++) {
-             PouleMatch pouleMatch = new PouleMatch();
-             pouleMatch.setId(i);
-             pouleMatch.setFencer1(i);
-             pouleMatch.setFencer2(i + 1);
-             pouleMatches.add(pouleMatch);
-         }
- 
-         List<Poule> poules = new ArrayList<>();
-         Poule poule = new Poule();
-         poule.setId(1);
-         poule.setPouleNumber(1);
-         poule.setEvent(event); // Ensure the poule has a non-null event
-         poule.setFencers(fencers);
-         poule.setPouleMatches(new HashSet<>()); // Ensure poule matches are not null
-         poules.add(poule);
- 
-         when(eventService.getEvent(eventId)).thenReturn(event);
-         when(pouleRepository.findByEvent(event)).thenReturn(poules);
-         when(pouleRepository.findById(1)).thenReturn(Optional.of(poule));
-         when(pouleRepository.findByEventAndPouleNumber(event, 1)).thenReturn(Collections.singletonList(poule));
-         for (TournamentFencer fencer : fencers) {
+        Event event = new Event();
+        event.setId(eventId);
+        event.setTournament(tournament);
+
+        Set<TournamentFencer> fencers = new HashSet<>();
+        for (int i = 0; i < 5; i++) {
+            TournamentFencer tournamentFencer = new TournamentFencer();
+            tournamentFencer.setId(i);
+            Fencer fencer = new Fencer();
+            fencer.setPoints(100 + i); // Set some points for the fencer
+            fencer.setName("Fencer " + i);
+            fencer.setCountry("Country " + i);
+            tournamentFencer.setFencer(fencer);
+            fencers.add(tournamentFencer);
+        }
+        event.setFencers(fencers);
+
+        Set<PouleMatch> pouleMatches = new HashSet<>();
+        for (int i = 0; i < 10; i++) {
+            PouleMatch pouleMatch = new PouleMatch();
+            pouleMatch.setId(i);
+            pouleMatch.setFencer1(i);
+            pouleMatch.setFencer2(i + 1);
+            pouleMatches.add(pouleMatch);
+        }
+
+        List<Poule> poules = new ArrayList<>();
+        Poule poule = new Poule();
+        poule.setId(1);
+        poule.setPouleNumber(1);
+        poule.setEvent(event); // Ensure the poule has a non-null event
+        poule.setFencers(fencers);
+        poule.setPouleMatches(new HashSet<>()); // Ensure poule matches are not null
+        poules.add(poule);
+
+        when(eventService.getEvent(eventId)).thenReturn(event);
+        when(pouleRepository.findByEvent(event)).thenReturn(poules);
+        when(pouleRepository.findById(1)).thenReturn(Optional.of(poule));
+        when(pouleRepository.findByEventAndPouleNumber(event, 1)).thenReturn(Collections.singletonList(poule));
+        for (TournamentFencer fencer : fencers) {
             when(tournamentFencerRepository.findById(fencer.getId())).thenReturn(Optional.of(fencer));
         }
-         when(matchRepository.save(pouleMatches.iterator().next())).thenReturn(pouleMatches.iterator().next());
-         for (TournamentFencer tf1 : fencers) {
+        when(matchRepository.save(pouleMatches.iterator().next())).thenReturn(pouleMatches.iterator().next());
+        for (TournamentFencer tf1 : fencers) {
             for (TournamentFencer tf2 : fencers) {
                 if (!tf1.equals(tf2) && !pouleMatches.contains(tf2.getId() + tf1.getId()) && !pouleMatches.contains(tf1.getId() + tf2.getId())) {
                     PouleMatch pouleMatch = new PouleMatch();
@@ -706,9 +745,8 @@ public class PouleServiceTest {
                 }
             }
         }
-    
+
         PouleTableDTO initial = pouleService.getPouleTable(eventId, createPM);
-        
 
         SinglePouleTableDTO singlePouleTableDTO = new SinglePouleTableDTO(1, initial.getPouleTable().get(0));
         String updated = singlePouleTableDTO.getSingleTable().get("Fencer 4 (Country 4) -- 4").replace('0', '5');
@@ -720,11 +758,11 @@ public class PouleServiceTest {
         // Assert
         verify(pouleRepository).findByEventAndPouleNumber(event, 1);
         assertTrue(result);
-        // Add more assertions as needed to verify the behavior
     }
 
-
-
+    /**
+     * Test to verify that a poule table is updated correctly when fencer 1 wins.
+     */
     @Test
     void updatePouleTable_UpdatePouleTableFencer1win() throws MethodArgumentNotValidException {
         // Arrange
@@ -800,6 +838,9 @@ public class PouleServiceTest {
         assertTrue(result);
     }
 
+    /**
+     * Test to verify the correct mappings of fencers after poules.
+     */
     @Test
     void getFencersAfterPoules_ShouldReturnCorrectMappings() {
         // Arrange
@@ -881,6 +922,9 @@ public class PouleServiceTest {
         assertEquals(0, result.get("Eliminated").size()); // remaining fencers are eliminated
     }
 
+    /**
+     * Test to verify correct mappings of fencers for nearest power of 2 calculation.
+     */
     @Test
     void getFencersAfterPoules_ShouldReturnCorrectMappingsNearestPower2() {
         // Arrange
@@ -919,8 +963,6 @@ public class PouleServiceTest {
             pouleMatch.setFencer1(i);
             pouleMatch.setFencer2(i + 1);
             pouleMatches.add(pouleMatch);
-
-
         }
 
         List<Poule> poules = new ArrayList<>();
@@ -964,6 +1006,9 @@ public class PouleServiceTest {
         assertEquals(2, result.get("Eliminated").size()); // remaining fencers are eliminated
     }
 
+    /**
+     * Test to verify that fencer ranks are updated correctly after poules.
+     */
     @Test
     void updateTournamentFencerRanks_ShouldUpdateRanksCorrectly() {
         // Arrange
@@ -985,8 +1030,9 @@ public class PouleServiceTest {
         }
     }
 
-
-
+    /**
+     * Test to verify that poule results are returned correctly.
+     */
     @Test
     void poulesResult_ShouldReturnPouleResultsDTO() {
         // Arrange
@@ -1026,6 +1072,5 @@ public class PouleServiceTest {
         // Assert
         verify(eventService).getEvent(eventId);
         assertNotNull(result);
-        // Add more assertions as needed to verify the behavior
     }
 }
