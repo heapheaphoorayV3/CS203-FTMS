@@ -63,7 +63,6 @@ const FencerDashboard = () => {
   const fetchInternationalRanking = async () => {
     try {
       const response = await FencerService.getInternationalRanking();
-      console.log("International Ranking Data:", response.data);
       if (response.data.length === -1) {
         setInternationalRankingError("Fencer not found")
       } else {
@@ -184,9 +183,7 @@ const FencerDashboard = () => {
 
   const handleEditChange = (e) => {
     const { name, value } = e.target;
-    console.log(name, value);
     setEditedData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Edited data:", editedData);
   };
 
   const validateEditInputs = () => {
@@ -204,7 +201,6 @@ const FencerDashboard = () => {
   };
 
   const handleEditSubmit = async () => {
-    console.log("Edited data:", editedData);
     if (validateEditInputs()) {
       try {
         await FencerService.updateProfile(editedData);
@@ -344,7 +340,6 @@ const FencerDashboard = () => {
 
     // Iterate over the events and count the number of events for each month
     if (pastEvents && pastEvents.length > 0) {
-      console.log("pastEvents:" + pastEvents);
       for (let i = 0; i < pastEvents.length; i++) {
         // Format pastEvent eventDate to be compared to the values in months[]
         const pastEventDate = new Date(pastEvents[i].eventDate);

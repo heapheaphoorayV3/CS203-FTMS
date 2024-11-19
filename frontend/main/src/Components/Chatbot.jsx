@@ -27,17 +27,14 @@ export default function Chatbot() {
         setUserData(response.data);
       } catch (error) {
         if (error.response.status === 403) {
-          console.log("Unauthorized access to upcoming events.");
           setError(
             "Unauthorized: You don't have permission to use the chatbot."
           );
         } else if (error.request) {
           // The request was made but no response was received
-          console.log("Error request: ", error.request);
           setError("Fencer Data has failed to load, please try again later.");
         } else {
           // Something happened in setting up the request that triggered an Error
-          console.log("Unknown Error: " + error);
           setError("Fencer Data has failed to load, please try again later.");
         }
       }
@@ -46,23 +43,19 @@ export default function Chatbot() {
     const fetchFencerEvents = async () => {
       try {
         const response = await EventService.getAllEventsByGenderAndWeapon();
-        console.log("all:", response.data);
         setFencerEvents(response.data);
       } catch (error) {
         if (error.response.status === 403) {
-          console.log("Unauthorized access to events.");
           setError(
             "Unauthorized: You don't have permission to use the chatbot."
           );
         } else if (error.request) {
           // The request was made but no response was received
-          console.log("Error request: ", error.request);
           setError(
             "Fencer Events Data has failed to load, please try again later."
           );
         } else {
           // Something happened in setting up the request that triggered an Error
-          console.log("Unknown Error: " + error);
           setError(
             "Fencer Events Data has failed to load, please try again later."
           );
@@ -76,19 +69,16 @@ export default function Chatbot() {
         setFencerUpcomingEvents(response.data);
       } catch (error) {
         if (error.response.status === 403) {
-          console.log("Unauthorized access to upcoming events.");
           setError(
             "Unauthorized: You don't have permission to use the chatbot."
           );
         } else if (error.request) {
           // The request was made but no response was received
-          console.log("Error request: ", error.request);
           setError(
             "Fencer Upcoming Events Data has failed to load, please try again later."
           );
         } else {
           // Something happened in setting up the request that triggered an Error
-          console.log("Unknown Error: " + error);
           setError(
             "Fencer Upcoming Events Data has failed to load, please try again later."
           );
@@ -116,7 +106,6 @@ export default function Chatbot() {
 
   const fetchProjectedPoints = async (eventID) => {
     try {
-      console.log("event ID:", eventID);
       const response = await ChatbotService.getProjectedPoints(eventID);
       addMessage(`Your projected points: ${response.data}`, "bot");
       setShowInput(false);
@@ -155,7 +144,7 @@ export default function Chatbot() {
         experience: new Date().getFullYear() - userData.debutYear,
       };
       const response = await ChatbotService.recommendTournaments(fencerDetails);
-      console.log("recc tourns: ", response.data);
+
       if (response.data.length === 0) {
         addMessage(
           "There are currently no recommended tournaments available.",
@@ -163,13 +152,11 @@ export default function Chatbot() {
         );
         setRecommendedTournaments([]);
       } else {
-        console.log("upcoming:", fencerUpcomingEvents);
         const filteredTournaments = response.data.filter((tournament) => {
           return !fencerUpcomingEvents.some(
             (upcomingEvent) => upcomingEvent.tournamentName === tournament.name
           );
         });
-        console.log("filtered:", filteredTournaments);
         if (filteredTournaments.length === 0) {
           addMessage(
             "There are no recommended tournaments available that you haven't already registered for.",
@@ -237,7 +224,6 @@ export default function Chatbot() {
         return event.id === id;
       });
 
-      console.log("selected event:", selectedEvent);
 
       const tournamentName = selectedEvent
         ? selectedEvent.tournamentName

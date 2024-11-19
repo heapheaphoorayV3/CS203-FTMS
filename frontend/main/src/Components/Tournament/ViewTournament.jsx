@@ -62,21 +62,17 @@ export default function ViewTournament() {
         tournamentID
       );
       setTournamentData(response.data);
-      console.log("response.data => ", response.data);
       // Set eventsArray
       const eventsArray = response.data.events; // Accessing events directly
       setEventsArray(eventsArray);
     } catch (error) {
       if (error.response) {
-        console.log("Error response data: ", error.response.data);
         setError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request: ", error.request);
         setError("Tournament Data has failed to load, please try again later.");
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Unknown Error: " + error);
         setError("Tournament Data has failed to load, please try again later.");
       }
     }
@@ -86,24 +82,19 @@ export default function ViewTournament() {
   const fetchRegisteredEvents = async () => {
     try {
       const response = await FencerService.getFencerUpcomingEvents();
-      console.log("Response Data: ", response.data);
       // Assuming response.data is an array of Event Objects
       const eventIds = response.data.map((event) => event.id);
-      console.log("Registered Events: ", eventIds);
       setRegisteredEvents(eventIds);
     } catch (error) {
       if (error.response) {
-        console.log("Error response data: ", error.response.data);
         setError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request: ", error.request);
         setError(
           "Registered Event Data has failed to load, please try again later."
         );
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Unknown Error: " + error);
         setError(
           "Registered Event Data has failed to load, please try again later."
         );
@@ -140,7 +131,6 @@ export default function ViewTournament() {
 
       if (sessionStorage.getItem("userType") === "F") {
         fetchRegisteredEvents();
-        console.log("Fetching Registered Events" + registeredEvents);
       } else if (sessionStorage.getItem("userType") === "O") {
         checkIfOwner();
       }
@@ -273,7 +263,6 @@ export default function ViewTournament() {
     };
 
     // Add event to eventsArray and delete from eventTypes
-    console.log("FormData: " + JSON.stringify(formData));
     setEventsArray([...eventsArray, formData]);
     setNewEventsArray([...newEventsArray, formData]);
     checkEvents();
@@ -285,7 +274,6 @@ export default function ViewTournament() {
 
   // "Cancel Changes"
   const cancelCreatingChanges = async () => {
-    console.log("Cancelling Changes");
     try {
       const response = await TournamentService.getTournamentDetails(
         tournamentID
@@ -314,15 +302,12 @@ export default function ViewTournament() {
       fetchData();
     } catch (error) {
       if (error.response) {
-        console.log("Error response data: ", error.response.data);
         setAddEventError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request: ", error.request);
         setAddEventError("An error has occured, please try again later.");
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Unknown Error: " + error);
         setAddEventError("An error has occured, please try again later.");
       }
     }
@@ -364,7 +349,6 @@ export default function ViewTournament() {
   };
 
   const registerEvent = async (eventID) => {
-    console.log("Registering event with ID:", eventID);
     try {
       await EventService.registerEvent(eventID).then(() => {
         fetchRegisteredEvents();
@@ -372,18 +356,15 @@ export default function ViewTournament() {
       });
     } catch (error) {
       if (error.response) {
-        console.log("Error response data: ", error.response.data);
         
         setRegisterEventError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request: ", error.request);
         setRegisterEventError(
           "Event registration has failed, please try again later."
         );
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Unknown Error: " + error);
         setRegisterEventError(
           "Event registration has failed, please try again later."
         );
@@ -396,7 +377,6 @@ export default function ViewTournament() {
   };
 
   const unregisterEvent = async (eventID) => {
-    console.log("Unregistering event with ID:", eventID);
     try {
       await EventService.unregisterEvent(eventID).then(() => {
         fetchRegisteredEvents();
@@ -404,17 +384,14 @@ export default function ViewTournament() {
       });
     } catch (error) {
       if (error.response) {
-        console.log("Error response data: ", error.response.data);
         setRegisterEventError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request: ", error.request);
         setRegisterEventError(
           "Event registration/deregistration has failed, please try again later."
         );
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Unknown Error: " + error);
         setRegisterEventError(
           "Event registration/deregistration has failed, please try again later."
         );

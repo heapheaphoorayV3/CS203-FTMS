@@ -5,24 +5,18 @@ import EventService from "../../Services/Event/EventService";
 const EndEvent = ({ id, closeEndEventPopup }) => {
   const [error, setError] = useState(null);
 
-  console.log("id:", id);
-
   const handleEndEvent = async () => {
     try {
       await EventService.endEvent(id);
-      console.log("EVENT SERVICE END");
       closeEndEventPopup();
     } catch (error) {
       if (error.response) {
-        console.log("Error response data: ", error.response);
         setError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request: ", error.request);
         setError("Failed to end event, please try again later.");
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Unknown Error: " + error);
         setError("Failed to end event, please try again later.");
       }
     }

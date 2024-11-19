@@ -68,7 +68,6 @@ export default function InternationalRanking() {
     }
   }, [rankingData, currentPage, limit]);
 
-  console.log(rankingData);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);

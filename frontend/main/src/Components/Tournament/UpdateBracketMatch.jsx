@@ -49,7 +49,6 @@ const UpdateBracketMatch = ({ matches, onClose, eventID }) => {
         && `${match.participants[0].name} vs ${match.participants[1].name}` === selectedMatch
     );
     setTrackSelectedMatch(matchObject);
-    console.log("Selected Match: ", matchObject);
   };
 
   // Trigger the confirmation popup instead of directly submitting
@@ -75,22 +74,16 @@ const UpdateBracketMatch = ({ matches, onClose, eventID }) => {
         score1: data.firstScore,
         score2: data.secondScore,
       };
-
-      console.log(combinedData);
-
       await EventService.updateDEMatch(eventID, combinedData);
       onClose();
     } catch (error) {
       if (error.response) {
-        console.log("Error response data: ", error.response.data);
         setError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request: ", error.request);
         setError("Failed to update match, please try again later.");
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Unknown Error: " + error);
         setError("Failed to update match, please try again later.");
       }
     }

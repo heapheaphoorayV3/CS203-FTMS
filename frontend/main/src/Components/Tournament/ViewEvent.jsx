@@ -57,21 +57,14 @@ export default function ViewEvent() {
     try {
       const response = await EventService.getEvent(eventID);
       setEventData(response.data);
-      // console.log("event data =>");
     } catch (error) {
       if (error.response) {
-        console.log(
-          "Error response data for event data: ",
-          error.response.data
-        );
         setError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request for event data: ", error.request);
         setError("Event Data has failed to load, please try again later.");
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Unknown Error: " + error);
         setError("Event Data has failed to load, please try again later.");
       }
     }
@@ -82,13 +75,10 @@ export default function ViewEvent() {
     try {
       const response = await OrganiserService.getAllHostedTournaments();
       const upcomingTournaments = response.data;
-      console.log("upcoming tournaments:", upcomingTournaments);
       let found = false;
       for (let tournament of upcomingTournaments) {
         if (Array.isArray(tournament.events)) {
           for (let event of tournament.events) {
-            console.log("tournament.events id=", event.id);
-            console.log("current event id=", eventID);
             if (Number(event.id) === Number(eventID)) {
               found = true;
               break;
@@ -123,18 +113,12 @@ export default function ViewEvent() {
       setCleanedPouleData(processedData);
     } catch (error) {
       if (error.response) {
-        console.log(
-          "Error response data for poule table: ",
-          error.response.data
-        );
         setError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request for poule table: ", error.request);
         setError("Poule Data has failed to load, please try again later.");
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Unknown Error: " + error);
         setError("Poule Data has failed to load, please try again later.");
       }
     } finally {
@@ -146,20 +130,16 @@ export default function ViewEvent() {
     try {
       const response = await EventService.getMatches(eventID);
       setMatches(response.data);
-      // console.log("matches:", response.data);
     } catch (error) {
       if (error.response) {
-        console.log("Error response data: ", error.response.data);
         setError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request for matches: ", error.request);
         setError(
           "Direct Elimination Data has failed to load, please try again later."
         );
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Unknown Error: " + error);
         setError(
           "Direct Elimination Data has failed to load, please try again later."
         );
@@ -175,20 +155,15 @@ export default function ViewEvent() {
       setEventRanking(response.data.slice(startIndex, endIndex));
     } catch (error) {
       if (error.response) {
-        console.log("Error response data: ", error.response.data);
         setError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log(
-          "Error request for fetching event ranking: ",
-          error.request
-        );
+
         setError(
           "Event Ranking Data has failed to load, please try again later."
         );
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Unknown Error: " + error);
         setError(
           "Event Ranking Data has failed to load, please try again later."
         );
@@ -199,21 +174,17 @@ export default function ViewEvent() {
   const fetchPoulesResults = async () => {
     try {
       const response = await EventService.getPoulesResult(eventID);
-      // console.log(response.data);
       setPoulesResults(response.data);
     } catch (error) {
       if (error.response) {
-        console.log("Error response data: ", error.response.data);
         setError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request: ", error.request);
         setError(
           "Poules Results Data has failed to load, please try again later."
         );
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Unknown Error: " + error);
         setError(
           "Poules Results Data has failed to load, please try again later."
         );
@@ -397,12 +368,9 @@ export default function ViewEvent() {
         singleTable: Object.fromEntries(singleTableMap),
       };
 
-      console.log("sending to backend:", combinedData);
-
       await EventService.updatePouleTable(eventID, combinedData);
       fetchPoulesResults();
 
-      // console.log("Poules updated successfully");
     } catch (error) {
       console.error("Error updating poules:", error);
     } finally {
@@ -431,13 +399,8 @@ export default function ViewEvent() {
     fetchEventData();
     fetchEventRanking();
   };
-  // console.log("eventdata:", eventData);
-  console.log("poules results:", poulesResults);
-  console.log("poules results bypass:", poulesResults.bypassFencers);
 
   const totalPages = Math.ceil(eventRanking.length / limit);
-
-  console.log("isowner:", isOwner);
 
   return (
     <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">

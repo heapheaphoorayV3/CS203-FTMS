@@ -7,12 +7,10 @@ const DeleteTournament = ({ id, closeDeletePopUp }) => {
 
     const handleDeleteTournament = async () => {
         try {
-            console.log("ID: " + id);
             await TournamentService.deleteTournament(id);
             closeDeletePopUp();
         } catch (error) {
             if (error.response) {
-                console.log("Error response data: ", error.response.data);
                 if (error.response.data === "") {
                     setError("Failed to delete tournament, please try again later.");
                 } else {
@@ -20,11 +18,9 @@ const DeleteTournament = ({ id, closeDeletePopUp }) => {
                 }
             } else if (error.request) {
                 // The request was made but no response was received
-                console.log("Error request: ", error.request);
                 setError("Failed to delete tournament, please try again later.");
             } else {
                 // Something happened in setting up the request that triggered an Error
-                console.log("Unknown Error: " + error);
                 setError("Failed to delete tournament, please try again later.");
             }
         }

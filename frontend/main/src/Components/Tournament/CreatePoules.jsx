@@ -20,17 +20,14 @@ const CreatePoules = ({ onClose, eventID }) => {
       setRecommendedPoulesData(response.data);
     } catch (error) {
       if (error.response) {
-        console.log("Error response data: ", error.response.data);
         setRecommendedPoulesError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request: ", error.request);
         setRecommendedPoulesError(
           "Recommended Poules have failed to load, please try again later."
         );
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Unknown Error: " + error);
         setRecommendedPoulesError(
           "Recommended Poules have failed to load, please try again later."
         );
@@ -54,15 +51,12 @@ const CreatePoules = ({ onClose, eventID }) => {
       onClose();
     } catch (error) {
       if (error.response) {
-        console.log("Error response data: ", error.response.data);
         setCreatePouleError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request: ", error.request);
         setCreatePouleError("Poule Creation Failed, please try again later.");
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Unknown Error: " + error);
         setCreatePouleError("Poule Creation Failed, please try again later.");
       }
     } finally {

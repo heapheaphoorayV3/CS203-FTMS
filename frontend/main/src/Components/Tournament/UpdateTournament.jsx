@@ -23,7 +23,6 @@ const UpdateTournament = ({ selectedTournament, onClose }) => {
 
   useEffect(() => {
     if (selectedTournament) {
-      console.log("Selected tournament:", selectedTournament);
       const advancementRate = parseInt(selectedTournament.advancementRate, 10);
       setValue("advancementRate", advancementRate);
       setValue("description", selectedTournament.description);
@@ -45,14 +44,12 @@ const UpdateTournament = ({ selectedTournament, onClose }) => {
       difficulty: difficultyChar,
     };
 
-    console.log("Updating tournament with data:", formData);
 
     try {
       await TournamentService.updateTournament(selectedTournament.id, formData); // Call the update method
       onClose(); // Redirect to a view page after update
     } catch (error) {
       if (error.response) {
-        console.log("Error response data: ", error.response.data);
         if (typeof error.response.data === 'object') {
           const [firstKey, firstValue] = Object.entries(error.response.data)[0];
           setError(firstValue);
@@ -60,11 +57,9 @@ const UpdateTournament = ({ selectedTournament, onClose }) => {
         else setError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request: ", error.request);
         setError("Failed to update tournament, please try again later.");
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Unknown Error: " + error);
         setError("Failed to update tournament, please try again later.");
       }
     }

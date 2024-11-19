@@ -124,9 +124,7 @@ const OrganiserDashboard = () => {
 
   const handleEditChange = (e) => {
     const { name, value } = e.target;
-    console.log(name, value);
     setEditedData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Edited data:", editedData);
   };
 
   const validateEditInputs = () => {
@@ -144,7 +142,6 @@ const OrganiserDashboard = () => {
   };
 
   const handleEditSubmit = async () => {
-    console.log("Edited data:", editedData);
     if (validateEditInputs()) {
       try {
         await OrganiserService.updateProfile(editedData);
@@ -174,8 +171,6 @@ const OrganiserDashboard = () => {
       </div>
     ); // Show error message if any
   }
-
-  // console.log("verified=" + userData.verified);
 
   const updateTournament = (tournamentToUpdate) => {
     setIsUpdateTournamentPopupVisible(true);

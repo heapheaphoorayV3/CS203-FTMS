@@ -47,7 +47,6 @@ export default function ChangePassword({ isOpen, onClose }) {
       onClose(); // Close the popup after submission
     } catch (error) {
       setError(true);
-      console.log(error);
     }
   };
 
