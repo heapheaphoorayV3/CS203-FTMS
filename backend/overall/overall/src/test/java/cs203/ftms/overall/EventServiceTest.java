@@ -35,7 +35,7 @@ import cs203.ftms.overall.exception.EntityDoesNotExistException;
 import cs203.ftms.overall.exception.EventAlreadyExistsException;
 import cs203.ftms.overall.exception.EventCannotEndException;
 import cs203.ftms.overall.exception.FencerAlreadyRegisteredForEventException;
-import cs203.ftms.overall.exception.SignUpDateOverExcpetion;
+import cs203.ftms.overall.exception.SignUpDateOverException;
 import cs203.ftms.overall.model.tournamentrelated.DirectEliminationMatch;
 import cs203.ftms.overall.model.tournamentrelated.Event;
 import cs203.ftms.overall.model.tournamentrelated.Poule;
@@ -378,7 +378,7 @@ public class EventServiceTest {
         when(eventRepository.findById(eid)).thenReturn(Optional.of(event));
 
         // Act & Assert
-        assertThrows(SignUpDateOverExcpetion.class, () -> {
+        assertThrows(SignUpDateOverException.class, () -> {
             eventService.registerEvent(eid, fencer);
         });
     }

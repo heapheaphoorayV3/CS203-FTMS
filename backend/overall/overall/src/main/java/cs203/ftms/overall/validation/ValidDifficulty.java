@@ -7,14 +7,43 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Constraint(validatedBy = ValidateDifficulty.class) // Link to the validator class
-@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
-@Retention(RetentionPolicy.RUNTIME)
+/**
+ * Custom annotation for validating the difficulty level of an entity.
+ * <p>
+ * This annotation ensures that the annotated field contains one of the allowed difficulty values: 'B', 'I', or 'A', 
+ * which represent Beginner, Intermediate, and Advanced levels, respectively.
+ * </p>
+ * <p>
+ * Usage:
+ * </p>
+ * <pre>
+ * &#64;ValidDifficulty
+ * private char difficulty;
+ * </pre>
+ */
+@Constraint(validatedBy = ValidateDifficulty.class) // Specifies the validator class
+@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE }) // Annotation can be applied to fields, methods, parameters, and other annotations
+@Retention(RetentionPolicy.RUNTIME) // Retained at runtime
 public @interface ValidDifficulty {
 
-    String message() default "Difficulty must be either B, I or A";  // Default validation message
+    /**
+     * Default validation message when the difficulty level is invalid.
+     *
+     * @return the default error message
+     */
+    String message() default "Difficulty must be either B, I, or A";  
 
-    Class<?>[] groups() default {}; // Grouping constraints
+    /**
+     * Defines groups for which this constraint can be applied.
+     *
+     * @return an array of class groups
+     */
+    Class<?>[] groups() default {}; 
 
-    Class<? extends Payload>[] payload() default {};  // Payloads used by clients of the API
+    /**
+     * Defines payloads that can be used by clients of the API to assign custom error details.
+     *
+     * @return an array of payload types
+     */
+    Class<? extends Payload>[] payload() default {};  
 }

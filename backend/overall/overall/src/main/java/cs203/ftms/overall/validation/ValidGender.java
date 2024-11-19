@@ -7,14 +7,43 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Constraint(validatedBy = ValidateGender.class) // Link to the validator class
-@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
-@Retention(RetentionPolicy.RUNTIME)
+/**
+ * Custom annotation for validating gender input in entities.
+ * <p>
+ * This annotation ensures that the annotated field has a valid gender value, where only 'M' (Male) 
+ * and 'W' (Woman) are acceptable values.
+ * </p>
+ * <p>
+ * Usage:
+ * </p>
+ * <pre>
+ * &#64;ValidGender
+ * private char gender;
+ * </pre>
+ */
+@Constraint(validatedBy = ValidateGender.class) // Specifies the validator class for gender validation
+@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE }) // Applicable to fields, methods, parameters, and other annotations
+@Retention(RetentionPolicy.RUNTIME) // Retained at runtime
 public @interface ValidGender {
 
-    String message() default "Gender must be either M or W";  // Deault validation message
+    /**
+     * Default validation message when an invalid gender is provided.
+     *
+     * @return the error message
+     */
+    String message() default "Gender must be either M or W";  
 
-    Class<?>[] groups() default {}; // Grouping constraints
+    /**
+     * Specifies groups for constraint categorization.
+     *
+     * @return an array of class groups
+     */
+    Class<?>[] groups() default {}; 
 
-    Class<? extends Payload>[] payload() default {};  // Payloads used by clients of the API
+    /**
+     * Payloads for clients to add custom error details.
+     *
+     * @return an array of payload types
+     */
+    Class<? extends Payload>[] payload() default {};  
 }

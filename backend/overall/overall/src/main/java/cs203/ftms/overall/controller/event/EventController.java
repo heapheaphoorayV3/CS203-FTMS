@@ -35,26 +35,46 @@ import cs203.ftms.overall.model.userrelated.User;
 import cs203.ftms.overall.service.event.EventService;
 import jakarta.validation.Valid;
 
-
-
+/**
+ * Controller class responsible for handling HTTP requests related to event management.
+ * Provides endpoints for creating, updating, registering, unregistering, and managing tournament events.
+ */
 @RestController
 @CrossOrigin
 @Validated
 @RequestMapping("/api/v1/event")
 public class EventController {
+    
     private final EventService eventService; 
 
+    /**
+     * Constructor for EventController.
+     * 
+     * @param eventService The service layer component for handling event-related operations,
+     *                     automatically injected by Spring's dependency injection mechanism.
+     */
     @Autowired
     public EventController(EventService eventService) {
         this.eventService = eventService;
     }
 
+    /**
+     * Creates multiple events for a specified tournament.
+     *
+     * @param tid The ID of the tournament.
+     * @param eventList List of events to create, validated as CreateEventDTO.
+     * @return ResponseEntity with a list of CleanEventDTOs and HttpStatus.CREATED on success,
+     *         or HttpStatus.BAD_REQUEST if creation fails.
+     * @throws MethodArgumentNotValidException if the input is not valid.
+     * @throws EventAlreadyExistsException if the event already exists.
+     */
     @PostMapping("/create-event/{tid}")
     @PreAuthorize("hasRole('ORGANISER')")
-    public ResponseEntity<List<CleanEventDTO>> createEvent(@PathVariable int tid, @RequestBody @Valid List<CreateEventDTO> e) throws MethodArgumentNotValidException, EventAlreadyExistsException {
+    public ResponseEntity<List<CleanEventDTO>> createEvent(@PathVariable int tid, @RequestBody @Valid List<CreateEventDTO> eventList)
+            throws MethodArgumentNotValidException, EventAlreadyExistsException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
-        List<Event> newE = eventService.createEvent(tid, (Organiser) user, e);
+        List<Event> newE = eventService.createEvent(tid, (Organiser) user, eventList);
         if (newE != null) {
             List<CleanEventDTO> res = new ArrayList<>();
             for (Event event : newE) {
@@ -65,22 +85,39 @@ public class EventController {
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.BAD_REQUEST);
     }
 
+    /**
+     * Updates an existing event.
+     *
+     * @param eid The ID of the event to update.
+     * @param updateEventDTO Event data for update, validated as UpdateEventDTO.
+     * @return ResponseEntity with updated CleanEventDTO and HttpStatus.OK on success,
+     *         or HttpStatus.BAD_REQUEST if update fails.
+     * @throws MethodArgumentNotValidException if the input is not valid.
+     */
     @PutMapping("/update-event/{eid}")
     @PreAuthorize("hasRole('ORGANISER')")
-    public ResponseEntity<CleanEventDTO> updateEvent(@PathVariable int eid, @RequestBody @Valid UpdateEventDTO e) throws MethodArgumentNotValidException {
+    public ResponseEntity<CleanEventDTO> updateEvent(@PathVariable int eid, @RequestBody @Valid UpdateEventDTO updateEventDTO)
+            throws MethodArgumentNotValidException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
-        Event event = eventService.updateEvent(eid, (Organiser) user, e);
+        Event event = eventService.updateEvent(eid, (Organiser) user, updateEventDTO);
         return new ResponseEntity<>(eventService.getCleanEventDTO(event), HttpStatus.OK);
     }
 
+    /**
+     * Registers a fencer for an event, ensuring the fencer's profile is complete.
+     *
+     * @param eid The ID of the event to register for.
+     * @return ResponseEntity with a success message and HttpStatus.OK if registration succeeds,
+     *         or HttpStatus.BAD_REQUEST if registration fails or profile is incomplete.
+     */
     @PutMapping("/register/{eid}")
     @PreAuthorize("hasRole('FENCER')")
     public ResponseEntity<String> registerEvent(@PathVariable int eid) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         if (((Fencer) user).getDebutYear() == 0) {
-            throw new FencerProfileIncompleteException();
+            throw new FencerProfileIncompleteException("Fencer profile incomplete, unable to perform operation!");
         }
         boolean register = eventService.registerEvent(eid, (Fencer) user);
         if (register) {
@@ -89,6 +126,13 @@ public class EventController {
         return new ResponseEntity<>("event registration unsuccessful", HttpStatus.BAD_REQUEST);
     }
 
+    /**
+     * Unregisters a fencer from an event.
+     *
+     * @param eid The ID of the event to unregister from.
+     * @return ResponseEntity with a success message and HttpStatus.OK if unregistration succeeds,
+     *         or HttpStatus.BAD_REQUEST if unregistration fails.
+     */
     @PutMapping("/unregister/{eid}")
     @PreAuthorize("hasRole('FENCER')")
     public ResponseEntity<String> unregisterEvent(@PathVariable int eid) {
@@ -101,6 +145,12 @@ public class EventController {
         return new ResponseEntity<>("event unregistration unsuccessful", HttpStatus.BAD_REQUEST);
     }
 
+    /**
+     * Deletes an event.
+     *
+     * @param eid The ID of the event to delete.
+     * @return ResponseEntity with a success message and HttpStatus.OK upon successful deletion.
+     */
     @DeleteMapping("/delete-event/{eid}")
     @PreAuthorize("hasRole('ORGANISER')")
     public ResponseEntity<String> deleteEvent(@PathVariable int eid) {
@@ -110,7 +160,13 @@ public class EventController {
         return new ResponseEntity<>("event deleted", HttpStatus.OK);
     }
 
-    
+    /**
+     * Retrieves the details of an event.
+     *
+     * @param eid The ID of the event to retrieve details for.
+     * @return ResponseEntity with CleanEventDTO and HttpStatus.OK if retrieval is successful,
+     *         or HttpStatus.BAD_REQUEST if the event does not exist.
+     */
     @GetMapping("/event-details/{eid}")
     public ResponseEntity<CleanEventDTO> getEvent(@PathVariable int eid) {
         Event event = eventService.getEvent(eid);
@@ -118,6 +174,12 @@ public class EventController {
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
+    /**
+     * Retrieves the ranking of fencers in an event.
+     *
+     * @param eid The ID of the event.
+     * @return ResponseEntity with a list of CleanTournamentFencerDTO and HttpStatus.OK.
+     */
     @GetMapping("/get-event-ranking/{eid}")
     public ResponseEntity<List<CleanTournamentFencerDTO>> getEventRanking(@PathVariable int eid) {
         List<TournamentFencer> rankings = eventService.getTournamentRanks(eid);
@@ -128,6 +190,12 @@ public class EventController {
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
+    /**
+     * Ends a tournament event.
+     *
+     * @param eid The ID of the event to end.
+     * @return ResponseEntity with a success message and HttpStatus.OK upon successful ending.
+     */
     @PutMapping("/end-event/{eid}")
     @PreAuthorize("hasRole('ORGANISER')")
     public ResponseEntity<String> endEvent(@PathVariable int eid) {
@@ -138,6 +206,11 @@ public class EventController {
         return new ResponseEntity<>("event ended", HttpStatus.OK);
     }
 
+    /**
+     * Retrieves all events for specific gender and weapon.
+     *
+     * @return ResponseEntity with a list of CleanEventDTO and HttpStatus.OK.
+     */
     @GetMapping("/get-all-events-by-gender-and-weapon")
     @PreAuthorize("hasRole('FENCER')")
     public ResponseEntity<List<CleanEventDTO>> getAllEventsByGenderAndWeapon(){

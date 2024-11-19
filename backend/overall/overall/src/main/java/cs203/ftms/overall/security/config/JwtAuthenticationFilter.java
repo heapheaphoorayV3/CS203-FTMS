@@ -20,13 +20,24 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 
+/**
+ * Filter that processes JWT authentication for each request.
+ * Extends OncePerRequestFilter to ensure it is applied only once per request.
+ */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private final HandlerExceptionResolver handlerExceptionResolver;
 
+    private final HandlerExceptionResolver handlerExceptionResolver;
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
 
+    /**
+     * Constructs a new JwtAuthenticationFilter.
+     *
+     * @param jwtService            Service for handling JWT operations.
+     * @param userDetailsService    Service for loading user details.
+     * @param handlerExceptionResolver Resolver for handling exceptions that occur during filtering.
+     */
     public JwtAuthenticationFilter(
             JwtService jwtService,
             UserDetailsService userDetailsService,
@@ -37,6 +48,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.handlerExceptionResolver = handlerExceptionResolver;
     }
 
+    /**
+     * Filters requests to authenticate users based on the JWT token in the "Authorization" header.
+     *
+     * @param request     HttpServletRequest object containing client request data.
+     * @param response    HttpServletResponse object for the response data.
+     * @param filterChain FilterChain object for invoking the next filter in the chain.
+     * @throws ServletException if a servlet error occurs during processing.
+     * @throws IOException      if an I/O error occurs during processing.
+     */
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
@@ -68,7 +88,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
-                } 
+                }
             }
 
             filterChain.doFilter(request, response);

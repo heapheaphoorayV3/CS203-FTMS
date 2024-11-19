@@ -12,6 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Controller class for handling health check requests.
+ * Provides a REST endpoint for checking the health of the application and its dependencies.
+ */
 @RestController
 @CrossOrigin
 @RequestMapping("/health")
@@ -55,7 +59,11 @@ public class HealthCheckController {
     //         : ResponseEntity.status(503).body(healthStatus);
     // }
     
-    // Simplified endpoint for ALB
+    /**
+     * Simple health check endpoint to verify the application is running. (For ALB health check)
+     * 
+     * @return ResponseEntity with "OK" message and HttpStatus.OK.
+     */
     @GetMapping("/simple")
     public ResponseEntity<String> simpleHealthCheck() {
         return new ResponseEntity<>("OK", HttpStatus.OK);

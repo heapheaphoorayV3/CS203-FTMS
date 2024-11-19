@@ -28,23 +28,41 @@ import cs203.ftms.overall.model.userrelated.User;
 import cs203.ftms.overall.service.tournament.TournamentService;
 import jakarta.validation.Valid;
 
+/**
+ * Controller class responsible for managing tournament-related operations.
+ * Provides endpoints for creating, updating, deleting, and retrieving tournaments.
+ */
 @RestController
 @CrossOrigin
 @RequestMapping("/api/v1/tournament")
 public class TournamentController {
+    
     private final TournamentService tournamentService;
 
+    /**
+     * Constructor for TournamentController.
+     * 
+     * @param tournamentService The service layer component for handling tournament-related operations.
+     */
     @Autowired
     public TournamentController(TournamentService tournamentService) {
         this.tournamentService = tournamentService;
     }
 
+    /**
+     * Creates a new tournament.
+     *
+     * @param createTournamentDTO Data for creating the tournament, provided as CreateTournamentDTO.
+     * @return ResponseEntity with CleanTournamentDTO and HttpStatus.CREATED if creation is successful,
+     *         or HttpStatus.BAD_REQUEST if creation fails.
+     * @throws MethodArgumentNotValidException if the input data is invalid.
+     */
     @PostMapping("/create-tournament")
     @PreAuthorize("hasRole('ORGANISER')")
-    public ResponseEntity<CleanTournamentDTO> createTournament(@Valid @RequestBody CreateTournamentDTO t) throws MethodArgumentNotValidException {
+    public ResponseEntity<CleanTournamentDTO> createTournament(@Valid @RequestBody CreateTournamentDTO createTournamentDTO) throws MethodArgumentNotValidException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
-        Tournament newTournament = tournamentService.createTournament(t, (Organiser) user);
+        Tournament newTournament = tournamentService.createTournament(createTournamentDTO, (Organiser) user);
         if (newTournament != null) {
             CleanTournamentDTO res = tournamentService.getCleanTournamentDTO(newTournament);
             return new ResponseEntity<>(res, HttpStatus.CREATED);
@@ -52,23 +70,44 @@ public class TournamentController {
         return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
 
+    /**
+     * Updates an existing tournament.
+     *
+     * @param tid The ID of the tournament to update.
+     * @param createTournamentDTO Updated tournament data as CreateTournamentDTO.
+     * @return ResponseEntity with CleanTournamentDTO and HttpStatus.OK if update is successful,
+     *         or HttpStatus.BAD_REQUEST if update fails.
+     * @throws MethodArgumentNotValidException if the input data is invalid.
+     */
     @PutMapping("/update-tournament/{tid}")
     @PreAuthorize("hasRole('ORGANISER')")
-    public ResponseEntity<CleanTournamentDTO> updateTournament(@PathVariable int tid, @Valid @RequestBody CreateTournamentDTO t) throws MethodArgumentNotValidException {
+    public ResponseEntity<CleanTournamentDTO> updateTournament(@PathVariable int tid, @Valid @RequestBody CreateTournamentDTO createTournamentDTO) throws MethodArgumentNotValidException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
-        Tournament updatedTournament = tournamentService.updateTournament(tid, t, (Organiser) user);
+        Tournament updatedTournament = tournamentService.updateTournament(tid, createTournamentDTO, (Organiser) user);
         CleanTournamentDTO res = tournamentService.getCleanTournamentDTO(updatedTournament);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
+    /**
+     * Retrieves details of a specific tournament.
+     *
+     * @param tid The ID of the tournament to retrieve.
+     * @return ResponseEntity with CleanTournamentDTO and HttpStatus.OK if retrieval is successful,
+     *         or HttpStatus.BAD_REQUEST if retrieval fails.
+     */
     @GetMapping("/tournament-details/{tid}")
     public ResponseEntity<CleanTournamentDTO> getTournament(@PathVariable int tid) {
         Tournament t = tournamentService.getTournament(tid);
         CleanTournamentDTO res = tournamentService.getCleanTournamentDTO(t);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
-    
+
+    /**
+     * Retrieves all tournaments.
+     *
+     * @return ResponseEntity containing a list of CleanTournamentDTO with HttpStatus.OK.
+     */
     @GetMapping("/tournaments")
     public ResponseEntity<List<CleanTournamentDTO>> getAllTournaments() {
         List<Tournament> tList = tournamentService.getAllTournaments();
@@ -80,6 +119,12 @@ public class TournamentController {
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
+    /**
+     * Deletes a specific tournament.
+     *
+     * @param tid The ID of the tournament to delete.
+     * @return ResponseEntity with a success message and HttpStatus.OK.
+     */
     @DeleteMapping("/delete-tournament/{tid}")
     @PreAuthorize("hasRole('ORGANISER')")
     public ResponseEntity<String> deleteTournament(@PathVariable int tid) {
@@ -89,9 +134,13 @@ public class TournamentController {
         return new ResponseEntity<>("Deleted tournament successfully", HttpStatus.OK);
     }
 
+    /**
+     * Retrieves upcoming tournaments.
+     *
+     * @return ResponseEntity containing a list of CleanTournamentDTO with HttpStatus.OK.
+     */
     @GetMapping("/upcoming-tournaments")
     public ResponseEntity<List<CleanTournamentDTO>> getUpcomingTournaments() {
-
         List<Tournament> tList = tournamentService.getUpcomingTournaments();
         List<CleanTournamentDTO> res = new ArrayList<>();
         for (Tournament t : tList) {
@@ -100,6 +149,11 @@ public class TournamentController {
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
+    /**
+     * Retrieves past tournaments.
+     *
+     * @return ResponseEntity containing a list of CleanTournamentDTO with HttpStatus.OK.
+     */
     @GetMapping("/past-tournaments")
     public ResponseEntity<List<CleanTournamentDTO>> getPastTournaments() {
         List<Tournament> tList = tournamentService.getPastTournaments();

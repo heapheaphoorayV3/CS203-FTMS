@@ -43,6 +43,10 @@ import cs203.ftms.overall.service.event.EventService;
 import cs203.ftms.overall.validation.OtherValidations;
 import jakarta.transaction.Transactional;
 
+/**
+ * Service class for managing poule-related operations.
+ * Provides methods for creating, updating, and retrieving poules.
+ */
 @Service
 public class PouleService {
     private final MatchService matchService;
@@ -67,7 +71,13 @@ public class PouleService {
         this.tournamentFencerRepository = tournamentFencerRepository;
         this.matchRepository = matchRepository;
     }
-
+    
+    /**
+     * Converts a Poule object into a CleanPouleDTO containing relevant data.
+     *
+     * @param p the Poule to convert
+     * @return a CleanPouleDTO object with the necessary details
+     */
     public CleanPouleDTO getCleanPouleDTO(Poule p) {
         List<CleanMatchDTO> cleanMatches = convertPouleMatches(p);
         List<CleanTournamentFencerDTO> cleanFencers = convertTournamentFencers(p);
@@ -82,21 +92,21 @@ public class PouleService {
                 cleanFencers);
     }
 
-    // helper for getCleanPouleDTO
+    // Helper method to convert a poule into a list of matches
     private List<CleanMatchDTO> convertPouleMatches(Poule p) {
         return p.getPouleMatches().stream()
                 .map(pm -> matchService.getCleanMatchDTO(pm, 'P'))
                 .collect(Collectors.toList());
     }
 
-    // helper for getCleanPouleDTO
+    // Helper method to convert a poule into a list of tournament fencers
     private List<CleanTournamentFencerDTO> convertTournamentFencers(Poule p) {
         return p.getFencers().stream()
                 .map(eventService::getCleanTournamentFencerDTO)
                 .collect(Collectors.toList());
     }
 
-    // helper for getCleanPouleDTO
+    // Helper method to build the event name for a poule
     private String buildEventName(Poule p) {
         StringBuilder eventName = new StringBuilder();
 
@@ -116,6 +126,12 @@ public class PouleService {
         return eventName.toString();
     }
 
+    /**
+     * Provides recommendations for the number of poules based on the event's participant count.
+     *
+     * @param eventId the ID of the event
+     * @return a set of recommendations for poules with fencer distribution
+     */
     public Set<String> recommendPoules(int eventId) {
         Event event = eventService.getEvent(eventId);
 
@@ -137,7 +153,7 @@ public class PouleService {
         return pouleRecommendations;
     }
 
-    // helper for recommendPoules
+    // Helper method to format the poule recommendation
     private String formatPouleRecommendation(int fencerCount, int numPoules) {
         int baseFencersPerPoule = fencerCount / numPoules;
         int extraPoules = fencerCount % numPoules;
@@ -155,11 +171,20 @@ public class PouleService {
         }
     }
 
+    /**
+     * Creates poules for an event with the specified number of poules in the DTO.
+     *
+     * @param eid the ID of the event
+     * @param dto the DTO containing the number of poules to create
+     * @param o   the organiser initiating the request
+     * @return a set of CleanPouleDTOs representing the created poules
+     */
+    @Transactional
     public Set<CleanPouleDTO> createPoules(int eid, CreatePoulesDTO dto, Organiser o) {
         Event event = eventService.getEvent(eid);
 
         if (event.getTournament().getSignupEndDate().isAfter(LocalDate.now())) {
-            throw new SignUpDateNotOverException();
+            throw new SignUpDateNotOverException("Sign up date is not over!");
         }
 
         eventService.validateOrganiser(event, o);
@@ -176,12 +201,12 @@ public class PouleService {
         return getCleanPoules(poules);
     }
 
-    // helper for createPoules
+    // Helper method to check if poules already exist for an event
     private boolean poulesAlreadyExist(Event event) {
         return event.getPoules().size() != 0;
     }
 
-    // helper for createPoules
+    // Helper method to get existing poules for an event
     private Set<CleanPouleDTO> getExistingPoules(Event event) {
         Set<CleanPouleDTO> cleanPoules = new LinkedHashSet<>();
         for (Poule poule : event.getPoules()) {
@@ -190,7 +215,7 @@ public class PouleService {
         return cleanPoules;
     }
 
-    // helper for createPoules
+    // Helper method to create and save poules for an event
     private Poule[] createAndSavePoules(Event event, int pouleCount) {
         Poule[] poules = new Poule[pouleCount];
         for (int i = 0; i < pouleCount; i++) {
@@ -201,7 +226,7 @@ public class PouleService {
         return poules;
     }
 
-    // helper for createPoules
+    // Helper method to get sorted fencers for an event
     private List<TournamentFencer> getSortedFencers(Event event) {
         Set<TournamentFencer> fencers = event.getFencers();
         List<TournamentFencer> sortedFencers = new ArrayList<>(fencers);
@@ -209,7 +234,7 @@ public class PouleService {
         return sortedFencers;
     }
 
-    // helper for createPoules
+    // Helper method to assign fencers to poules
     private void assignFencersToPoules(Poule[] poules, List<TournamentFencer> fencers) {
         int pouleCount = poules.length;
         int i = 0;
@@ -223,14 +248,14 @@ public class PouleService {
         }
     }
 
-    // helper for createPoules
+    // Helper method to save poules and event
     private void savePoulesAndEvent(Event event, Poule[] poules) {
         Set<Poule> pouleSet = new TreeSet<>(Arrays.asList(poules));
         event.setPoules(pouleSet);
         eventRepository.save(event);
     }
 
-    // helper for createPoules
+    // Helper method to get clean poules from an array of poules
     private Set<CleanPouleDTO> getCleanPoules(Poule[] poules) {
         Set<CleanPouleDTO> cleanPoules = new LinkedHashSet<>();
         for (Poule poule : poules) {
@@ -239,6 +264,12 @@ public class PouleService {
         return cleanPoules;
     }
 
+   /**
+     * Retrieves all poules for an event and converts them into CleanPouleDTOs.
+     *
+     * @param eid the ID of the event
+     * @return a set of CleanPouleDTOs for the event
+     */
     public Set<CleanPouleDTO> getPoulesOfEvent(int eid) {
         Event event = eventService.getEvent(eid);
         Set<Poule> poules = event.getPoules();
@@ -249,6 +280,13 @@ public class PouleService {
         return cleanPoules;
     }
 
+    /**
+     * Creates or retrieves a table for poules within an event.
+     *
+     * @param eid      the ID of the event
+     * @param createPM whether to create poule matches during table generation
+     * @return a PouleTableDTO representing the table for all poules
+     */
     public PouleTableDTO getPouleTable(int eid, boolean createPM) {
         Event event = eventService.getEvent(eid);
         List<Poule> poules = getPoulesByEvent(event);
@@ -262,14 +300,14 @@ public class PouleService {
         return pouleTableDTO;
     }
 
-    // helper for getPouleTable
+    // Helper method to get poules by event
     private List<Poule> getPoulesByEvent(Event event) {
         List<Poule> poules = pouleRepository.findByEvent(event);
         poules.sort(Comparator.comparing(Poule::getPouleNumber));
         return poules;
     }
 
-    // helper for getPouleTable
+    // Helper method to create a map for a poule
     private Map<String, String> createPouleMap(Poule poule, boolean createPM) {
         List<TournamentFencer> fencers = getSortedFencers(poule);
         Map<String, String> pouleMap = new LinkedHashMap<>();
@@ -284,19 +322,19 @@ public class PouleService {
         return pouleMap;
     }
 
-    // helper for getPouleTable
+    // Helper method to get sorted fencers for a poule
     private List<TournamentFencer> getSortedFencers(Poule poule) {
         List<TournamentFencer> fencers = new ArrayList<>(poule.getFencers());
         fencers.sort(Comparator.comparing((TournamentFencer tf) -> tf.getFencer().getPoints()).reversed());
         return fencers;
     }
 
-    // helper for getPouleTable
+    // Helper method to create a key for the poule map
     private String createPouleKey(TournamentFencer tf1) {
         return String.format("%s (%s) -- %d", tf1.getFencer().getName(), tf1.getFencer().getCountry(), tf1.getId());
     }
 
-    // helper for getPouleTable
+    // Helper method to create a value for the poule map
     private String createPouleValue(List<TournamentFencer> fencers, TournamentFencer tf1, int i, boolean createPM,
             Poule poule) {
         StringBuilder value = new StringBuilder();
@@ -321,7 +359,7 @@ public class PouleService {
         return value.toString();
     }
 
-    // helper for getPouleTable
+    // Helper method to create a poule match
     private void handleCreatePouleMatch(TournamentFencer tf1, TournamentFencer tf2, Poule poule, int i, int j,
             StringBuilder value) {
         if (i < j) {
@@ -330,7 +368,7 @@ public class PouleService {
         value.append("0,");
     }
 
-    // helper for getPouleTable
+    // Helper method to get existing poule matches
     private void handleExistingPouleMatch(TournamentFencer tf1, TournamentFencer tf2, Poule poule, int i, int j,
             StringBuilder value) {
         Set<PouleMatch> pouleMatches = poule.getPouleMatches();
@@ -347,7 +385,7 @@ public class PouleService {
         }
     }
 
-    // helper for getPouleTable
+    // Helper method to append poule match scores
     private void appendPouleMatchScore(TournamentFencer tf1, TournamentFencer tf2, StringBuilder value,
             PouleMatch pouleMatch, TournamentFencer ptf1, TournamentFencer ptf2) {
         if (ptf1.getId() == tf1.getId() && ptf2.getId() == tf2.getId()) {
@@ -357,6 +395,14 @@ public class PouleService {
         }
     }
 
+    /**
+     * Creates a PouleMatch between two fencers in a specific poule.
+     *
+     * @param fid1 the ID of the first fencer
+     * @param fid2 the ID of the second fencer
+     * @param pid  the ID of the poule
+     * @return the created PouleMatch object
+     */
     @Transactional
     public PouleMatch createPouleMatch(int fid1, int fid2, int pid) {
         Poule poule = getPouleById(pid);
@@ -370,19 +416,19 @@ public class PouleService {
         return pouleMatch;
     }
 
-    // helper for createPouleMatch
+    // Helper method to get a poule by ID
     private Poule getPouleById(int pid) {
         return pouleRepository.findById(pid)
                 .orElseThrow(() -> new EntityDoesNotExistException("Poule does not exist!"));
     }
 
-    // helper for createPouleMatch
+    // Helper method to get a fencer by ID
     private TournamentFencer getFencerById(int fid) {
         return tournamentFencerRepository.findById(fid)
                 .orElseThrow(() -> new EntityDoesNotExistException("Fencer does not exist!"));
     }
 
-    // helper for createPouleMatch
+    // Helper method to create and save a poule match
     private PouleMatch createAndSavePouleMatch(Poule poule, int fid1, int fid2) {
         PouleMatch pouleMatch = new PouleMatch(poule);
         pouleMatch.setFencer1(fid1);
@@ -391,7 +437,7 @@ public class PouleService {
         return pouleMatch;
     }
 
-    // helper for createPouleMatch
+    // Helper method to update a poule in a match
     private void updatePouleWithMatch(Poule poule, PouleMatch pouleMatch) {
         Set<PouleMatch> pouleMatches = poule.getPouleMatches();
         pouleMatches.add(pouleMatch);
@@ -399,7 +445,7 @@ public class PouleService {
         pouleRepository.save(poule);
     }
 
-    // helper for createPouleMatch
+    // Helper method to update fencers in a match
     private void updateFencersWithMatch(TournamentFencer fencer1, TournamentFencer fencer2, PouleMatch pouleMatch) {
         fencer1.addMatch(pouleMatch);
         fencer2.addMatch(pouleMatch);
@@ -407,6 +453,15 @@ public class PouleService {
         tournamentFencerRepository.save(fencer2);
     }
 
+    /**
+     * Updates the results of a poule table based on the provided data.
+     *
+     * @param eid the ID of the event
+     * @param dto the DTO containing updated poule table data
+     * @param o   the organiser initiating the request
+     * @return true if the update was successful, false otherwise
+     * @throws MethodArgumentNotValidException if validation of the provided data fails
+     */
     @Transactional
     public boolean updatePouleTable(int eid, SinglePouleTableDTO dto, Organiser o)
             throws MethodArgumentNotValidException {
@@ -432,12 +487,12 @@ public class PouleService {
         return true;
     }
 
-    // helper for updatePouleTable
+    // Helper method to get a poule by event and number
     private Poule getPouleByEventAndNumber(Event event, int pouleNumber) {
         return pouleRepository.findByEventAndPouleNumber(event, pouleNumber).get(0);
     }
 
-    // helper for updatePouleTable
+    // Helper method to update poule matches
     private void updatePouleMatches(Poule poule, List<TournamentFencer> fencers, TournamentFencer tf1, String[] values,
             int i) throws MethodArgumentNotValidException {
         for (int j = 0; j < fencers.size(); j++) {
@@ -448,7 +503,7 @@ public class PouleService {
         }
     }
 
-    // helper for updatePouleTable
+    // Helper method to update poule match scores
     private void updatePouleMatchScores(Poule poule, TournamentFencer tf1, TournamentFencer tf2, String value, int i,
             int j) throws MethodArgumentNotValidException {
         Set<PouleMatch> pouleMatches = poule.getPouleMatches();
@@ -462,15 +517,7 @@ public class PouleService {
                     savePouleMatchScore(value, pouleMatch, 1);
                     break;
                 }
-                // else if (ptf1.getId() == tf2.getId() && ptf2.getId() == tf1.getId()) {
-                // savePouleMatchScore(value, pouleMatch, 2);
-                // break;
-                // }
             } else {
-                // if (ptf1.getId() == tf1.getId() && ptf2.getId() == tf2.getId()) {
-                // savePouleMatchScore(value, pouleMatch, 1);
-                // break;
-                // } else
                 if (ptf1.getId() == tf2.getId() && ptf2.getId() == tf1.getId()) {
                     savePouleMatchScore(value, pouleMatch, 2);
                     break;
@@ -479,7 +526,7 @@ public class PouleService {
         }
     }
 
-    // helper for updatePouleTable
+    // Helper method to update and save poule match score
     private void savePouleMatchScore(String scoreStr, PouleMatch pouleMatch, int index)
             throws MethodArgumentNotValidException {
         int score = OtherValidations.validPoulePoint(scoreStr);
@@ -491,7 +538,7 @@ public class PouleService {
         matchRepository.save(pouleMatch);
     }
 
-    // helper for updatePouleTable
+    // Helper method to update all poule matches
     private void updateAllPouleMatches(Poule poule) {
 
         for (PouleMatch pouleMatch : poule.getPouleMatches()) {
@@ -500,7 +547,7 @@ public class PouleService {
         }
     }
 
-    // helper for updatePouleTable
+    // Helper method to update tournament fencer poule points
     public PouleMatch updateTournamentFencerPoulePoints(PouleMatch pouleMatch) {
         TournamentFencer fencer1 = matchService.getFencer1(pouleMatch);
         TournamentFencer fencer2 = matchService.getFencer2(pouleMatch);
@@ -522,6 +569,12 @@ public class PouleService {
         return pouleMatch;
     }
 
+    /**
+     * Retrieves fencers classified into groups ("Bypass", "FenceOff", "Eliminated") after the poules.
+     *
+     * @param event the event to retrieve fencers from
+     * @return a mapping of fencer groups based on their classification
+     */
     public Map<String, List<TournamentFencer>> getFencersAfterPoules(Event event) {
         Map<String, List<TournamentFencer>> mappings = new HashMap<>();
         int advancementRate = event.getTournament().getAdvancementRate();
@@ -542,12 +595,12 @@ public class PouleService {
         return mappings;
     }
 
-    // helper for getFencersAfterPoules
+    // Helper method to calculate number of fencers to advance
     private int calculateFencersAdvanced(Event event, int advancementRate) {
         return (int) (event.getParticipantCount() * (advancementRate / 100.0));
     }
 
-    // helper for getFencersAfterPoules
+    // Helper method to calculate number of fencers to bypass
     private int calculateBypass(int fencersAdvanced, int nearestPO2) {
         if (fencersAdvanced != nearestPO2) {
             return fencersAdvanced - 2 * (fencersAdvanced - nearestPO2);
@@ -555,14 +608,14 @@ public class PouleService {
         return fencersAdvanced;
     }
 
-    // helper for getFencersAfterPoules
+    // Helper method to get sorted fencers by event
     private List<TournamentFencer> getSortedFencersByEvent(Event event) {
         List<TournamentFencer> fencers = tournamentFencerRepository.findByEvent(event);
         fencers.sort(new TournamentFencerPouleComparator());
         return fencers;
     }
 
-    // helper for getFencersAfterPoules
+    // Helper method to get the nearest lower power of 2
     private static int nearestLowerPowerOf2(int a) {
         int b = 1;
         while (b < a) {
@@ -570,6 +623,7 @@ public class PouleService {
         }
         return b > a ? b >> 1 : b;
     }
+
 
     @Transactional
     public void updateTournamentFencerRanks(List<TournamentFencer> tfs) {
@@ -580,6 +634,12 @@ public class PouleService {
         }
     }
 
+    /**
+     * Retrieves the results of poules for a given event.
+     *
+     * @param eid the ID of the event
+     * @return a PouleResultsDTO containing fencer classifications and rankings
+     */
     public PouleResultsDTO poulesResult(int eid) {
         Event event = eventService.getEvent(eid);
         PouleResultsDTO dto = new PouleResultsDTO();
@@ -593,7 +653,7 @@ public class PouleService {
         return dto;
     }
 
-    // helper for poulesResult
+    // Helper method to get sorted fencers for poulesResult
     private List<TournamentFencer> getSortedFencers(Map<String, List<TournamentFencer>> mappings) {
         List<TournamentFencer> sortedFencers = new ArrayList<>();
         sortedFencers.addAll(mappings.get("Bypass"));
@@ -603,7 +663,7 @@ public class PouleService {
         return sortedFencers;
     }
 
-    // helper for poulesResult
+    // Helper method to populate a pouleResultsDTO
     private void populatePouleResultsDTO(PouleResultsDTO dto, Map<String, List<TournamentFencer>> mappings) {
         for (String type : mappings.keySet()) {
             List<TournamentFencer> fencers = mappings.get(type);
