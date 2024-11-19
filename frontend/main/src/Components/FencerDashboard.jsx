@@ -55,7 +55,6 @@ const FencerDashboard = () => {
       setUserData(response.data);
       return response.data;
     } catch (error) {
-      console.error("Error fetching user data:", error);
       setError("Failed to load user data.");
     }
   };
@@ -69,7 +68,7 @@ const FencerDashboard = () => {
         setInternationalRanking(response.data);
       }
     } catch (error) {
-      console.error("Error fetching international ranking: ", error);
+
       setInternationalRankingError("Failed to load");
     }
   };
@@ -79,7 +78,7 @@ const FencerDashboard = () => {
       const response = await FencerService.getFencerUpcomingEvents();
       setUpcomingEvents(response.data);
     } catch (error) {
-      console.error("Error fetching upcoming events: ", error);
+
       setError("Failed to load upcoming events");
     }
   };
@@ -89,7 +88,6 @@ const FencerDashboard = () => {
       const response = await FencerService.getFencerPastEvents();
       setPastEvents(response.data);
     } catch (error) {
-      console.error("Error fetching past events: ", error);
       setError("Failed to load past events");
     }
   };
@@ -113,7 +111,6 @@ const FencerDashboard = () => {
 
       setPastRank(ranks);
     } catch (error) {
-      console.error("Error fetching rank: ", error);
     }
   };
 
@@ -122,7 +119,6 @@ const FencerDashboard = () => {
       const response = await FencerService.getPastEventPointsForGraph();
       setPastEventPoints(response.data);
     } catch (error) {
-      console.error("Error fetching past events points for graph: ", error);
       setError("Failed to load past events points for graph");
     }
   };
@@ -207,7 +203,6 @@ const FencerDashboard = () => {
         setUserData((prevData) => ({ ...prevData, ...editedData }));
         setIsEditing(false);
       } catch (error) {
-        console.error("Error saving profile:", error);
         setContactNoErrors({
           contactNo: "Please enter a valid phone number with country code!",
         });
@@ -241,7 +236,6 @@ const FencerDashboard = () => {
       setUserData((prevData) => ({ ...prevData, ...incompleteData }));
       setShowCompleteProfileModal(false);
     } catch (error) {
-      console.error("Error completing profile:", error);
     }
   };
 

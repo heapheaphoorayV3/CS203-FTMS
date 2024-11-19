@@ -32,7 +32,6 @@ const AdminDashboard = () => {
       const response = await AdminService.getProfile();
       setUserData(response.data);
     } catch (error) {
-      console.error("Error fetching user data:", error);
       setError("Failed to load user data.");
     }
   };
@@ -42,7 +41,6 @@ const AdminDashboard = () => {
       const response = await FencerService.getAllFencers();
       setAllFencersData(response.data);
     } catch (error) {
-      console.error("Error fetching all fencer data: ", error);
       setError("Failed to load all fencer data");
     }
   };
@@ -52,7 +50,6 @@ const AdminDashboard = () => {
       const response = await OrganiserService.getAllOrganisers();
       setAllOrganisersData(response.data);
     } catch (error) {
-      console.error("Error fetching all fencer data: ", error);
       setError("Failed to load all fencer data");
     }
   };

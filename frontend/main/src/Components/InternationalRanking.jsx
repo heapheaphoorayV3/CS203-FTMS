@@ -44,7 +44,7 @@ export default function InternationalRanking() {
         }
         setRankingData(response.data);
       } catch (error) {
-        console.error("Error fetching international ranking: ", error);
+
         setError("Failed to load international ranking");
       } finally {
         setLoading(false);

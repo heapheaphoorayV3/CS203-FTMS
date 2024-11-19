@@ -126,7 +126,7 @@ export default function Chatbot() {
       addMessage(`Your win rate: ${response.data}`, "bot");
       setShowInput(false);
     } catch (error) {
-      console.error("Error fetching win rate: ", error);
+
       if (error.response?.status === 400) {
         addMessage("No win rate available for this event.", "botError");
       } else {
@@ -168,7 +168,7 @@ export default function Chatbot() {
         }
       }
     } catch (error) {
-      console.error("Error fetching recommended tournaments: ", error);
+
       if (error.response?.status === 400) {
         addMessage(
           "No recommended tournaments available for this event.",

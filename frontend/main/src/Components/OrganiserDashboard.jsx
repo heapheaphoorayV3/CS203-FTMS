@@ -39,7 +39,6 @@ const OrganiserDashboard = () => {
       const response = await OrganiserService.getProfile();
       setUserData(response.data);
     } catch (error) {
-      console.error("Error fetching user data:", error);
       setError("Failed to load user data.");
     }
   };
@@ -63,7 +62,6 @@ const OrganiserDashboard = () => {
         });
       setOngoingTournaments(ongoingTournamentsData);
     } catch (error) {
-      console.error("Error fetching data:", error);
       setError("Failed to load data.");
     }
   };
@@ -73,7 +71,6 @@ const OrganiserDashboard = () => {
       const response = await OrganiserService.getOrganiserUpcomingTournaments();
       setUpcomingTournaments(response.data);
     } catch (error) {
-      console.error("Error fetching upcoming tournaments: ", error);
       setError("Failed to fetch upcoming tournaments");
     }
   };
@@ -83,7 +80,6 @@ const OrganiserDashboard = () => {
       const response = await OrganiserService.getOrganiserPastTournaments();
       setPastTournaments(response.data);
     } catch (error) {
-      console.error("Error fetching past tournaments: ", error);
       setError("Failed to fetch past tournaments");
     }
   };
@@ -151,7 +147,6 @@ const OrganiserDashboard = () => {
         setContactNoErrors({
           contactNo: "Please enter a valid phone number with country code!",
         });
-        console.error("Error saving profile:", error);
       }
     }
   };

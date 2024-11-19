@@ -24,7 +24,6 @@ export default function AuthProvider({ children, requiredUserType }) {
                 sessionStorage.setItem('refreshToken', response.data.refreshToken);
                 sessionStorage.setItem('userType', response.data.userType);
             } catch (error) {
-                console.error("Token verification failed");
                 navigate('/signin');
             } finally {
                 setLoading(false);

@@ -116,10 +116,7 @@ export default function ViewTournament() {
       }
       setIsOwner(found);
     } catch (error) {
-      console.error(
-        "Error fetching hosted tournaments for organiser:",
-        error
-      );
+
       setError("Failed to load Tournament Data.");
     }
   };
@@ -282,7 +279,7 @@ export default function ViewTournament() {
       // Set eventsArray
       setEventsArray(response.data.events);
     } catch (error) {
-      console.error("Error fetching tournament data:", error);
+
       setError("Failed to load tournament data.");
     }
     setIsCreating(false);

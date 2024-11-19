@@ -32,7 +32,6 @@ const Navbar = () => {
         setUserData(response.data);
 
       } catch (error) {
-        console.error("Error fetching user data:", error);
       }
     };
     fetchData();

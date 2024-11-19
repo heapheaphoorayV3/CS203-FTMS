@@ -91,7 +91,7 @@ export default function ViewEvent() {
       }
       setIsOwner(found);
     } catch (error) {
-      console.error("Failed getting upcoming tournaments:", error);
+
       setError("Event Data has failed to load, please try again later.");
     }
   };
@@ -372,7 +372,7 @@ export default function ViewEvent() {
       fetchPoulesResults();
 
     } catch (error) {
-      console.error("Error updating poules:", error);
+
     } finally {
       setIsUpdating(false);
     }
