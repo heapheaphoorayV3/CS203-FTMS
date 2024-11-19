@@ -418,7 +418,7 @@ export default function Chatbot() {
                     <button
                       key={event.id}
                       onClick={() => handleEventSelection(event.id)}
-                      className="block w-full text-left p-2 rounded-md bg-indigo-100 hover:text-primary"
+                      className="block w-full text-left p-2 rounded-md hover:text-primary"
                     >
                       {event.tournamentName} - {formatDate(event.eventDate)}
                     </button>
