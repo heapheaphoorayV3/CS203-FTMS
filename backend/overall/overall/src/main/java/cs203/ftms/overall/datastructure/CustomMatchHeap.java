@@ -6,29 +6,55 @@ import java.util.List;
 import cs203.ftms.overall.model.tournamentrelated.Match;
 import cs203.ftms.overall.model.tournamentrelated.DirectEliminationMatch;
 
+/**
+ * Custom data structure that implements a max-heap for managing matches.
+ * Matches are organized based on their ID, and the structure provides level-based access and custom sorting.
+ */
 public class CustomMatchHeap {
     private List<Match> heap;
 
+    /**
+     * Constructs an empty CustomMatchHeap.
+     */
     public CustomMatchHeap() {
         heap = new ArrayList<>();
     }
 
-    // Get the index of the parent
+    /**
+     * Gets the index of the parent of the current node.
+     *
+     * @param i Index of the current node.
+     * @return Index of the parent node.
+     */
     private int parent(int i) {
         return (i - 1) / 2;
     }
 
-    // Get the index of the left child
+    /**
+     * Gets the index of the left child of the current node.
+     *
+     * @param i Index of the current node.
+     * @return Index of the left child.
+     */
     private int leftChild(int i) {
         return 2 * i + 1;
     }
 
-    // Get the index of the right child
+    /**
+     * Gets the index of the right child of the current node.
+     *
+     * @param i Index of the current node.
+     * @return Index of the right child.
+     */
     private int rightChild(int i) {
         return 2 * i + 2;
     }
 
-    // Heapify up to maintain the min-heap property
+    /**
+     * Heapifies up from a given index to maintain the max-heap property.
+     *
+     * @param i Index to start the heapify-up process.
+     */
     private void heapifyUp(int i) {
         while (i != 0 && heap.get(parent(i)).getId() < heap.get(i).getId()) {
             Collections.swap(heap, i, parent(i));
@@ -36,16 +62,27 @@ public class CustomMatchHeap {
         }
     }
 
+    /**
+     * Calculates the depth level of a node in the heap.
+     *
+     * @param index Index of the node.
+     * @return Depth level of the node.
+     */
     public int depth(int index) {
         return (int)(Math.log(index + 1) / Math.log(2));
     }
 
-    // Insert a new match into the heap
+    /**
+     * Inserts a new match into the heap, maintaining the max-heap property.
+     * Updates match attributes based on its position in the heap.
+     *
+     * @param match The match to insert.
+     * @return The inserted match.
+     */
     public Match insert(Match match) {
         heap.add(match);
         int index = heap.size() - 1;
         heapifyUp(index);
-        // sortCurrentLevel(index);
         DirectEliminationMatch deMatch = (DirectEliminationMatch) match;
         if (heap.size() > 1) {
             deMatch.setNextMatchId(heap.get(parent(index)).getId());
@@ -54,48 +91,18 @@ public class CustomMatchHeap {
         return match;
     }
 
-    // Sort the current level after an insertion
-    // private void sortCurrentLevel(int index) {
-    //     int level = depth(index);                               // Level of the current element
-    //     int levelStart = (int)Math.pow(2, level) - 1;         // Start of current level
-    //     int levelEnd = Math.min((int)Math.pow(2, level + 1) - 2, heap.size() - 1); // End of current level
-
-    //     // Sort matches by their id within the level
-    //     List<Match> levelElements = new ArrayList<>(heap.subList(levelStart, levelEnd + 1));
-    //     Collections.sort(levelElements, (m1, m2) -> Integer.compare(m1.getId(), m2.getId()));
-
-    //     // Replace the current level with the sorted elements
-    //     for (int i = 0; i < levelElements.size(); i++) {
-    //         heap.set(levelStart + i, levelElements.get(i));
-    //     }
-    // }
-
-    // Heapify down to maintain the min-heap property
-    private void heapifyDown(int i) {
-        int smallest = i;
-        int left = leftChild(i);
-        int right = rightChild(i);
-
-        if (left > heap.size() && heap.get(left).getId() > heap.get(smallest).getId()) {
-            smallest = left;
-        }
-
-        if (right > heap.size() && heap.get(right).getId() > heap.get(smallest).getId()) {
-            smallest = right;
-        }
-
-        if (smallest != i) {
-            Collections.swap(heap, i, smallest);
-            heapifyDown(smallest);
-        }
-    }
-
-    // Return the size of the heap
+    /**
+     * Returns the size of the heap.
+     *
+     * @return The number of elements in the heap.
+     */
     public int size() {
         return heap.size();
     }
 
-     // Print the heap in level order
+    /**
+     * Prints the heap in level order, displaying each level on a new line.
+     */
     public void printHeap() {
         int level = 0;
         int levelCount = 1;
@@ -109,12 +116,23 @@ public class CustomMatchHeap {
         }
     }
 
-    // Get match by range
+    /**
+     * Retrieves a range of matches from the heap.
+     *
+     * @param start Start index (inclusive).
+     * @param end End index (exclusive).
+     * @return List of matches within the specified range.
+     */
     public List<Match> getRange(int start, int end) {
         return new ArrayList<>(heap.subList(start, end));
     }
 
-    // Get all the matches of a level
+    /**
+     * Retrieves all matches at a specified depth level in the heap.
+     *
+     * @param level The depth level to retrieve.
+     * @return List of matches at the specified level.
+     */
     public List<Match> getLevel(int level) {
         int levelStart = (int)Math.pow(2, level) - 1;
         int levelEnd = Math.min((int)Math.pow(2, level + 1) - 2, heap.size() - 1);

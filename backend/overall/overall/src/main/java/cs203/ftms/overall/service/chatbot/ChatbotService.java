@@ -1,6 +1,5 @@
 package cs203.ftms.overall.service.chatbot;
 
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,19 +19,30 @@ import cs203.ftms.overall.model.userrelated.Fencer;
 import cs203.ftms.overall.repository.tournamentrelated.EventRepository;
 import cs203.ftms.overall.repository.tournamentrelated.TournamentRepository;
 
-
+/**
+ * Service class for chatbot-related functionalities.
+ * Provides methods to calculate projected points, expected rank,
+ * win rates, and recommend suitable tournaments for fencers.
+ */
 @Service
 public class ChatbotService {
     private final TournamentRepository tournamentRepository;
     private final EventRepository eventRepository;
 
-
     @Autowired
     public ChatbotService(TournamentRepository tournamentRepository, EventRepository eventRepository) {
         this.tournamentRepository = tournamentRepository;
         this.eventRepository = eventRepository;
-    }    
+    }
 
+    /**
+     * Calculates the projected points a fencer can earn in a specific event.
+     *
+     * @param eid the ID of the event
+     * @param f the fencer participating in the event
+     * @return the projected points earned by the fencer
+     * @throws EntityDoesNotExistException if the event does not exist
+     */
     public int getProjectedPointsEarned(int eid, Fencer f) {
         Event e = eventRepository.findById(eid).orElseThrow(() -> new EntityDoesNotExistException("Event does not exist!"));
         int expectedRank = expectedRank(e, f);
@@ -42,27 +52,48 @@ public class ChatbotService {
         return projectedPoints;
     }
 
-    public int expectedRank(Event e, Fencer f){
+    /**
+     * Calculates the expected rank of a fencer in a specific event.
+     *
+     * @param e the event to evaluate
+     * @param f the fencer whose rank is being calculated
+     * @return the expected rank of the fencer
+     */
+    public int expectedRank(Event e, Fencer f) {
         Set<TournamentFencer> t = e.getFencers();
         List<TournamentFencer> fencers = new ArrayList<>(t);
         Collections.sort(fencers, new TournamentFencerComparator());
-        for(TournamentFencer tf : fencers){
-            if(tf.getFencer().getPoints() <= f.getPoints()){
+        for (TournamentFencer tf : fencers) {
+            if (tf.getFencer().getPoints() <= f.getPoints()) {
                 return fencers.indexOf(tf) + 1;
             }
         }
         return fencers.size() + 1;
     }
 
+    /**
+     * Calculates the points for distribution in an event based on participating fencers.
+     *
+     * @param tfencers the set of fencers participating in the event
+     * @return the total points to be distributed
+     */
     public int getPointsForDistribution(Set<TournamentFencer> tfencers) {
         int total = 0;
-        for(TournamentFencer f :tfencers){
+        for (TournamentFencer f : tfencers) {
             total += f.getFencer().getPoints();
         }
         return total / 5;
     }
 
-    public int calculatePoints(int rank, int totalPoints, int totalFencers){
+    /**
+     * Calculates the points earned by a fencer based on rank and distribution.
+     *
+     * @param rank the rank of the fencer
+     * @param totalPoints the total points distributed in the event
+     * @param totalFencers the total number of fencers earning points
+     * @return the points earned by the fencer
+     */
+    public int calculatePoints(int rank, int totalPoints, int totalFencers) {
         double numerator = totalPoints * Math.pow(totalFencers - rank + 1, 2);
         double denominator = sumOfPowers(totalFencers, 2);
         return (int) (numerator / denominator);
@@ -76,6 +107,12 @@ public class ChatbotService {
         return sum;
     }
 
+    /**
+     * Recommends tournaments suitable for a fencer based on their experience, gender, and weapon.
+     *
+     * @param f the fencer for whom tournaments are recommended
+     * @return a list of tournaments suitable for the fencer
+     */
     public List<Tournament> getRecommendedTournaments(Fencer f) {
         char weapon = f.getWeapon();
         char gender = f.getGender();
@@ -92,19 +129,25 @@ public class ChatbotService {
             return true;
         } else if (experience > 3) {
             return t.getDifficulty() != 'A';
-        } 
+        }
         return t.getDifficulty() == 'B';
     }
 
     private boolean isEventSuitable(Event e, char gender, char weapon, Fencer f) {
-        if(calculateWinrate(e.getId(), f) == 3){
+        if (calculateWinrate(e.getId(), f) == 3) {
             return e.getTournament().getDifficulty() == 'B';
         }
         return e.getGender() == gender && e.getWeapon() == weapon && calculateWinrate(e.getId(), f) < 3;
     }
 
-
-    public String getWinrate(int eid, Fencer f){
+    /**
+     * Provides a win rate message for a fencer in a specific event.
+     *
+     * @param eid the ID of the event
+     * @param f the fencer participating in the event
+     * @return a string message indicating the win rate
+     */
+    public String getWinrate(int eid, Fencer f) {
         int winrate = calculateWinrate(eid, f);
         return switch (winrate) {
             case 1 -> "High chance of winning!";
@@ -113,21 +156,30 @@ public class ChatbotService {
         };
     }
 
-    public int calculateWinrate(int eid, Fencer f){
+    /**
+     * Calculates the win rate category for a fencer in a specific event.
+     *
+     * @param eid the ID of the event
+     * @param f the fencer participating in the event
+     * @return an integer representing the win rate category:
+     *         1 (high chance of winning), 2 (good chance), or 3 (tough fight)
+     * @throws EntityDoesNotExistException if the event does not exist
+     */
+    public int calculateWinrate(int eid, Fencer f) {
         int ifFencerInEvent = 1;
 
         Event e = eventRepository.findById(eid).orElseThrow(() -> new EntityDoesNotExistException("Event does not exist!"));
-        
-        for(TournamentFencer tf : e.getFencers()){
-            if(tf.getFencer().getId() == f.getId()){
+
+        for (TournamentFencer tf : e.getFencers()) {
+            if (tf.getFencer().getId() == f.getId()) {
                 ifFencerInEvent = 0;
             }
         }
         int expectedRank = expectedRank(e, f);
         int totalFencers = e.getFencers().size() + ifFencerInEvent;
-        if(totalFencers == 1 || expectedRank <= totalFencers / 10){
+        if (totalFencers == 1 || expectedRank <= totalFencers / 10) {
             return 1;
-        }else if(expectedRank <= totalFencers / 2) {
+        } else if (expectedRank <= totalFencers / 2) {
             return 2;
         }
         return 3;

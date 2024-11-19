@@ -11,51 +11,67 @@ import org.springframework.stereotype.Service;
 import cs203.ftms.overall.model.userrelated.User;
 import cs203.ftms.overall.security.model.RefreshToken;
 import cs203.ftms.overall.security.repository.RefreshTokenRepository;
-import cs203.ftms.overall.repository.userrelated.UserRepository;
 
+/**
+ * Service class responsible for creating, managing, and verifying refresh tokens.
+ */
 @Service
 public class RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
-    private final UserRepository userRepository;
 
     @Value("${security.refreshtoken.expiration-time}")
     private long expiry;
 
+    /**
+     * Constructs the RefreshTokenService with the specified repository.
+     *
+     * @param refreshTokenRepository the repository to manage RefreshToken entities.
+     */
     @Autowired
-    public RefreshTokenService(RefreshTokenRepository refreshTokenRepository, UserRepository userRepository) {
+    public RefreshTokenService(RefreshTokenRepository refreshTokenRepository) {
         this.refreshTokenRepository = refreshTokenRepository;
-        this.userRepository = userRepository;
     }
 
-    public RefreshToken createRefreshToken(User user){
+    /**
+     * Creates a new refresh token for a given user, replacing any existing token.
+     *
+     * @param user the user for whom the refresh token is being created.
+     * @return the newly created RefreshToken entity.
+     */
+    public RefreshToken createRefreshToken(User user) {
         RefreshToken oldRT = user.getRefreshToken();
         if (oldRT != null) {
             refreshTokenRepository.delete(oldRT);
-            // user.setRefreshToken(null);
         }
         RefreshToken refreshToken = new RefreshToken(UUID.randomUUID().toString(), Instant.now().plusMillis(expiry), user);
-        // RefreshToken.builder()
-        //         .user(userRepository.findByEmail(username).orElse(null))
-        //         .token(UUID.randomUUID().toString())
-        //         .expiryDate(Instant.now().plusMillis(expiryTime)) // set expiry of refresh token to 10 minutes - you can configure it application.properties file 
-        //         .build();
         return refreshTokenRepository.save(refreshToken);
     }
 
-
-
-    public Optional<RefreshToken> findByToken(String token){
-        System.out.println("find by token service: "+token);
+    /**
+     * Finds a refresh token by its token string.
+     *
+     * @param token the token string to search for.
+     * @return an Optional containing the RefreshToken if found, otherwise empty.
+     */
+    public Optional<RefreshToken> findByToken(String token) {
+        System.out.println("find by token service: " + token);
         return refreshTokenRepository.findByToken(token);
     }
 
-    public RefreshToken verifyExpiration(RefreshToken token){
+    /**
+     * Verifies whether the refresh token is still valid based on its expiration date.
+     * Deletes the token if expired and throws a runtime exception.
+     *
+     * @param token the RefreshToken to verify.
+     * @return the same RefreshToken if it has not expired.
+     * @throws RuntimeException if the token is expired.
+     */
+    public RefreshToken verifyExpiration(RefreshToken token) {
         System.out.println("verify expiry service");
-        if(token.getExpiryDate().compareTo(Instant.now())<0){
+        if (token.getExpiryDate().compareTo(Instant.now()) < 0) {
             refreshTokenRepository.delete(token);
             throw new RuntimeException(token.getToken() + " Refresh token is expired. Please make a new login..!");
         }
         return token;
     }
-
 }

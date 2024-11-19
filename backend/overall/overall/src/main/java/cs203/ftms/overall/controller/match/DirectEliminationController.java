@@ -25,18 +25,35 @@ import cs203.ftms.overall.model.userrelated.User;
 import cs203.ftms.overall.service.match.DirectEliminationService;
 import jakarta.validation.Valid;
 
+/**
+ * Controller class responsible for managing Direct Elimination matches.
+ * Provides endpoints for creating, updating, and retrieving Direct Elimination brackets.
+ */
 @RestController
 @CrossOrigin
 @Validated
 @RequestMapping("/api/v1/direct-elimination")
 public class DirectEliminationController {
+    
     private final DirectEliminationService directEliminationService;
 
+    /**
+     * Constructor for DirectEliminationController.
+     * 
+     * @param directEliminationService The service layer component for handling Direct Elimination matches.
+     */
     @Autowired
     public DirectEliminationController(DirectEliminationService directEliminationService) {
         this.directEliminationService = directEliminationService;
     }
 
+    /**
+     * Creates Direct Elimination matches for a specific event.
+     *
+     * @param eid The ID of the event.
+     * @return ResponseEntity containing a list of DirectEliminationBracketDTOs with HttpStatus.CREATED if successful,
+     *         or HttpStatus.BAD_REQUEST if creation fails.
+     */
     @PostMapping("/create-direct-elimination-matches/{eid}")
     @PreAuthorize("hasRole('ORGANISER')")
     public ResponseEntity<List<DirectEliminationBracketDTO>> createDirectEliminationMatches(@PathVariable int eid) {
@@ -51,13 +68,21 @@ public class DirectEliminationController {
         return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
     }
 
+    /**
+     * Updates a specific Direct Elimination match.
+     *
+     * @param eid The ID of the event.
+     * @param updateDirectEliminationMatchDTO The data for updating the Direct Elimination match.
+     * @return ResponseEntity containing a list of updated DirectEliminationBracketDTOs with HttpStatus.CREATED if successful,
+     *         or HttpStatus.BAD_REQUEST if the update fails.
+     */
     @PutMapping("/update-direct-elimination-match/{eid}")
     @PreAuthorize("hasRole('ORGANISER')")
-    public ResponseEntity<List<DirectEliminationBracketDTO>> updateDirectEliminationMatch(@PathVariable int eid, @Valid @RequestBody UpdateDirectEliminationMatchDTO dto) {
+    public ResponseEntity<List<DirectEliminationBracketDTO>> updateDirectEliminationMatch(@PathVariable int eid, @Valid @RequestBody UpdateDirectEliminationMatchDTO updateDirectEliminationMatchDTO) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         Organiser organiser = (Organiser) user;
-        directEliminationService.updateDEMatch(eid, dto, organiser);
+        directEliminationService.updateDEMatch(eid, updateDirectEliminationMatchDTO, organiser);
         List<DirectEliminationBracketDTO> res = directEliminationService.generateDirectEliminationBracketDTOs(eid);
         if (res.size() != 0) {
             return new ResponseEntity<>(res, HttpStatus.CREATED);
@@ -65,6 +90,12 @@ public class DirectEliminationController {
         return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
     }
 
+    /**
+     * Retrieves the Direct Elimination matches for a specific event.
+     *
+     * @param eid The ID of the event.
+     * @return ResponseEntity containing a list of DirectEliminationBracketDTOs with HttpStatus.OK.
+     */
     @GetMapping("/get-direct-elimination-matches/{eid}")
     public ResponseEntity<List<DirectEliminationBracketDTO>> getDirectEliminationMatches(@PathVariable int eid) {
         List<DirectEliminationBracketDTO> res = directEliminationService.generateDirectEliminationBracketDTOs(eid);

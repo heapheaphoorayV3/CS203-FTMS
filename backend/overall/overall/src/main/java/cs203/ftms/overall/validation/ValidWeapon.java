@@ -7,14 +7,46 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Constraint(validatedBy = ValidateWeapon.class) // Link to the validator class
-@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
-@Retention(RetentionPolicy.RUNTIME)
+/**
+ * Custom annotation for validating the type of weapon in a fencing context.
+ * <p>
+ * This annotation enforces a constraint where the weapon must be one of the following values:
+ * <ul>
+ *   <li>'S' for Sabre</li>
+ *   <li>'E' for Épée</li>
+ *   <li>'F' for Foil</li>
+ * </ul>
+ * <p>
+ * Usage:
+ * </p>
+ * <pre>
+ * &#64;ValidWeapon
+ * private char weapon;
+ * </pre>
+ */
+@Constraint(validatedBy = ValidateWeapon.class) // Specifies the class responsible for validation logic
+@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE }) // Applicable to fields, methods, parameters, and annotations
+@Retention(RetentionPolicy.RUNTIME) // Retained at runtime
 public @interface ValidWeapon {
 
-    String message() default "Weapon must be either S, E or F";  // Default validation message
+    /**
+     * Default error message when a weapon type does not match the required values.
+     *
+     * @return the error message
+     */
+    String message() default "Weapon must be either S, E or F";
 
-    Class<?>[] groups() default {}; // Grouping constraints
+    /**
+     * Specifies groups for grouping constraints.
+     *
+     * @return an array of class groups
+     */
+    Class<?>[] groups() default {}; 
 
-    Class<? extends Payload>[] payload() default {};  // Payloads used by clients of the API
+    /**
+     * Allows attaching custom payload objects to the constraint.
+     *
+     * @return an array of payload types
+     */
+    Class<? extends Payload>[] payload() default {};  
 }

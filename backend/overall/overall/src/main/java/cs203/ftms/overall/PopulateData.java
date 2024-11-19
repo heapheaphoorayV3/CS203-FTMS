@@ -47,6 +47,9 @@ import cs203.ftms.overall.service.match.DirectEliminationService;
 import cs203.ftms.overall.service.match.PouleService;
 import cs203.ftms.overall.service.tournament.TournamentService;
 
+/**
+ * Class for populating the database with sample data.
+ */
 @Component
 public class PopulateData {
     private final Random random = new Random();
@@ -68,6 +71,7 @@ public class PopulateData {
     private final FencerRepository fencerRepository;
     private final TournamentFencerRepository tournamentFencerRepository;
 
+    
     @Autowired
     public PopulateData(AuthenticationService authenticationService, TournamentService tournamentService, EventService eventService, 
     FencerService fencerService, PouleService poulesService, UserRepository userRepository, TournamentRepository tournamentRepository, 

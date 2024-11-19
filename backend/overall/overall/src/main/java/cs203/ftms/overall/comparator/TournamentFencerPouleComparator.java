@@ -4,6 +4,11 @@ import java.util.Comparator;
 
 import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
 
+/**
+ * Comparator for sorting TournamentFencer objects based on poule performance metrics.
+ * Used to determine rankings after poule matches are completed.
+ * Sorts fencers first by number of poule wins (descending), then by poule points (descending).
+ */
 public class TournamentFencerPouleComparator implements Comparator<TournamentFencer> {
     public int compare(TournamentFencer t1, TournamentFencer t2) {
         int windiff = t1.getPouleWins() - t2.getPouleWins(); 
