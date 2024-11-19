@@ -13,7 +13,11 @@ const DeleteTournament = ({ id, closeDeletePopUp }) => {
         } catch (error) {
             if (error.response) {
                 console.log("Error response data: ", error.response.data);
-                setError(error.response.data);
+                if (error.response.data === "") {
+                    setError("Failed to delete tournament, please try again later.");
+                } else {
+                    setError(error.response.data);
+                }
             } else if (error.request) {
                 // The request was made but no response was received
                 console.log("Error request: ", error.request);
