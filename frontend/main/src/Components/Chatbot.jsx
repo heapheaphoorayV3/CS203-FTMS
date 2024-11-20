@@ -7,7 +7,6 @@ import FencerService from "../Services/Fencer/FencerService";
 import { Link } from "react-router-dom";
 import EventService from "../Services/Event/EventService";
 
-
 export default function Chatbot() {
   const [error, setError] = useState(null);
   const [userData, setUserData] = useState({});
@@ -28,42 +27,35 @@ export default function Chatbot() {
         setUserData(response.data);
       } catch (error) {
         if (error.response.status === 403) {
-          console.log("Unauthorized access to upcoming events.");
           setError(
             "Unauthorized: You don't have permission to use the chatbot."
           );
         } else if (error.request) {
           // The request was made but no response was received
-          console.log("Error request: ", error.request);
           setError("Fencer Data has failed to load, please try again later.");
         } else {
           // Something happened in setting up the request that triggered an Error
-          console.log("Unknown Error: " + error);
           setError("Fencer Data has failed to load, please try again later.");
         }
-      } 
+      }
     };
 
     const fetchFencerEvents = async () => {
       try {
         const response = await EventService.getAllEventsByGenderAndWeapon();
-        console.log("all:", response.data);
         setFencerEvents(response.data);
       } catch (error) {
         if (error.response.status === 403) {
-          console.log("Unauthorized access to events.");
           setError(
             "Unauthorized: You don't have permission to use the chatbot."
           );
         } else if (error.request) {
           // The request was made but no response was received
-          console.log("Error request: ", error.request);
           setError(
             "Fencer Events Data has failed to load, please try again later."
           );
         } else {
           // Something happened in setting up the request that triggered an Error
-          console.log("Unknown Error: " + error);
           setError(
             "Fencer Events Data has failed to load, please try again later."
           );
@@ -77,19 +69,16 @@ export default function Chatbot() {
         setFencerUpcomingEvents(response.data);
       } catch (error) {
         if (error.response.status === 403) {
-          console.log("Unauthorized access to upcoming events.");
           setError(
             "Unauthorized: You don't have permission to use the chatbot."
           );
         } else if (error.request) {
           // The request was made but no response was received
-          console.log("Error request: ", error.request);
           setError(
             "Fencer Upcoming Events Data has failed to load, please try again later."
           );
         } else {
           // Something happened in setting up the request that triggered an Error
-          console.log("Unknown Error: " + error);
           setError(
             "Fencer Upcoming Events Data has failed to load, please try again later."
           );
@@ -117,7 +106,6 @@ export default function Chatbot() {
 
   const fetchProjectedPoints = async (eventID) => {
     try {
-      console.log("event ID:", eventID);
       const response = await ChatbotService.getProjectedPoints(eventID);
       addMessage(`Your projected points: ${response.data}`, "bot");
       setShowInput(false);
@@ -128,7 +116,7 @@ export default function Chatbot() {
         addMessage("Failed to load projected points", "botError");
       }
       setShowInput(false);
-    } 
+    }
   };
 
   const fetchWinRate = async (eventID) => {
@@ -138,7 +126,7 @@ export default function Chatbot() {
       addMessage(`Your win rate: ${response.data}`, "bot");
       setShowInput(false);
     } catch (error) {
-      console.error("Error fetching win rate: ", error);
+
       if (error.response?.status === 400) {
         addMessage("No win rate available for this event.", "botError");
       } else {
@@ -156,7 +144,7 @@ export default function Chatbot() {
         experience: new Date().getFullYear() - userData.debutYear,
       };
       const response = await ChatbotService.recommendTournaments(fencerDetails);
-      console.log("recc tourns: ", response.data);
+
       if (response.data.length === 0) {
         addMessage(
           "There are currently no recommended tournaments available.",
@@ -164,13 +152,11 @@ export default function Chatbot() {
         );
         setRecommendedTournaments([]);
       } else {
-        console.log("upcoming:", fencerUpcomingEvents);
         const filteredTournaments = response.data.filter((tournament) => {
           return !fencerUpcomingEvents.some(
             (upcomingEvent) => upcomingEvent.tournamentName === tournament.name
           );
         });
-        console.log("filtered:", filteredTournaments);
         if (filteredTournaments.length === 0) {
           addMessage(
             "There are no recommended tournaments available that you haven't already registered for.",
@@ -182,7 +168,7 @@ export default function Chatbot() {
         }
       }
     } catch (error) {
-      console.error("Error fetching recommended tournaments: ", error);
+
       if (error.response?.status === 400) {
         addMessage(
           "No recommended tournaments available for this event.",
@@ -238,7 +224,6 @@ export default function Chatbot() {
         return event.id === id;
       });
 
-      console.log("selected event:", selectedEvent);
 
       const tournamentName = selectedEvent
         ? selectedEvent.tournamentName
@@ -268,12 +253,13 @@ export default function Chatbot() {
         <motion.button
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.6 }}
           whileHover={{
             scale: 1.1,
             backgroundColor: "#4059AD",
             transition: { duration: 0.3 },
           }}
+          whileTap={{ scale: 0.9 }}
           className="bg-blue-500 p-4 text-white rounded-md w-full"
           onClick={() => handleOptionClick("projected points")}
         >
@@ -288,6 +274,7 @@ export default function Chatbot() {
             backgroundColor: "#4059AD",
             transition: { duration: 0.3 },
           }}
+          whileTap={{ scale: 0.9 }}
           className="bg-blue-500 p-4 text-white rounded-md w-full"
           onClick={() => handleOptionClick("win rate")}
         >
@@ -302,6 +289,7 @@ export default function Chatbot() {
             backgroundColor: "#4059AD",
             transition: { duration: 0.3 },
           }}
+          whileTap={{ scale: 0.9 }}
           className="bg-blue-500 p-4 text-white rounded-md w-full"
           onClick={() => handleOptionClick("recommended tournaments")}
         >
@@ -324,7 +312,11 @@ export default function Chatbot() {
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
-              whileHover={{ scale: 1.1 }}
+              whileHover={{
+                scale: 1.1,
+                transition: { duration: 0.3 },
+              }}
+              whileTap={{ scale: 0.9 }}
               className="bg-gray-200 p-4 text-black rounded-md w-full my-2"
             >
               {tournament.name}
@@ -426,7 +418,7 @@ export default function Chatbot() {
                     <button
                       key={event.id}
                       onClick={() => handleEventSelection(event.id)}
-                      className="block w-full text-left p-2 rounded-md bg-indigo-100 hover:text-primary"
+                      className="block w-full text-left p-2 rounded-md hover:text-primary"
                     >
                       {event.tournamentName} - {formatDate(event.eventDate)}
                     </button>

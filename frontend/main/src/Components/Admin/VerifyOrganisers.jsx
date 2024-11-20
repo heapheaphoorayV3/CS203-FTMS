@@ -21,17 +21,14 @@ export default function VerifyOrganisers() {
       setTotalPages(Math.ceil(organisers.length / limit));
     } catch (error) {
       if (error.response) {
-        console.log("Error response data: ", error.response.data);
         setError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request: ", error.request);
         setError(
           "Failed to fetch unverified organisers, please try again later."
         );
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Unknown Error: " + error);
         setError(
           "Failed to fetch unverified organisers, please try again later."
         );
@@ -86,8 +83,6 @@ export default function VerifyOrganisers() {
 
       return newState;
     });
-
-    console.log(`Organiser ID: ${id} - Action: ${type}`);
   };
 
   // Categorise status of organiser
@@ -114,23 +109,19 @@ export default function VerifyOrganisers() {
     //Convert checkboxState to array of objects
     const data = categoriseStatus(checkboxState);
     try {
-      console.log("Submitting verifications: ", data);
       await AdminService.verifyOrganiser(data);
       setCheckboxState({});
       fetchOrganisers();
     } catch (error) {
       if (error.response) {
-        console.log("Error response data: ", error.response.data);
         setSubmitError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request: ", error.request);
         setSubmitError(
           "Failed to submit verifications, please try again later."
         );
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Unknown Error: " + error);
         setSubmitError(
           "Failed to submit verifications, please try again later."
         );

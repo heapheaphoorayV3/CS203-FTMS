@@ -26,12 +26,16 @@ const CreateTournament = () => {
           .toISOString()
           .slice(0, 19);
       }
-      console.log("Data being sent to the server:", data);
       const tournamentId = await TournamentService.createTournament(data);
       navigate(`/tournaments/${tournamentId.data.id}`);
     } catch (error) {
-      console.log(error);
-      setError(error.response.data);
+      if(error.response){
+        if(typeof error.response.data === "object") {
+          const [firstKey, firstValue] = Object.entries(error.response.data)[0];
+          setError(firstValue);
+        }
+        else setError(error.response.data);
+      } else setError("Failed to create tournament, please try again later.");
     }
   };
 

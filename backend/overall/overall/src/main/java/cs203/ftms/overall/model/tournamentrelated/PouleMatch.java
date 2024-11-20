@@ -1,40 +1,74 @@
 package cs203.ftms.overall.model.tournamentrelated;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
-import cs203.ftms.overall.model.userrelated.Fencer;
-import jakarta.persistence.*;
-
-
+/**
+ * Represents a match within a poule (group) in a tournament event.
+ * Extends the generic Match class and includes an association to a specific poule.
+ */
 @Entity
 @DiscriminatorValue("P")
 public class PouleMatch extends Match {
 
+    /**
+     * The poule to which this match belongs.
+     * Each poule match must be associated with a specific poule in the tournament.
+     * This represents one of the round-robin matches that occurs within a poule,
+     * where each fencer faces every other fencer in their assigned poule.
+     * Multiple matches belong to one poule, hence the Many-to-One relationship.
+     */
     @ManyToOne
     @JoinColumn(name = "poule_id")
-    private Poule poule; 
+    private Poule poule;
 
+
+    /**
+     * Default constructor for PouleMatch.
+     */
     public PouleMatch() {}
 
+    /**
+     * Constructs a PouleMatch associated with a specific poule.
+     *
+     * @param poule The poule to which this match belongs.
+     */
     public PouleMatch(Poule poule) {
         super(poule.getEvent());
         this.poule = poule;
     }
 
+    /**
+     * Gets the poule associated with this match.
+     *
+     * @return The poule associated with this match.
+     */
     public Poule getPoule() {
         return poule;
     }
 
+    /**
+     * Sets the poule associated with this match.
+     *
+     * @param poule The poule to associate with this match.
+     */
     public void setPoule(Poule poule) {
         this.poule = poule;
     }
-     
+
+    /**
+     * Checks if this PouleMatch is equal to another object based on match ID.
+     *
+     * @param obj The object to compare with.
+     * @return true if the object is a PouleMatch with the same ID, false otherwise.
+     */
+    @Override
     public boolean equals(Object obj) {
         if (obj instanceof PouleMatch pm) {
-            if (pm.getId() == this.getId()) return true;
+            return pm.getId() == this.getId();
         }
         return false;
     }
-    
 }

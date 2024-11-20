@@ -23,7 +23,6 @@ const UpdateEvent = ({
   // Prefill event data
   useEffect(() => {
     if (selectedEvent) {
-      console.log("Selected Event:", selectedEvent);
       // Prefill form with the event details
       setValue("startTime", selectedEvent.startTime);
       setValue("endTime", selectedEvent.endTime);
@@ -32,7 +31,6 @@ const UpdateEvent = ({
       setValue("date", selectedEvent.eventDate);
       setValue("weapon", selectedEvent.weapon);
     }
-    console.log("Tournament Dates:", selectedEvent.eventDate);
   }, [selectedEvent, setValue]);
 
   function getGender(gender) {
@@ -76,21 +74,17 @@ const UpdateEvent = ({
     };
 
     try {
-      console.log("Updating event with data:", formData);
       await EventService.updateEvent(selectedEvent.id, formData); // Call the update method
       onClose();
       fetchTournamentData();
     } catch (error) {
       if (error.response) {
-        console.log("Error response data: ", error.response.data);
         setError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request: ", error.request);
         setError("Failed to update event, please try again later.");
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Unknown Error: " + error);
         setError("Failed to update event, please try again later.");
       }
     }

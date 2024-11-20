@@ -5,24 +5,18 @@ import EventService from "../../Services/Event/EventService";
 const EndPoules = ({ id, closeEndPoulesPopup }) => {
   const [error, setError] = useState(null);
 
-  console.log("id:", id);
-
   const handleEndPoules = async () => {
     try {
       await EventService.createDEMatches(id);
-      console.log("DE MATCHES CREATED");
       closeEndPoulesPopup();
     } catch (error) {
       if (error.response) {
-        console.log("Error response data: ", error.response.data);
         setError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request: ", error.request);
         setError("Failed to end poules, please try again later.");
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Unknown Error: " + error);
         setError("Failed to end poules, please try again later.");
       }
     }

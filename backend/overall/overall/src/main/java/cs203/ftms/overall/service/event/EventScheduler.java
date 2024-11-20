@@ -14,6 +14,11 @@ import cs203.ftms.overall.repository.tournamentrelated.EventRepository;
 import cs203.ftms.overall.repository.tournamentrelated.TournamentRepository;
 import cs203.ftms.overall.service.admin.MailService;
 
+/**
+ * Scheduler component for managing event-related tasks.
+ * Responsible for checking if events have sufficient participants 
+ * and handling event cancellations.
+ */
 @Component
 public class EventScheduler {
     private final TournamentRepository tournamentRepository;
@@ -28,6 +33,10 @@ public class EventScheduler {
         this.mailService = mailService;
     }
 
+    /**
+     * Scheduled task that runs daily at midnight to check if events
+     * have sufficient participants and cancels those that do not.
+     */
     @Scheduled(cron = "0 0 0 * * ?")
     public void checkEventHasEnoughParticipants() {
         List<Tournament> tournaments = tournamentRepository.findBySignupEndDate(LocalDate.now().minusDays(1));

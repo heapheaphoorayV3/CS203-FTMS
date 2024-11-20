@@ -45,6 +45,10 @@ public class AdminServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
+    /**
+     * Tests the getCleanAdmin method with a valid Admin object.
+     * Verifies that the admin's details are correctly mapped to the CleanAdminDTO object.
+     */
     @Test
     public void testGetCleanAdmin_ValidAdmin() {
         Admin admin = new Admin();
@@ -64,6 +68,10 @@ public class AdminServiceTest {
         assertEquals(admin.getCountry(), cleanAdminDTO.getCountry());
     }
 
+    /**
+     * Tests the getCleanAdmin method with a null Admin object.
+     * Verifies that an EntityNotFoundException is thrown when a null Admin is passed.
+     */
     @Test
     public void testGetCleanAdmin_NullAdmin() {
         assertThrows(EntityNotFoundException.class, () -> {
@@ -71,6 +79,10 @@ public class AdminServiceTest {
         });
     }
 
+    /**
+     * Tests the getUnverifiedOrgs method when there are unverified organisers in the database.
+     * Verifies that the method returns the list of unverified organisers.
+     */
     @Test
     public void testGetUnverifiedOrgs_UnverifiedOrgsExist() {
         Organiser organiser1 = new Organiser();
@@ -91,6 +103,10 @@ public class AdminServiceTest {
         assertFalse(unverifiedOrgs.get(1).isVerified());
     }
 
+    /**
+     * Tests the getUnverifiedOrgs method when there are no unverified organisers in the database.
+     * Verifies that the method returns an empty list when no unverified organisers are found.
+     */
     @Test
     public void testGetUnverifiedOrgs_NoUnverifiedOrgs() {
         when(organiserRepository.findByVerified(false)).thenReturn(Arrays.asList());
@@ -101,6 +117,10 @@ public class AdminServiceTest {
         assertTrue(unverifiedOrgs.isEmpty());
     }
 
+    /**
+     * Tests the verifyOrg method for both approve and deny actions.
+     * Verifies that the organiser is approved or denied correctly and the appropriate actions are taken (saving, deleting, sending emails).
+     */
     @Test
     public void testVerifyOrg_ApproveAndDeny() {
         Organiser organiser1 = new Organiser();
@@ -126,6 +146,10 @@ public class AdminServiceTest {
         verify(organiserRepository).delete(organiser2);
     }
 
+    /**
+     * Tests the verifyOrg method when an organiser to approve is not found.
+     * Verifies that an EntityNotFoundException is thrown when the organiser does not exist in the repository.
+     */
     @Test
     public void testVerifyOrg_ApproveOrganiserNotFound() {
         VerifyOrgDTO dto = new VerifyOrgDTO();
@@ -140,6 +164,10 @@ public class AdminServiceTest {
         });
     }
 
+    /**
+     * Tests the verifyOrg method when an organiser to deny is not found.
+     * Verifies that an EntityNotFoundException is thrown when the organiser does not exist in the repository.
+     */
     @Test
     public void testVerifyOrg_DenyOrganiserNotFound() {
         VerifyOrgDTO dto = new VerifyOrgDTO();

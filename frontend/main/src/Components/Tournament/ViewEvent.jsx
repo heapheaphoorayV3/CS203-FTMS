@@ -12,6 +12,7 @@ import EndPoules from "./EndPoules.jsx";
 import EndEvent from "./EndEvent.jsx";
 import { motion } from "framer-motion";
 import LoadingPage from "../Others/LoadingPage.jsx";
+import { set } from "react-hook-form";
 
 function formatTimeTo24Hour(timeString) {
   const [hours, minutes] = timeString.split(":"); // Get hours and minutes
@@ -39,6 +40,7 @@ export default function ViewEvent() {
   const [updatePoulesScores, setUpdatePoulesScores] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isPouleLoading, setIsPouleLoading] = useState(false);
   const [isInputValid, setIsInputValid] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 10;
@@ -55,21 +57,14 @@ export default function ViewEvent() {
     try {
       const response = await EventService.getEvent(eventID);
       setEventData(response.data);
-      // console.log("event data =>");
     } catch (error) {
       if (error.response) {
-        console.log(
-          "Error response data for event data: ",
-          error.response.data
-        );
         setError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request for event data: ", error.request);
         setError("Event Data has failed to load, please try again later.");
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Unknown Error: " + error);
         setError("Event Data has failed to load, please try again later.");
       }
     }
@@ -80,13 +75,10 @@ export default function ViewEvent() {
     try {
       const response = await OrganiserService.getAllHostedTournaments();
       const upcomingTournaments = response.data;
-      console.log("upcoming tournaments:", upcomingTournaments);
       let found = false;
       for (let tournament of upcomingTournaments) {
         if (Array.isArray(tournament.events)) {
           for (let event of tournament.events) {
-            console.log("tournament.events id=", event.id);
-            console.log("current event id=", eventID);
             if (Number(event.id) === Number(eventID)) {
               found = true;
               break;
@@ -99,12 +91,13 @@ export default function ViewEvent() {
       }
       setIsOwner(found);
     } catch (error) {
-      console.error("Failed getting upcoming tournaments:", error);
+
       setError("Event Data has failed to load, please try again later.");
     }
   };
 
   const fetchPouleTable = async () => {
+    setIsPouleLoading(true);
     try {
       const response = await EventService.getPouleTable(eventID);
       setPouleTableData(response.data);
@@ -120,20 +113,16 @@ export default function ViewEvent() {
       setCleanedPouleData(processedData);
     } catch (error) {
       if (error.response) {
-        console.log(
-          "Error response data for poule table: ",
-          error.response.data
-        );
         setError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request for poule table: ", error.request);
         setError("Poule Data has failed to load, please try again later.");
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Unknown Error: " + error);
         setError("Poule Data has failed to load, please try again later.");
       }
+    } finally {
+      setIsPouleLoading(false);
     }
   };
 
@@ -141,20 +130,16 @@ export default function ViewEvent() {
     try {
       const response = await EventService.getMatches(eventID);
       setMatches(response.data);
-      // console.log("matches:", response.data);
     } catch (error) {
       if (error.response) {
-        console.log("Error response data: ", error.response.data);
         setError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request for matches: ", error.request);
         setError(
           "Direct Elimination Data has failed to load, please try again later."
         );
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Unknown Error: " + error);
         setError(
           "Direct Elimination Data has failed to load, please try again later."
         );
@@ -170,20 +155,15 @@ export default function ViewEvent() {
       setEventRanking(response.data.slice(startIndex, endIndex));
     } catch (error) {
       if (error.response) {
-        console.log("Error response data: ", error.response.data);
         setError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log(
-          "Error request for fetching event ranking: ",
-          error.request
-        );
+
         setError(
           "Event Ranking Data has failed to load, please try again later."
         );
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Unknown Error: " + error);
         setError(
           "Event Ranking Data has failed to load, please try again later."
         );
@@ -194,21 +174,17 @@ export default function ViewEvent() {
   const fetchPoulesResults = async () => {
     try {
       const response = await EventService.getPoulesResult(eventID);
-      // console.log(response.data);
       setPoulesResults(response.data);
     } catch (error) {
       if (error.response) {
-        console.log("Error response data: ", error.response.data);
         setError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request: ", error.request);
         setError(
           "Poules Results Data has failed to load, please try again later."
         );
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Unknown Error: " + error);
         setError(
           "Poules Results Data has failed to load, please try again later."
         );
@@ -392,14 +368,11 @@ export default function ViewEvent() {
         singleTable: Object.fromEntries(singleTableMap),
       };
 
-      console.log("sending to backend:", combinedData);
-
       await EventService.updatePouleTable(eventID, combinedData);
       fetchPoulesResults();
 
-      // console.log("Poules updated successfully");
     } catch (error) {
-      console.error("Error updating poules:", error);
+
     } finally {
       setIsUpdating(false);
     }
@@ -426,13 +399,8 @@ export default function ViewEvent() {
     fetchEventData();
     fetchEventRanking();
   };
-  // console.log("eventdata:", eventData);
-  console.log("poules results:", poulesResults);
-  console.log("poules results bypass:", poulesResults.bypassFencers);
 
   const totalPages = Math.ceil(eventRanking.length / limit);
-
-  console.log("isowner:", isOwner);
 
   return (
     <div className="row-span-2 col-start-2 bg-white h-full overflow-y-auto">
@@ -492,16 +460,23 @@ export default function ViewEvent() {
             <div className="py-4">
               {/* Render only once for both 'O' (Organizers) and 'F' (Fencers) */}
               <div>
-                {userType === "O" &&
-                  pouleTableData.pouleTable.length === 0 &&
-                  isOwner && (
-                    <button
-                      onClick={createPoules}
-                      className="bg-blue-500 text-white px-4 py-2 rounded mt-2 mb-2"
-                    >
-                      Create Poules
-                    </button>
+                <div className="flex items-center">
+                  {userType === "O" &&
+                    pouleTableData.pouleTable.length === 0 &&
+                    isOwner && (
+                      <button
+                        onClick={createPoules}
+                        className="bg-blue-500 text-white px-4 py-2 rounded mt-2 mb-2"
+                      >
+                        Create Poules
+                      </button>
+                    )}
+                  {/* Show Loading Spinning if poule is loading */}
+                  {isPouleLoading && (
+                    <div className="ml-12 animate-spin rounded-full h-12 w-12 border-t-2 border-blue-500"></div>
                   )}
+                </div>
+
 
                 {/* Common Poule Results Dropdown */}
                 <div className="mr-12 h-20 max-w-sm">
@@ -628,8 +603,8 @@ export default function ViewEvent() {
                                 <td
                                   key={resultIndex}
                                   className={`border border-gray-300 hover:bg-gray-100 ${result === "-1"
-                                      ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
-                                      : ""
+                                    ? "bg-gray-300 text-gray-300 hover:bg-gray-300"
+                                    : ""
                                     }`}
                                 >
                                   {result === "-1" ? (
@@ -646,8 +621,8 @@ export default function ViewEvent() {
                                         )
                                       }
                                       className={`w-full text-center ${!isInputValid
-                                          ? "border-red-500"
-                                          : "border-gray-300"
+                                        ? "border-red-500"
+                                        : "border-gray-300"
                                         }`}
                                     />
                                   ) : (

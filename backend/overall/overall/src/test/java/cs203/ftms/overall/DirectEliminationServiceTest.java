@@ -71,6 +71,10 @@ public class DirectEliminationServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
+    /**
+     * Tests calculation of direct elimination matches when there are no existing matches.
+     * Verifies that the count returns 0 when no matches exist.
+     */
     @Test
     void noOfDEMatches_NoMatches() {
         // Arrange
@@ -92,6 +96,10 @@ public class DirectEliminationServiceTest {
         assertEquals(0, result);
     }
 
+    /*
+     * Tests correct number of advancement matches when there are 10 participants and 80% advancement rate.
+     * Verifies that the correct number of advancement matches are calculated. (7)
+     */
     @Test
     void noOfDEMatches_WithMatches() {
         // Arrange
@@ -112,6 +120,12 @@ public class DirectEliminationServiceTest {
         // Assert
         assertEquals(7, result);
     }
+
+    /**
+     * Tests calculation of direct elimination matches with 15 matches.
+     * Verifies correct calculation when tournament has 100% advancement rate
+     * and 10 participants.
+     */
     @Test
     void noOfDEMatches_With15Matches() {
         // Arrange
@@ -133,6 +147,11 @@ public class DirectEliminationServiceTest {
         assertEquals(15, result);
     }
 
+    /**
+     * Tests calculation of direct elimination matches when participant count
+     * is not a power of 2. Verifies correct calculation for 12 participants
+     * with 80% advancement rate.
+     */
     @Test
     void noOfDEMatches_WithNonPowerOf2Fencers() {
         // Arrange
@@ -154,89 +173,10 @@ public class DirectEliminationServiceTest {
         assertEquals(15, result);
     }
 
-// @Test
-// void createAllDEMatches() {
-//     // Arrange
-//     Tournament tournament = new Tournament();
-//     tournament.setAdvancementRate(80);
-
-//     int eid = 1;
-//     Event event = new Event();
-//     event.setId(eid);
-//     event.setTournament(tournament);
-
-//     Set<Event> events = new HashSet<>();
-//     events.add(event);
-//     tournament.setEvents(events);
-
-//     // Initialize poule structure
-//     Poule poule = new Poule();
-//     poule.setId(1);
-//     poule.setEvent(event);
-//     poule.setPouleMatches(new HashSet<>());
-//     poule.setFencers(new HashSet<>());
-    
-//     // Create completed poule match
-//     PouleMatch pouleMatch = new PouleMatch();
-//     pouleMatch.setId(1);
-//     pouleMatch.setPoule(poule);
-//     pouleMatch.setWinner(0);
-    
-//     // Set up poule relationships
-//     poule.getPouleMatches().add(pouleMatch);
-    
-//     Set<Poule> poules = new HashSet<>();
-//     poules.add(poule);
-//     event.setPoules(poules);
-
-//     // Set up fencers with rankings
-//     Set<TournamentFencer> fencers = new HashSet<>();
-//     for (int i = 0; i < 32; i++) {
-//         TournamentFencer tf = new TournamentFencer();
-//         tf.setId(i + 1);
-//         tf.setEvent(event);
-        
-//         Fencer fencer = new Fencer();
-//         fencer.setId(i + 1);
-//         fencer.setPoints(100); // Set some points for the fencer
-//         tf.setFencer(fencer);
-        
-//         fencers.add(tf);
-//     }
-//     event.setFencers(fencers);
-//     poule.setFencers(fencers);
-
-//     // Mock service calls
-//     when(eventService.getEvent(eid)).thenReturn(event);
-//     Map<String, List<TournamentFencer>> fencersMap = Collections.singletonMap("fencers", new ArrayList<>(fencers));
-//     when(pouleService.getFencersAfterPoules(event)).thenReturn(fencersMap);
-
-//     // Mock repository calls
-//     for (TournamentFencer f : fencers) {
-//         when(tournamentFencerRepository.findById(f.getId())).thenReturn(Optional.of(f));
-//         when(tournamentFencerRepository.save(f)).thenReturn(f);
-//     }
-
-//     List<DirectEliminationMatch> matches = IntStream.range(0, 15)
-//             .mapToObj(i -> {
-//                 DirectEliminationMatch match = new DirectEliminationMatch();
-//                 match.setId(i); // Ensure unique IDs
-//                 return match;
-//             })
-//             .collect(Collectors.toList());
-
-//     for (DirectEliminationMatch match : matches) {
-//         when(matchRepository.save(match)).thenReturn(match);
-//         when(matchRepository.findById(match.getId())).thenReturn(Optional.of(match));
-//     }
-
-//     // Act
-//     directEliminationService.createAllDEMatches(eid);
-
-//     // Assert
-//     verify(matchRepository, times(29)).save(any(DirectEliminationMatch.class));
-// }
-
+    /**
+     * Tests updating a direct elimination match with valid match details.
+     * Verifies that match scores are updated and saved correctly.
+     */
     @Test
     void updateDEMatch() {
         // Arrange
@@ -287,6 +227,10 @@ public class DirectEliminationServiceTest {
         assertEquals(score2, match.getScore2());
     }
 
+    /**
+     * Tests updating a non-existent direct elimination match.
+     * Verifies that EntityDoesNotExistException is thrown when match ID is invalid.
+     */
     @Test
     void updateDEMatch_MatchDoesNotExist() {
         // Arrange
@@ -314,7 +258,10 @@ public class DirectEliminationServiceTest {
         });
     }
 
-
+    /**
+     * Tests that updating a Direct Elimination Match throws an EntityDoesNotExistException
+     * when the match does not belong to the specified event.
+     */
     @Test
     void updateDEMatch_MatchNotInEvent() {
         // Arrange
@@ -349,10 +296,12 @@ public class DirectEliminationServiceTest {
         assertThrows(EntityDoesNotExistException.class, () -> {
             directEliminationService.updateDEMatch(eid, dto, organiser);
         });
-
     }
 
-
+    /**
+     * Tests that updating a Direct Elimination Match throws an EntityDoesNotExistException
+     * when one of the tournament fencers associated with the match does not exist.
+     */
     @Test
     void updateDEMatch_TournamentFencerDoesNotExist() {
         // Arrange
@@ -395,6 +344,10 @@ public class DirectEliminationServiceTest {
         });
     }
 
+    /**
+     * Tests that updating a Direct Elimination Match throws an EntityDoesNotExistException
+     * when the next match associated with the current match does not exist.
+     */
     @Test
     void updateDEMatch_NextMatchDoesNotExist() {
         // Arrange
@@ -440,6 +393,10 @@ public class DirectEliminationServiceTest {
         });
     }
 
+    /**
+     * Tests that updating a Direct Elimination Match correctly sets the winner (Fencer2)
+     * when Fencer2 wins with a lower rank, and updates the next match accordingly.
+     */
     @Test
     void updateDEMatch_Fencer2WinsWithLowerRank() {
         // Arrange
@@ -494,6 +451,10 @@ public class DirectEliminationServiceTest {
         assertEquals(fencer2.getId(), nextMatch.getFencer1());
     }
 
+    /**
+     * Tests that updating a Direct Elimination Match correctly sets the winner (Fencer1)
+     * when Fencer1 wins, and updates the next match accordingly when Fencer1 is already set in the next match.
+     */
     @Test
     void updateDEMatch_Fencer1WinsAndNextMatchFencer1IsSet() {
         // Arrange
@@ -549,6 +510,11 @@ public class DirectEliminationServiceTest {
         assertEquals(fencer1.getId(), nextMatch.getFencer2());
     }
 
+    /**
+     * Test case for updating a direct elimination match where Fencer 2 wins,
+     * and the Fencer 1 slot in the next match is already set.
+     * Ensures the correct scores are set and Fencer 2 is assigned to the correct slot in the next match.
+     */
     @Test
     void updateDEMatch_Fencer2WinsAndNextMatchFencer1IsSet() {
         // Arrange
@@ -604,7 +570,11 @@ public class DirectEliminationServiceTest {
         assertEquals(fencer2.getId(), nextMatch.getFencer2());
     }
 
-
+    /**
+     * Test case for updating a direct elimination match where Fencer 1 wins,
+     * and the Fencer 1 slot in the next match is unset.
+     * Ensures the correct scores are set and Fencer 1 is assigned to the correct slot in the next match.
+     */
     @Test
     void updateDEMatch_Fencer1WinsAndNextMatchFencer1IsUnset() {
         // Arrange
@@ -660,6 +630,11 @@ public class DirectEliminationServiceTest {
         assertEquals(fencer1.getId(), nextMatch.getFencer1());
     }
 
+    /**
+     * Test case for updating a direct elimination match where Fencer 1 wins,
+     * and the Fencer 1 slot in the next match is already set to Fencer 1.
+     * Ensures the correct scores are set without altering the Fencer 1 slot in the next match.
+     */
     @Test
     void updateDEMatch_Fencer1WinsAndNextMatchFencer1IsFencer1() {
         // Arrange
@@ -715,6 +690,11 @@ public class DirectEliminationServiceTest {
         assertEquals(fencer1.getId(), nextMatch.getFencer1());
     }
 
+    /**
+     * Test case for updating a direct elimination match where Fencer 1 wins,
+     * and the Fencer 1 slot in the next match is already set to Fencer 2.
+     * Ensures the correct scores are set and Fencer 1 replaces Fencer 2 in the next match.
+     */
     @Test
     void updateDEMatch_Fencer1WinsAndNextMatchFencer1IsFencer2() {
         // Arrange
@@ -770,6 +750,11 @@ public class DirectEliminationServiceTest {
         assertEquals(fencer1.getId(), nextMatch.getFencer1());
     }
 
+    /**
+     * Test case for updating a direct elimination match where Fencer 1 wins,
+     * and the Fencer 2 slot in the next match is unset.
+     * Ensures the correct scores are set and Fencer 1 is assigned to the Fencer 2 slot in the next match.
+     */
     @Test
     void updateDEMatch_Fencer1WinsAndNextMatchFencer2IsUnset() {
         // Arrange
@@ -826,6 +811,11 @@ public class DirectEliminationServiceTest {
         assertEquals(fencer1.getId(), nextMatch.getFencer2());
     }
 
+    /**
+     * Test case for updating a direct elimination match where Fencer 1 wins,
+     * and the Fencer 2 slot in the next match is already set to Fencer 1.
+     * Ensures the correct scores are set without altering the Fencer 2 slot in the next match.
+     */
     @Test
     void updateDEMatch_Fencer1WinsAndNextMatchFencer2IsFencer1() {
         // Arrange
@@ -882,6 +872,11 @@ public class DirectEliminationServiceTest {
         assertEquals(fencer1.getId(), nextMatch.getFencer2());
     }
 
+    /**
+     * Test case for updating a direct elimination match where Fencer 1 wins,
+     * and the Fencer 2 slot in the next match is already set to Fencer 2.
+     * Ensures the correct scores are set and Fencer 1 replaces Fencer 2 in the Fencer 2 slot of the next match.
+     */
     @Test
     void updateDEMatch_Fencer1WinsAndNextMatchFencer2IsFencer2() {
         // Arrange
@@ -938,6 +933,11 @@ public class DirectEliminationServiceTest {
         assertEquals(fencer1.getId(), nextMatch.getFencer2());
     }
 
+    /**
+     * Test case for updating a direct elimination match where Fencer 1 wins,
+     * and both Fencer slots in the next match are already set.
+     * Ensures the correct scores are set without altering the Fencer slots in the next match.
+     */
     @Test
     void updateDEMatch_Fencer1WinsAndNextMatchBothFencerSet() {
         // Arrange
@@ -991,9 +991,12 @@ public class DirectEliminationServiceTest {
         verify(matchRepository).save(nextMatch);
         assertEquals(score1, match.getScore1());
         assertEquals(score2, match.getScore2());
-
     }
 
+   /**
+     * Test case for updating a direct elimination match in the round of 2.
+     * Ensures the correct scores are set and the winner is correctly identified.
+     */
     @Test
     void updateDEMatch_RoundOf2() {
         // Arrange
@@ -1043,7 +1046,11 @@ public class DirectEliminationServiceTest {
         assertEquals(score2, match.getScore2());
         assertEquals(fencer1.getId(), match.getWinner());
     }
-    
+
+    /**
+     * Test case for generating a Direct Elimination Bracket DTO for a specific match.
+     * Ensures the correct match details and tournament round text are retrieved.
+     */
     @Test
     void getDirectEliminationBracketDTO() {
         // Arrange
@@ -1067,6 +1074,10 @@ public class DirectEliminationServiceTest {
         assertEquals("Top 16", result.getTournamentRoundText());
     }
 
+    /**
+     * Test case for generating a Direct Elimination Bracket DTO for a match in the finals (round of 2).
+     * Ensures the correct match details and tournament round text are retrieved.
+     */
     @Test
     void getDirectEliminationBracketDTO_RoundOf2() {
         // Arrange
@@ -1090,6 +1101,10 @@ public class DirectEliminationServiceTest {
         assertEquals("Finals", result.getTournamentRoundText());
     }
 
+    /**
+     * Test case for generating a Direct Elimination Bracket DTO for a match in the semi-finals (round of 4).
+     * Ensures the correct match details and tournament round text are retrieved.
+     */
     @Test
     void getDirectEliminationBracketDTO_RoundOf4() {
         // Arrange
@@ -1113,6 +1128,10 @@ public class DirectEliminationServiceTest {
         assertEquals("Semi-Finals", result.getTournamentRoundText());
     }
 
+    /**
+     * Test case for generating a Direct Elimination Bracket DTO for a match in the quarter-finals (round of 8).
+     * Ensures the correct match details and tournament round text are retrieved.
+     */
     @Test
     void getDirectEliminationBracketDTO_RoundOf8() {
         // Arrange
@@ -1136,6 +1155,10 @@ public class DirectEliminationServiceTest {
         assertEquals("Quarter-Finals", result.getTournamentRoundText());
     }
 
+    /**
+     * Test case for generating a Direct Elimination Bracket Fencer DTO.
+     * Ensures the correct fencer details, result text, and winner status are retrieved.
+     */
     @Test
     void getDirectEliminationBracketFencerDTO() {
         // Arrange
@@ -1144,11 +1167,10 @@ public class DirectEliminationServiceTest {
         int fencerRank = 1;
         String resultText = "15";
         boolean isWinner = true;
-        String status = "Active";
 
         Fencer fencer = new Fencer();
         fencer.setId(fencerId);
-        fencer.setName(fencerName); 
+        fencer.setName(fencerName);
 
         TournamentFencer tFencer = new TournamentFencer();
         tFencer.setId(fencerId);
@@ -1161,7 +1183,6 @@ public class DirectEliminationServiceTest {
         when(tournamentFencerRepository.findById(fencerId)).thenReturn(Optional.of(tFencer));
         when(fencerRepository.findById(fencerId)).thenReturn(Optional.of(fencer));
 
-
         // Act
         DirectEliminationBracketFencerDTO result = directEliminationService.getDirectEliminationBracketFencerDTO(tFencer, 1, 15);
 
@@ -1172,6 +1193,10 @@ public class DirectEliminationServiceTest {
         assertEquals(isWinner, result.getIsWinner());
     }
 
+    /**
+     * Test case for generating a Direct Elimination Bracket DTO for a match with fencer details.
+     * Ensures the correct match details, tournament round text, and fencer information are retrieved.
+     */
     @Test
     void getDirectEliminationBracketDTO_WithFencers() {
         // Arrange
@@ -1187,7 +1212,6 @@ public class DirectEliminationServiceTest {
         String resultText = "15";
         String resultText2 = "10";
         boolean isWinner = true;
-        String status = "Active";
 
         DirectEliminationMatch match = new DirectEliminationMatch();
         match.setId(matchId);
@@ -1232,7 +1256,6 @@ public class DirectEliminationServiceTest {
         assertEquals(nextMatchId, result.getNextMatchId());
         assertEquals("Top 16", result.getTournamentRoundText());
 
-
         DirectEliminationBracketFencerDTO[] fencersDTO = result.getParticipants();
         assertEquals(2, fencersDTO.length);
 
@@ -1249,7 +1272,10 @@ public class DirectEliminationServiceTest {
         assertEquals(!isWinner, fencerDTO2.getIsWinner());
     }
 
-
+    /**
+     * Test case for generating a list of Direct Elimination Bracket DTOs for an event.
+     * Ensures the correct details are retrieved for all matches in the event and participants are correctly mapped.
+     */
     @Test
     void generateDirectEliminationBracketDTOs() {
         // Arrange
@@ -1272,7 +1298,6 @@ public class DirectEliminationServiceTest {
         int fencer4Rank = 4;
         String resultText = "15";
         boolean isWinner = true;
-        String status = "Active";
 
         Event event = new Event();
         event.setId(eventId);
@@ -1393,6 +1418,10 @@ public class DirectEliminationServiceTest {
         assertEquals(isWinner, fencerDTO2_2.getIsWinner());
     }
 
+    /**
+     * Test case for retrieving tournament ranks for all participants in an event.
+     * Ensures the correct rank and fencer details are retrieved and sorted.
+     */
     @Test
     void getTournamentRanks() {
         // Arrange
@@ -1447,9 +1476,6 @@ public class DirectEliminationServiceTest {
         assertEquals(fencer2Id, rank2.getId());
         assertEquals(fencer2Name, rank2.getFencer().getName());
         assertEquals(fencer2Rank, rank2.getTournamentRank());
-    }
-
-
-    
+    }    
 }
 

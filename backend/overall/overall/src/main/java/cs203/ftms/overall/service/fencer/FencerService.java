@@ -27,6 +27,10 @@ import cs203.ftms.overall.repository.userrelated.UserRepository;
 import cs203.ftms.overall.service.authentication.AuthenticationService;
 import cs203.ftms.overall.validation.OtherValidations;
 
+/**
+ * Service class for managing fencer-related operations.
+ * Handles profile updates, event retrieval, ranking, and password management for fencers.
+ */
 @Service
 public class FencerService {
     private final UserRepository userRepository; 
@@ -36,7 +40,8 @@ public class FencerService {
     private final AuthenticationService authenticationService;
 
     @Autowired
-    public FencerService(UserRepository userRepository, FencerRepository fencerRepository, EventRepository eventRepository, PasswordEncoder passwordEncoder, AuthenticationService authenticationService) {
+    public FencerService(UserRepository userRepository, FencerRepository fencerRepository, EventRepository eventRepository, 
+                         PasswordEncoder passwordEncoder, AuthenticationService authenticationService) {
         this.userRepository = userRepository; 
         this.fencerRepository = fencerRepository;
         this.eventRepository = eventRepository;
@@ -44,21 +49,47 @@ public class FencerService {
         this.authenticationService = authenticationService;
     }
 
+    /**
+     * Converts a TournamentFencer entity into a CleanTournamentFencerDTO.
+     *
+     * @param tf the TournamentFencer entity to convert
+     * @return a CleanTournamentFencerDTO containing fencer details for the tournament
+     */
     public CleanTournamentFencerDTO getCleanTournamentFencerDTO(TournamentFencer tf) {
         if (tf == null) return null;
         return new CleanTournamentFencerDTO(tf.getId(), tf.getFencer().getId(), tf.getFencer().getName(), tf.getFencer().getClub(), tf.getFencer().getCountry(),
         tf.getFencer().getDominantArm(), tf.getTournamentRank(), tf.getEvent().getId(), tf.getPouleWins(), tf.getPoulePoints(), tf.getPointsAfterEvent());
     }
 
+    /**
+     * Converts a Fencer entity into a CleanFencerDTO.
+     *
+     * @param f the Fencer entity to convert
+     * @return a CleanFencerDTO containing fencer details
+     */
     public CleanFencerDTO getCleanFencerDTO(Fencer f) {
         if (f == null) return null;
-        return new CleanFencerDTO(f.getId(), f.getName(), f.getEmail(), f.getContactNo(), f.getCountry(), f.getDateOfBirth(), f.getDominantArm(),f.getWeapon(), f.getClub(),f.getPoints(), f.getDebutYear(), f.getGender());
+        return new CleanFencerDTO(f.getId(), f.getName(), f.getEmail(), f.getContactNo(), f.getCountry(), f.getDateOfBirth(), f.getDominantArm(),
+                                   f.getWeapon(), f.getClub(), f.getPoints(), f.getDebutYear(), f.getGender());
     }
 
+    /**
+     * Retrieves all fencers from the repository.
+     *
+     * @return a list of all Fencer entities
+     */
     public List<Fencer> getAllFencers() {
         return fencerRepository.findAll();
     }
 
+    /**
+     * Completes a fencer's profile with additional details.
+     *
+     * @param f the Fencer whose profile is to be completed
+     * @param dto the DTO containing additional profile details
+     * @return the updated Fencer entity
+     * @throws MethodArgumentNotValidException if the debut year is invalid
+     */
     public Fencer completeProfile(Fencer f, CompleteFencerProfileDTO dto) throws MethodArgumentNotValidException {
         OtherValidations.validDebutYear(f, dto.getDebutYear());
         f.setClub(dto.getClub());
@@ -69,6 +100,12 @@ public class FencerService {
         return userRepository.save(f);
     }
 
+    /**
+     * Retrieves the international rank of a fencer.
+     *
+     * @param f the Fencer whose rank is to be retrieved
+     * @return the international rank, or -1 if the fencer is not ranked
+     */
     public int getInternationalRank(Fencer f) {
         List<Fencer> fencers = getFilterdInternationalRank(f.getWeapon(), f.getGender());
         for (int i = 1; i <= fencers.size(); i++) {
@@ -79,6 +116,14 @@ public class FencerService {
         return -1;
     }
 
+    /**
+     * Changes the password of a user.
+     *
+     * @param u the User whose password is to be changed
+     * @param oldPassword the current password
+     * @param newPassword the new password
+     * @return a message indicating the result of the password change
+     */
     public String changePassword(User u, String oldPassword, String newPassword) {
         User verifiedUser = authenticationService.authenticateUser(u.getEmail(), oldPassword);
         if (verifiedUser == null) {
@@ -89,6 +134,12 @@ public class FencerService {
         return "password changed successfully";
     }
 
+    /**
+     * Updates a fencer's profile with new details.
+     *
+     * @param f the Fencer whose profile is to be updated
+     * @param dto the DTO containing the updated profile details
+     */
     public void updateProfile(Fencer f, UpdateFencerProfileDTO dto) {
         f.setClub(dto.getClub());
         f.setContactNo(dto.getContactNo());
@@ -99,30 +150,48 @@ public class FencerService {
         userRepository.save(f);
     }
     
-    public List<TournamentFencer> getFencerPastEventsProfiles(Fencer f){
+    /**
+     * Retrieves past event profiles of a fencer.
+     *
+     * @param f the Fencer whose past event profiles are to be retrieved
+     * @return a list of TournamentFencer profiles for past events
+     */
+    public List<TournamentFencer> getFencerPastEventsProfiles(Fencer f) {
         List<TournamentFencer> profiles = new ArrayList<>();
-        for(TournamentFencer tf: f.getTournamentFencerProfiles()){
-            if(tf.getEvent().getDate().isBefore(LocalDate.now())){
+        for (TournamentFencer tf : f.getTournamentFencerProfiles()) {
+            if (tf.getEvent().getDate().isBefore(LocalDate.now())) {
                 profiles.add(tf);
             }
         }
         return profiles;
     }
 
+    /**
+     * Retrieves all events a fencer has participated in.
+     *
+     * @param f the Fencer whose events are to be retrieved
+     * @return a list of Event entities
+     */
     public List<Event> getFencerEvents(Fencer f) {
         List<Event> events = new ArrayList<>();
-        for(TournamentFencer tf: f.getTournamentFencerProfiles()){
+        for (TournamentFencer tf : f.getTournamentFencerProfiles()) {
             events.add(eventRepository.findById(tf.getEvent().getId()).orElse(null));
         }
         events.sort(Comparator.comparing(Event::getDate));
         return events;
     }
 
+    /**
+     * Retrieves upcoming events a fencer is registered for.
+     *
+     * @param f the Fencer whose upcoming events are to be retrieved
+     * @return a list of Event entities for upcoming events
+     */
     public List<Event> getFencerUpcomingEvents(Fencer f) {
         List<Event> events = new ArrayList<>();
-        for(TournamentFencer tf: f.getTournamentFencerProfiles()){
+        for (TournamentFencer tf : f.getTournamentFencerProfiles()) {
             Event e = eventRepository.findById(tf.getEvent().getId()).orElse(null);
-            if(e.getDate().isAfter(LocalDate.now())){
+            if (e.getDate().isAfter(LocalDate.now())) {
                 events.add(e);
             }
         }
@@ -130,11 +199,17 @@ public class FencerService {
         return events;
     }
 
+    /**
+     * Retrieves past events a fencer participated in.
+     *
+     * @param f the Fencer whose past events are to be retrieved
+     * @return a list of Event entities for past events
+     */
     public List<Event> getFencerPastEvents(Fencer f) {
         List<Event> events = new ArrayList<>();
-        for(TournamentFencer tf: f.getTournamentFencerProfiles()){
+        for (TournamentFencer tf : f.getTournamentFencerProfiles()) {
             Event e = eventRepository.findById(tf.getEvent().getId()).orElse(null);
-            if(e.getDate().isBefore(LocalDate.now())){
+            if (e.getDate().isBefore(LocalDate.now()) || e.isOver()) {
                 events.add(e);
             }
         }
@@ -142,25 +217,38 @@ public class FencerService {
         return events;
     }
 
-    public List<Fencer> getFilterdInternationalRank(char weapon, char gender){
+    /**
+     * Retrieves a filtered list of fencers for international ranking.
+     *
+     * @param weapon the weapon type to filter by
+     * @param gender the gender to filter by
+     * @return a sorted list of Fencers based on points
+     */
+    public List<Fencer> getFilterdInternationalRank(char weapon, char gender) {
         List<Fencer> fencers = fencerRepository.findAll();
         Collections.sort(fencers, new FencerPointsComparator());
         List<Fencer> filteredFencers = new ArrayList<>();
-        for(Fencer f: fencers){
-            if(f.getWeapon() == weapon && f.getGender() == gender){
+        for (Fencer f : fencers) {
+            if (f.getWeapon() == weapon && f.getGender() == gender) {
                 filteredFencers.add(f);
             }
         }
         return filteredFencers;
     }
 
+    /**
+     * Retrieves a fencer's past event points as DTOs.
+     *
+     * @param f the Fencer whose past event points are to be retrieved
+     * @return a list of CleanTournamentFencerDTO for past events
+     */
     public List<CleanTournamentFencerDTO> getFencerPastEventsPoints(Fencer f) {
         Set<TournamentFencer> tfs = f.getTournamentFencerProfiles();
         List<TournamentFencer> tfList = new ArrayList<>(tfs);
         Collections.sort(tfList, (a, b) -> a.getEvent().getDate().compareTo(b.getEvent().getDate()));
         List<CleanTournamentFencerDTO> res = new ArrayList<>();
         for (TournamentFencer tf : tfList) {
-            if (tf.getEvent().getDate().isBefore(LocalDate.now())) {
+            if (tf.getEvent().getDate().isBefore(LocalDate.now()) || tf.getEvent().isOver()) {
                 res.add(getCleanTournamentFencerDTO(tf));
             }
         }

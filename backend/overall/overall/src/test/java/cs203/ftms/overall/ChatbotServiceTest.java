@@ -1,5 +1,9 @@
 package cs203.ftms.overall;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
+
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -7,14 +11,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
 
 import cs203.ftms.overall.exception.EntityDoesNotExistException;
@@ -46,6 +47,10 @@ class ChatbotServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
+    /**
+     * Tests the recommendation of tournaments for a fencer with more than 5 years of experience.
+     * Verifies that tournaments of all difficulty levels ('A', 'B', 'I') are recommended.
+     */
     @Test
     void getRecommendedTournaments_ExperienceGreaterThan5() {
         // Arrange
@@ -82,6 +87,10 @@ class ChatbotServiceTest {
         assertEquals('I', result.get(2).getDifficulty());
     }
 
+    /**
+     * Tests the recommendation of tournaments for a fencer with experience greater than 3 but less than 5 years.
+     * Verifies that only tournaments of difficulty levels 'B' and 'I' are recommended.
+     */
     @Test
     void getRecommendedTournaments_ExperienceGreaterThan3() {
         // Arrange
@@ -118,6 +127,10 @@ class ChatbotServiceTest {
 
     }
 
+    /**
+     * Tests the recommendation of tournaments for a fencer with less than 3 years of experience.
+     * Verifies that only beginner tournaments (difficulty level 'B') are recommended.
+     */
     @Test
     void getRecommendedTournaments_ExperienceLesserThan3() {
         // Arrange
@@ -152,6 +165,10 @@ class ChatbotServiceTest {
         assertEquals('B', result.get(0).getDifficulty());
     }
 
+    /**
+     * Tests the recommendation of tournaments when the fencer's weapon type does not match any events.
+     * Verifies that no tournaments are recommended in such cases.
+     */
     @Test
     void getRecommendedTournaments_NoSuitableEventForWeaponType() {
         // Arrange
@@ -185,6 +202,10 @@ class ChatbotServiceTest {
         assertEquals(0, result.size());
     }
 
+    /**
+     * Tests the recommendation of tournaments when the fencer's gender does not match any events.
+     * Verifies that no tournaments are recommended in such cases.
+     */
     @Test
     void getRecommendedTournaments_NoSuitableEventForGender() {
         // Arrange
@@ -218,39 +239,43 @@ class ChatbotServiceTest {
         assertEquals(0, result.size());
     }
 
+    /**
+     * Tests the recommendation of tournaments for a fencer with very low points and less than 3 years of experience.
+     * Ensures only beginner-level tournaments are recommended.
+     */
+    @Test
+    void getRecommendedTournaments_OnlyReturnBeginnerTournament() {
+        // Arrange
+        Fencer fencer = new Fencer();
+        fencer.setId(11);
+        fencer.setName("John Doe");
+        fencer.setEmail("john@example.com");
+        fencer.setContactNo("123456789");
+        fencer.setCountry("USA");
+        fencer.setDateOfBirth(LocalDate.of(1990, 1, 1));
+        fencer.setDominantArm('R');
+        fencer.setWeapon('F');
+        fencer.setClub("Best Club");
+        fencer.setPoints(1);
+        fencer.setDebutYear(2023); // Experience is less than 3 years
+        fencer.setGender('M');
 
-    // @Test
-    // void getRecommendedTournaments_NoSuitableEventForWinrate() {
-    //     // Arrange
-    //     Fencer fencer = new Fencer();
-    //     fencer.setId(11);
-    //     fencer.setName("John Doe");
-    //     fencer.setEmail("john@example.com");
-    //     fencer.setContactNo("123456789");
-    //     fencer.setCountry("USA");
-    //     fencer.setDateOfBirth(LocalDate.of(1990, 1, 1));
-    //     fencer.setDominantArm('R');
-    //     fencer.setWeapon('F');
-    //     fencer.setClub("Best Club");
-    //     fencer.setPoints(1);
-    //     fencer.setDebutYear(2023); // Experience is less than 3 years
-    //     fencer.setGender('M');
+        List<Tournament> tournaments = createMockTournaments();
+        when(tournamentRepository.findAll()).thenReturn(tournaments);
+        when(fencerRepository.findById(1)).thenReturn(Optional.of(fencer));
+        when(eventRepository.findById(1)).thenReturn(Optional.of(createMockEvent(1, 'M', 'F')));
+        when(eventRepository.findById(2)).thenReturn(Optional.of(createMockEvent(2, 'M', 'F')));
+        when(eventRepository.findById(3)).thenReturn(Optional.of(createMockEvent(3, 'M', 'F')));
 
-    //     List<Tournament> tournaments = createMockTournaments();
-    //     when(tournamentRepository.findAll()).thenReturn(tournaments);
-    //     when(fencerRepository.findById(1)).thenReturn(Optional.of(fencer));
-    //     when(eventRepository.findById(1)).thenReturn(Optional.of(createMockEvent(1, 'M', 'F')));
-    //     when(eventRepository.findById(2)).thenReturn(Optional.of(createMockEvent(2, 'M', 'F')));
-    //     when(eventRepository.findById(3)).thenReturn(Optional.of(createMockEvent(3, 'M', 'F')));
+        ChatbotService spyChatbotService = Mockito.spy(chatbotService);
 
-    //     ChatbotService spyChatbotService = Mockito.spy(chatbotService);
+        // Act
+        List<Tournament> result = spyChatbotService.getRecommendedTournaments(fencer);
 
-    //     // Act
-    //     List<Tournament> result = spyChatbotService.getRecommendedTournaments(fencer);
+        // Assert
+        assertEquals(1, result.size());
+    }
 
-    //     // Assert
-    //     assertEquals(0, result.size());
-    // }
 
     private List<Tournament> createMockTournaments() {
         Event event1 = createMockEvent(1, 'M', 'F');
@@ -259,6 +284,7 @@ class ChatbotServiceTest {
         Set<Event> events1 = new HashSet<>();
         events1.add(event1);
         tournament1.setEvents(events1);
+        event1.setTournament(tournament1);
     
         Event event2 = createMockEvent(2, 'M', 'F');
         Tournament tournament2 = new Tournament();
@@ -266,6 +292,7 @@ class ChatbotServiceTest {
         Set<Event> events2 = new HashSet<>();
         events2.add(event2);
         tournament2.setEvents(events2);
+        event2.setTournament(tournament2);
     
         Event event3 = createMockEvent(3, 'M', 'F');
         Tournament tournament3 = new Tournament();
@@ -273,6 +300,7 @@ class ChatbotServiceTest {
         Set<Event> events3 = new HashSet<>();
         events3.add(event3);
         tournament3.setEvents(events3);
+        event3.setTournament(tournament3);
     
         return Arrays.asList(tournament1, tournament2, tournament3);
     }
@@ -306,6 +334,10 @@ class ChatbotServiceTest {
         return event;
     }
 
+     /**
+     * Tests the projected points earned by a fencer in an event.
+     * Ensures the correct calculation of points based on the fencer's rank and the points distribution.
+     */
     @Test
     void getProjectedPointsEarned() {
         // Arrange
@@ -328,7 +360,6 @@ class ChatbotServiceTest {
 
         ChatbotService spyChatbotService = Mockito.spy(chatbotService);
 
-
         // Act
         int result = spyChatbotService.getProjectedPointsEarned(1, fencer);
 
@@ -336,6 +367,10 @@ class ChatbotServiceTest {
         assertEquals(62, result);
     }
 
+    /**
+     * Tests the win rate calculation for a fencer with significantly higher points than competitors.
+     * Ensures the system predicts a "High chance of winning".
+     */
     @Test
     void getWinrate_HighChanceOfWinning() {
         // Arrange
@@ -365,6 +400,10 @@ class ChatbotServiceTest {
         assertEquals("High chance of winning!", result);
     }
 
+    /**
+     * Tests the win rate calculation for a fencer with competitive points.
+     * Ensures the system predicts a "Good chance of winning".
+     */
     @Test
     void getWinrate_GoodChanceOfWinning() {
         // Arrange
@@ -395,6 +434,10 @@ class ChatbotServiceTest {
         assertEquals("Good chance of winning!", result);
     }
 
+     /**
+     * Tests the win rate calculation for a fencer with lower points compared to competitors.
+     * Ensures the system predicts "It will be a tough fight!".
+     */
     @Test
     void getWinrate_ToughFight() {
         // Arrange
@@ -424,37 +467,6 @@ class ChatbotServiceTest {
         assertEquals("It will be a tough fight!", result);
     }
 
-    // @Test
-    // void getWinrate_NoFencers() {
-    //     // Arrange
-    //     Fencer fencer = new Fencer();
-    //     fencer.setId(1);
-    //     fencer.setName("John Doe");
-    //     fencer.setEmail("john@example.com");
-    //     fencer.setContactNo("123456789");
-    //     fencer.setCountry("USA");
-    //     fencer.setDateOfBirth(LocalDate.of(1990, 1, 1));
-    //     fencer.setDominantArm('R');
-    //     fencer.setWeapon('F');
-    //     fencer.setClub("Best Club");
-    //     fencer.setPoints(100);
-    //     fencer.setDebutYear(2008);
-    //     fencer.setGender('M');
-
-    //     Event event = createMockEventWithNoFencers(1, 'M', 'F');
-    //     when(eventRepository.findById(1)).thenReturn(Optional.of(event));
-
-    //     // Mock expectedRank to return a value
-    //     ChatbotService spyChatbotService = Mockito.spy(chatbotService);
-    //     Mockito.doReturn(1).when(spyChatbotService).expectedRank(event, fencer);
-
-    //     // Act
-    //     String result = spyChatbotService.getWinrate(1, fencer);
-
-    //     // Assert
-    //     assertEquals("High chance of winning!", result);
-    // }
-
     private Event createMockEventWithNoFencers(int id, char gender, char weapon) {
         Event event = new Event();
         event.setId(id);
@@ -463,6 +475,11 @@ class ChatbotServiceTest {
         event.setFencers(new HashSet<>()); // Ensure fencers list is initialized but empty
         return event; 
     }
+
+    /**
+     * Tests the calculation of projected points for a normal case where all conditions are met.
+     * Verifies the correct calculation based on rank, points distribution, and event details.
+     */
     @Test
     void getProjectedPointsEarned_NormalCase() {
         // Arrange
@@ -483,6 +500,10 @@ class ChatbotServiceTest {
         assertEquals(20, result);
     }
 
+    /**
+     * Tests the projected points calculation when there are no fencers in the event.
+     * Verifies that the projected points are correctly returned as 0.
+     */
     @Test
     void getProjectedPointsEarned_NoFencers() {
         // Arrange
@@ -503,6 +524,10 @@ class ChatbotServiceTest {
         assertEquals(0, result);
     }
 
+    /**
+     * Tests the projected points calculation when the expected rank exceeds the total number of fencers.
+     * Ensures that the projected points are returned as 0 when rank is invalid.
+     */
     @Test
     void getProjectedPointsEarned_ExpectedRankGreaterThanTotalFencers() {
         // Arrange
@@ -523,6 +548,10 @@ class ChatbotServiceTest {
         assertEquals(0, result);
     }
 
+    /**
+     * Tests the scenario where the event does not exist in the repository.
+     * Verifies that an EntityDoesNotExistException is thrown when the event is not found.
+     */
     @Test
     void getProjectedPointsEarned_EventDoesNotExist() {
         // Arrange
@@ -551,6 +580,11 @@ class ChatbotServiceTest {
         fencer.setGender('M');
         return fencer;
     }
+
+    /**
+     * Tests the scenario where the event does not exist in the repository for calculating win rate.
+     * Ensures that an EntityDoesNotExistException is thrown when the event is not found.
+     */
     @Test
     void getWinrate_EventDoesNotExist() {
         // Arrange
@@ -575,4 +609,5 @@ class ChatbotServiceTest {
             chatbotService.getWinrate(1, fencer);
         });
     }
+
 }

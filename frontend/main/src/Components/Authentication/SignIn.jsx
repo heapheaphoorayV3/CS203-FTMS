@@ -37,12 +37,10 @@ export default function SignIn() {
 
         // Route to correct dashboard based on userType
         if (userType === "F") {
-          console.log("Redirecting to dashboard");
           navigate("/fencer-dashboard");
         }
 
         if (userType === "O") {
-          console.log("Redirecting to organiser dashboard");
 
           setTimeout(() => {
             navigate("/organiser-dashboard");
@@ -51,13 +49,11 @@ export default function SignIn() {
         }
 
         if (userType === "A") {
-          console.log("Redirecting to admin dashboard");
           navigate("/admin-dashboard");
         }
       }
     } catch (error) {
       setError(true);
-      console.log("Failed Login");
     }
   };
 

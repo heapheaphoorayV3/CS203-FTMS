@@ -24,15 +24,12 @@ export default function Tournaments() {
       setTournamentData(sortedTournaments);
     } catch (error) {
       if (error.response) {
-        console.log("Error response data: ", error.response.data);
         setError(error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request: ", error.request);
         setError("Tournament Data has failed to load, please try again later.");
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Unknown Error: " + error);
         setError("Tournament Data has failed to load, please try again later.");
       }
     }
@@ -42,8 +39,6 @@ export default function Tournaments() {
     setLoading(true);
     fetchData().then(() => {setLoading(false);});
   }, []);
-
-  console.log("tournament data:", tournamentData);
 
   const formatDateRange = (start, end) => {
     const startDate = new Date(start).toLocaleDateString("en-GB", {

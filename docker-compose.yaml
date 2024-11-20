@@ -6,8 +6,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
-      # MYSQL_USER: ${MYSQL_USER}
-      # MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - "${DB_PORT}:3306"
     healthcheck:
@@ -22,12 +20,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
-    # env_file:
-    #   - ./backend/overall/overall/.env
     environment:
-      - DB_URL=jdbc:mysql://database:3306/${MYSQL_DATABASE}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_URL=jdbc:mysql://database:${DB_PORT}/${MYSQL_DATABASE}
+      - DB_USERNAME=root
+      - DB_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - GMAIL_ADDR=${GMAIL_ADDR}
       - GMAIL_APP_PW=${GMAIL_APP_PW}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
@@ -39,12 +35,13 @@ services:
   frontend:
     build:
       context: ./frontend/main
+      args:
+        - REACT_APP_BACKEND_SOURCE=${REACT_APP_BACKEND_SOURCE}
       dockerfile: Dockerfile
     ports:
       - "${FRONTEND_PORT}:3000"  # Map port specified in .env file
-    # env_file:
-    #   - ./frontend/main/.env
     environment:
-      - REACT_APP_BACKEND_SOURCE=http://localhost:${BACKEND_PORT}/api/v1
+      - REACT_APP_BACKEND_SOURCE=${REACT_APP_BACKEND_SOURCE}
     depends_on:
-      - backend
+      backend:
+        condition: service_started

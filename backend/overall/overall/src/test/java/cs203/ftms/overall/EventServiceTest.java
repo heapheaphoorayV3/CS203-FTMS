@@ -1,7 +1,16 @@
 package cs203.ftms.overall;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -9,21 +18,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
-import org.springframework.cglib.core.Local;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import cs203.ftms.overall.dto.CreateEventDTO;
@@ -33,13 +32,9 @@ import cs203.ftms.overall.dto.clean.CleanFencerDTO;
 import cs203.ftms.overall.dto.clean.CleanTournamentFencerDTO;
 import cs203.ftms.overall.exception.EntityDoesNotExistException;
 import cs203.ftms.overall.exception.EventAlreadyExistsException;
-import cs203.ftms.overall.exception.EventCannotEndException;
 import cs203.ftms.overall.exception.FencerAlreadyRegisteredForEventException;
-import cs203.ftms.overall.exception.SignUpDateOverExcpetion;
-import cs203.ftms.overall.model.tournamentrelated.DirectEliminationMatch;
+import cs203.ftms.overall.exception.SignUpDateOverException;
 import cs203.ftms.overall.model.tournamentrelated.Event;
-import cs203.ftms.overall.model.tournamentrelated.Poule;
-import cs203.ftms.overall.model.tournamentrelated.PouleMatch;
 import cs203.ftms.overall.model.tournamentrelated.Tournament;
 import cs203.ftms.overall.model.tournamentrelated.TournamentFencer;
 import cs203.ftms.overall.model.userrelated.Fencer;
@@ -51,7 +46,6 @@ import cs203.ftms.overall.repository.tournamentrelated.TournamentRepository;
 import cs203.ftms.overall.repository.userrelated.UserRepository;
 import cs203.ftms.overall.service.event.EventService;
 import cs203.ftms.overall.service.fencer.FencerService;
-import jakarta.transaction.Transactional;
 
 public class EventServiceTest {
 
@@ -81,6 +75,9 @@ public class EventServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
+    /**
+     * Test case to verify that requesting a clean event DTO for a null event throws an exception.
+     */
     @Test
     void getCleanEventDTO_EventIsNull() {
         // Act & Assert
@@ -88,7 +85,10 @@ public class EventServiceTest {
             eventService.getCleanEventDTO(null);
         });
     }
-    
+
+    /**
+     * Test case to verify that a valid event is successfully converted into a CleanEventDTO.
+     */
     @Test
     public void getCleanEventDTO_ValidEvent_ReturnCleanEventDTO() {
         // Arrange
@@ -97,7 +97,6 @@ public class EventServiceTest {
 
         Event event = new Event();
         event.setId(1);
-        // event.setName("Men's Foil");
         event.setGender('M');
         event.setWeapon('F');
         event.setTournament(tournament);
@@ -128,6 +127,9 @@ public class EventServiceTest {
         assertEquals(1, result.getFencers().size());
     }
 
+    /**
+     * Test case to verify that a valid TournamentFencer is correctly converted into a CleanTournamentFencerDTO.
+     */
     @Test
     void getCleanTournamentFencerDTO() {
         // Arrange
@@ -165,6 +167,9 @@ public class EventServiceTest {
         assertEquals(10, result.getPoulePoints());
     }
 
+    /**
+     * Test case to verify that creating an event fails when the tournament is not found.
+     */
     @Test
     public void createEvent_TournamentNotFound_ReturnNull() throws MethodArgumentNotValidException {
         // Arrange
@@ -181,6 +186,9 @@ public class EventServiceTest {
         assertEquals(Arrays.asList(), result);
     }
 
+    /**
+     * Test case to verify that creating an event fails when the organiser is not valid for the tournament.
+     */
     @Test
     public void createEvent_InvalidOrganiser_ReturnNull() throws MethodArgumentNotValidException {
         // Arrange
@@ -202,6 +210,9 @@ public class EventServiceTest {
         assertEquals(Arrays.asList(), result);
     }
 
+    /**
+     * Test case to verify that a valid event is created successfully and added to the tournament.
+     */
     @Test
     public void createEvent_ValidEvent_ReturnEventList() throws MethodArgumentNotValidException {
         // Arrange
@@ -223,19 +234,20 @@ public class EventServiceTest {
         verify(eventRepository, times(1)).save(any(Event.class));
     }
 
+    /**
+     * Test case to verify that registering a valid fencer for an event succeeds and updates the participant count.
+     */
     @Test
     public void registerEvent_ValidEventAndFencer_ReturnTrue() {
         // Arrange
         int tcid = 1;
-        Fencer fencer = new Fencer("DOE John", "john.doe@example.com", "password"
-        , "+6594949499", "Singapore", LocalDate.of(2000, 1, 1));
+        Fencer fencer = new Fencer("DOE John", "john.doe@example.com", "password", "+6594949499", "Singapore", LocalDate.of(2000, 1, 1));
         fencer.setWeapon('S');
         fencer.setGender('W');
         Organiser organiser = new Organiser("Organizer One", "organizer.one@example.com", "password", "+6599999999", "Singapore");
-        
+
         Tournament tournament = new Tournament("hi", organiser, LocalDate.of(2024, 12, 10), 60, LocalDate.of(2024, 12, 12), LocalDate.of(2024, 12, 15), "singapore", "hi", "hi", 'B');
         Event event = new Event(tournament, 'W', 'S', 10, LocalDate.of(2024, 12, 12), LocalTime.now(), LocalTime.now().plusHours(3));
-
 
         when(eventRepository.findById(tcid)).thenReturn(Optional.of(event));
         when(userRepository.save(fencer)).thenReturn(fencer);
@@ -250,12 +262,14 @@ public class EventServiceTest {
         assertEquals(1, event.getFencers().size());
     }
 
+    /**
+     * Test case to verify that registering a fencer for a non-existent event throws an exception.
+     */
     @Test
     public void registerEvent_EventNotFound_ReturnFalse() {
         // Arrange
         int tcid = 1;
-        Fencer fencer = new Fencer("DOE John", "john.doe@example.com", "password"
-        , "+6599999999", "Singapore", LocalDate.of(2000, 1, 1));
+        Fencer fencer = new Fencer("DOE John", "john.doe@example.com", "password", "+6599999999", "Singapore", LocalDate.of(2000, 1, 1));
 
         when(eventRepository.findById(tcid)).thenReturn(Optional.empty());
 
@@ -263,7 +277,9 @@ public class EventServiceTest {
         assertThrows(EntityDoesNotExistException.class, () -> eventService.registerEvent(tcid, fencer));
     }
 
-
+    /**
+     * Test case to verify that attempting to create an event that already exists throws an exception.
+     */
     @Test
     void createEvent_EventAlreadyExists() throws MethodArgumentNotValidException {
         // Arrange
@@ -296,6 +312,9 @@ public class EventServiceTest {
         });
     }
 
+    /**
+     * Test case to verify that updating an event with valid organiser details succeeds.
+     */
     @Test
     void updateEvent_ValidOrganiser() throws MethodArgumentNotValidException {
         // Arrange
@@ -328,6 +347,10 @@ public class EventServiceTest {
         verify(eventRepository).save(existingEvent);
     }
 
+
+    /**
+     * Test case to verify that updating an event fails when the organiser is invalid.
+     */
     @Test
     void updateEvent_InvalidOrganiser() {
         // Arrange
@@ -360,7 +383,9 @@ public class EventServiceTest {
         assertEquals("Organiser does not match the tournament organiser.", exception.getMessage());
     }
 
-
+    /**
+     * Test case to verify that registering a fencer fails when the sign-up date has passed.
+     */
     @Test
     void registerEvent_SignUpDateOver() {
         // Arrange
@@ -378,11 +403,14 @@ public class EventServiceTest {
         when(eventRepository.findById(eid)).thenReturn(Optional.of(event));
 
         // Act & Assert
-        assertThrows(SignUpDateOverExcpetion.class, () -> {
+        assertThrows(SignUpDateOverException.class, () -> {
             eventService.registerEvent(eid, fencer);
         });
     }
 
+    /**
+     * Test case to verify that registering a fencer fails when they are already registered for the event.
+     */
     @Test
     void registerEvent_FencerAlreadyRegistered() {
         // Arrange
@@ -410,6 +438,9 @@ public class EventServiceTest {
         });
     }
 
+    /**
+     * Test case to verify that registering a fencer fails when the fencer's profile is null.
+     */
     @Test
     void registerEvent_NfIsNull() {
         // Arrange
@@ -437,6 +468,9 @@ public class EventServiceTest {
         assertFalse(result);
     }
 
+    /**
+     * Test case to verify that registering a fencer fails when the event save process fails.
+     */
     @Test
     void registerEvent_TcIsNull() {
         // Arrange
@@ -465,104 +499,9 @@ public class EventServiceTest {
         assertFalse(result);
     }
 
-    // @Test
-    // void unregisterEvent() {
-    //     // Arrange
-    //     int eid = 1;
-    //     Fencer fencer = new Fencer();
-    //     fencer.setId(1);
-    //     fencer.setTournamentFencerProfiles(new HashSet<>()); // Initialize the set
-
-    //     Event event = new Event();
-    //     event.setId(eid);
-
-    //     TournamentFencer tournamentFencer = new TournamentFencer();
-    //     tournamentFencer.setFencer(fencer);
-    //     tournamentFencer.setEvent(event);
-
-    //     Set<TournamentFencer> fencers = new HashSet<>();
-    //     fencers.add(tournamentFencer);
-    //     event.setFencers(fencers);
-
-    //     when(eventRepository.findById(eid)).thenReturn(Optional.of(event));
-    //     when(tournamentFencerRepository.findByFencerAndEvent(fencer, event)).thenReturn(tournamentFencer);
-    //     when(userRepository.save(fencer)).thenReturn(fencer);
-    //     when(eventRepository.save(event)).thenReturn(event);
-
-    //     // Act
-    //     boolean result = eventService.unregisterEvent(eid, fencer);
-
-    //     // Assert
-    //     verify(tournamentFencerRepository).delete(tournamentFencer);
-    //     assertEquals(0, event.getFencers().size());
-    //     assertTrue(result);
-    // }
-
-
-
-    // @Test
-    // void unregisterEvent_NfIsNull() {
-    //     // Arrange
-    //     int eid = 1;
-    //     Fencer fencer = new Fencer();
-    //     fencer.setId(1);
-    //     fencer.setTournamentFencerProfiles(new HashSet<>()); // Initialize the set
-
-    //     Event event = new Event();
-    //     event.setId(eid);
-    //     event.setFencers(new HashSet<>()); // Initialize the set
-
-    //     TournamentFencer tournamentFencer = new TournamentFencer();
-    //     tournamentFencer.setFencer(fencer);
-    //     tournamentFencer.setEvent(event);
-
-    //     event.getFencers().add(tournamentFencer);
-    //     fencer.getTournamentFencerProfiles().add(tournamentFencer);
-
-    //     when(eventRepository.findById(eid)).thenReturn(Optional.of(event));
-    //     when(tournamentFencerRepository.findByFencerAndEvent(fencer, event)).thenReturn(tournamentFencer);
-    //     when(userRepository.save(fencer)).thenReturn(null);
-
-    //     // Act
-    //     boolean result = eventService.unregisterEvent(eid, fencer);
-
-    //     // Assert
-    //     assertFalse(result);
-    // }
-
-
-
-    // @Test
-    // void unregisterEvent_TcIsNull() {
-    //     // Arrange
-    //     int eid = 1;
-    //     Fencer fencer = new Fencer();
-    //     fencer.setId(1);
-    //     fencer.setTournamentFencerProfiles(new HashSet<>()); // Initialize the set
-
-    //     Event event = new Event();
-    //     event.setId(eid);
-    //     event.setFencers(new HashSet<>()); // Initialize the set
-
-    //     TournamentFencer tournamentFencer = new TournamentFencer();
-    //     tournamentFencer.setFencer(fencer);
-    //     tournamentFencer.setEvent(event);
-
-    //     event.getFencers().add(tournamentFencer);
-    //     fencer.getTournamentFencerProfiles().add(tournamentFencer);
-
-    //     when(eventRepository.findById(eid)).thenReturn(Optional.of(event));
-    //     when(tournamentFencerRepository.findByFencerAndEvent(fencer, event)).thenReturn(tournamentFencer);
-    //     when(userRepository.save(fencer)).thenReturn(fencer);
-    //     when(eventRepository.save(event)).thenReturn(null);
-
-    //     // Act
-    //     boolean result = eventService.unregisterEvent(eid, fencer);
-
-    //     // Assert
-    //     assertFalse(result);
-    // }
-
+    /**
+     * Test case to verify that tournament ranks are correctly retrieved for an event.
+     */
     @Test
     void getTournamentRanks() {
         // Arrange
@@ -593,6 +532,9 @@ public class EventServiceTest {
         assertEquals(2, result.get(1).getTournamentRank());
     }
 
+    /**
+     * Test case to verify that retrieving tournament ranks fails when the event does not exist.
+     */
     @Test
     void getTournamentRanks_EventDoesNotExist() {
         // Arrange
@@ -606,67 +548,9 @@ public class EventServiceTest {
         });
     }
 
-    // @Test
-    // void endTournamentEvent() {
-    //     // Arrange
-    //     int eid = 1;
-    //     Organiser organiser = new Organiser();
-    //     Tournament tournament = new Tournament();
-    //     tournament.setOrganiser(organiser);
-
-    //     Event event = new Event();
-    //     event.setId(eid);
-    //     Set<Event> events = new HashSet<>();
-    //     events.add(event);
-    //     tournament.setEvents(events);
-    //     event.setTournament(tournament);
-
-    //     PouleMatch pMatch = new PouleMatch();
-    //     pMatch.setWinner(1);
-    //     Set<PouleMatch> matches = new HashSet<>();
-    //     matches.add(pMatch);
-    //     Poule poule = new Poule();
-    //     poule.setPouleMatches(matches);
-    //     Set<Poule> poules = new HashSet<>();
-    //     poules.add(poule);
-    //     event.setPoules(poules);
-
-    //     DirectEliminationMatch match = new DirectEliminationMatch();
-    //     match.setWinner(1);
-
-    //     Fencer fencer1 = new Fencer();
-    //     fencer1.setId(1);
-    //     fencer1.setPoints(100);
-
-    //     Fencer fencer2 = new Fencer();
-    //     fencer2.setId(2);
-    //     fencer2.setPoints(200);
-
-    //     TournamentFencer tournamentFencer1 = new TournamentFencer();
-    //     tournamentFencer1.setFencer(fencer1);
-    //     tournamentFencer1.setTournamentRank(1);
-
-    //     TournamentFencer tournamentFencer2 = new TournamentFencer();
-    //     tournamentFencer2.setFencer(fencer2);
-    //     tournamentFencer2.setTournamentRank(2);
-
-    //     Set<TournamentFencer> fencers = new HashSet<>();
-    //     fencers.add(tournamentFencer1);
-    //     fencers.add(tournamentFencer2);
-    //     event.setFencers(fencers);
-
-    //     when(eventRepository.findById(eid)).thenReturn(Optional.of(event));
-    //     when(directEliminationMatchRepository.findByEventAndRoundOf(event, 2)).thenReturn(Arrays.asList(match));
-    //     when(tournamentFencerRepository.findByEvent(event)).thenReturn(Arrays.asList(tournamentFencer1, tournamentFencer2));
-
-    //     // Act
-    //     eventService.endTournamentEvent(eid, organiser);
-
-    //     // Assert
-    //     verify(eventRepository).save(event);
-    //     assertEquals(true, event.isOver());
-    // }
-
+    /**
+     * Test case to verify that ending a tournament event fails when the event does not exist.
+     */
     @Test
     void endTournamentEvent_EventDoesNotExist() {
         // Arrange
@@ -679,145 +563,4 @@ public class EventServiceTest {
             eventService.endTournamentEvent(eid, new Organiser());
         });
     }
-
-    // @Test
-    // void endTournamentEvent_FinalMatchNotCompleted() {
-    //     // Arrange
-    //     int eid = 1;
-    //     Organiser organiser = new Organiser();
-    //     Tournament tournament = new Tournament();
-    //     tournament.setOrganiser(organiser);
-
-    //     Event event = new Event();
-    //     event.setId(eid);
-    //     event.setTournament(tournament);
-
-    //     PouleMatch pMatch = new PouleMatch();
-    //     pMatch.setWinner(1);
-    //     Set<PouleMatch> matches = new HashSet<>();
-    //     matches.add(pMatch);
-    //     Poule poule = new Poule();
-    //     poule.setPouleMatches(matches);
-    //     Set<Poule> poules = new HashSet<>();
-    //     poules.add(poule);
-    //     event.setPoules(poules);
-
-    //     DirectEliminationMatch match = new DirectEliminationMatch();
-    //     match.setWinner(-1);
-
-    //     Fencer fencer1 = new Fencer();
-    //     fencer1.setId(1);
-    //     fencer1.setPoints(100);
-
-    //     Fencer fencer2 = new Fencer();
-    //     fencer2.setId(2);
-    //     fencer2.setPoints(200);
-
-    //     TournamentFencer tournamentFencer1 = new TournamentFencer();
-    //     tournamentFencer1.setFencer(fencer1);
-    //     tournamentFencer1.setTournamentRank(1);
-
-    //     TournamentFencer tournamentFencer2 = new TournamentFencer();
-    //     tournamentFencer2.setFencer(fencer2);
-    //     tournamentFencer2.setTournamentRank(2);
-
-    //     Set<TournamentFencer> fencers = new HashSet<>();
-    //     fencers.add(tournamentFencer1);
-    //     fencers.add(tournamentFencer2);
-    //     event.setFencers(fencers);
-
-    //     when(eventRepository.findById(eid)).thenReturn(Optional.of(event));
-    //     when(directEliminationMatchRepository.findByEventAndRoundOf(event, 2)).thenReturn(Arrays.asList(match));
-    //     when(tournamentFencerRepository.findByEvent(event)).thenReturn(Arrays.asList(tournamentFencer1, tournamentFencer2));
-
-    //     // Assert
-    //     assertEquals(false, event.isOver());
-    //     // Act & Assert
-    //     assertThrows(EventCannotEndException.class, () -> {
-    //         eventService.endTournamentEvent(eid, organiser);
-    //     });
-    // }
-
-    // @Test
-    // void endTournamentEvent_EventAlreadyEnded() {
-    //     // Arrange
-    //     Organiser organiser = new Organiser();
-    //     Tournament tournament = new Tournament();
-    //     tournament.setOrganiser(organiser);
-    //     int eid = 1;
-
-    //     Event event = new Event();
-    //     event.setDate(LocalDate.now().minusDays(1));
-    //     event.setId(eid);
-    //     event.setOver(true); // Mark the event as already ended
-    //     event.setTournament(tournament);
-    //     when(eventRepository.findById(eid)).thenReturn(Optional.of(event));
-
-    //     // Act & Assert
-    //     assertThrows(EventCannotEndException.class, () -> {
-    //         eventService.endTournamentEvent(eid, organiser);
-    //     });
-    // }
-
-
-    // @Test
-    // @Transactional
-    // void deleteEvent_ValidOrganiser() {
-    //     // Arrange
-    //     Organiser organiser = new Organiser();
-    //     organiser.setId(1);
-    
-    //     Tournament tournament = new Tournament();
-    //     tournament.setId(1);
-    //     tournament.setOrganiser(organiser);
-    
-    //     Event event = new Event();
-    //     event.setId(1);
-    //     event.setTournament(tournament);
-    
-    //     Fencer fencer1 = new Fencer();
-    //     fencer1.setId(1);
-    
-    //     Fencer fencer2 = new Fencer();
-    //     fencer2.setId(2);
-    
-    //     TournamentFencer tf1 = new TournamentFencer();
-    //     tf1.setFencer(fencer1);
-    //     tf1.setEvent(event); // Set the event for the tournament fencer
-    //     Set<TournamentFencer> fencer1profiles = new HashSet<>();
-    //     fencer1profiles.add(tf1);
-    //     fencer1.setTournamentFencerProfiles(fencer1profiles);
-    //     TournamentFencer tf2 = new TournamentFencer();
-    //     tf2.setFencer(fencer2);
-    //     tf2.setEvent(event); // Set the event for the tournament fencer
-    //     Set<TournamentFencer> fencer2profiles = new HashSet<>();
-    //     fencer2profiles.add(tf2);
-    //     fencer2.setTournamentFencerProfiles(fencer2profiles);
-
-    //     // DirectEliminationMatch match = new DirectEliminationMatch();
-    //     // match.setWinner(1);
-    //     // Set<DirectEliminationMatch> matches = new HashSet<>();
-    //     // matches.add(match);
-    //     event.setDirectEliminationMatches(new HashSet<>());
-    //     event.setPoules(new HashSet<>());
-
-    //     Set<TournamentFencer> fencers = new HashSet<>();
-    //     fencers.add(tf1);
-    //     fencers.add(tf2);
-    //     event.setFencers(fencers);
-    
-    //     Set<Event> events = new HashSet<>();
-    //     events.add(event);
-    //     tournament.setEvents(events);
-    
-    //     when(eventRepository.findById(1)).thenReturn(Optional.of(event));
-    //     when(tournamentRepository.findById(1)).thenReturn(Optional.of(tournament));
-    
-    //     // Act
-    //     eventService.deleteEvent(1, organiser);
-    
-    //     // Assert
-    //     verify(tournamentRepository, times(1)).save(tournament);
-    //     verify(eventRepository, times(1)).delete(event);
-    // }
 }

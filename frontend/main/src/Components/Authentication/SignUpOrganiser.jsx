@@ -31,11 +31,9 @@ export default function SignUpOrganiser() {
     const country = data.country.label;
     formData.country = country;
 
-    console.log(formData);
 
     try {
       await AuthService.createOrganiser(formData);
-      console.log("Sign up successful!");
       setSignUp(true);
       setError(null);
     } catch (error) {
@@ -48,11 +46,9 @@ export default function SignUpOrganiser() {
         }
       } else if (error.request) {
         // The request was made but no response was received
-        console.log("Error request: ", error.request);
         setError("An error has occured, please try again later.");
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Unknown Error: " + error);
         setError("An error has occured, please try again later.");
       }
     }

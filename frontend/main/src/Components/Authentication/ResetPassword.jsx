@@ -30,12 +30,10 @@ export default function ResetPassword(props) {
     const form = {
       newPassword: data.newPassword,
     };
-    console.log("Data: ", form);
     try {
       await AuthService.resetPassword(form, token);
       navigate("/signin"); // Navigate to the login page after successful password reset
     } catch (error) {
-      console.log("Error resetting password:", error);
       setError(error.response.data);
     }
   };

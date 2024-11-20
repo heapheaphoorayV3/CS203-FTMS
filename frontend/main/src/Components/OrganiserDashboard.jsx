@@ -39,7 +39,6 @@ const OrganiserDashboard = () => {
       const response = await OrganiserService.getProfile();
       setUserData(response.data);
     } catch (error) {
-      console.error("Error fetching user data:", error);
       setError("Failed to load user data.");
     }
   };
@@ -63,7 +62,6 @@ const OrganiserDashboard = () => {
         });
       setOngoingTournaments(ongoingTournamentsData);
     } catch (error) {
-      console.error("Error fetching data:", error);
       setError("Failed to load data.");
     }
   };
@@ -71,15 +69,8 @@ const OrganiserDashboard = () => {
   const fetchUpcomingTournaments = async () => {
     try {
       const response = await OrganiserService.getOrganiserUpcomingTournaments();
-
-      const sortedTournaments = response.data.sort((a, b) => {
-        const dateA = new Date(a.startDate);
-        const dateB = new Date(b.startDate);
-        return dateA - dateB;
-      });
-      setUpcomingTournaments(sortedTournaments);
+      setUpcomingTournaments(response.data);
     } catch (error) {
-      console.error("Error fetching upcoming tournaments: ", error);
       setError("Failed to fetch upcoming tournaments");
     }
   };
@@ -87,14 +78,8 @@ const OrganiserDashboard = () => {
   const fetchPastTournaments = async () => {
     try {
       const response = await OrganiserService.getOrganiserPastTournaments();
-      const sortedTournaments = response.data.sort((a, b) => {
-        const dateA = new Date(a.startDate);
-        const dateB = new Date(b.startDate);
-        return dateA - dateB;
-      });
-      setPastTournaments(sortedTournaments);
+      setPastTournaments(response.data);
     } catch (error) {
-      console.error("Error fetching past tournaments: ", error);
       setError("Failed to fetch past tournaments");
     }
   };
@@ -135,9 +120,7 @@ const OrganiserDashboard = () => {
 
   const handleEditChange = (e) => {
     const { name, value } = e.target;
-    console.log(name, value);
     setEditedData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Edited data:", editedData);
   };
 
   const validateEditInputs = () => {
@@ -155,7 +138,6 @@ const OrganiserDashboard = () => {
   };
 
   const handleEditSubmit = async () => {
-    console.log("Edited data:", editedData);
     if (validateEditInputs()) {
       try {
         await OrganiserService.updateProfile(editedData);
@@ -165,7 +147,6 @@ const OrganiserDashboard = () => {
         setContactNoErrors({
           contactNo: "Please enter a valid phone number with country code!",
         });
-        console.error("Error saving profile:", error);
       }
     }
   };
@@ -186,8 +167,6 @@ const OrganiserDashboard = () => {
     ); // Show error message if any
   }
 
-  // console.log("verified=" + userData.verified);
-
   const updateTournament = (tournamentToUpdate) => {
     setIsUpdateTournamentPopupVisible(true);
     setSelectedTournament(tournamentToUpdate);
@@ -207,6 +186,7 @@ const OrganiserDashboard = () => {
   const closeDeleteTournamentPopup = () => {
     setIsDeleteTournamentPopupVisible(false);
     setSelectedTournament(null);
+    fetchUpcomingTournaments();
   };
 
   const filteredPastTournaments = pastTournaments?.filter((tournament) => {

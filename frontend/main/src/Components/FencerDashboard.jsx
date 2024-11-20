@@ -53,8 +53,8 @@ const FencerDashboard = () => {
     try {
       const response = await FencerService.getProfile();
       setUserData(response.data);
+      return response.data;
     } catch (error) {
-      console.error("Error fetching user data:", error);
       setError("Failed to load user data.");
     }
   };
@@ -62,14 +62,13 @@ const FencerDashboard = () => {
   const fetchInternationalRanking = async () => {
     try {
       const response = await FencerService.getInternationalRanking();
-      console.log("International Ranking Data:", response.data);
       if (response.data.length === -1) {
         setInternationalRankingError("Fencer not found")
       } else {
         setInternationalRanking(response.data);
       }
     } catch (error) {
-      console.error("Error fetching international ranking: ", error);
+
       setInternationalRankingError("Failed to load");
     }
   };
@@ -77,15 +76,9 @@ const FencerDashboard = () => {
   const fetchUpcomingEvents = async () => {
     try {
       const response = await FencerService.getFencerUpcomingEvents();
-      const sortedEvents = response.data.sort((a, b) => {
-        const dateA = new Date(a.eventDate);
-        const dateB = new Date(b.eventDate);
-        return dateA - dateB;
-      });
-
-      setUpcomingEvents(sortedEvents);
+      setUpcomingEvents(response.data);
     } catch (error) {
-      console.error("Error fetching upcoming events: ", error);
+
       setError("Failed to load upcoming events");
     }
   };
@@ -93,14 +86,8 @@ const FencerDashboard = () => {
   const fetchPastEvents = async () => {
     try {
       const response = await FencerService.getFencerPastEvents();
-      const sortedEvents = response.data.sort((a, b) => {
-        const dateA = new Date(a.eventDate);
-        const dateB = new Date(b.eventDate);
-        return dateA - dateB;
-      });
-      setPastEvents(sortedEvents);
+      setPastEvents(response.data);
     } catch (error) {
-      console.error("Error fetching past events: ", error);
       setError("Failed to load past events");
     }
   };
@@ -124,7 +111,6 @@ const FencerDashboard = () => {
 
       setPastRank(ranks);
     } catch (error) {
-      console.error("Error fetching rank: ", error);
     }
   };
 
@@ -133,7 +119,6 @@ const FencerDashboard = () => {
       const response = await FencerService.getPastEventPointsForGraph();
       setPastEventPoints(response.data);
     } catch (error) {
-      console.error("Error fetching past events points for graph: ", error);
       setError("Failed to load past events points for graph");
     }
   };
@@ -149,24 +134,19 @@ const FencerDashboard = () => {
       fetchPastEvents(),
       fetchPastRank(),
       fetchPastEventPointsForGraph()
-    ]).then((results) => {
+    ]).then((user) => {
       setLoading(false);
+      // Check if user has completed profile
+      if (!user[0].gender ||
+        !user[0].weapon ||
+        !user[0].dominantArm ||
+        !user[0].debutYear ||
+        !user[0].club
+      ) {
+        setShowCompleteProfileModal(true);
+      }
     });
   }, []);
-
-  useEffect(() => {
-    // Check if user has completed their profile
-    if (
-      !loading &&
-      (!userData.gender ||
-        !userData.weapon ||
-        !userData.dominantArm ||
-        !userData.debutYear ||
-        !userData.club)
-    ) {
-      setShowCompleteProfileModal(true);
-    }
-  }, [userData]);
 
   const handleEditClick = () => {
     setIsEditing(!isEditing); // Toggle between view and edit mode
@@ -199,9 +179,7 @@ const FencerDashboard = () => {
 
   const handleEditChange = (e) => {
     const { name, value } = e.target;
-    console.log(name, value);
     setEditedData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("Edited data:", editedData);
   };
 
   const validateEditInputs = () => {
@@ -219,14 +197,12 @@ const FencerDashboard = () => {
   };
 
   const handleEditSubmit = async () => {
-    console.log("Edited data:", editedData);
     if (validateEditInputs()) {
       try {
         await FencerService.updateProfile(editedData);
         setUserData((prevData) => ({ ...prevData, ...editedData }));
         setIsEditing(false);
       } catch (error) {
-        console.error("Error saving profile:", error);
         setContactNoErrors({
           contactNo: "Please enter a valid phone number with country code!",
         });
@@ -260,7 +236,6 @@ const FencerDashboard = () => {
       setUserData((prevData) => ({ ...prevData, ...incompleteData }));
       setShowCompleteProfileModal(false);
     } catch (error) {
-      console.error("Error completing profile:", error);
     }
   };
 
@@ -359,7 +334,6 @@ const FencerDashboard = () => {
 
     // Iterate over the events and count the number of events for each month
     if (pastEvents && pastEvents.length > 0) {
-      console.log("pastEvents:" + pastEvents);
       for (let i = 0; i < pastEvents.length; i++) {
         // Format pastEvent eventDate to be compared to the values in months[]
         const pastEventDate = new Date(pastEvents[i].eventDate);

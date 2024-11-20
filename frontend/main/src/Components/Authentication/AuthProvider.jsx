@@ -14,20 +14,16 @@ export default function AuthProvider({ children, requiredUserType }) {
 
             // Check if refresh token exists and user type matches
             if (!refreshToken || storedUserType !== requiredUserType) {
-                console.log(`Unauthorized access. Required: ${requiredUserType}, Found: ${storedUserType}`);
                 navigate('/unauthorised');
                 return;
             }
 
             try {
-                console.log("Verifying token");
                 const response = await AuthService.refreshToken(refreshToken);
                 sessionStorage.setItem('token', response.data.token);
                 sessionStorage.setItem('refreshToken', response.data.refreshToken);
                 sessionStorage.setItem('userType', response.data.userType);
-                console.log("Token refreshed successfully");
             } catch (error) {
-                console.error("Token verification failed");
                 navigate('/signin');
             } finally {
                 setLoading(false);
